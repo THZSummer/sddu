@@ -50,20 +50,26 @@
       "feature": "sdd-multi-module",
       "name": "SDD 子 Feature 化并行开发支持",
       "version": "1.2.11",
-      "status": "tasked",
-      "phase": 3,
+      "status": "validated",
+      "phase": 6,
       "files": {
         "spec": "spec.md",
         "plan": "plan.md",
         "tasks": "tasks.md",
-        "readme": "README.md"
+        "readme": "README.md",
+        "review": "review.md",
+        "validation": "validation.md"
       },
       "dependencies": {
         "on": ["sdd-plugin-phase2"],
         "blocking": []
       },
+      "metadata": {
+        "priority": "P0",
+        "featureId": "FR-SDD-MULTI-001"
+      },
       "createdAt": "2026-03-31T00:00:00Z",
-      "updatedAt": "2026-03-31T00:00:00Z"
+      "updatedAt": "2026-04-05T00:00:00Z"
     },
     {
       "feature": "sdd-tools-optimization",
