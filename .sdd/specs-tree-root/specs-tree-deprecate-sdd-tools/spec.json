@@ -1,0 +1,42 @@
+{
+  "feature": "deprecate-sdd-tools",
+  "name": "废弃 SDD Tools 和 Commands",
+  "version": "3.0.0",
+  "status": "specified",
+  "phase": 1,
+  "priority": "P0",
+  "files": {
+    "spec": "spec.md",
+    "plan": null,
+    "tasks": null,
+    "readme": null
+  },
+  "dependencies": {
+    "on": ["sdd-plugin-phase2"],
+    "blocking": []
+  },
+  "metadata": {
+    "identifier": "FR-DEP-001",
+    "createdAt": "2026-04-01T00:00:00Z",
+    "updatedAt": "2026-04-01T00:00:00Z",
+    "author": "SDD 团队"
+  },
+  "summary": {
+    "goals": 4,
+    "nonGoals": 4,
+    "executionSteps": 4,
+    "filesToChange": 6,
+    "acceptanceCriteria": 5
+  },
+  "scope": {
+    "delete": [
+      "tools: sdd_init, sdd_specify, sdd_status, sdd_roadmap",
+      "commands: /sdd init, specify, clarify, plan, tasks, implement, validate, status, retro",
+      "files: src/commands/sdd.ts"
+    ],
+    "retain": [
+      "agents: @sdd-* (16 个)"
+    ]
+  },
+  "approach": "直接移除，无需迁移"
+}

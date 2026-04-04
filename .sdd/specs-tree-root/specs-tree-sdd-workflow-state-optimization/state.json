@@ -1,0 +1,51 @@
+{
+  "feature": "specs-tree-sdd-workflow-state-optimization",
+  "name": "SDD 工作流状态优化",
+  "version": "2.0.0",
+  "status": "tasked",
+  "phase": 3,
+  "level": 1,
+  "parent": null,
+  "files": {
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "tasks": "tasks.md",
+    "readme": "README.md"
+  },
+  "dependencies": {
+    "on": ["specs-tree-sdd-plugin-baseline", "specs-tree-sdd-plugin-phase2"],
+    "blocking": ["specs-tree-sdd-multi-module"]
+  },
+  "history": [
+    {
+      "timestamp": "2026-04-01T00:00:00Z",
+      "from": "initial",
+      "to": "specified",
+      "triggeredBy": "@sdd-spec",
+      "comment": "初始规范创建"
+    },
+    {
+      "timestamp": "2026-04-01T12:00:00Z",
+      "from": "specified",
+      "to": "specified",
+      "triggeredBy": "@sdd-spec",
+      "comment": "规范更新：状态管理从集中式改为分布式目录层级设计"
+    },
+    {
+      "timestamp": "2026-04-02T00:00:00Z",
+      "from": "specified",
+      "to": "planned",
+      "triggeredBy": "@sdd-plan",
+      "comment": "技术规划完成，创建 ADR-001"
+    },
+    {
+      "timestamp": "2026-04-02T08:46:00Z",
+      "from": "planned",
+      "to": "tasked",
+      "triggeredBy": "@sdd-tasks",
+      "comment": "任务分解完成，创建 10 个任务单元，6 个执行波次"
+    }
+  ],
+  "createdAt": "2026-04-01T00:00:00Z",
+  "updatedAt": "2026-04-02T08:46:00Z"
+}

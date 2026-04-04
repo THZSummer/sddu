@@ -1,0 +1,18 @@
+{
+  "taskId": "TASK-027",
+  "status": "completed",
+  "completedAt": "2026-04-01T18:53:00Z",
+  "description": "更新目录导航",
+  "result": {
+    "mainReadmeUpdated": true,
+    "rootReadmeGenerated": true,
+    "subdirectoryReadmesGenerated": [
+      ".sdd/specs-tree-root/specs-tree-directory-optimization/README.md"
+    ],
+    "navigationStructure": {
+      ".sdd/README.md": "Main workspace navigation updated",
+      ".sdd/specs-tree-root/README.md": "Directory structure information generated",
+      ".sdd/specs-tree-root/*/README.md": "Subdirectory navigation completed"
+    }
+  }
+}

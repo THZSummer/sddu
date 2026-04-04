@@ -1,0 +1,20 @@
+{
+  "taskId": "TASK-026",
+  "status": "completed",
+  "completedAt": "2026-04-01T18:51:00Z",
+  "description": "验证迁移结果",
+  "result": {
+    "specsTreeRootExists": true,
+    "specsTreeCount": 14,
+    "migrationChecklist": {
+      ".templatesDeleted": true,
+      "examplesDeleted": true,
+      "docsDeleted": true,
+      "srcDeleted": true,
+      "testsDeleted": true,
+      "agenticDirectoryUnchanged": true,
+      "directoryNamingDirectoryUnchanged": true,
+      "stateJsonFixDirectoryUnchanged": true
+    }
+  }
+}
