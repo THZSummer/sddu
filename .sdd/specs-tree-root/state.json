@@ -3,14 +3,16 @@
     {
       "feature": "specs-tree-sdd-discovery-feature",
       "name": "SDD Discovery 需求挖掘能力增强",
-      "version": "1.0.0",
-      "status": "specified",
-      "phase": 1,
+      "version": "2.0.0",
+      "status": "validated",
+      "phase": 6,
       "files": {
         "spec": "spec.md",
-        "plan": null,
-        "tasks": null,
-        "readme": null
+        "plan": "plan.md",
+        "tasks": "tasks.md",
+        "readme": null,
+        "review": "review.md",
+        "validation": "validation.md"
       },
       "dependencies": {
         "on": ["sdd-plugin-baseline"],
@@ -18,10 +20,10 @@
       },
       "metadata": {
         "priority": "P0",
-        "featureId": "FR-SDD-DISCOVERY-001"
-      },
-      "createdAt": "2026-04-03T00:00:00Z",
-      "updatedAt": "2026-04-03T00:00:00Z"
+        "featureId": "FR-SDD-DISCOVERY-001",
+        "createdAt": "2026-04-03T00:00:00Z",
+        "updatedAt": "2026-04-05T00:00:00Z"
+      }
     },
     {
       "feature": "specs-tree-directory-optimization",
