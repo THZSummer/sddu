@@ -1,0 +1,149 @@
+{
+  "features": [
+    {
+      "feature": "specs-tree-sdd-discovery-feature",
+      "name": "SDD Discovery 需求挖掘能力增强",
+      "version": "1.0.0",
+      "status": "specified",
+      "phase": 1,
+      "files": {
+        "spec": "spec.md",
+        "plan": null,
+        "tasks": null,
+        "readme": null
+      },
+      "dependencies": {
+        "on": ["sdd-plugin-baseline"],
+        "blocking": []
+      },
+      "metadata": {
+        "priority": "P0",
+        "featureId": "FR-SDD-DISCOVERY-001"
+      },
+      "createdAt": "2026-04-03T00:00:00Z",
+      "updatedAt": "2026-04-03T00:00:00Z"
+    },
+    {
+      "feature": "specs-tree-directory-optimization",
+      "name": ".specs 管理目录结构命名优化",
+      "version": "1.0.0",
+      "status": "specified",
+      "phase": 1,
+      "files": {
+        "spec": "spec.md",
+        "plan": null,
+        "tasks": null,
+        "readme": null
+      },
+      "dependencies": {
+        "on": [],
+        "blocking": []
+      },
+      "metadata": {
+        "priority": "P0",
+        "featureId": "FR-DIR-001"
+      },
+      "createdAt": "2026-04-01T00:00:00Z",
+      "updatedAt": "2026-04-01T00:00:00Z"
+    },
+    {
+      "feature": "sdd-multi-module",
+      "name": "SDD 子 Feature 化并行开发支持",
+      "version": "1.2.11",
+      "status": "tasked",
+      "phase": 3,
+      "files": {
+        "spec": "spec.md",
+        "plan": "plan.md",
+        "tasks": "tasks.md",
+        "readme": "README.md"
+      },
+      "dependencies": {
+        "on": ["sdd-plugin-phase2"],
+        "blocking": []
+      },
+      "createdAt": "2026-03-31T00:00:00Z",
+      "updatedAt": "2026-03-31T00:00:00Z"
+    },
+    {
+      "feature": "sdd-tools-optimization",
+      "name": "SDD 工具系统优化",
+      "version": "1.0.0",
+      "status": "specified",
+      "phase": 1,
+      "files": {
+        "spec": "spec.md",
+        "plan": null,
+        "tasks": null,
+        "readme": null
+      },
+      "dependencies": {
+        "on": ["sdd-plugin-phase2"],
+        "blocking": []
+      },
+      "createdAt": "2026-04-01T00:00:00Z",
+      "updatedAt": "2026-04-01T00:00:00Z"
+    },
+    {
+      "feature": "deprecate-sdd-tools",
+      "name": "废弃 SDD 工具",
+      "version": "1.0.0",
+      "status": "validated",
+      "phase": 6,
+      "files": {
+        "spec": "spec.md",
+        "plan": "plan.md",
+        "tasks": "tasks.md",
+        "readme": null
+      },
+      "dependencies": {
+        "on": ["sdd-plugin-phase2"],
+        "blocking": []
+      },
+      "createdAt": "2026-04-01T00:00:00Z",
+      "updatedAt": "2026-04-01T00:00:00Z"
+    },
+    {
+      "feature": "sdd-workflow-state-optimization",
+      "name": "SDD 工作流状态优化",
+      "version": "1.0.0",
+      "status": "specified",
+      "phase": 1,
+      "files": {
+        "spec": "spec.md",
+        "plan": null,
+        "tasks": null,
+        "readme": null
+      },
+      "dependencies": {
+        "on": ["sdd-plugin-phase2"],
+        "blocking": ["sdd-multi-module"]
+      },
+      "createdAt": "2026-04-01T00:00:00Z",
+      "updatedAt": "2026-04-01T00:00:00Z"
+    },
+    {
+      "feature": "login-module",
+      "name": "登录模块",
+      "version": "1.0.0",
+      "status": "validated",
+      "phase": 6,
+      "files": {
+        "spec": "spec.md",
+        "plan": "plan.md",
+        "tasks": "tasks.md",
+        "readme": null
+      },
+      "dependencies": {
+        "on": [],
+        "blocking": []
+      },
+      "metadata": {
+        "priority": "P0",
+        "featureId": "FR-AUTH-001"
+      },
+      "createdAt": "2026-04-02T00:00:00Z",
+      "updatedAt": "2026-04-03T00:00:00Z"
+    }
+  ]
+}

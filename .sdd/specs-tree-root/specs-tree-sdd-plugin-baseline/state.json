@@ -1,0 +1,16 @@
+{
+  "featureId": "sdd-plugin-baseline",
+  "name": "SDD Plugin Phase 1 基线",
+  "version": "1.1.0",
+  "status": "completed",
+  "createdAt": "2026-03-28T14:00:00Z",
+  "updatedAt": "2026-03-28T16:14:00Z",
+  "phase": 6,
+  "completedPhases": ["specified", "planned", "tasked", "implementing", "reviewed", "validated"],
+  "pendingPhases": [],
+  "files": {
+    "spec": ".specs/sdd-plugin-baseline/spec.md",
+    "plan": ".specs/sdd-plugin-baseline/plan.md",
+    "tasks": ".specs/sdd-plugin-baseline/tasks.md"
+  }
+}

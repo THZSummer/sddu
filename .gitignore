@@ -1,0 +1,30 @@
+# Build output
+dist/
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
+
+# OpenCode SDD Plugin 安装文件（不应提交）
+.opencode/
+/opencode.json
+
+# Test coverage reports (generated artifacts)
+coverage/

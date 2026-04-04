@@ -1,0 +1,12 @@
+{
+  "feature": "feature-c",
+  "name": "Payment Processing",
+  "version": "1.0.0",
+  "status": "blocked",
+  "phase": 0,
+  "depends_on": ["feature-a", "feature-b"],
+  "created_at": "2023-06-15T10:00:00Z",
+  "updated_at": "2023-06-15T10:00:00Z",
+  "blocking_reason": "Waiting for feature-a and feature-b completion",
+  "assignee": "Team C"
+}

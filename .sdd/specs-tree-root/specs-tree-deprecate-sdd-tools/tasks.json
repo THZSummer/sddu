@@ -1,0 +1,299 @@
+{
+  "feature": "deprecate-sdd-tools",
+  "featureId": "FR-DEP-001",
+  "version": "1.0.0",
+  "createdAt": "2026-04-01",
+  "state": "tasked",
+  "summary": {
+    "totalTasks": 8,
+    "complexityDistribution": {
+      "S": 5,
+      "M": 2,
+      "L": 1
+    },
+    "totalWaves": 4,
+    "estimatedHours": 2.2
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "title": "删除 src/index.ts 中的 tool 对象",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "description": "编辑 src/index.ts，删除第 40-118 行的 tool 对象定义，包含 4 个工具：sdd_init, sdd_specify, sdd_status, sdd_roadmap",
+      "files": [
+        {
+          "path": "src/index.ts",
+          "operation": "MODIFY",
+          "details": "删除 tool 对象（行 40-118）"
+        }
+      ],
+      "acceptanceCriteria": [
+        "src/index.ts 不包含 tool = { 定义",
+        "src/index.ts 不包含 sdd_init: 定义",
+        "src/index.ts 不包含 sdd_specify: 定义",
+        "src/index.ts 不包含 sdd_status: 定义",
+        "src/index.ts 不包含 sdd_roadmap: 定义",
+        "TypeScript 编译无错误"
+      ],
+      "verificationCommands": [
+        "! grep -q \"tool = {\" src/index.ts",
+        "! grep -q \"sdd_init:\" src/index.ts",
+        "! grep -q \"sdd_specify:\" src/index.ts",
+        "! grep -q \"sdd_status:\" src/index.ts",
+        "! grep -q \"sdd_roadmap:\" src/index.ts",
+        "grep -q \"export const SDDPlugin\" src/index.ts",
+        "grep -q \"export default SDDPlugin\" src/index.ts"
+      ]
+    },
+    {
+      "id": "TASK-002",
+      "title": "删除 src/commands/sdd.ts 文件",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "description": "删除 src/commands/sdd.ts 文件，该文件包含 9 个 SDD 命令定义",
+      "files": [
+        {
+          "path": "src/commands/sdd.ts",
+          "operation": "DELETE",
+          "details": "删除整个文件"
+        }
+      ],
+      "acceptanceCriteria": [
+        "src/commands/sdd.ts 文件不存在",
+        "文件内容完全移除"
+      ],
+      "verificationCommands": [
+        "test ! -f src/commands/sdd.ts"
+      ]
+    },
+    {
+      "id": "TASK-003",
+      "title": "删除 src/commands/ 目录",
+      "complexity": "S",
+      "dependencies": ["TASK-002"],
+      "wave": 1,
+      "description": "删除 src/commands/ 目录（确认目录为空后删除）",
+      "files": [
+        {
+          "path": "src/commands/",
+          "operation": "DELETE",
+          "details": "删除整个目录"
+        }
+      ],
+      "acceptanceCriteria": [
+        "src/commands/ 目录不存在",
+        "目录内无残留文件"
+      ],
+      "verificationCommands": [
+        "test ! -d src/commands",
+        "[ -z \"$(ls -A src/commands 2>/dev/null)\" ]"
+      ]
+    },
+    {
+      "id": "TASK-004",
+      "title": "更新 build-agents.cjs 注释",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "description": "更新 build-agents.cjs 中的输出结构描述注释，移除对 commands/ 目录的引用",
+      "files": [
+        {
+          "path": "build-agents.cjs",
+          "operation": "MODIFY",
+          "details": "更新输出结构描述注释（第 174-178 行）"
+        }
+      ],
+      "acceptanceCriteria": [
+        "build-agents.cjs 不包含 commands/ 目录描述",
+        "输出结构注释准确反映当前代码结构",
+        "脚本可正常执行"
+      ],
+      "verificationCommands": [
+        "! grep -q \"commands/\" build-agents.cjs",
+        "node build-agents.cjs | grep -q \"Building SDD\""
+      ]
+    },
+    {
+      "id": "TASK-005",
+      "title": "清理编译产物并重新编译",
+      "complexity": "L",
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004"],
+      "wave": 2,
+      "description": "清理旧的编译产物并重新编译 TypeScript 代码，确保删除操作后代码仍可正常编译",
+      "files": [
+        {
+          "path": "dist/",
+          "operation": "DELETE",
+          "details": "清理整个 dist 目录"
+        },
+        {
+          "path": "dist/index.js",
+          "operation": "GENERATE",
+          "details": "重新编译生成"
+        },
+        {
+          "path": "dist/index.d.ts",
+          "operation": "GENERATE",
+          "details": "重新编译生成"
+        }
+      ],
+      "acceptanceCriteria": [
+        "npm run clean 执行成功",
+        "npm run build 执行成功，无错误",
+        "dist/commands/ 目录不存在",
+        "dist/index.js 不包含 tool 导出",
+        "编译退出码为 0"
+      ],
+      "verificationCommands": [
+        "npm run clean && npm run build",
+        "test ! -d dist/commands",
+        "! grep -q \"tool = {\" dist/index.js"
+      ]
+    },
+    {
+      "id": "TASK-006",
+      "title": "验证删除结果",
+      "complexity": "S",
+      "dependencies": ["TASK-005"],
+      "wave": 3,
+      "description": "全面验证所有待删除的代码和产物已完全移除",
+      "files": [
+        {
+          "path": "src/index.ts",
+          "operation": "VERIFY",
+          "details": "验证无 tool 定义"
+        },
+        {
+          "path": "src/commands/",
+          "operation": "VERIFY",
+          "details": "验证目录不存在"
+        },
+        {
+          "path": "dist/",
+          "operation": "VERIFY",
+          "details": "验证编译产物"
+        },
+        {
+          "path": ".opencode/plugins/sdd/",
+          "operation": "VERIFY",
+          "details": "验证部署产物"
+        }
+      ],
+      "acceptanceCriteria": [
+        "src/index.ts 无 tool 定义",
+        "src/commands/sdd.ts 文件不存在",
+        "src/commands/ 目录不存在",
+        "dist/commands/ 目录不存在",
+        ".opencode/plugins/sdd/commands/ 目录不存在"
+      ],
+      "verificationCommands": [
+        "test ! -f src/commands/sdd.ts",
+        "test ! -d src/commands",
+        "! grep -q \"tool = {\" src/index.ts",
+        "test ! -d dist/commands",
+        "! grep -q \"sdd_init\" dist/index.js"
+      ]
+    },
+    {
+      "id": "TASK-007",
+      "title": "验证 Agents 功能完整性",
+      "complexity": "M",
+      "dependencies": ["TASK-005"],
+      "wave": 3,
+      "description": "验证所有 16 个 Agents 配置完整且可正常加载",
+      "files": [
+        {
+          "path": ".opencode/plugins/sdd/opencode.json",
+          "operation": "VERIFY",
+          "details": "验证 agents 配置"
+        },
+        {
+          "path": "dist/templates/agents/",
+          "operation": "VERIFY",
+          "details": "验证 agent 文件"
+        }
+      ],
+      "acceptanceCriteria": [
+        ".opencode/plugins/sdd/opencode.json 包含全部 16 个 agents 配置",
+        "dist/templates/agents/ 包含 16 个 agent 定义文件",
+        "所有 agents 可正常加载（无配置错误）",
+        "无 commands 相关配置残留"
+      ],
+      "verificationCommands": [
+        "node -e \"const c=require('./.opencode/plugins/sdd/opencode.json'); if(Object.keys(c.agent||{}).length===16) console.log('✅')\"",
+        "ls dist/templates/agents/*.md | wc -l | grep -q \"16\"",
+        "! grep -q \"commands\" .opencode/plugins/sdd/opencode.json"
+      ]
+    },
+    {
+      "id": "TASK-008",
+      "title": "更新文档和状态",
+      "complexity": "S",
+      "dependencies": ["TASK-006", "TASK-007"],
+      "wave": 4,
+      "description": "更新相关文档和状态文件，标记此 feature 为已完成状态",
+      "files": [
+        {
+          "path": ".sdd/.specs/deprecate-sdd-tools/README.md",
+          "operation": "MODIFY",
+          "details": "更新状态为 completed"
+        },
+        {
+          "path": ".sdd/.specs/state.json",
+          "operation": "MODIFY",
+          "details": "更新状态记录"
+        },
+        {
+          "path": ".sdd/.specs/deprecate-sdd-tools/tasks.md",
+          "operation": "MODIFY",
+          "details": "更新本文档状态"
+        }
+      ],
+      "acceptanceCriteria": [
+        ".sdd/.specs/deprecate-sdd-tools/README.md 状态更新为 completed",
+        ".sdd/.specs/state.json 记录此 feature 完成",
+        "本文档状态更新为 completed",
+        "代码已提交到 git"
+      ],
+      "verificationCommands": [
+        "grep -q \"completed\" .sdd/.specs/deprecate-sdd-tools/README.md",
+        "git status --short | grep -q \"deprecate-sdd-tools\""
+      ]
+    }
+  ],
+  "waves": {
+    "1": {
+      "tasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004"],
+      "description": "并行执行基础删除任务",
+      "parallelizable": true
+    },
+    "2": {
+      "tasks": ["TASK-005"],
+      "description": "清理编译产物并重新编译",
+      "parallelizable": false
+    },
+    "3": {
+      "tasks": ["TASK-006", "TASK-007"],
+      "description": "并行验证删除结果和 Agents 功能",
+      "parallelizable": true
+    },
+    "4": {
+      "tasks": ["TASK-008"],
+      "description": "更新文档和提交",
+      "parallelizable": false
+    }
+  },
+  "dependencyGraph": {
+    "TASK-001": [],
+    "TASK-002": [],
+    "TASK-003": ["TASK-002"],
+    "TASK-004": [],
+    "TASK-005": ["TASK-001", "TASK-002", "TASK-003", "TASK-004"],
+    "TASK-006": ["TASK-005"],
+    "TASK-007": ["TASK-005"],
+    "TASK-008": ["TASK-006", "TASK-007"]
+  }
+}

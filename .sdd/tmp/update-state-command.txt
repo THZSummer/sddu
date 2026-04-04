@@ -1,0 +1,3 @@
+```json
+{"feature": "sdd-multi-module", "state": "implementing", "data": {"currentTask": "TASK-250-001", "progress": {"TASK-250-001": "completed"}}}
+```

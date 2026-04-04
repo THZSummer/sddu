@@ -1,0 +1,6 @@
+{
+  "feature": "deprecate-sdd-tools",
+  "state": "validated",
+  "timestamp": "2026-04-01T10:36:00Z",
+  "validator": "@sdd-validate"
+}

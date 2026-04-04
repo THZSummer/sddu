@@ -1,0 +1,64 @@
+{
+  "$schema": "https://opencode.ai/sdd/spec-schema.json",
+  "featureId": "sdd-tools-optimization",
+  "name": "SDD 工具系统优化",
+  "version": "1.0.0",
+  "status": "specified",
+  "priority": "P1",
+  "createdAt": "2026-04-01",
+  "author": "SDD Team",
+  "stakeholders": ["Plugin 开发团队", "Agent 用户"],
+  "goals": [
+    "创建统一的 src/tools/ 目录",
+    "重构工具注册机制",
+    "实现 Phase 2 规划的 Structured Output 工具",
+    "增强工具类型定义和错误处理"
+  ],
+  "nonGoals": [
+    "修改现有工具的 API 签名",
+    "添加新的业务功能工具",
+    "修改 Agent 系统",
+    "重构状态机或命令系统"
+  ],
+  "userStories": [
+    {
+      "id": "US-001",
+      "role": "插件开发者",
+      "want": "工具代码集中管理",
+      "value": "便于维护和测试"
+    },
+    {
+      "id": "US-002",
+      "role": "插件开发者",
+      "want": "清晰的工具类型定义",
+      "value": "减少类型错误"
+    },
+    {
+      "id": "US-003",
+      "role": "Agent 用户",
+      "want": "标准化的错误提示",
+      "value": "快速定位问题"
+    },
+    {
+      "id": "US-004",
+      "role": "Agent 用户",
+      "want": "结构化输出工具",
+      "value": "获取可解析的 JSON 结果"
+    }
+  ],
+  "functionalRequirements": {
+    "core": ["FR-001", "FR-002", "FR-003", "FR-004"],
+    "migration": ["FR-010", "FR-011", "FR-012", "FR-013"],
+    "output": ["FR-020", "FR-021", "FR-022", "FR-023", "FR-024"],
+    "registry": ["FR-030", "FR-031", "FR-032", "FR-033"],
+    "errors": ["FR-040", "FR-041", "FR-042", "FR-043"]
+  },
+  "nonFunctionalRequirements": ["NFR-001", "NFR-002", "NFR-003", "NFR-004", "NFR-005", "NFR-006"],
+  "edgeCases": ["EC-001", "EC-002", "EC-003", "EC-004", "EC-005", "EC-006", "EC-007"],
+  "openProblems": ["OP-001", "OP-002", "OP-003", "OP-004", "OP-005"],
+  "dependencies": [
+    ".sdd/.specs/sdd-plugin-phase2/plan.md"
+  ],
+  "nextPhase": "plan",
+  "nextAction": "@sdd-plan sdd-tools-optimization"
+}
