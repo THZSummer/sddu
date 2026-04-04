@@ -25,15 +25,17 @@
     },
     {
       "feature": "specs-tree-directory-optimization",
-      "name": ".specs 管理目录结构命名优化",
+      "name": "specs-tree-root 管理目录结构命名优化",
       "version": "1.0.0",
-      "status": "specified",
-      "phase": 1,
+      "status": "validated",
+      "phase": 6,
       "files": {
         "spec": "spec.md",
-        "plan": null,
-        "tasks": null,
-        "readme": null
+        "plan": "plan.md",
+        "tasks": "tasks.md",
+        "readme": "README.md",
+        "review": "code-review-report-task-029.md",
+        "validation": "validation.md"
       },
       "dependencies": {
         "on": [],
@@ -41,10 +43,16 @@
       },
       "metadata": {
         "priority": "P0",
-        "featureId": "FR-DIR-001"
+        "featureId": "FR-DIR-001",
+        "createdAt": "2026-04-01T00:00:00Z",
+        "updatedAt": "2026-04-05T00:00:00Z"
       },
-      "createdAt": "2026-04-01T00:00:00Z",
-      "updatedAt": "2026-04-01T00:00:00Z"
+      "migration": {
+        "totalDirectories": 11,
+        "directoriesToRename": 11,
+        "directoriesToDelete": 2,
+        "completionStatus": "completed"
+      }
     },
     {
       "feature": "sdd-multi-module",
