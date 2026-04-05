@@ -15,7 +15,9 @@
         "validation": "validation.md"
       },
       "dependencies": {
-        "on": ["sdd-plugin-baseline"],
+        "on": [
+          "sdd-plugin-baseline"
+        ],
         "blocking": []
       },
       "metadata": {
@@ -71,7 +73,9 @@
         "validation": "validation.md"
       },
       "dependencies": {
-        "on": ["sdd-plugin-phase2"],
+        "on": [
+          "sdd-plugin-phase2"
+        ],
         "blocking": []
       },
       "metadata": {
@@ -94,7 +98,9 @@
         "readme": null
       },
       "dependencies": {
-        "on": ["sdd-plugin-phase2"],
+        "on": [
+          "sdd-plugin-phase2"
+        ],
         "blocking": []
       },
       "createdAt": "2026-04-01T00:00:00Z",
@@ -113,30 +119,101 @@
         "readme": null
       },
       "dependencies": {
-        "on": ["sdd-plugin-phase2"],
+        "on": [
+          "sdd-plugin-phase2"
+        ],
         "blocking": []
       },
       "createdAt": "2026-04-01T00:00:00Z",
       "updatedAt": "2026-04-01T00:00:00Z"
     },
     {
-      "feature": "sdd-workflow-state-optimization",
+      "feature": "specs-tree-sdd-workflow-state-optimization",
       "name": "SDD 工作流状态优化",
-      "version": "1.0.0",
-      "status": "specified",
-      "phase": 1,
+      "version": "2.0.0",
+      "status": "validated",
+      "phase": 6,
       "files": {
         "spec": "spec.md",
-        "plan": null,
-        "tasks": null,
-        "readme": null
+        "specBackup": "spec-v1.md.bak",
+        "plan": "plan.md",
+        "planBackup": "plan-v1.md.bak",
+        "tasks": "tasks.md",
+        "tasksBackup": "tasks-v1.md.bak",
+        "readme": "README.md",
+        "state": "state.json",
+        "report": "spec-update-report.md",
+        "review": "review.md",
+        "validation": "validation.md",
+        "adrs": [
+          "decisions/ADR-006.md",
+          "decisions/ADR-007.md",
+          "decisions/ADR-008.md",
+          "decisions/ADR-009.md",
+          "decisions/ADR-010.md"
+        ],
+        "sourceFiles": [
+          "src/state/schema-v2.0.0.ts",
+          "src/state/dependency-checker.ts",
+          "src/state/auto-updater.ts",
+          "src/commands/sdd-migrate-schema.ts"
+        ],
+        "modifiedFiles": [
+          "src/state/machine.ts",
+          "src/state/multi-feature-manager.ts",
+          "src/state/migrator.ts",
+          "src/agents/sdd-agents.ts",
+          "src/index.ts"
+        ],
+        "testFiles": [
+          "src/state/schema-v2.0.0.test.ts",
+          "src/state/dependency-checker.test.ts",
+          "src/state/auto-updater.test.ts",
+          "src/state/machine.test.ts",
+          "src/state/migrator.test.ts",
+          "src/commands/sdd-migrate-schema.test.ts"
+        ]
       },
       "dependencies": {
-        "on": ["sdd-plugin-phase2"],
-        "blocking": ["sdd-multi-module"]
+        "on": [
+          "sdd-multi-module"
+        ],
+        "blocking": []
       },
-      "createdAt": "2026-04-01T00:00:00Z",
-      "updatedAt": "2026-04-01T00:00:00Z"
+      "metadata": {
+        "priority": "P1",
+        "featureId": "FR-SDD-004",
+        "createdAt": "2026-04-01T00:00:00Z",
+        "updatedAt": "2026-04-05T12:00:00Z"
+      },
+      "history": [
+        {
+          "version": "1.0.9",
+          "status": "validated",
+          "archivedAt": "2026-04-05T14:00:00Z",
+          "note": "v1.0.9 规范归档，准备重新执行 @sdd-spec"
+        },
+        {
+          "version": "2.0.0",
+          "status": "specified",
+          "resetAt": "2026-04-05T14:30:00Z",
+          "note": "规范重新审视后重置为 Spec 阶段，依赖 sdd-multi-module 的 G1 实现成果"
+        },
+        {
+          "version": "2.0.0",
+          "status": "planned",
+          "plannedAt": "2026-04-05T20:00:00Z",
+          "note": "@sdd-plan 执行完成，进入 Plan 阶段"
+        },
+        {
+          "version": "2.0.0",
+          "status": "validated",
+          "validatedAt": "2026-04-05T12:00:00Z",
+          "tasksCompleted": "13/13",
+          "completionRate": "100%",
+          "note": "所有任务完成并通过验证，包含代码审查和验证报告"
+        }
+      ]
     },
     {
       "feature": "login-module",
@@ -161,5 +238,7 @@
       "createdAt": "2026-04-02T00:00:00Z",
       "updatedAt": "2026-04-03T00:00:00Z"
     }
-  ]
+  ],
+  "status": "aggregated",
+  "updatedAt": "2026-04-05T06:57:19.591Z"
 }

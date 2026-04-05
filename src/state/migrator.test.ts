@@ -2,7 +2,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import { 
   migrateState, 
-  migrateFrom111, 
   backupState, 
   rollbackState, 
   hasBackup,
@@ -33,61 +32,6 @@ describe('状态迁移工具测试', () => {
     } catch (err) {
       // 忽略清理错误
     }
-  });
-
-  describe('migrateFrom111 函数测试', () => {
-    test('应该将 v1.1.1 状态转换为 v1.2.5 多模块格式', () => {
-      const oldState = {
-        feature: 'test-feature',
-        status: 'planned',
-        createdAt: '2026-03-01T00:00:00Z',
-        updatedAt: '2026-03-01T00:00:00Z'
-      };
-
-      const newState = migrateFrom111(oldState);
-
-      expect(newState.version).toBe('1.2.5');
-      expect(newState.mode).toBe('multi');
-      expect(Array.isArray(newState.subFeatures)).toBe(true);
-      expect(newState.subFeatures).toHaveLength(1);
-      expect(newState.subFeatures[0]).toEqual({
-        id: 'test-feature',
-        dir: 'sub-features/test-feature',
-        status: 'planned',
-        stateFile: 'specs-tree-root/test-feature/.state.json'
-      });
-      expect(newState.dependencies).toEqual({});
-      expect(newState.updatedAt).toBeDefined();
-      expect(newState.migrationTimestamp).toBeDefined();
-    });
-
-    test('当 feature 字段为空时应该使用默认值', () => {
-      const oldState = {
-        status: 'implemented'
-      };
-
-      const newState = migrateFrom111(oldState);
-
-      expect(newState.subFeatures[0].id).toBe('main');
-      expect(newState.subFeatures[0].dir).toBe('sub-features/main');
-      expect(newState.subFeatures[0].stateFile).toBe('specs-tree-root/main/.state.json');
-    });
-
-    test('应该保留原始状态的所有属性', () => {
-      const oldState = {
-        feature: 'test-feature',
-        status: 'planned',
-        customField: 'customValue',
-        createdAt: '2026-03-01T00:00:00Z',
-        updatedAt: '2026-03-01T00:00:00Z'
-      };
-
-      const newState = migrateFrom111(oldState);
-
-      expect(newState.customField).toBe('customValue');
-      expect(newState.feature).toBe('test-feature');
-      expect(newState.createdAt).toBe('2026-03-01T00:00:00Z');
-    });
   });
 
   describe('backupState 函数测试', () => {
@@ -124,16 +68,16 @@ describe('状态迁移工具测试', () => {
   describe('migrateState 函数测试', () => {
     test('当状态已经是最新版本时不应迁移', async () => {
       const latestState = {
-        version: '1.2.5',
-        mode: 'multi',
+        version: '2.0.0',
         feature: 'test-feature',
-        status: 'completed'
+        status: 'planned',
+        phase: 2
       };
 
       const result = await migrateState(latestState, mockFeatureId, mockSpecsDir);
 
       expect(result.success).toBe(true);
-      expect(result.backupPath).toBeUndefined();
+      expect(result.migratedToVersion).toBe('2.0.0');
     });
 
     test('应该从 v1.1.1 版本迁移并创建备份', async () => {
@@ -271,15 +215,10 @@ describe('状态迁移工具测试', () => {
 
       expect(result.success).toBe(true);
       expect(result.backupPath).toBeDefined();
+      expect(result.migratedToVersion).toBe('2.0.0');
 
       // 迁移后应该有备份
       expect(await hasBackup(mockSpecsDir)).toBe(true);
-
-      // 迁移结果应该是正确格式
-      const migratedState = migrateFrom111(originalState);
-      expect(migratedState.version).toBe('1.2.5');
-      expect(migratedState.mode).toBe('multi');
-      expect(migratedState.subFeatures).toHaveLength(1);
 
       // 验证可以从备份恢复原始状态
       const restoredState = await rollbackState(mockFeatureId, mockSpecsDir, result.backupPath);

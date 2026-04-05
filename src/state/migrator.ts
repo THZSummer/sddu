@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { StateV2_0_0, WorkflowStatus, PhaseHistory } from './schema-v2.0.0';
 
 /**
  * 迁移结果接口定义
@@ -7,6 +8,7 @@ import path from 'path';
 export interface MigrationResult {
   success: boolean;
   backupPath?: string;
+  migratedToVersion?: string;
   error?: string;
 }
 
@@ -19,9 +21,12 @@ function needsMigration(state: any): boolean {
   const version = state.version;
   if (!version) return true; // 没有版本号，默认需要迁移到最新的
   
-  // 比较版本号：检查是否小于 1.2.5
+  // 如果已经是 v2.0.0，不需要迁移
+  if (version === '2.0.0') return false;
+  
+  // 比较版本号：检查是否小于 2.0.0
   const [major1, minor1, patch1] = version.split('.').map(Number);
-  const [major2, minor2, patch2] = '1.2.5'.split('.').map(Number);
+  const [major2, minor2, patch2] = '2.0.0'.split('.').map(Number);
   
   if (major1 < major2) return true;
   if (major1 === major2 && minor1 < minor2) return true;
@@ -31,30 +36,102 @@ function needsMigration(state: any): boolean {
 }
 
 /**
- * 从 v1.1.1 版本迁移状态到 v1.2.5 版本
- * 将单模块格式升级为 multi 模式，创建单个子 Feature
+ * 从 v1.2.5/v1.2.11 版本迁移状态到 v2.0.0 版本
+ * 将旧格式转换为新的 State Schema v2.0.0
  * @param oldState 原来的状态对象
  * @returns 迁移后的新状态对象
  */
-export function migrateFrom111(oldState: any): any {
-  // 推断子 Feature ID，如果原来没有 ID，则使用 feature 字段的值
-  const subFeatureId = oldState.feature || 'main';
+export function migrateToV2(oldState: any): StateV2_0_0 {
   const now = new Date().toISOString();
-
-  return {
-    ...oldState,
-    version: '1.2.5',
-    mode: 'multi',
-    subFeatures: [{
-      id: subFeatureId,
-      dir: `sub-features/${subFeatureId}`,
-      status: oldState.status || 'specified',
-      stateFile: `specs-tree-root/${oldState.feature || 'main'}/.state.json`
-    }],
-    dependencies: {},
-    updatedAt: now,
-    migrationTimestamp: now
+  
+  // 将旧状态字段映射到新 Schema
+  const workflowStatusMap: Record<string, WorkflowStatus> = {
+    'specified': 'specified',
+    'planned': 'planned',
+    'tasked': 'tasked',
+    'implementing': 'building',
+    'reviewed': 'reviewed',
+    'validated': 'validated',
+    'completed': 'validated',
+    'drafting': 'specified',
+    'discovered': 'specified'
   };
+  
+  const status = workflowStatusMap[oldState.status] || 'specified';
+  const phase = statusToPhase(status);
+  
+  // 迁移历史记录
+  const phaseHistory: PhaseHistory[] = [];
+  if (oldState.phaseHistory && Array.isArray(oldState.phaseHistory)) {
+    phaseHistory.push(...oldState.phaseHistory);
+  } else if (oldState.history && Array.isArray(oldState.history)) {
+    // 尝试从旧历史记录中转换
+    for (const h of oldState.history) {
+      if (h.phase && h.status) {
+        phaseHistory.push({
+          phase: h.phase,
+          status: h.status,
+          timestamp: h.timestamp || now,
+          triggeredBy: h.triggeredBy || 'unknown',
+          comment: h.comment
+        });
+      }
+    }
+  }
+  
+  // 如果没有 phaseHistory，创建初始条目
+  if (phaseHistory.length === 0) {
+    phaseHistory.push({
+      phase,
+      status,
+      timestamp: oldState.createdAt || now,
+      triggeredBy: 'migration',
+      comment: 'Migrated to v2.0.0'
+    });
+  }
+  
+  return {
+    feature: oldState.feature || oldState.id || 'unknown',
+    name: oldState.name || oldState.feature || 'Unknown Feature',
+    version: '2.0.0',
+    status,
+    phase,
+    phaseHistory,
+    files: {
+      spec: oldState.files?.spec || 'spec.md',
+      plan: oldState.files?.plan || undefined,
+      tasks: oldState.files?.tasks || undefined,
+      readme: oldState.files?.readme || undefined,
+      review: oldState.files?.review || undefined,
+      validation: oldState.files?.validation || undefined
+    },
+    dependencies: {
+      on: oldState.dependencies?.on || [],
+      blocking: oldState.dependencies?.blocking || []
+    },
+    metadata: {
+      priority: oldState.metadata?.priority || oldState.priority,
+      featureId: oldState.feature || oldState.id,
+      createdAt: oldState.createdAt || now,
+      updatedAt: now
+    },
+    history: oldState.history || []
+  };
+}
+
+/**
+ * 辅助函数：根据状态推断 phase
+ */
+function statusToPhase(status: WorkflowStatus): number {
+  const phaseMap: Record<WorkflowStatus, number> = {
+    'specified': 1,
+    'planned': 2,
+    'tasked': 3,
+    'building': 4,
+    'reviewed': 5,
+    'validated': 6
+  };
+  return phaseMap[status] || 1;
 }
 
 /**
@@ -154,47 +231,49 @@ export async function migrateState(
   featureId: string,
   specsDir: string
 ): Promise<MigrationResult> {
-  console.log(`🔄 开始迁移状态: ${featureId}`);
+  console.log(`🔄 开始迁移状态：${featureId}`);
 
   try {
     // 检测是否需要迁移
     if (!needsMigration(oldState)) {
-      console.log('✅ 状态已是最新版本，无需迁移');
+      console.log('✅ 状态已是最新版本 (v2.0.0)，无需迁移');
       return {
-        success: true
+        success: true,
+        migratedToVersion: oldState.version
       };
     }
 
-    console.log(`🔧 检测到需要迁移的状态 - 当前版本: ${oldState.version || '未指定'}`);
+    console.log(`🔧 检测到需要迁移的状态 - 当前版本：${oldState.version || '未指定'}`);
 
     // 迁移前创建备份
     const backupPath = await backupState(oldState, featureId, specsDir);
 
-    // 根据当前版本执行相应的迁移逻辑
+    // 执行迁移逻辑
     let newState: any;
-    if (!oldState.version || oldState.version === '1.1.1') {
-      console.log('📈 执行 v1.1.1 → v1.2.5 迁移逻辑');
-      newState = migrateFrom111(oldState);
-    } else {
-      // 如果是中间版本，可以添加更多迁移分支
-      console.log(`⚠️ 发现未知版本 ${oldState.version}，尝试使用最通用的迁移逻辑`);
-      newState = migrateFrom111(oldState);  // 默认使用 v1.1.1 迁移逻辑
-    }
+    const currentVersion = oldState.version || '1.0.0';
+    
+    console.log(`📈 执行 ${currentVersion} → v2.0.0 迁移逻辑`);
+    newState = migrateToV2(oldState);
 
     // 验证迁移结果的基本结构
-    if (!newState.version || newState.version !== '1.2.5') {
+    if (!newState.version || newState.version !== '2.0.0') {
       throw new Error('迁移失败：结果状态版本号错误');
     }
 
-    if (newState.mode !== 'multi') {
-      throw new Error('迁移失败：结果状态模式不是 multi');
+    if (!newState.feature) {
+      throw new Error('迁移失败：结果状态缺少 feature 字段');
     }
 
-    console.log('✅ 状态迁移成功');
+    if (!newState.phaseHistory || !Array.isArray(newState.phaseHistory)) {
+      throw new Error('迁移失败：结果状态缺少 phaseHistory 字段');
+    }
+
+    console.log('✅ 状态迁移成功：v2.0.0');
     
     return {
       success: true,
-      backupPath: backupPath
+      backupPath: backupPath,
+      migratedToVersion: '2.0.0'
     };
     
   } catch (error) {
