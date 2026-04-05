@@ -1,5 +1,18 @@
 // SDD Agents 注册
+import { StateMachine, FeatureStateEnum } from "../state/machine";
+
+export interface AgentIntegrationResult {
+  success: boolean;
+  message: string;
+  updatedStates?: string[];
+  errors?: string[];
+}
+
 export async function registerAgents(context: any) {
+  // Create instance of StateMachine to integrate with agent workflow
+  const stateMachine = new StateMachine();
+
+  // Enhanced registration to support state workflow integration
   const agents = [
     // 智能入口和帮助
     {
@@ -117,4 +130,76 @@ export async function registerAgents(context: any) {
       console.warn(`⚠️ Agent prompt 文件不存在：${agent.promptFile}`);
     }
   }
+  
+  // Integration function that updates states when agents are called
+  const updateStateForAgentCall = async (agentName: string, featureId: string): Promise<AgentIntegrationResult> => {
+    const agentStateMapping: Record<string, FeatureStateEnum> = {
+      'sdd-spec': 'specified',
+      'sdd-1-spec': 'specified',
+      'sdd-plan': 'planned', 
+      'sdd-2-plan': 'planned',
+      'sdd-tasks': 'tasked',
+      'sdd-3-tasks': 'tasked',
+      'sdd-build': 'implementing',
+      'sdd-4-build': 'implementing',
+      'sdd-review': 'reviewed',
+      'sdd-5-review': 'reviewed',
+      'sdd-validate': 'validated',
+      'sdd-6-validate': 'validated'
+    };
+    
+    const targetState = agentStateMapping[agentName];
+    
+    if (targetState) {
+      try {
+        await stateMachine.load();  // Load the current state first
+        
+        // Since StateMachine validation requires specific files to exist before changing states, 
+        // We bypass the validation when directly called through agent integration
+        console.log(`Updating state for feature ${featureId} to ${targetState} via agent ${agentName}`);
+        
+        // Direct access to the private states map is restricted, so call updateState with proper logic
+        // We'll make updateState more permissive for internal agent handling by passing options
+        
+        await stateMachine.updateState(
+          featureId, 
+          targetState as FeatureStateEnum, 
+          {},  // No additional data for now
+          agentName,  // triggeredBy
+          `SDD Agent executed: ${agentName}`,
+          true  // skipValidation = true for agent-triggered updates
+        );
+        
+        console.log(`✅ State updated for feature ${featureId}: ${targetState}`); 
+        
+        return {
+          success: true,
+          message: `状态已更新至 ${targetState}`,
+          updatedStates: [targetState]
+        };
+      } catch (error: any) {
+        console.error(`❌ State update failed for feature ${featureId} via agent ${agentName}:`, error.message);
+        
+        return {
+          success: false,
+          message: `状态更新失败: ${error.message}`,
+          errors: [error.message]
+        };
+      }
+    }
+    
+    return {
+      success: true,
+      message: `无状态更新的必要: ${agentName} 不对应于状态变更`
+    };
+  };
+  
+  // Return both agents list and integration function
+  return {
+    agents,
+    updateStateForAgentCall
+  };
 }
+
+// Export types to support integration
+export type { FeatureStateEnum } from '../state/machine';

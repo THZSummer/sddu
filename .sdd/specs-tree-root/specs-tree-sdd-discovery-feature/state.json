@@ -1,7 +1,8 @@
 {
   "featureId": "FR-SDD-DISCOVERY-001",
   "featureName": "SDD Discovery 需求挖掘能力增强",
-  "state": "implemented",
+  "state": "validated",
+  "phase": 6,
   "stateHistory": [
     {
       "state": "drafting",
@@ -26,7 +27,17 @@
     {
       "state": "implementing",
       "timestamp": "2026-04-03T12:00:00.000Z",
-      "note": "Build 阶段完成，所有9个 TASK 全部实现"
+      "note": "Build 阶段完成，所有 9 个 TASK 全部实现"
+    },
+    {
+      "state": "reviewed",
+      "timestamp": "2026-04-03T15:00:00.000Z",
+      "note": "Review 阶段完成，审查报告已生成"
+    },
+    {
+      "state": "validated",
+      "timestamp": "2026-04-05T00:00:00.000Z",
+      "note": "Validation 阶段完成，所有任务验证通过"
     }
   ],
   "artifacts": {
@@ -113,8 +124,18 @@
       "completedAt": "2026-04-03T14:00:00.000Z",
       "note": "全部9个任务完成"
     },
-    "review": null,
-    "validate": null
+    "review": {
+      "path": ".sdd/specs-tree-root/specs-tree-sdd-discovery-feature/review.md",
+      "status": "completed",
+      "completedAt": "2026-04-03T15:00:00.000Z",
+      "note": "代码审查通过，无阻塞问题"
+    },
+    "validate": {
+      "path": ".sdd/specs-tree-root/specs-tree-sdd-discovery-feature/validation.md",
+      "status": "completed",
+      "completedAt": "2026-04-05T00:00:00.000Z",
+      "note": "验证完成，9/9 任务通过"
+    }
   },
   "adrs": [
     {
@@ -140,7 +161,7 @@
     "version": "2.0.0",
     "priority": "P0",
     "createdAt": "2026-04-03",
-    "updatedAt": "2026-04-03",
-    "featureCompletion": "SDD Discovery 需求挖掘能力增强功能已全面实现，包括7步工作流、辅导模式、状态机、智能入口等核心组件"
+    "updatedAt": "2026-04-05",
+    "featureCompletion": "SDD Discovery 需求挖掘能力增强功能已全面实现并验证通过，包括 7 步工作流、辅导模式、状态机、智能入口等核心组件"
   }
 }

@@ -12,6 +12,8 @@
     "clean": "rimraf dist",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:unit": "node --test 'dist/**/*.test.js'",
+    "test:state:integration": "node --test 'dist/state/agent-integration.test.js'",
     "sdd-spec": "node ./dist/commands/sdd-spec.js",
     "sdd-plan": "node ./dist/commands/sdd-plan.js",
     "sdd-tasks": "node ./dist/commands/sdd-tasks.js",
@@ -30,7 +32,7 @@
     "jest": "^30.3.0",
     "rimraf": "^5.0.0",
     "ts-jest": "^29.4.6",
-    "typescript": "^5.0.0"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "ajv": "^8.18.0",

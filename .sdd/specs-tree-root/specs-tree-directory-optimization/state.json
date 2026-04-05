@@ -2,13 +2,15 @@
   "feature": "specs-tree-directory-optimization",
   "name": "specs-tree-root 管理目录结构命名优化",
   "version": "1.0.0",
-  "status": "tasked",
-  "phase": 3,
+  "status": "validated",
+  "phase": 6,
   "files": {
     "spec": "spec.md",
     "plan": "plan.md",
     "tasks": "tasks.md",
-    "readme": null
+    "readme": "README.md",
+    "review": "code-review-report-task-029.md",
+    "validation": "validation.md"
   },
   "dependencies": {
     "on": [],
@@ -18,12 +20,12 @@
     "priority": "P0",
     "featureId": "FR-DIR-001",
     "createdAt": "2026-04-01T00:00:00Z",
-    "updatedAt": "2026-04-01T12:00:00Z"
+    "updatedAt": "2026-04-05T00:00:00Z"
   },
   "migration": {
     "totalDirectories": 11,
     "directoriesToRename": 11,
     "directoriesToDelete": 2,
-    "completionStatus": "pending"
+    "completionStatus": "completed"
   }
 }

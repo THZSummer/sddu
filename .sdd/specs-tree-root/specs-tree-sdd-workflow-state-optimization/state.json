@@ -2,8 +2,8 @@
   "feature": "specs-tree-sdd-workflow-state-optimization",
   "name": "SDD 工作流状态优化",
   "version": "2.0.0",
-  "status": "tasked",
-  "phase": 3,
+  "status": "validated",
+  "phase": 6,
   "level": 1,
   "parent": null,
   "files": {
@@ -13,8 +13,12 @@
     "readme": "README.md"
   },
   "dependencies": {
-    "on": ["specs-tree-sdd-plugin-baseline", "specs-tree-sdd-plugin-phase2"],
-    "blocking": ["specs-tree-sdd-multi-module"]
+    "on": [
+      "specs-tree-sdd-plugin-baseline",
+      "specs-tree-sdd-plugin-phase2",
+      "specs-tree-sdd-multi-module"
+    ],
+    "blocking": []
   },
   "history": [
     {
@@ -44,8 +48,110 @@
       "to": "tasked",
       "triggeredBy": "@sdd-tasks",
       "comment": "任务分解完成，创建 10 个任务单元，6 个执行波次"
+    },
+    {
+      "timestamp": "2026-04-05T12:00:00Z",
+      "from": "tasked",
+      "to": "specified",
+      "triggeredBy": "@sdd-spec",
+      "comment": "规范重新审视 (v2.0.0)：基于 sdd-multi-module 已实现功能调整问题陈述和目标范围"
+    },
+    {
+      "timestamp": "2026-04-05T14:00:00Z",
+      "from": "specified",
+      "to": "planned",
+      "triggeredBy": "@sdd-plan",
+      "actor": "sdd-plan-agent",
+      "comment": "技术规划完成 (v2.0.0)，创建 ADR-006 ~ ADR-010"
+    },
+    {
+      "timestamp": "2026-04-05T14:30:00Z",
+      "from": "planned",
+      "to": "tasked",
+      "triggeredBy": "@sdd-tasks",
+      "actor": "sdd-tasks-agent",
+      "comment": "任务分解完成 (v2.0.0)，创建 13 个任务，6 个执行波次"
+    },
+    {
+      "timestamp": "2026-04-05T15:00:00Z",
+      "from": "tasked",
+      "to": "building",
+      "triggeredBy": "@sdd-build",
+      "comment": "所有任务实现完成"
+    },
+    {
+      "timestamp": "2026-04-05T15:05:00Z",
+      "from": "building",
+      "to": "reviewed",
+      "triggeredBy": "@sdd-review",
+      "actor": "sdd-review-agent",
+      "comment": "代码审查完成，所有功能实现符合规范要求"
+    },
+    {
+      "timestamp": "2026-04-05T07:06:35.815Z",
+      "from": "reviewed",
+      "to": "validated",
+      "triggeredBy": "@sdd-validate",
+      "actor": "sdd-validation-system",
+      "comment": "最终验证完成 - 所有需求已满足并验证通过"
+    }
+  ],
+  "phaseHistory": [
+    {
+      "timestamp": "2026-04-01T00:00:00Z",
+      "phase": 1,
+      "phaseName": "specified",
+      "triggeredBy": "@sdd-spec"
+    },
+    {
+      "timestamp": "2026-04-02T00:00:00Z",
+      "phase": 2,
+      "phaseName": "planned",
+      "triggeredBy": "@sdd-plan"
+    },
+    {
+      "timestamp": "2026-04-02T08:46:00Z",
+      "phase": 3,
+      "phaseName": "tasked",
+      "triggeredBy": "@sdd-tasks"
+    },
+    {
+      "timestamp": "2026-04-05T12:00:00Z",
+      "phase": 1,
+      "phaseName": "specified",
+      "triggeredBy": "@sdd-spec"
+    },
+    {
+      "timestamp": "2026-04-05T14:00:00Z",
+      "phase": 2,
+      "phaseName": "planned",
+      "triggeredBy": "@sdd-plan"
+    },
+    {
+      "timestamp": "2026-04-05T14:30:00Z",
+      "phase": 3,
+      "phaseName": "tasked",
+      "triggeredBy": "@sdd-tasks"
+    },
+    {
+      "timestamp": "2026-04-05T15:00:00Z",
+      "phase": 4,
+      "phaseName": "building",
+      "triggeredBy": "@sdd-build"
+    },
+    {
+      "timestamp": "2026-04-05T15:05:00Z",
+      "phase": 5,
+      "phaseName": "reviewed",
+      "triggeredBy": "@sdd-review"
+    },
+    {
+      "timestamp": "2026-04-05T07:06:35.816Z",
+      "phase": 6,
+      "phaseName": "validated",
+      "triggerededBy": "@sdd-validate"
     }
   ],
   "createdAt": "2026-04-01T00:00:00Z",
-  "updatedAt": "2026-04-02T08:46:00Z"
+  "updatedAt": "2026-04-05T07:06:35.816Z"
 }

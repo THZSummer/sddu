@@ -1,11 +1,11 @@
-# SDD 工作流状态优化 - 任务分解文档
+# SDD 工作流状态优化 - 任务分解 (v2.0.0)
 
 | 元数据 | 值 |
 |--------|-----|
 | **Feature ID** | FR-SDD-004 |
 | **Feature 名称** | SDD 工作流状态优化 |
-| **版本** | 1.0.0 |
-| **分解日期** | 2026-04-02 |
+| **版本** | 2.0.0 |
+| **创建日期** | 2026-04-05 |
 | **作者** | SDD Team |
 | **状态** | tasked |
 | **Phase** | 3 |
@@ -16,383 +16,595 @@
 
 | 指标 | 值 |
 |------|-----|
-| 总任务数 | 10 个 |
-| 复杂度分布 | S 级 3 个，M 级 5 个，L 级 2 个 |
-| 执行波次 | 6 个波次 |
-| 预估总工时 | 35 小时 |
-
-### 任务列表
-
-| ID | 任务名称 | 复杂度 | 优先级 | 波次 | 依赖 | 工时 |
-|----|----------|--------|--------|------|------|------|
-| TASK-001 | 实现 Schema v2.0.0 定义与验证 | M | P0 | 1 | 无 | 2h |
-| TASK-002 | 实现 StateManager 核心类 | L | P0 | 2 | TASK-001 | 4h |
-| TASK-003 | 实现递归扫描器 (Scanner) | L | P0 | 2 | TASK-001 | 4h |
-| TASK-004 | 实现聚合计算器 (Aggregator) | M | P0 | 3 | TASK-003 | 3h |
-| TASK-005 | 实现文件锁管理器 (LockManager) | M | P1 | 3 | TASK-002 | 3h |
-| TASK-006 | 实现依赖检查器 (DependencyChecker) | M | P1 | 3 | TASK-002 | 3h |
-| TASK-007 | 实现迁移工具 (Migrator v2) | M | P1 | 2 | TASK-001 | 4h |
-| TASK-008 | 编写单元测试 | S | P0 | 4 | TASK-002~007 | 6h |
-| TASK-009 | 集成到 Agent 工作流 | M | P0 | 5 | TASK-008 | 4h |
-| TASK-010 | 文档更新与验证 | S | P2 | 6 | TASK-009 | 2h |
+| **总任务数** | 13 个 |
+| **复杂度分布** | S 级 5 个，M 级 6 个，L 级 2 个 |
+| **执行波次** | 6 个波次 |
+| **预估总工时** | 约 38 小时 |
 
 ---
 
-## TASK-001: 实现 Schema v2.0.0 定义与验证
+## Wave 1: Schema 和类型定义
+
+**目标**: 建立 State Schema v2.0.0 和架构决策文档  
+**依赖**: 无  
+**可并行**: 是
+
+---
+
+### TASK-001: State Schema v2.0.0 定义
 
 **复杂度**: M  
 **优先级**: P0  
-**前置依赖**: 无  
 **执行波次**: 1  
-**预估工时**: 2h
+**前置依赖**: 无  
+**预估工时**: 3 小时
 
-### 描述
-定义分布式状态存储的 Schema v2.0.0，包含所有必需字段和类型验证。支持 6 个标准工作流状态、层级信息、依赖关系和历史记录。
+#### 描述
+创建 State Schema v2.0.0 TypeScript 类型定义，支持新版状态字段（phaseHistory、增强版 history）。
 
-### 涉及文件
-- [NEW] `src/state/schema-v2.0.0.ts` - Schema 类型定义
-- [NEW] `src/state/validator.ts` - Schema 验证器
-- [MODIFY] `src/state/types.ts` - 导出新类型
+#### 涉及文件
+- [NEW] `src/state/schema-v2.0.0.ts`
 
-### 验收标准
-- [ ] 定义 WorkflowStatus 类型（6 个状态：specified, planned, tasked, building, reviewed, validated）
-- [ ] 定义 StateV2_0_0 接口，包含所有必需字段
-- [ ] 实现 validateState() 函数验证状态数据结构
-- [ ] 实现 validateTransition() 函数验证状态转换合法性
-- [ ] 所有类型导出正确，无 TypeScript 编译错误
+#### 实现要点
+1. 定义 `StateV2_0_0` 接口
+2. 包含 `phaseHistory` 字段（PhaseHistoryEntry[]）
+3. 扩展 `history` 字段（HistoryEntry[]，新增 actor 和 comment）
+4. 导出类型校验函数 `isValidStateV2()`
+5. 保持与 v1.2.11 的部分兼容性（可选字段）
 
-### 验证命令
+#### 验收标准
+- [ ] Schema 文件创建成功
+- [ ] TypeScript 编译无错误
+- [ ] 包含 phaseHistory 类型定义
+- [ ] 导出校验函数
+- [ ] 通过单元测试验证类型正确性
+
+#### 验证命令
 ```bash
-npm run typecheck
-npm run test -- src/state/schema-v2.0.0.test.ts
-npm run test -- src/state/validator.test.ts
+npm run build
+npm run test -- schema-v2.0.0.test.ts
 ```
 
 ---
 
-## TASK-002: 实现 StateManager 核心类
+### TASK-002: 创建 ADR 文档 (ADR-006 ~ ADR-010)
 
-**复杂度**: L  
+**复杂度**: S  
 **优先级**: P0  
-**前置依赖**: TASK-001  
-**执行波次**: 2  
-**预估工时**: 4h
+**执行波次**: 1  
+**前置依赖**: 无  
+**预估工时**: 2 小时
 
-### 描述
-实现状态管理核心类，协调状态读取、更新、验证和持久化。作为分布式状态系统的中枢组件。
+#### 描述
+创建 5 个架构决策记录文档，记录关键技术决策的背景、决策内容和后果。
 
-### 涉及文件
-- [NEW] `src/state/manager.ts` - StateManager 核心类
-- [MODIFY] `src/state/index.ts` - 导出 StateManager
-- [NEW] `src/state/config.ts` - 状态配置文件
+#### 涉及文件
+- [NEW] `.sdd/specs-tree-root/architecture/adr/ADR-006.md` (StateMachine 集成策略)
+- [NEW] `.sdd/specs-tree-root/architecture/adr/ADR-007.md` (状态自动更新机制)
+- [NEW] `.sdd/specs-tree-root/architecture/adr/ADR-008.md` (状态历史记录格式)
+- [NEW] `.sdd/specs-tree-root/architecture/adr/ADR-009.md` (依赖检查器实现方案)
+- [NEW] `.sdd/specs-tree-root/architecture/adr/ADR-010.md` (State Schema v2.0.0 迁移)
 
-### 验收标准
-- [ ] StateManager 类实现 getState() 方法读取状态
-- [ ] StateManager 类实现 updateState() 方法更新状态
-- [ ] StateManager 类实现 transition() 方法执行状态转换
-- [ ] StateManager 类实现 validateTransition() 方法验证转换合法性
-- [ ] 状态更新自动记录到 history 数组
-- [ ] 状态更新自动更新 updatedAt 时间戳
-- [ ] 非法状态转换抛出明确错误
+#### 实现要点
+1. 使用标准 ADR 模板
+2. 包含 Context、Decision、Consequences 三部分
+3. 与 plan.md 中的决策摘要保持一致
+4. 添加相关的图表和数据流说明
 
-### 验证命令
+#### 验收标准
+- [ ] 5 个 ADR 文件全部创建
+- [ ] 每个 ADR 符合标准模板格式
+- [ ] 决策内容与 plan.md 一致
+- [ ] 目录索引更新
+
+#### 验证命令
 ```bash
-npm run typecheck
-npm run test -- src/state/manager.test.ts
+ls -la .sdd/specs-tree-root/architecture/adr/ADR-00*.md | wc -l
+# 应输出 5
 ```
 
 ---
 
-## TASK-003: 实现递归扫描器 (Scanner)
+## Wave 2: StateMachine 核心集成
 
-**复杂度**: L  
-**优先级**: P0  
-**前置依赖**: TASK-001  
-**执行波次**: 2  
-**预估工时**: 4h
-
-### 描述
-实现递归扫描器，遍历 specs-tree-root 下所有层级的 specs 目录，收集所有 state.json 文件信息。
-
-### 涉及文件
-- [NEW] `src/state/scanner.ts` - Scanner 递归扫描器
-- [MODIFY] `src/utils/fs-utils.ts` - 文件系统工具函数（如需要）
-
-### 验收标准
-- [ ] Scanner 类实现 scan() 方法递归扫描目录
-- [ ] 支持配置最大扫描深度
-- [ ] 正确识别所有层级的 state.json 文件
-- [ ] 跳过非 specs 目录（不包含 spec.md 的目录）
-- [ ] 返回包含所有状态信息的数组
-- [ ] 处理文件系统错误并记录警告
-
-### 验证命令
-```bash
-npm run typecheck
-npm run test -- src/state/scanner.test.ts
-```
+**目标**: 将 StateMachine 集成到 Agent 工作流  
+**依赖**: Wave 1 完成  
+**可并行**: 部分
 
 ---
 
-## TASK-004: 实现聚合计算器 (Aggregator)
+### TASK-003: 增强 StateMachine 支持 Agent 工作流钩子
 
 **复杂度**: M  
 **优先级**: P0  
+**执行波次**: 2  
+**前置依赖**: TASK-001  
+**预估工时**: 4 小时
+
+#### 描述
+在现有 StateMachine 基础上添加 Agent 工作流钩子接口，支持 Agent 完成后自动触发状态更新。
+
+#### 涉及文件
+- [MODIFY] `src/state/machine.ts`
+
+#### 实现要点
+1. 新增 `onTransitionComplete()` 钩子方法
+2. 添加 Agent 工作流事件监听
+3. 集成 phaseHistory 自动记录
+4. 保持现有状态转换验证逻辑不变
+5. 导出钩子接口供 Agent 调用
+
+#### 验收标准
+- [ ] StateMachine 导出钩子接口
+- [ ] 状态转换验证正常工作
+- [ ] phaseHistory 自动记录
+- [ ] 向后兼容现有调用方式
+- [ ] 通过单元测试
+
+#### 验证命令
+```bash
+npm run test -- machine.test.ts
+```
+
+---
+
+### TASK-004: 集成 StateMachine 到 Agent 工作流
+
+**复杂度**: L  
+**优先级**: P0  
+**执行波次**: 2  
 **前置依赖**: TASK-003  
-**执行波次**: 3  
-**预估工时**: 3h
+**预估工时**: 5 小时
 
-### 描述
-实现聚合计算器，基于 Scanner 的结果计算状态分布、进度统计和阻塞 Feature 信息。
+#### 描述
+修改 sdd-agents.ts，在每个 Agent 完成后调用 StateMachine 钩子进行状态更新。
 
-### 涉及文件
-- [NEW] `src/state/aggregator.ts` - Aggregator 聚合计算器
-- [NEW] `src/state/types.ts` (扩展) - 聚合结果类型定义
+#### 涉及文件
+- [MODIFY] `src/agents/sdd-agents.ts`
 
-### 验收标准
-- [ ] Aggregator 类实现 aggregate() 方法计算聚合结果
-- [ ] 计算按状态分布（specified, planned, tasked, building, reviewed, validated）
-- [ ] 计算按阶段分布（Phase 1-6）
-- [ ] 计算按层级分布（Level 1, 2, 3...）
-- [ ] 计算整体进度百分比
-- [ ] 识别阻塞 Feature（dependencies.on 中有未完成状态）
-- [ ] 返回 AggregationResult 结构
+#### 实现要点
+1. 导入 StateMachine 实例
+2. 在每个 Agent 执行完成后调用状态更新
+3. 6 个 Agent 对应 6 个状态：
+   - @sdd-spec → specified (phase 1)
+   - @sdd-plan → planned (phase 2)
+   - @sdd-tasks → tasked (phase 3)
+   - @sdd-build → building (phase 4)
+   - @sdd-review → reviewed (phase 5)
+   - @sdd-validate → validated (phase 6)
+4. 错误处理：状态更新失败不影响 Agent 主要功能
+5. 添加日志记录
 
-### 验证命令
+#### 验收标准
+- [ ] 6 个 Agent 全部集成状态更新
+- [ ] 运行每个 Agent 后状态自动更新
+- [ ] 状态更新失败有明确错误提示
+- [ ] 不影响 Agent 原有功能
+- [ ] 通过集成测试
+
+#### 验证命令
 ```bash
-npm run typecheck
-npm run test -- src/state/aggregator.test.ts
+# 测试单个 Agent
+node --test tests/agents/sdd-spec.test.ts
+# 验证状态更新
+cat .sdd/specs-tree-root/test-feature/state.json | jq '.status'
 ```
 
 ---
 
-## TASK-005: 实现文件锁管理器 (LockManager)
+### TASK-005: 实现状态历史记录自动记录
 
 **复杂度**: M  
 **优先级**: P1  
-**前置依赖**: TASK-002  
-**执行波次**: 3  
-**预估工时**: 3h
-
-### 描述
-实现文件锁管理器，确保并发场景下 state.json 更新的原子性，防止数据损坏。
-
-### 涉及文件
-- [NEW] `src/utils/lock-manager.ts` - LockManager 文件锁管理器
-- [NEW] `src/utils/lock-file.ts` - 锁文件工具
-
-### 验收标准
-- [ ] LockManager 类实现 acquire() 方法获取锁
-- [ ] LockManager 类实现 release() 方法释放锁
-- [ ] LockManager 类实现 withLock() 方法自动管理锁生命周期
-- [ ] 锁超时自动释放（默认 30 秒）
-- [ ] 支持重试机制（默认 3 次）
-- [ ] 锁文件在异常情况下自动清理
-
-### 验证命令
-```bash
-npm run typecheck
-npm run test -- src/utils/lock-manager.test.ts
-```
-
----
-
-## TASK-006: 实现依赖检查器 (DependencyChecker)
-
-**复杂度**: M  
-**优先级**: P1  
-**前置依赖**: TASK-002  
-**执行波次**: 3  
-**预估工时**: 3h
-
-### 描述
-实现依赖检查器，验证 Feature 的依赖项状态是否就绪，检测循环依赖。
-
-### 涉及文件
-- [NEW] `src/state/dependency-checker.ts` - DependencyChecker 依赖检查器
-- [NEW] `src/state/errors.ts` - 自定义错误类型
-
-### 验收标准
-- [ ] DependencyChecker 类实现 checkDependencies() 方法检查依赖
-- [ ] DependencyChecker 类实现 detectCycles() 方法检测循环依赖
-- [ ] 依赖项状态为 planned 或更早阶段时返回警告
-- [ ] 依赖项不存在时返回错误
-- [ ] 检测到循环依赖时返回明确的错误信息
-- [ ] 返回 DependencyCheckResult 结构
-
-### 验证命令
-```bash
-npm run typecheck
-npm run test -- src/state/dependency-checker.test.ts
-```
-
----
-
-## TASK-007: 实现迁移工具 (Migrator v2)
-
-**复杂度**: M  
-**优先级**: P1  
-**前置依赖**: TASK-001  
 **执行波次**: 2  
-**预估工时**: 4h
+**前置依赖**: TASK-003  
+**预估工时**: 3 小时
 
-### 描述
-实现从集中式 state.json (v1.x) 迁移到分布式 state.json (v2.0.0) 的迁移工具。
+#### 描述
+在 StateMachine 中实现 history 数组的自动记录功能，每次状态变更追加历史记录。
 
-### 涉及文件
-- [NEW] `src/state/migrator.ts` - Migrator 迁移工具
-- [MODIFY] `src/commands/migrate.ts` - 迁移命令（如存在）
+#### 涉及文件
+- [MODIFY] `src/state/machine.ts`
 
-### 验收标准
-- [ ] Migrator 类实现 migrate() 方法执行迁移
-- [ ] 读取旧版集中式 state.json
-- [ ] 为每个 Feature 创建独立的 state.json
-- [ ] 保留所有历史记录
-- [ ] 迁移后验证数据完整性
-- [ ] 支持回滚操作
-- [ ] 生成迁移报告
+#### 实现要点
+1. 定义 `HistoryEntry` 接口（timestamp, from, to, triggeredBy, actor, comment）
+2. 在状态转换时自动创建 HistoryEntry
+3. 追加到 state.json 的 history 数组
+4. 支持自定义 comment
+5. 历史记录不可篡改（只追加）
 
-### 验证命令
+#### 验收标准
+- [ ] 每次状态变更自动记录历史
+- [ ] 历史记录包含所有必需字段
+- [ ] history 数组只追加不修改
+- [ ] 支持查询完整历史
+- [ ] 通过单元测试
+
+#### 验证命令
 ```bash
-npm run typecheck
-npm run test -- src/state/migrator.test.ts
+npm run test -- machine-history.test.ts
+# 验证历史记录
+cat .sdd/specs-tree-root/test-feature/state.json | jq '.history'
 ```
 
 ---
 
-## TASK-008: 编写单元测试
+## Wave 3: 自动更新机制
 
-**复杂度**: S  
-**优先级**: P0  
-**前置依赖**: TASK-002, TASK-003, TASK-004, TASK-005, TASK-006, TASK-007  
-**执行波次**: 4  
-**预估工时**: 6h
-
-### 描述
-为所有核心组件编写完整的单元测试，确保代码质量和功能正确性。
-
-### 涉及文件
-- [NEW] `src/state/__tests__/manager.test.ts`
-- [NEW] `src/state/__tests__/scanner.test.ts`
-- [NEW] `src/state/__tests__/aggregator.test.ts`
-- [NEW] `src/state/__tests__/lock-manager.test.ts`
-- [NEW] `src/state/__tests__/dependency-checker.test.ts`
-- [NEW] `src/state/__tests__/migrator.test.ts`
-- [NEW] `src/state/__tests__/validator.test.ts`
-
-### 验收标准
-- [ ] StateManager 测试覆盖率 ≥ 90%
-- [ ] Scanner 测试覆盖率 ≥ 90%
-- [ ] Aggregator 测试覆盖率 ≥ 90%
-- [ ] LockManager 测试覆盖率 ≥ 90%
-- [ ] DependencyChecker 测试覆盖率 ≥ 90%
-- [ ] Migrator 测试覆盖率 ≥ 90%
-- [ ] 所有测试通过，无失败
-- [ ] 模拟并发场景测试
-
-### 验证命令
-```bash
-npm run test -- src/state/__tests__/
-npm run test:coverage -- src/state/
-```
+**目标**: 实现 session.idle 事件触发的状态自动更新  
+**依赖**: Wave 2 完成  
+**可并行**: 部分
 
 ---
 
-## TASK-009: 集成到 Agent 工作流
+### TASK-006: 实现状态自动更新器
 
 **复杂度**: M  
 **优先级**: P0  
-**前置依赖**: TASK-008  
-**执行波次**: 5  
-**预估工时**: 4h
+**执行波次**: 3  
+**前置依赖**: TASK-003  
+**预估工时**: 4 小时
 
-### 描述
-将新的状态管理系统集成到现有的 Agent 工作流中，确保 @sdd-spec、@sdd-plan、@sdd-tasks 等 Agent 能正确更新状态。
+#### 描述
+创建 auto-updater.ts，实现基于文件监听的自动状态更新逻辑。
 
-### 涉及文件
-- [MODIFY] `src/agents/sdd-spec.ts` - 集成状态更新
-- [MODIFY] `src/agents/sdd-plan.ts` - 集成状态更新
-- [MODIFY] `src/agents/sdd-tasks.ts` - 集成状态更新
-- [MODIFY] `src/agents/sdd-build.ts` - 集成状态更新
-- [MODIFY] `src/agents/sdd-review.ts` - 集成状态更新
-- [MODIFY] `src/agents/sdd-validate.ts` - 集成状态更新
-- [MODIFY] `src/tools/sdd_update_state.ts` - 更新工具实现
+#### 涉及文件
+- [NEW] `src/state/auto-updater.ts`
 
-### 验收标准
-- [ ] @sdd-spec 完成后自动设置状态为 specified
-- [ ] @sdd-plan 完成后自动设置状态为 planned
-- [ ] @sdd-tasks 完成后自动设置状态为 tasked
-- [ ] @sdd-build 完成后自动设置状态为 building
-- [ ] @sdd-review 完成后自动设置状态为 reviewed
-- [ ] @sdd-validate 完成后自动设置状态为 validated
-- [ ] /tool sdd_update_state 使用新的 StateManager
-- [ ] 状态更新失败时回滚操作
+#### 实现要点
+1. 监听 Feature 目录下的文件变更
+2. 检测 spec.md、plan.md、tasks.md 等关键文件
+3. 根据文件存在情况推断状态
+4. 调用 StateMachine 进行状态更新
+5. 防抖机制避免频繁更新
+6. 提供启用/禁用开关
 
-### 验证命令
+#### 验收标准
+- [ ] 文件变更自动触发状态检查
+- [ ] 状态推断逻辑正确
+- [ ] 防抖机制正常工作
+- [ ] 支持启用/禁用配置
+- [ ] 通过单元测试
+
+#### 验证命令
 ```bash
-npm run typecheck
-npm run test -- src/agents/__tests__/
-npm run e2e -- test/e2e/state-integration.test.ts
+npm run test -- auto-updater.test.ts
 ```
 
 ---
 
-## TASK-010: 文档更新与验证
+### TASK-007: 集成 session.idle 事件处理
+
+**复杂度**: M  
+**优先级**: P0  
+**执行波次**: 3  
+**前置依赖**: TASK-006  
+**预估工时**: 3 小时
+
+#### 描述
+将 auto-updater 集成到 VS Code session.idle 事件，实现空闲时自动扫描和更新状态。
+
+#### 涉及文件
+- [MODIFY] `src/state/auto-updater.ts`
+- [MODIFY] `src/index.ts`
+
+#### 实现要点
+1. 监听 VS Code `onDidChangeTextDocument` 事件
+2. 设置 idle 超时（默认 5 秒）
+3. idle 触发时调用 auto-updater 扫描
+4. 仅更新有文件变更的 Feature
+5. 避免递归无限循环
+
+#### 验收标准
+- [ ] session.idle 事件正确触发
+- [ ] 空闲时自动扫描并更新状态
+- [ ] 不会过度频繁更新
+- [ ] 支持配置 idle 超时时间
+- [ ] 通过集成测试
+
+#### 验证命令
+```bash
+# 手动触发测试
+node --test tests/state/auto-updater-integration.test.ts
+```
+
+---
+
+## Wave 4: 依赖检查器
+
+**目标**: 实现状态级别的依赖检查  
+**依赖**: Wave 1 完成  
+**可并行**: 是
+
+---
+
+### TASK-008: 实现依赖状态检查器
+
+**复杂度**: M  
+**优先级**: P1  
+**执行波次**: 4  
+**前置依赖**: TASK-001  
+**预估工时**: 4 小时
+
+#### 描述
+创建 dependency-checker.ts，基于 MultiFeatureManager 的依赖图实现状态级别的依赖检查。
+
+#### 涉及文件
+- [NEW] `src/state/dependency-checker.ts`
+
+#### 实现要点
+1. 复用 MultiFeatureManager 的依赖图构建逻辑
+2. 实现状态级别检查规则：
+   - 状态前进：检查所有依赖 Feature 状态 ≥ 当前状态
+   - 状态回退：警告检查被依赖 Feature 状态
+3. 循环依赖检测（复用现有逻辑）
+4. 提供依赖就绪查询接口
+5. 添加缓存机制提升性能
+
+#### 验收标准
+- [ ] 依赖状态检查逻辑正确
+- [ ] 状态前进前验证依赖就绪
+- [ ] 依赖未就绪时阻止状态变更
+- [ ] 循环依赖检测正常
+- [ ] 性能满足要求（< 200ms）
+
+#### 验证命令
+```bash
+npm run test -- dependency-checker.test.ts
+```
+
+---
+
+### TASK-009: 集成依赖检查到 StateMachine
+
+**复杂度**: M  
+**优先级**: P1  
+**执行波次**: 4  
+**前置依赖**: TASK-003, TASK-008  
+**预估工时**: 3 小时
+
+#### 描述
+将 DependencyChecker 集成到 StateMachine 的状态转换验证流程中。
+
+#### 涉及文件
+- [MODIFY] `src/state/machine.ts`
+- [MODIFY] `src/state/multi-feature-manager.ts`
+
+#### 实现要点
+1. 在 StateMachine 的 transition() 方法中调用 DependencyChecker
+2. 依赖未就绪时抛出验证错误
+3. 提供绕过检查的选项（用于特殊情况）
+4. 错误消息清晰说明依赖情况
+5. 日志记录依赖检查结果
+
+#### 验收标准
+- [ ] 状态转换自动检查依赖
+- [ ] 依赖未就绪时阻止转换
+- [ ] 错误消息清晰有用
+- [ ] 支持绕过检查（高级选项）
+- [ ] 通过集成测试
+
+#### 验证命令
+```bash
+npm run test -- machine-dependency.test.ts
+```
+
+---
+
+## Wave 5: Schema 迁移工具
+
+**目标**: 实现 State Schema v1.2.11 → v2.0.0 迁移  
+**依赖**: Wave 1 完成  
+**可并行**: 是
+
+---
+
+### TASK-010: 增强 Migrator 支持 v2.0.0 迁移
+
+**复杂度**: M  
+**优先级**: P0  
+**执行波次**: 5  
+**前置依赖**: TASK-001  
+**预估工时**: 4 小时
+
+#### 描述
+修改现有 migrator.ts，支持从 v1.2.5/v1.2.11 迁移到 v2.0.0。
+
+#### 涉及文件
+- [MODIFY] `src/state/migrator.ts`
+
+#### 实现要点
+1. 添加 v1.2.5 → v2.0.0 迁移路径
+2. 添加 v1.2.11 → v2.0.0 迁移路径
+3. 迁移时自动添加 phaseHistory 字段
+4. 迁移时转换 history 格式（添加 actor、comment）
+5. 迁移前自动备份原文件
+6. 支持回滚
+
+#### 验收标准
+- [ ] 支持 v1.2.5 → v2.0.0 迁移
+- [ ] 支持 v1.2.11 → v2.0.0 迁移
+- [ ] 迁移前后数据完整
+- [ ] 自动备份原文件
+- [ ] 支持回滚操作
+- [ ] 通过迁移测试
+
+#### 验证命令
+```bash
+npm run test -- migrator-v2.test.ts
+```
+
+---
+
+### TASK-011: 创建 Schema 迁移命令
 
 **复杂度**: S  
-**优先级**: P2  
-**前置依赖**: TASK-009  
-**执行波次**: 6  
-**预估工时**: 2h
+**优先级**: P0  
+**执行波次**: 5  
+**前置依赖**: TASK-010  
+**预估工时**: 2 小时
 
-### 描述
-更新项目文档，包括 README、开发指南和 API 文档，并进行最终验证。
+#### 描述
+创建 sdd-migrate-schema.ts 命令，提供 CLI 接口执行 Schema 迁移。
 
-### 涉及文件
-- [MODIFY] `README.md` - 项目概述更新
-- [NEW] `docs/state-management.md` - 状态管理指南
-- [NEW] `docs/migration-guide.md` - 迁移指南
-- [MODIFY] `docs/api.md` - API 文档更新
+#### 涉及文件
+- [NEW] `src/commands/sdd-migrate-schema.ts`
 
-### 验收标准
-- [ ] README.md 包含新状态系统说明
-- [ ] 开发指南文档完整
-- [ ] 迁移指南包含详细步骤
-- [ ] API 文档覆盖所有新接口
-- [ ] 所有文档通过拼写检查
-- [ ] 文档示例代码可运行
+#### 实现要点
+1. 创建命令类 `SddMigrateSchemaCommand`
+2. 支持参数：
+   - `--feature`: 指定单个 Feature
+   - `--all`: 迁移所有 Feature
+   - `--dry-run`: 预演模式
+   - `--backup`: 是否备份（默认 true）
+3. 显示迁移进度
+4. 输出迁移报告
+5. 注册到命令列表
 
-### 验证命令
+#### 验收标准
+- [ ] 命令可执行
+- [ ] 支持单 Feature 迁移
+- [ ] 支持批量迁移
+- [ ] dry-run 模式正常工作
+- [ ] 输出清晰的迁移报告
+- [ ] 通过命令测试
+
+#### 验证命令
 ```bash
-npm run docs:build
-npm run docs:verify
+# 测试命令
+node dist/commands/sdd-migrate-schema.js --help
+# 预演模式
+node dist/commands/sdd-migrate-schema.js --dry-run --all
 ```
 
 ---
 
-## 执行波次详情
+## Wave 6: 测试和集成
 
-### Wave 1 (基础层)
-- TASK-001: Schema v2.0.0 定义与验证
+**目标**: 完整测试和最终集成  
+**依赖**: Wave 2-5 完成  
+**可并行**: 部分
 
-### Wave 2 (核心层)
-- TASK-002: StateManager 核心类
-- TASK-003: 递归扫描器 (Scanner)
-- TASK-007: 迁移工具 (Migrator v2)
+---
 
-### Wave 3 (功能层)
-- TASK-004: 聚合计算器 (Aggregator)
-- TASK-005: 文件锁管理器 (LockManager)
-- TASK-006: 依赖检查器 (DependencyChecker)
+### TASK-012: 单元测试和集成测试
 
-### Wave 4 (测试层)
-- TASK-008: 编写单元测试
+**复杂度**: L  
+**优先级**: P0  
+**执行波次**: 6  
+**前置依赖**: TASK-004, TASK-007, TASK-009, TASK-011  
+**预估工时**: 6 小时
 
-### Wave 5 (集成层)
-- TASK-009: 集成到 Agent 工作流
+#### 描述
+为所有新增和修改的组件编写完整的单元测试和集成测试。
 
-### Wave 6 (文档层)
-- TASK-010: 文档更新与验证
+#### 涉及文件
+- [NEW] `tests/state/schema-v2.0.0.test.ts`
+- [NEW] `tests/state/machine-v2.test.ts`
+- [NEW] `tests/state/auto-updater.test.ts`
+- [NEW] `tests/state/dependency-checker.test.ts`
+- [NEW] `tests/state/migrator-v2.test.ts`
+- [NEW] `tests/commands/sdd-migrate-schema.test.ts`
+
+#### 实现要点
+1. 为每个新增组件编写单元测试
+2. 编写集成测试验证组件间协作
+3. 测试覆盖关键路径和边界情况
+4. 测试性能指标（响应时间）
+5. 测试兼容性（多 Schema 版本）
+
+#### 验收标准
+- [ ] 所有单元测试通过
+- [ ] 所有集成测试通过
+- [ ] 代码覆盖率 ≥ 80%
+- [ ] 性能测试达标
+- [ ] 兼容性测试通过
+
+#### 验证命令
+```bash
+npm run test
+npm run test:coverage
+```
+
+---
+
+### TASK-013: 导出新组件并更新索引
+
+**复杂度**: S  
+**优先级**: P1  
+**执行波次**: 6  
+**前置依赖**: TASK-012  
+**预估工时**: 1 小时
+
+#### 描述
+更新 src/index.ts，导出所有新增组件，确保模块可被外部使用。
+
+#### 涉及文件
+- [MODIFY] `src/index.ts`
+
+#### 实现要点
+1. 导出 `StateV2_0_0` 类型
+2. 导出 `DependencyChecker` 类
+3. 导出 `AutoUpdater` 类
+4. 导出 `SddMigrateSchemaCommand` 类
+5. 更新 API 文档注释
+
+#### 验收标准
+- [ ] 所有新组件正确导出
+- [ ] TypeScript 编译无错误
+- [ ] 类型定义正确
+- [ ] API 文档完整
+- [ ] 通过构建测试
+
+#### 验证命令
+```bash
+npm run build
+node -e "const sddu = require('./dist'); console.log(Object.keys(sddu))"
+```
+
+---
+
+## 任务依赖图
+
+```
+Wave 1
+├─ TASK-001 ─────────────┬──────────────────────┬──────────────┐
+│   (Schema v2.0.0)      │                      │              │
+└─ TASK-002              │                      │              │
+    (ADR 文档)            │                      │              │
+                         ▼                      ▼              ▼
+Wave 2              TASK-003               TASK-008        TASK-010
+                    (StateMachine)        (DepChecker)    (Migrator)
+                    │    │    │              │              │
+                    ▼    ▼    ▼              ▼              ▼
+Wave 3          TASK-004  TASK-005       TASK-009       TASK-011
+                (Agent)   (History)     (Dep 集成)     (迁移命令)
+                    │                                     
+                    ▼                                      
+Wave 4          TASK-006                                   
+               (Auto-updater)                              
+                    │                                      
+                    ▼                                      
+Wave 5          TASK-007                                   
+              (session.idle)                               
+                    │                                      
+                    ▼                                      
+Wave 6          TASK-012 ───────────► TASK-013            
+                (测试)                 (索引导出)          
+```
+
+---
+
+## 验收标准汇总
+
+| ID | 验收项 | 关联任务 | 验证方法 |
+|----|--------|----------|----------|
+| AC-001 | StateMachine 集成到所有 6 个 Agent | TASK-004 | 运行每个 Agent，验证状态自动更新 |
+| AC-002 | session.idle 触发状态更新 | TASK-007 | 修改文件后等待 idle，验证状态更新 |
+| AC-003 | 历史记录自动记录 | TASK-005 | 检查 state.json 的 history 数组 |
+| AC-004 | 依赖状态检查 | TASK-009 | 尝试在依赖未就绪时推进状态，验证被阻止 |
+| AC-005 | Schema 迁移工具 | TASK-011 | 运行迁移命令，验证 v1.2.11 → v2.0.0 |
+| AC-006 | 跨 Feature 聚合查询 | TASK-008 | 运行聚合查询，验证返回所有 Feature 状态 |
 
 ---
 
@@ -400,7 +612,14 @@ npm run docs:verify
 
 👉 运行 `@sdd-build TASK-001` 开始实现第一个任务
 
-```bash
-# 更新状态到 tasked
-/tool sdd_update_state {"feature": "specs-tree-sdd-workflow-state-optimization", "state": "tasked"}
-```
+**建议执行顺序**:
+1. 先执行 Wave 1 任务（TASK-001, TASK-002）建立基础
+2. 并行执行 Wave 2、Wave 4、Wave 5
+3. 执行 Wave 3（依赖 Wave 2）
+4. 最后执行 Wave 6（测试和集成）
+
+---
+
+**任务分解版本**: 2.0.0  
+**任务分解状态**: tasked  
+**下一步**: 运行 `/tool sdd_update_state` 更新状态
