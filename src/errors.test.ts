@@ -1,0 +1,161 @@
+/**
+ * errors.ts 单元测试
+ * 测试统一错误处理系统
+ */
+
+import {
+  ErrorCode,
+  ErrorContext,
+  SddError,
+  StateError,
+  DiscoveryError,
+  ToolError,
+  AgentError,
+  ConfigError,
+  ErrorHandler,
+  formatErrorMessage,
+} from './errors';
+
+describe('错误系统测试', () => {
+  test('验证 ErrorCode 枚举', () => {
+    const codes = Object.values(ErrorCode);
+    expect(codes.length).toBeGreaterThan(0);
+    
+    expect(codes).toContain(ErrorCode.STATE_INVALID_TRANSITION);
+    expect(codes).toContain(ErrorCode.DISCOVERY_STEP_EXECUTION_FAILED);
+    expect(codes).toContain(ErrorCode.AGENT_NOT_FOUND);
+  });
+
+  test('SddError 基本功能', () => {
+    const context: ErrorContext = {
+      code: ErrorCode.TOOL_ARGUMENT_INVALID,
+      details: { argName: 'testArg', expectedType: 'string' },
+      timestamp: new Date().toISOString(),
+      component: 'Test Component'
+    };
+
+    const error = new SddError('Test error message', context);
+
+    expect(error.message).toBe('Test error message');
+    expect(error.code).toBe(ErrorCode.TOOL_ARGUMENT_INVALID);
+    expect(error.context.component).toBe('Test Component');
+    // 直接访问属性，而不是通过联合类型访问
+    expect(error.isSddError).toBe(true);
+    expect(error.toDetailedString()).toContain('SDD Error');
+  });
+
+  test('StateError 测试', () => {
+    const error = new StateError(
+      ErrorCode.STATE_VALIDATION_FAILED,
+      'State validation failed',
+      { expected: 'planned', actual: 'drafting' }
+    );
+
+    expect(error.message).toBe('State validation failed');
+    expect(error.code).toBe(ErrorCode.STATE_VALIDATION_FAILED);
+    expect(error.context.details).toEqual({ expected: 'planned', actual: 'drafting' });
+  });
+
+  test('DiscoveryError 测试', () => {
+    const error = new DiscoveryError(
+      ErrorCode.DISCOVERY_STEP_NOT_FOUND,
+      'Discovery step not found',
+      { stepId: 'invalid-step' }
+    );
+
+    expect(error.message).toBe('Discovery step not found');
+    expect(error.code).toBe(ErrorCode.DISCOVERY_STEP_NOT_FOUND);
+    expect(error.context.details).toEqual({ stepId: 'invalid-step' });
+  });
+
+  test('ToolError 测试', () => {
+    const error = new ToolError(
+      ErrorCode.TOOL_PARSE_ERROR,
+      'Tool parsing error',
+      { input: '{ invalid: json' }
+    );
+
+    expect(error.message).toBe('Tool parsing error');
+    expect(error.code).toBe(ErrorCode.TOOL_PARSE_ERROR);
+  });
+
+  test('AgentError 测试', () => {
+    const error = new AgentError(
+      ErrorCode.AGENT_NOT_FOUND,
+      'Agent not found',
+      { agentId: 'invalid-agent' }
+    );
+
+    expect(error.message).toBe('Agent not found');
+    expect(error.code).toBe(ErrorCode.AGENT_NOT_FOUND);
+    expect(error.context.details).toEqual({ agentId: 'invalid-agent' });
+  });
+
+  test('ConfigError 测试', () => {
+    const error = new ConfigError(
+      ErrorCode.STATE_FILE_NOT_FOUND,
+      'Config file not found',
+      { path: '/config/file.json' }
+    );
+
+    expect(error.message).toBe('Config file not found');
+    expect(error.code).toBe(ErrorCode.STATE_FILE_NOT_FOUND);
+  });
+
+  test('格式化错误消息', () => {
+    const context: ErrorContext = {
+      code: ErrorCode.AGENT_EXECUTION_ERROR,
+      details: { command: 'test-command' },
+      timestamp: new Date().toISOString(),
+      component: 'Test Component'
+    };
+
+    const error = new SddError('Test error', context);
+    const formattedMessage = formatErrorMessage(error);
+
+    expect(formattedMessage).toContain('Test error');
+    expect(formattedMessage).toContain(ErrorCode.AGENT_EXECUTION_ERROR);
+  });
+
+  test('ErrorHandler 处理不同类型的错误', () => {
+    // 测试处理原始错误
+    const rawError = new Error('Raw JavaScript error');
+    const result = ErrorHandler.handle(rawError);
+    
+    expect(result instanceof SddError).toBe(true);
+    
+    if (result instanceof SddError) {
+      expect(result.isSddError).toBe(true); 
+    }
+    
+    // 测试处理已有 SddError
+    const sddError = new ToolError(ErrorCode.TOOL_EXECUTE_ERROR, 'Tool error', { test: true });
+    const handledSddError = ErrorHandler.handle(sddError);
+    
+    expect(handledSddError).toBe(sddError); // 应该返回相同的实例
+    
+    // 测试处理字符串
+    const stringError = ErrorHandler.handle('A string error');
+    
+    if (stringError instanceof SddError) {
+      expect(stringError.message).toBe('A string error');
+    }
+  });
+
+  test('ErrorContext 接口测试', () => {
+    const context: ErrorContext = {
+      code: ErrorCode.FILE_READ_ERROR,
+      details: { 
+        filePath: '/path/to/file', 
+        accessType: 'read' 
+      },
+      timestamp: new Date().toISOString(),
+      component: 'FileSystem',
+      userId: 'testUser123',
+      sessionId: 'session-abc-123'
+    };
+
+    expect(context.code).toBe(ErrorCode.FILE_READ_ERROR);
+    expect(context.details?.filePath).toBe('/path/to/file');
+  });
+});

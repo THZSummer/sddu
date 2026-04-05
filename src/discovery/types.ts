@@ -72,3 +72,7 @@ export interface StepExecutionResult {
   /** 状态消息 */
   message?: string;
 }
+
+export interface DiscoveryStateValidator {
+  // 接口定义将通过类本身导出
+}

@@ -86,16 +86,17 @@
       "updatedAt": "2026-04-05T00:00:00Z"
     },
     {
-      "feature": "sdd-tools-optimization",
+      "feature": "specs-tree-sdd-tools-optimization",
       "name": "SDD 工具系统优化",
-      "version": "1.0.0",
-      "status": "specified",
-      "phase": 1,
+      "version": "2.3.0",
+      "status": "implementing",
+      "phase": 4,
       "files": {
         "spec": "spec.md",
-        "plan": null,
-        "tasks": null,
-        "readme": null
+        "plan": "plan.md",
+        "tasks": "tasks.md",
+        "readme": null,
+        "state": "state.json"
       },
       "dependencies": {
         "on": [
@@ -103,8 +104,38 @@
         ],
         "blocking": []
       },
-      "createdAt": "2026-04-01T00:00:00Z",
-      "updatedAt": "2026-04-01T00:00:00Z"
+      "metadata": {
+        "priority": "P1",
+        "featureId": "FR-SDD-TOOLS-001",
+        "createdAt": "2026-04-01T00:00:00Z",
+        "updatedAt": "2026-04-05T00:00:00Z"
+      },
+      "history": [
+        {
+          "version": "2.3.0",
+          "status": "specified",
+          "specifiedAt": "2026-04-05T00:00:00Z",
+          "note": "规范完成，包含 6 大痛点和 37 个功能需求"
+        },
+        {
+          "version": "2.3.0",
+          "status": "planned",
+          "plannedAt": "2026-04-05T00:00:00Z",
+          "note": "技术规划完成，4 个 ADR，3 阶段实现计划"
+        },
+        {
+          "version": "2.3.0",
+          "status": "tasked",
+          "taskedAt": "2026-04-05T00:00:00Z",
+          "note": "任务分解完成，9 个任务，12 小时预估"
+        },
+        {
+          "version": "2.3.0",
+          "status": "implementing",
+          "implementingAt": "2026-04-05T00:00:00Z",
+          "note": "所有任务实现完成，等待代码审查"
+        }
+      ]
     },
     {
       "feature": "deprecate-sdd-tools",

@@ -1,0 +1,370 @@
+{
+  "feature": {
+    "id": "specs-tree-sdd-tools-optimization",
+    "name": "SDD 工具系统优化",
+    "version": "2.3.0",
+    "state": "tasked",
+    "createdAt": "2026-04-05"
+  },
+  "summary": {
+    "totalTasks": 9,
+    "totalHours": 12,
+    "complexity": {
+      "S": 4,
+      "M": 4,
+      "L": 1
+    },
+    "waves": 3,
+    "parallelGroups": 3
+  },
+  "tasks": [
+    {
+      "id": "TASK-1.1",
+      "name": "创建统一类型出口",
+      "phase": 1,
+      "phaseName": "统一导出层",
+      "priority": "P0",
+      "complexity": "S",
+      "estimatedHours": 1,
+      "wave": 1,
+      "parallelGroup": "A",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/types.ts",
+          "action": "NEW"
+        }
+      ],
+      "description": "创建 src/types.ts 文件，作为所有类型定义的统一出口。re-export 分散在各处的类型定义，实现 ADR-011 统一类型导出架构。",
+      "acceptanceCriteria": [
+        "src/types.ts 存在且导出所有公共类型",
+        "原有类型文件保持兼容（不删除，仅 re-export）",
+        "TypeScript 编译无错误",
+        "导出包括：Agent 相关类型、Discovery 相关类型、工具函数类型"
+      ],
+      "verificationCommand": "npx tsc --noEmit"
+    },
+    {
+      "id": "TASK-1.2",
+      "name": "创建统一错误处理体系",
+      "phase": 1,
+      "phaseName": "统一导出层",
+      "priority": "P0",
+      "complexity": "S",
+      "estimatedHours": 1.5,
+      "wave": 1,
+      "parallelGroup": "A",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/errors.ts",
+          "action": "NEW"
+        }
+      ],
+      "description": "创建 src/errors.ts 文件，定义统一的错误处理体系。实现 ADR-012 统一错误处理架构，包含自定义错误类和错误码常量。",
+      "acceptanceCriteria": [
+        "src/errors.ts 存在且导出错误类",
+        "定义基础错误类 SDDError",
+        "定义具体错误类型：AgentError, DiscoveryError, ConfigError",
+        "定义错误码常量枚举",
+        "TypeScript 编译无错误"
+      ],
+      "verificationCommand": "npx tsc --noEmit"
+    },
+    {
+      "id": "TASK-1.3",
+      "name": "创建工具函数统一导出",
+      "phase": 1,
+      "phaseName": "统一导出层",
+      "priority": "P0",
+      "complexity": "S",
+      "estimatedHours": 1,
+      "wave": 1,
+      "parallelGroup": "A",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/utils/index.ts",
+          "action": "NEW"
+        }
+      ],
+      "description": "创建 src/utils/index.ts 文件，统一导出所有工具函数。解决 T-001 工具函数分散问题，实现 FR-001~005 统一工具函数管理。",
+      "acceptanceCriteria": [
+        "src/utils/index.ts 存在且导出所有工具函数",
+        "包含文件操作、路径处理、日志工具等",
+        "原有工具文件保持兼容",
+        "TypeScript 编译无错误"
+      ],
+      "verificationCommand": "npx tsc --noEmit"
+    },
+    {
+      "id": "TASK-1.4",
+      "name": "更新主入口使用统一导出",
+      "phase": 1,
+      "phaseName": "统一导出层",
+      "priority": "P0",
+      "complexity": "S",
+      "estimatedHours": 0.5,
+      "wave": 2,
+      "parallelGroup": null,
+      "dependencies": ["TASK-1.1", "TASK-1.2", "TASK-1.3"],
+      "files": [
+        {
+          "path": "src/index.ts",
+          "action": "MODIFY"
+        }
+      ],
+      "description": "修改 src/index.ts，使用新创建的类型、错误、工具统一导出。确保主入口文件简洁且一致。",
+      "acceptanceCriteria": [
+        "src/index.ts 从 src/types.ts 导入类型",
+        "src/index.ts 从 src/errors.ts 导入错误类",
+        "src/index.ts 从 src/utils/index.ts 导入工具函数",
+        "公共 API 保持不变（向后兼容）",
+        "TypeScript 编译无错误"
+      ],
+      "verificationCommand": "npx tsc --noEmit && npm run build"
+    },
+    {
+      "id": "TASK-2.1",
+      "name": "创建 Agent 注册表",
+      "phase": 2,
+      "phaseName": "Agent 注册优化",
+      "priority": "P1",
+      "complexity": "M",
+      "estimatedHours": 2,
+      "wave": 1,
+      "parallelGroup": "B",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/agents/registry.ts",
+          "action": "NEW"
+        }
+      ],
+      "description": "创建 src/agents/registry.ts，实现 AgentRegistry 类。解决 T-002 Agent 注册静态化问题，实现 ADR-013 Agent 动态注册机制。",
+      "acceptanceCriteria": [
+        "AgentRegistry 类存在且功能完整",
+        "支持 register(agent) 方法注册 Agent",
+        "支持 get(agentId) 方法获取 Agent",
+        "支持 getAll() 方法获取所有 Agent",
+        "支持 unregister(agentId) 方法注销 Agent",
+        "实现 FR-010~021 动态 Agent 注册需求"
+      ],
+      "verificationCommand": "npx tsc --noEmit && npm test -- --testPathPattern=registry"
+    },
+    {
+      "id": "TASK-2.2",
+      "name": "重构 Agent 定义使用注册表",
+      "phase": 2,
+      "phaseName": "Agent 注册优化",
+      "priority": "P1",
+      "complexity": "M",
+      "estimatedHours": 1.5,
+      "wave": 2,
+      "parallelGroup": null,
+      "dependencies": ["TASK-2.1"],
+      "files": [
+        {
+          "path": "src/agents/sdd-agents.ts",
+          "action": "MODIFY"
+        }
+      ],
+      "description": "修改 src/agents/sdd-agents.ts，使用 AgentRegistry 替代静态导出。将原有的静态 Agent 定义迁移到注册表模式。",
+      "acceptanceCriteria": [
+        "移除静态 Agent 对象导出",
+        "使用 AgentRegistry 注册所有内置 Agent",
+        "保持原有导出接口兼容",
+        "所有 Agent 可通过注册表获取",
+        "TypeScript 编译无错误"
+      ],
+      "verificationCommand": "npx tsc --noEmit && npm test -- --testPathPattern=agents"
+    },
+    {
+      "id": "TASK-2.3",
+      "name": "实现插件目录动态加载",
+      "phase": 2,
+      "phaseName": "Agent 注册优化",
+      "priority": "P1",
+      "complexity": "L",
+      "estimatedHours": 1.5,
+      "wave": 2,
+      "parallelGroup": null,
+      "dependencies": ["TASK-2.1"],
+      "files": [
+        {
+          "path": "src/agents/registry.ts",
+          "action": "MODIFY"
+        }
+      ],
+      "description": "实现从 templates/agents/ 目录动态加载 Agent 插件。解决 T-006 Agent 配置分散问题，支持运行时扩展。",
+      "acceptanceCriteria": [
+        "实现 loadFromDirectory(path) 方法",
+        "支持 .js 和 .ts 格式的 Agent 插件",
+        "插件自动注册到 AgentRegistry",
+        "加载错误不影响其他插件",
+        "提供加载日志输出"
+      ],
+      "verificationCommand": "npx tsc --noEmit && ls templates/agents/"
+    },
+    {
+      "id": "TASK-3.1",
+      "name": "Discovery 可选状态联动",
+      "phase": 3,
+      "phaseName": "集成与打包",
+      "priority": "P1",
+      "complexity": "M",
+      "estimatedHours": 1,
+      "wave": 1,
+      "parallelGroup": "C",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "src/discovery/workflow-engine.ts",
+          "action": "MODIFY"
+        }
+      ],
+      "description": "修改 src/discovery/workflow-engine.ts，增加可选状态联动功能。解决 T-003 Discovery 集成度低问题，实现 FR-026~030 Discovery 集成需求。",
+      "acceptanceCriteria": [
+        "增加 onStatusChange 回调机制",
+        "支持状态变更时触发联动事件",
+        "可选状态包括：pending, running, completed, failed",
+        "联动事件可配置",
+        "TypeScript 编译无错误"
+      ],
+      "verificationCommand": "npx tsc --noEmit && npm test -- --testPathPattern=discovery"
+    },
+    {
+      "id": "TASK-3.2",
+      "name": "创建打包脚本",
+      "phase": 3,
+      "phaseName": "集成与打包",
+      "priority": "P1",
+      "complexity": "M",
+      "estimatedHours": 1.5,
+      "wave": 1,
+      "parallelGroup": "C",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "scripts/package.cjs",
+          "action": "NEW"
+        }
+      ],
+      "description": "创建 scripts/package.cjs 打包脚本。实现 FR-022~025 打包优化需求，支持 dist/sdd/ 目录结构输出。",
+      "acceptanceCriteria": [
+        "scripts/package.cjs 存在且可执行",
+        "打包输出到 dist/sdd/ 目录",
+        "包含所有必要文件（src, templates, scripts）",
+        "排除开发文件和测试文件",
+        "生成 package.json 包含正确依赖"
+      ],
+      "verificationCommand": "node scripts/package.cjs && ls -la dist/sdd/"
+    },
+    {
+      "id": "TASK-3.3",
+      "name": "更新安装脚本适配新结构",
+      "phase": 3,
+      "phaseName": "集成与打包",
+      "priority": "P1",
+      "complexity": "S",
+      "estimatedHours": 1,
+      "wave": 3,
+      "parallelGroup": null,
+      "dependencies": ["TASK-3.2"],
+      "files": [
+        {
+          "path": "install.sh",
+          "action": "MODIFY"
+        },
+        {
+          "path": "install.ps1",
+          "action": "MODIFY"
+        }
+      ],
+      "description": "修改 install.sh 和 install.ps1，适配新的 dist/sdd/ 目录结构。确保安装脚本正确部署打包后的文件。",
+      "acceptanceCriteria": [
+        "install.sh 从 dist/sdd/ 复制文件",
+        "install.ps1 从 dist/sdd/ 复制文件",
+        "保持原有安装逻辑（权限设置、环境变量等）",
+        "支持跨平台路径处理",
+        "安装后验证文件完整性"
+      ],
+      "verificationCommand": "bash install.sh --dry-run && powershell -File install.ps1 -DryRun"
+    },
+    {
+      "id": "TASK-3.4",
+      "name": "更新 package.json 添加打包脚本",
+      "phase": 3,
+      "phaseName": "集成与打包",
+      "priority": "P1",
+      "complexity": "S",
+      "estimatedHours": 0.5,
+      "wave": 3,
+      "parallelGroup": null,
+      "dependencies": ["TASK-3.2"],
+      "files": [
+        {
+          "path": "package.json",
+          "action": "MODIFY"
+        }
+      ],
+      "description": "修改 package.json，添加 package 脚本调用 scripts/package.cjs。实现 ADR-014 打包分发结构优化。",
+      "acceptanceCriteria": [
+        "添加 package: node scripts/package.cjs 脚本",
+        "添加 prepackage: npm run build 预脚本",
+        "files 字段更新为 dist/sdd/**/*",
+        "main 字段指向 dist/sdd/src/index.js",
+        "JSON 格式验证通过"
+      ],
+      "verificationCommand": "cat package.json | python -m json.tool && npm run package --dry-run"
+    }
+  ],
+  "parallelGroups": {
+    "A": {
+      "name": "基础类型与错误模块",
+      "tasks": ["TASK-1.1", "TASK-1.2", "TASK-1.3"],
+      "description": "可并行执行，无相互依赖"
+    },
+    "B": {
+      "name": "Agent 注册核心",
+      "tasks": ["TASK-2.1"],
+      "description": "独立模块，可与其他组并行"
+    },
+    "C": {
+      "name": "集成与打包准备",
+      "tasks": ["TASK-3.1", "TASK-3.2"],
+      "description": "可并行执行，独立于其他组"
+    }
+  },
+  "phases": {
+    "1": {
+      "name": "统一导出层",
+      "tasks": ["TASK-1.1", "TASK-1.2", "TASK-1.3", "TASK-1.4"],
+      "estimatedHours": 4
+    },
+    "2": {
+      "name": "Agent 注册优化",
+      "tasks": ["TASK-2.1", "TASK-2.2", "TASK-2.3"],
+      "estimatedHours": 5
+    },
+    "3": {
+      "name": "集成与打包",
+      "tasks": ["TASK-3.1", "TASK-3.2", "TASK-3.3", "TASK-3.4"],
+      "estimatedHours": 3
+    }
+  },
+  "waves": {
+    "1": {
+      "tasks": ["TASK-1.1", "TASK-1.2", "TASK-1.3", "TASK-2.1", "TASK-3.1", "TASK-3.2"],
+      "description": "无依赖任务，可并行执行"
+    },
+    "2": {
+      "tasks": ["TASK-1.4", "TASK-2.2", "TASK-2.3"],
+      "description": "依赖 Wave 1 的任务"
+    },
+    "3": {
+      "tasks": ["TASK-3.3", "TASK-3.4"],
+      "description": "依赖 Wave 2 的任务"
+    }
+  }
+}

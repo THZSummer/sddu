@@ -1,18 +1,46 @@
 // SDD Plugin for OpenCode
 // Specification: https://opencode.ai/docs/plugins/
 
-// 导入 Discovery 工作流引擎（注意: 临时使用相对导入，避免循环依赖）
-// 在完整项目设置完成后将使用正式导入
-import { DISCOVERY_WORKFLOW, DiscoveryWorkflowEngine } from './discovery/workflow-engine';
-import { CoachingLevel, CoachingConfig } from './discovery/types';
-import { CoachingModeEngine } from './discovery/coaching-mode';
-import { DiscoveryStateValidator } from './discovery/state-validator';
+// 统一导入使用新的类型定义系统
+import { 
+  // Discovery 相关类型和类
+  DiscoveryWorkflowEngine,
+  CoachingLevel,
+  CoachingConfig,
+  CoachingModeEngine,
+  DiscoveryStateValidator,
+  DISCOVERY_WORKFLOW,
+  DiscoveryConfig,
+} from './discovery/workflow-engine';
+
+// 重新导入状态相关类型和类
+import { 
+  // 状态管理相关类和接口
+  StateMachine,
+  DependencyChecker,
+  FeatureStateEnum,
+  FeatureState,
+  TransitionResult,
+  HistoryEntry,
+  FeatureWithFullHistory,
+  WorkflowStatus, 
+  PhaseHistory,
+  validateState,
+} from './state/machine';
+
+// 导入 AutoUpdater 
 import { AutoUpdater } from './state/auto-updater';
-import { StateMachine } from './state/machine';
-import { DependencyChecker } from './state/dependency-checker';
+
+import { 
+  // 迁移相关类和类型
+  migrateState,
+  MigrationResult,
+} from './state/migrator';
+
+// 从命令模块导入
 import { SddMigrateSchemaCommand } from './commands/sdd-migrate-schema';
-import { StateV2_0_0, WorkflowStatus, PhaseHistory, validateState } from './state/schema-v2.0.0';
-import { migrateState, MigrationResult } from './state/migrator';
+
+import { StateV2_0_0 } from './state/schema-v2.0.0';
 
 // 全局实例存储，以确保在会话生命周期内保持单例
 let globalAutoUpdater: AutoUpdater | null = null;
@@ -155,6 +183,7 @@ export {
   CoachingConfig,
   CoachingModeEngine,
   DiscoveryStateValidator,
+  DiscoveryConfig,
   
   // State Management
   AutoUpdater,
@@ -166,11 +195,16 @@ export {
   WorkflowStatus,
   PhaseHistory,
   validateState,
+  FeatureStateEnum,
+  FeatureState,
+  TransitionResult,
+  HistoryEntry,
+  FeatureWithFullHistory,
   
-  // Migration
+  // Migration  
   SddMigrateSchemaCommand,
   migrateState,
-  MigrationResult
+  MigrationResult,
 };
 
 export default SDDPlugin;

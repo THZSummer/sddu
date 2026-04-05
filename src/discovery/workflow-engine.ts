@@ -3,8 +3,27 @@
  * 实现7步需求挖掘流程
  */
 
-import { DiscoveryStep, DiscoveryContext, StepExecutionResult } from './types';
+import { DiscoveryStep, DiscoveryContext, StepExecutionResult, CoachingConfig } from './types';
 import { CoachingModeEngine, CoachingLevel } from './coaching-mode';
+import { StateMachine } from '../state/machine';
+import { DiscoveryStateValidator } from './state-validator';
+
+// 定义Discovery工作流状态
+export type DiscoveryWorkflowStatus = 'pending' | 'running' | 'completed' | 'failed';
+
+// 定义状态变化回调接口
+export type StatusChangeCallback = (
+  featureId: string, 
+  status: DiscoveryWorkflowStatus, 
+  data?: any
+) => void | Promise<void>;
+
+// Discovery配置接口，增加状态联动配置
+export interface DiscoveryConfig {
+  autoUpdateState?: boolean;
+  onStatusChange?: StatusChangeCallback[];
+  logLevel?: 'debug' | 'info' | 'warn' | 'error';
+}
 
 /**
  * 7 步发现工作流定义
@@ -124,16 +143,65 @@ export const DISCOVERY_WORKFLOW: DiscoveryStep[] = [
  */
 export class DiscoveryWorkflowEngine {
   private coachingModeEngine: CoachingModeEngine;
+  private config: DiscoveryConfig;
+  private stateMachine?: StateMachine;
   
-  constructor() {
+  constructor(config?: DiscoveryConfig, stateMachine?: StateMachine) {
     this.coachingModeEngine = new CoachingModeEngine();
+    this.config = {
+      autoUpdateState: false,
+      onStatusChange: [],
+      logLevel: 'info',
+      ...config
+    };
+    this.stateMachine = stateMachine;
   }
   
+  /**
+   * 设置状态机用于状态联动
+   */
+  setStateMachine(stateMachine: StateMachine): void {
+    this.stateMachine = stateMachine;
+  }
+  
+  /**
+   * 注册状态变化回调
+   */
+  onStatusChange(callback: StatusChangeCallback): void {
+    this.config.onStatusChange?.push(callback);
+  }
+  
+  /**
+   * 通知状态变化
+   */
+  private async notifyStatusChange(
+    featureId: string, 
+    status: DiscoveryWorkflowStatus, 
+    data?: any
+  ): Promise<void> {
+    if (this.config.onStatusChange && this.config.onStatusChange.length > 0) {
+      for (const callback of this.config.onStatusChange) {
+        try {
+          await Promise.resolve(callback(featureId, status, data));
+        } catch (error) {
+          console.error('Error in status change callback:', error);
+        }
+      }
+    }
+    
+    if (this.config.logLevel !== 'error') {
+      console.log(`[DiscoveryWorkflow] Status changed for ${featureId}: ${status}`);
+    }
+  }
+
   /**
    * 执行整个工作流
    */
   async execute(context: DiscoveryContext): Promise<DiscoveryContext> {
     console.log(`🚀 开始执行 Discovery 工作流: ${context.featureName}`);
+    
+    // 通知状态变化 - pending -> running
+    await this.notifyStatusChange(context.featureName, 'running');
     
     // 检测用户的辅导级别并应用相应策略
     const coachingLevel = this.coachingModeEngine.detectLevel(context.userInput);
@@ -141,34 +209,61 @@ export class DiscoveryWorkflowEngine {
     
     const totalSteps = DISCOVERY_WORKFLOW.length;
     
-    for (let i = context.currentStepIndex; i < totalSteps; i++) {
-      context.currentStepIndex = i;
-      
-      const step = DISCOVERY_WORKFLOW[i];
-      
-      console.log(`步骤 ${i + 1}/${totalSteps}: ${step.name}`);
-      
-      // 根据辅导级别调整步骤提示
-      const adjustedStep = await this.adjustStepByCoachingLevel(step, coachingLevel);
-      
-      // 执行单步操作
-      const result = await this.executeStep(adjustedStep, context);
-      
-      if (!result.success) {
-        throw new Error(`步骤执行失败: ${step.name}. 错误: ${result.message}`);
+    try {
+      for (let i = context.currentStepIndex; i < totalSteps; i++) {
+        context.currentStepIndex = i;
+        
+        const step = DISCOVERY_WORKFLOW[i];
+        
+        console.log(`步骤 ${i + 1}/${totalSteps}: ${step.name}`);
+        
+        // 根据辅导级别调整步骤提示
+        const adjustedStep = await this.adjustStepByCoachingLevel(step, coachingLevel);
+        
+        // 执行单步操作
+        const result = await this.executeStep(adjustedStep, context);
+        
+        if (!result.success) {
+          throw new Error(`步骤执行失败: ${step.name}. 错误: ${result.message}`);
+        }
+        
+        // 更新上下文数据
+        context.data[step.outputField] = result.output[step.outputField];
+        
+        // 如果不是最后一步，可以中断暂停
+        if (i < totalSteps - 1) {
+          console.log(`✅ 步骤 "${step.name}" 完成`);
+        }
       }
       
-      // 更新上下文数据
-      context.data[step.outputField] = result.output[step.outputField];
+      console.log(`🎉 Discovery 工作流执行完成: ${context.featureName}`);
       
-      // 如果不是最后一步，可以中断暂停
-      if (i < totalSteps - 1) {
-        console.log(`✅ 步骤 "${step.name}" 完成`);
+      // 通知状态变化 - running -> completed
+      await this.notifyStatusChange(context.featureName, 'completed', context);
+      
+      // 如果配置了自动更新状态且有状态机，则更新特性状态为 discovery 阶段
+      if (this.config.autoUpdateState && this.stateMachine) {
+        try {
+          await this.stateMachine.updateState(
+            context.featureName.toLowerCase().replace(/\s+/g, '-'),
+            'discovered',
+            context,
+            'DiscoveryWorkflowEngine',
+            `Discovery workflow completed for feature: ${context.featureName}`
+          );
+        } catch (error) {
+          console.warn('Auto-update state failed:', error);
+        }
       }
+      
+      return context;
+    } catch (error) {
+      console.error('Discovery 工作流执行失败:', error);
+      
+      // 通知状态变化 - running -> failed
+      await this.notifyStatusChange(context.featureName, 'failed', { error: error instanceof Error ? error.message : 'Unknown error' });
+      throw error;
     }
-    
-    console.log(`🎉 Discovery 工作流执行完成: ${context.featureName}`);
-    return context;
   }
 
   /**
@@ -261,3 +356,18 @@ export class DiscoveryWorkflowEngine {
     return Math.min(100, Math.round((context.currentStepIndex / this.getTotalSteps()) * 100));
   }
 }
+
+// 只导出那些从其他模块导入的类型和类，而不包括此文件中定义的
+export { 
+  CoachingLevel, 
+  CoachingConfig, 
+  DiscoveryStateValidator 
+};
+
+export type { 
+  DiscoveryStep,
+  DiscoveryContext, 
+  StepExecutionResult, 
+  CoachingModeEngine
+  // 注意：不导出本文件中定义的类型如 DiscoveryConfig, StatusChangeCallback, DiscoveryWorkflowStatus
+};
