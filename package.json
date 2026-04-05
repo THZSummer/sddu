@@ -17,7 +17,10 @@
     "sdd-spec": "node ./dist/commands/sdd-spec.js",
     "sdd-plan": "node ./dist/commands/sdd-plan.js",
     "sdd-tasks": "node ./dist/commands/sdd-tasks.js",
-    "sdd-build": "node ./dist/commands/sdd-build.js"
+    "sdd-build": "node ./dist/commands/sdd-build.js",
+    "prepackage": "npm run build",
+    "package": "node scripts/package.cjs",
+    "postpackage": "echo 'Packaging complete. Files are in dist/sdd/ and dist/sdd.zip'"
   },
   "keywords": [
     "opencode",
@@ -29,6 +32,8 @@
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
+    "archiver": "^7.0.1",
+    "fs-extra": "^11.3.4",
     "jest": "^30.3.0",
     "rimraf": "^5.0.0",
     "ts-jest": "^29.4.6",
@@ -38,5 +43,13 @@
     "ajv": "^8.18.0",
     "ajv-formats": "^3.0.1",
     "uuid": "^13.0.0"
-  }
+  },
+  "files": [
+    "dist/sdd/**/*",
+    "src/**/*",
+    "!.opencode",
+    "!.sdd",
+    "README.md",
+    "LICENSE"
+  ]
 }

@@ -1,0 +1,17 @@
+{
+  "featureId": "specs-tree-sdd-tools-optimization",
+  "featureName": "SDD 工具系统优化",
+  "specVersion": "2.3.0",
+  "createdAt": "2026-04-05",
+  "updatedAt": "2026-04-05",
+  "author": "SDD Team",
+  "priority": "P1",
+  "status": "validated",
+  "phase": 6,
+  "reviewedBy": "sdd-review",
+  "validatedBy": "sdd-validate",
+  "lastReviewDate": "2026-04-05",
+  "lastValidationDate": "2026-04-05",
+  "dependencies": [],
+  "relatedFeatures": []
+}

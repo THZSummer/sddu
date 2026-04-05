@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SDD Plugin Installer (Linux/macOS)
+# SDD Plugin Installer (Linux/macOS) 
 # Usage: bash install.sh <TargetDir>
 #    or: ./install.sh <TargetDir>
 # Note: Must use bash, not sh!
@@ -63,40 +63,68 @@ if [ ! -f "${SCRIPT_DIR}/package.json" ]; then
 fi
 print_color "${GREEN}[OK] Source validated${NC}"
 
-# Step 2: Build everything to dist/
-print_color "${CYAN}[2/7] Building to dist/...${NC}"
+# Step 2: Check for prebuilt dist/sdd directory
+print_color "${CYAN}[2/7] Locating distribution files...${NC}"
 
-# Build agents
-print_color "${GRAY}  Building agents...${NC}"
-node "${SCRIPT_DIR}/build-agents.cjs"
-if [ $? -ne 0 ]; then
-    print_color "${RED}Agent build failed${NC}"
-    exit 1
-fi
+DIST_SDD_DIR="${SCRIPT_DIR}/dist/sdd"
+DIST_ARCHIVE="${SCRIPT_DIR}/dist/sdd.zip"
 
-# Build TypeScript
-if [ -d "${SCRIPT_DIR}/node_modules" ]; then
-    print_color "${GRAY}  Building TypeScript...${NC}"
-    "${SCRIPT_DIR}/node_modules/.bin/tsc" --project "${SCRIPT_DIR}/tsconfig.json"
-    if [ $? -ne 0 ]; then
-        print_color "${RED}TS build failed${NC}"
-        exit 1
-    fi
+if [ -d "$DIST_SDD_DIR" ]; then
+    print_color "${GREEN}[OK] Using pre-built distribution in dist/sdd/${NC}"
 else
-    print_color "${GRAY}  Installing dependencies...${NC}"
-    npm install --prefix "${SCRIPT_DIR}"
-    if [ $? -ne 0 ]; then
-        print_color "${RED}Install failed${NC}"
-        exit 1
-    fi
-    "${SCRIPT_DIR}/node_modules/.bin/tsc" --project "${SCRIPT_DIR}/tsconfig.json"
-    if [ $? -ne 0 ]; then
-        print_color "${RED}TS build failed${NC}"
-        exit 1
+    print_color "${YELLOW}[INFO] Pre-built distribution not found, checking for archive...${NC}"
+    if [ -f "$DIST_ARCHIVE" ]; then
+        print_color "${GREEN}[INFO] Archive found at $DIST_ARCHIVE, unpacking...${NC}"
+        mkdir -p "${SCRIPT_DIR}/dist/sdd"
+        unzip -q "${DIST_ARCHIVE}" -d "${SCRIPT_DIR}/dist/tmp_extract"
+        mv "${SCRIPT_DIR}/dist/tmp_extract/sdd" "${SCRIPT_DIR}/dist/sdd"
+        rm -r "${SCRIPT_DIR}/dist/tmp_extract"
+        print_color "${GREEN}[OK] Archive extracted to dist/sdd/${NC}"
+    else
+        print_color "${YELLOW}[WARN] No pre-built dist/sdd/ or dist/sdd.zip found${NC}"
+        print_color "${CYAN}Building from source...${NC}"
+        
+        # Build agents
+        print_color "${GRAY}  Building agents...${NC}"
+        node "${SCRIPT_DIR}/build-agents.cjs"
+        if [ $? -ne 0 ]; then
+            print_color "${RED}Agent build failed${NC}"
+            exit 1
+        fi
+
+        # Build TypeScript
+        if [ -d "${SCRIPT_DIR}/node_modules" ]; then
+            print_color "${GRAY}  Building TypeScript...${NC}"
+            "${SCRIPT_DIR}/node_modules/.bin/tsc" --project "${SCRIPT_DIR}/tsconfig.json"
+            if [ $? -ne 0 ]; then
+                print_color "${RED}TS build failed${NC}"
+                exit 1
+            fi
+        else
+            print_color "${GRAY}  Installing dependencies...${NC}"
+            npm install --prefix "${SCRIPT_DIR}"
+            if [ $? -ne 0 ]; then
+                print_color "${RED}Install failed${NC}"
+                exit 1
+            fi
+            "${SCRIPT_DIR}/node_modules/.bin/tsc" --project "${SCRIPT_DIR}/tsconfig.json"
+            if [ $? -ne 0 ]; then
+                print_color "${RED}TS build failed${NC}"
+                exit 1
+            fi
+        fi
+
+        # Now run the packaging script to create dist/sdd/
+        print_color "${GRAY}  Creating distribution package...${NC}"
+        node "${SCRIPT_DIR}/scripts/package.cjs"
+        if [ $? -ne 0 ]; then
+            print_color "${RED}Package creation failed${NC}"
+            exit 1
+        fi
+        
+        print_color "${GREEN}[OK] Build complete, distribution package created${NC}"
     fi
 fi
-
-print_color "${GREEN}[OK] Build complete${NC}"
 
 # Step 3: Create directories
 print_color "${CYAN}[3/7] Creating directories...${NC}"
@@ -111,8 +139,8 @@ for dir in "${TARGET_DIR}/.opencode/plugins/sdd" "${TARGET_DIR}/.opencode/agents
     fi
 done
 
-# Step 4: Copy plugin from dist/ (exclude templates/)
-print_color "${CYAN}[4/7] Copying plugin from dist/...${NC}"
+# Step 4: Copy plugin from dist/sdd/ (exclude templates/)
+print_color "${CYAN}[4/7] Copying plugin from dist/sdd/...${NC}"
 PLUGIN_DEST="${TARGET_DIR}/.opencode/plugins/sdd"
 
 # Clean destination first
@@ -121,41 +149,66 @@ if [ -d "$PLUGIN_DEST" ]; then
 fi
 mkdir -p "$PLUGIN_DEST"
 
-# Copy from dist/ excluding templates/
-for item in "${SCRIPT_DIR}/dist"/*; do
+# Copy the entire dist/sdd/ directory contents except agents (to avoid duplication with separate agents copy)
+for item in "${SCRIPT_DIR}/dist/sdd/"*; do
     item_name=$(basename "$item")
-    if [ "$item_name" != "templates" ]; then
+    if [ "$item_name" != "agents" ]; then
         cp -r "$item" "$PLUGIN_DEST/"
     fi
 done
 
-# Copy agents from dist/templates/agents/ to .opencode/agents/
-print_color "${GRAY}  Copying agents...${NC}"
-cp "${SCRIPT_DIR}/dist/templates/agents/"* "${TARGET_DIR}/.opencode/agents/"
-AGENT_COUNT=$(find "${TARGET_DIR}/.opencode/agents" -type f | wc -l)
+# Copy agents from dist/sdd/agents/ to .opencode/agents/
+if [ -d "${SCRIPT_DIR}/dist/sdd/agents" ]; then
+    print_color "${GRAY}  Copying agents...${NC}"
+    cp "${SCRIPT_DIR}/dist/sdd/agents/"* "${TARGET_DIR}/.opencode/agents/"
+    AGENT_COUNT=$(find "${TARGET_DIR}/.opencode/agents" -type f | wc -l)
+else
+    print_color "${YELLOW}[WARN] No agents found in dist/sdd/agents/ - might be located elsewhere${NC}"
+    # Try to find any agent files in dist/sdd/
+    if find "${SCRIPT_DIR}/dist/sdd/" -name "*.md" -path "*/agents/*" | grep -q .; then
+        print_color "${GRAY}  Trying alternative agent locations...${NC}"
+        cp "${SCRIPT_DIR}/dist/sdd/"**/agents/*.md "${TARGET_DIR}/.opencode/agents/" 2>/dev/null || true
+        AGENT_COUNT=$(find "${TARGET_DIR}/.opencode/agents" -type f | wc -l)
+    else
+        AGENT_COUNT=0
+    fi
+fi
 
 FILE_COUNT=$(find "${TARGET_DIR}/.opencode/plugins/sdd" -type f | wc -l)
-print_color "${GREEN}[OK] Copied $FILE_COUNT plugin files + $AGENT_COUNT agents (including discovery agent)${NC}"
+print_color "${GREEN}[OK] Copied $FILE_COUNT plugin files + $AGENT_COUNT agents${NC}"
 
 # Step 5: Version Detection
 print_color "${CYAN}[5/7] Version Detection...${NC}"
 
-# Get source version
-SOURCE_PKG_PATH="${SCRIPT_DIR}/package.json"
+# Get source version from dist directory's package.json
+SOURCE_PKG_PATH="${SCRIPT_DIR}/dist/sdd/package.json"
 if [ -f "$SOURCE_PKG_PATH" ]; then
     SOURCE_VERSION=$(node -p "require('$SOURCE_PKG_PATH').version" 2>/dev/null || echo "")
     if [ -z "$SOURCE_VERSION" ]; then
         SOURCE_VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "$SOURCE_PKG_PATH" | cut -d'"' -f4)
+    fi
+else
+    # Fallback: Get version from original source package.json
+    SOURCE_PKG_PATH_FOR_VERSION="${SCRIPT_DIR}/package.json"
+    SOURCE_VERSION=$(node -p "require('$SOURCE_PKG_PATH_FOR_VERSION').version" 2>/dev/null || echo "")
+    if [ -z "$SOURCE_VERSION" ]; then
+        SOURCE_VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "$SOURCE_PKG_PATH_FOR_VERSION" | cut -d'"' -f4)
     fi
 fi
 
 # Get target version if it exists
 TARGET_VERSION=""
 PLUGINS_DIR="${TARGET_DIR}/.opencode/plugins/sdd"
-if [ -f "$PLUGINS_DIR/package.json" ]; then
-    TARGET_VERSION=$(node -p "require('$PLUGINS_DIR/package.json').version" 2>/dev/null || echo "")
+if [ -f "${TARGET_DIR}/.opencode/plugins/sdd/package.json" ]; then
+    TARGET_VERSION=$(node -p "require('${TARGET_DIR}/.opencode/plugins/sdd/package.json').version" 2>/dev/null || echo "")
     if [ -z "$TARGET_VERSION" ]; then
-        TARGET_VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "$PLUGINS_DIR/package.json" | cut -d'"' -f4)
+        TARGET_VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "${TARGET_DIR}/.opencode/plugins/sdd/package.json" | cut -d'"' -f4)
+    fi
+elif [ -f "${TARGET_DIR}/package.json" ]; then
+    # If plugin doesn't have its own package.json, check root
+    TARGET_VERSION=$(node -p "require('${TARGET_DIR}/package.json').version" 2>/dev/null || echo "")
+    if [ -z "$TARGET_VERSION" ]; then
+        TARGET_VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "${TARGET_DIR}/package.json" | cut -d'"' -f4)
     fi
 fi
 
@@ -235,8 +288,39 @@ echo ""
 # Step 6: Merge opencode.json (smart merge)
 print_color "${CYAN}[6/7] Merging opencode.json...${NC}"
 
+# First, let's identify the source of truth for opencode.json
+OPENCODE_JSON_SOURCE="${SCRIPT_DIR}/dist/sdd/opencode.json"
+if [ ! -f "$OPENCODE_JSON_SOURCE" ]; then
+    # Fallback to source template if packed version doesn't have it
+    OPENCODE_JSON_SOURCE="${SCRIPT_DIR}/dist/opencode.json"
+    if [ ! -f "$OPENCODE_JSON_SOURCE" ]; then
+        # Last resort: use a generated one
+        OPENCODE_JSON_SOURCE="/tmp/generated_opencode.json"
+        cat > "$OPENCODE_JSON_SOURCE" << 'EOF'
+{
+  "$schema": "https://opencode.ai/schemas/opencode.v1.json",
+  "plugin": [
+    "opencode-sdd-plugin"
+  ],
+  "agent": {
+    "sdd": "Smart SDD workflow router agent",
+    "sdd-0-discovery": "Deep requirement analysis agent",
+    "sdd-1-spec": "Specification expert",
+    "sdd-2-plan": "Technical planning expert",
+    "sdd-3-tasks": "Task breakdown expert",
+    "sdd-4-build": "Implementation expert",
+    "sdd-5-review": "Code review expert",
+    "sdd-6-validate": "Validation expert",
+    "sdd-roadmap": "Roadmap planning",
+    "sdd-docs": "Directory navigation generator"
+  },
+  "permission": ["fs", "process", "network"]
+}
+EOF
+    fi
+fi
+
 OPENCODE_JSON_PATH="${TARGET_DIR}/opencode.json"
-OPENCODE_SOURCE_PATH="${SCRIPT_DIR}/dist/opencode.json"
 
 if [ -f "$OPENCODE_JSON_PATH" ]; then
     print_color "${CYAN}[CONFIG MERGE]${NC}"
@@ -248,7 +332,7 @@ const fs = require('fs');
 try {
     // Read existing and new config
     const existingConfig = JSON.parse(fs.readFileSync('${OPENCODE_JSON_PATH}', 'utf-8'));
-    const newConfig = JSON.parse(fs.readFileSync('${OPENCODE_SOURCE_PATH}', 'utf-8'));
+    const newConfig = JSON.parse(fs.readFileSync('${OPENCODE_JSON_SOURCE}', 'utf-8'));
     
     // Create backup
     fs.writeFileSync('${OPENCODE_JSON_PATH}.backup', JSON.stringify(existingConfig, null, 2));
@@ -297,14 +381,14 @@ try {
         # If merge fails, backup original and copy new version
         print_color "${YELLOW}[WARN] Config merge failed, copying new config and backing up original${NC}"
         cp "${OPENCODE_JSON_PATH}" "${OPENCODE_JSON_PATH}.failed_backup"
-        cp "${OPENCODE_SOURCE_PATH}" "${OPENCODE_JSON_PATH}"
+        cp "${OPENCODE_JSON_SOURCE}" "${OPENCODE_JSON_PATH}"
         print_color "${GREEN}[OK] Copied new opencode.json (original backed up as .failed_backup)${NC}"
     fi
 
 else
     # No existing file - just copy
     print_color "${CYAN}ℹ️  No existing opencode.json, copying new config${NC}"
-    cp "${OPENCODE_SOURCE_PATH}" "${OPENCODE_JSON_PATH}"
+    cp "${OPENCODE_JSON_SOURCE}" "${OPENCODE_JSON_PATH}"
     print_color "${GREEN}[OK] Copied opencode.json${NC}"
 fi
 
@@ -375,8 +459,8 @@ echo ""
 print_color "Installed to: ${TARGET_DIR}"
 echo ""
 echo "Files:"
-echo "  - .opencode/plugins/sdd/ ($FILE_COUNT files from dist/)"
-echo "  - .opencode/agents/ ($AGENT_COUNT agents from dist/templates/agents/)"
+echo "  - .opencode/plugins/sdd/ ($FILE_COUNT files from dist/sdd/src/)"
+echo "  - .opencode/agents/ ($AGENT_COUNT agents from dist/sdd/agents/ or alternative location)"
 echo "  - opencode.json (plugin configuration)"
 echo "  - .sdd/ (SDD workspace container)"
 echo ""

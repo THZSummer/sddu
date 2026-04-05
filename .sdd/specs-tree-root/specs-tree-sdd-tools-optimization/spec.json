@@ -7,7 +7,10 @@
   "priority": "P1",
   "createdAt": "2026-04-01",
   "author": "SDD Team",
-  "stakeholders": ["Plugin 开发团队", "Agent 用户"],
+  "stakeholders": [
+    "Plugin 开发团队",
+    "Agent 用户"
+  ],
   "goals": [
     "创建统一的 src/tools/ 目录",
     "重构工具注册机制",
@@ -47,18 +50,66 @@
     }
   ],
   "functionalRequirements": {
-    "core": ["FR-001", "FR-002", "FR-003", "FR-004"],
-    "migration": ["FR-010", "FR-011", "FR-012", "FR-013"],
-    "output": ["FR-020", "FR-021", "FR-022", "FR-023", "FR-024"],
-    "registry": ["FR-030", "FR-031", "FR-032", "FR-033"],
-    "errors": ["FR-040", "FR-041", "FR-042", "FR-043"]
+    "core": [
+      "FR-001",
+      "FR-002",
+      "FR-003",
+      "FR-004"
+    ],
+    "migration": [
+      "FR-010",
+      "FR-011",
+      "FR-012",
+      "FR-013"
+    ],
+    "output": [
+      "FR-020",
+      "FR-021",
+      "FR-022",
+      "FR-023",
+      "FR-024"
+    ],
+    "registry": [
+      "FR-030",
+      "FR-031",
+      "FR-032",
+      "FR-033"
+    ],
+    "errors": [
+      "FR-040",
+      "FR-041",
+      "FR-042",
+      "FR-043"
+    ]
   },
-  "nonFunctionalRequirements": ["NFR-001", "NFR-002", "NFR-003", "NFR-004", "NFR-005", "NFR-006"],
-  "edgeCases": ["EC-001", "EC-002", "EC-003", "EC-004", "EC-005", "EC-006", "EC-007"],
-  "openProblems": ["OP-001", "OP-002", "OP-003", "OP-004", "OP-005"],
+  "nonFunctionalRequirements": [
+    "NFR-001",
+    "NFR-002",
+    "NFR-003",
+    "NFR-004",
+    "NFR-005",
+    "NFR-006"
+  ],
+  "edgeCases": [
+    "EC-001",
+    "EC-002",
+    "EC-003",
+    "EC-004",
+    "EC-005",
+    "EC-006",
+    "EC-007"
+  ],
+  "openProblems": [
+    "OP-001",
+    "OP-002",
+    "OP-003",
+    "OP-004",
+    "OP-005"
+  ],
   "dependencies": [
     ".sdd/.specs/sdd-plugin-phase2/plan.md"
   ],
   "nextPhase": "plan",
-  "nextAction": "@sdd-plan sdd-tools-optimization"
+  "nextAction": "@sdd-plan sdd-tools-optimization",
+  "state": "planned"
 }

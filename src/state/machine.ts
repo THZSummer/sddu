@@ -1,11 +1,14 @@
 // 状态机实现 - 带流程防跳过验证
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { PhaseHistory, WorkflowStatus } from './schema-v2.0.0';
+import { PhaseHistory, WorkflowStatus, StateV2_0_0, validateState } from './schema-v2.0.0';
 import { DependencyChecker } from './dependency-checker';
 
+// 导出 DependencyChecker 以便其他模块使用
+export { DependencyChecker };
+
 // Type mapping from old states to new workflow states
-type OldFeatureStateEnum = 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed';
+export type OldFeatureStateEnum = 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed';
 
 // Agent workflow stages matching SDD Agent phases
 export type AgentWorkflowStateEnum = 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed';
@@ -36,6 +39,14 @@ export interface TransitionResult {
   presentFiles?: string[];
 }
 
+export { 
+  // Re-export types from other modules
+  PhaseHistory, 
+  WorkflowStatus, 
+  StateV2_0_0, 
+  validateState 
+};
+
 // Interface for Agent workflow integration
 export interface AgentTransitionHook {
   onTransitionStart?(featureId: string, targetState: FeatureStateEnum): void;
@@ -50,7 +61,7 @@ export interface AutoUpdaterIntegration {
 }
 
 // History entry for StateMachine
-interface HistoryEntry {
+export interface HistoryEntry {
   timestamp: string;
   from: FeatureStateEnum;
   to: FeatureStateEnum;
