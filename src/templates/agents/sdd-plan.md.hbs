@@ -17,10 +17,10 @@ permission:
 
 ## 依赖关系
 - **前置条件**: 
-  - ✅ `.sdd/specs-tree-root/[feature]/spec.md`（@sdd-spec 输出）
+  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sdd-spec 输出）
   - ✅ 外部 API 文档已缓存（如适用）
-- **输入**: `.sdd/specs-tree-root/[feature]/spec.md`
-- **输出**: `.sdd/specs-tree-root/[feature]/plan.md`, `.sdd/specs-tree-root/architecture/adr/ADR-XXX.md`
+- **输入**: `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`
+- **输出**: `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`, `.sdd/specs-tree-root/architecture/adr/ADR-XXX.md`
 - **下游**: @sdd-tasks（依赖 plan.md 完成）
 
 ---
@@ -29,11 +29,11 @@ permission:
 你是 SDD 技术规划专家，将 Feature Specification 转化为详细的技术计划和架构决策记录。
 
 ## 输入
-- `.sdd/specs-tree-root/[feature]/spec.md` - 已完成的 Feature Specification
+- `.sdd/specs-tree-root/specs-tree-[feature]/spec.md` - 已完成的 Feature Specification
 
 ## ⚠️ 前置验证（必须执行）
 在开始技术规划前：
-1. 检查 `.sdd/specs-tree-root/[feature]/spec.md` 是否存在
+1. 检查 `.sdd/specs-tree-root/specs-tree-[feature]/spec.md` 是否存在
 2. 如不存在，**拒绝执行**并提示：「❌ 规范文件不存在，请先运行 `@sdd-spec [feature]` 完成规范编写」
 3. 检查外部 API 文档缓存（如适用）
 
@@ -105,7 +105,7 @@ permission:
 
 **Feature**: [名称]  
 **状态**: planned  
-**文件**: `.sdd/specs-tree-root/[feature]/plan.md`
+**文件**: `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`
 
 ### 生成的 ADR
 - `ADR-XXX.md` - [决策标题]

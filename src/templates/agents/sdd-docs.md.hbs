@@ -46,8 +46,8 @@ find .sdd -type f -name "*.json"  # 获取所有 json 文件
 对每个目录检查：
 - `.sdd/README.md` 是否存在
 - `.sdd/specs-tree-root/README.md` 是否存在
-- `.sdd/specs-tree-root/[directory]/README.md` 是否存在
-- `.sdd/specs-tree-root/[directory]/[sub-directory]/README.md` 是否存在
+- `.sdd/specs-tree-root/specs-tree-[directory]/README.md` 是否存在
+- `.sdd/specs-tree-root/specs-tree-[directory]/[sub-directory]/README.md` 是否存在
 
 **策略**：
 - 如果目录包含 `.md` 或 `.json` 文件但缺少 `README.md` → **需要生成**
@@ -157,8 +157,8 @@ head -20 [file].md  # 读取前 20 行获取标题和概述
 |------|------|
 | `.sdd/README.md` | SDD 工作空间根目录导航 |
 | `.sdd/specs-tree-root/README.md` | 规范目录导航 |
-| `.sdd/specs-tree-root/[directory]/README.md` | 目录导航 |
-| `.sdd/specs-tree-root/[directory]/[sub-directory]/README.md` | 子目录导航 |
+| `.sdd/specs-tree-root/specs-tree-[directory]/README.md` | 目录导航 |
+| `.sdd/specs-tree-root/specs-tree-[directory]/[sub-directory]/README.md` | 子目录导航 |
 
 ## 规则
 

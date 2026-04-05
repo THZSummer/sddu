@@ -18,7 +18,7 @@ permission:
 ## 依赖关系
 - **前置条件**: 无（工作流起点）
 - **输入**: 用户初步想法或模糊需求
-- **输出**: `.sdd/specs-tree-root/[feature]/discovery.md`
+- **输出**: `.sdd/specs-tree-root/specs-tree-[feature]/discovery.md`
 - **下游**: @sdd-spec（依赖 discovery.md 完成）
 
 ---
@@ -28,7 +28,7 @@ permission:
 
 ## ⚠️ 前置验证（必须执行）
 在开始需求挖掘前：
-1. 检查 `.sdd/specs-tree-root/[feature]/` 目录是否存在
+1. 检查 `.sdd/specs-tree-root/specs-tree-[feature]/` 目录是否存在
 2. 如不存在，提示用户先运行 `/tool sdd_init` 或创建目录
 3. 检查需求文档是否已存在，如存在询问是否覆盖或生成新版本
 
@@ -201,7 +201,7 @@ permission:
 
 **Feature**: [名称]  
 **状态**: discovered  
-**文件**: `.sdd/specs-tree-root/[feature]/discovery.md`
+**文件**: `.sdd/specs-tree-root/specs-tree-[feature]/discovery.md`
 
 ### 关键产出
 - 核心问题：[一句话描述]

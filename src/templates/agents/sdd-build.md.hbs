@@ -17,10 +17,10 @@ permission:
 
 ## 依赖关系
 - **前置条件**: 
-  - ✅ `.sdd/specs-tree-root/[feature]/spec.md`（@sdd-spec 输出）
-  - ✅ `.sdd/specs-tree-root/[feature]/plan.md`（@sdd-plan 输出）
-  - ✅ `.sdd/specs-tree-root/[feature]/tasks.md`（@sdd-tasks 输出）
-- **输入**: `.sdd/specs-tree-root/[feature]/tasks.md`（指定要实现的 TASK-XXX）
+  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sdd-spec 输出）
+  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`（@sdd-plan 输出）
+  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md`（@sdd-tasks 输出）
+- **输入**: `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md`（指定要实现的 TASK-XXX）
 - **输出**: 实现的代码、测试、文档更新
 - **下游**: @sdd-review（依赖代码实现完成）
 
@@ -31,7 +31,7 @@ permission:
 
 ## ⚠️ 前置验证（必须执行）
 在开始任务实现前：
-1. 检查 `.sdd/specs-tree-root/[feature]/tasks.md` 是否存在
+1. 检查 `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md` 是否存在
 2. 如不存在，**拒绝执行**并提示：「❌ 任务分解文件不存在，请先运行 `@sdd-tasks [feature]` 完成任务分解」
 3. 检查指定的 TASK-XXX 是否在 tasks.md 中定义
 4. 检查前置任务是否已完成
@@ -41,7 +41,7 @@ permission:
 ## 核心职责
 
 ### 1. 读取任务
-- 从 `.sdd/specs-tree-root/[feature]/tasks.md` 读取任务列表
+- 从 `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md` 读取任务列表
 - 识别当前要实现的任务（如 TASK-001）
 - 确认任务的前置依赖已完成
 
@@ -63,7 +63,7 @@ permission:
 @sdd-build "实现 TASK-001: 用户登录 API"
 
 # 你的执行步骤
-1. 读取 `.sdd/specs-tree-root/[feature]/tasks.md`
+1. 读取 `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md`
 2. 找到 TASK-001 的详细描述
 3. 检查前置任务状态
 4. 实现代码

@@ -32,8 +32,8 @@ permission:
 ### ❌ 禁止输出
 | 文件 | 原因 | 正确 Agent |
 |------|------|------------|
-| `.sdd/specs-tree-root/[feature]/tasks.md` | 越界，属于任务分解阶段 | `@sdd-3-tasks` |
-| `.sdd/specs-tree-root/[feature]/plan.md` | 越界，属于技术规划阶段 | `@sdd-2-plan` |
+| `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md` | 越界，属于任务分解阶段 | `@sdd-3-tasks` |
+| `.sdd/specs-tree-root/specs-tree-[feature]/plan.md` | 越界，属于技术规划阶段 | `@sdd-2-plan` |
 | `.sdd/ROADMAP-EXECUTIVE-SUMMARY.md` | 冗余，执行摘要应放在 ROADMAP.md 顶部 | - |
 | `.sdd/ROADMAP-COMPLETION.md` | 冗余，无需 completion 报告 | - |
 
@@ -72,8 +72,8 @@ permission:
 ### 项目上下文扫描
 
 主动读取以下文件获取上下文：
-- `.sdd/specs-tree-root/[feature]/state.json` - 查看已有 Feature 状态
-- `.sdd/specs-tree-root/[feature]/spec.md` - 了解功能详情
+- `.sdd/specs-tree-root/specs-tree-[feature]/state.json` - 查看已有 Feature 状态
+- `.sdd/specs-tree-root/specs-tree-[feature]/spec.md` - 了解功能详情
 - `README.md` - 查看版本历史
 - `.sdd/specs-tree-root/[sub-feature]/` - 查看既有规划
 
