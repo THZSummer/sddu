@@ -89,14 +89,15 @@
       "feature": "specs-tree-sdd-tools-optimization",
       "name": "SDD 工具系统优化",
       "version": "2.3.0",
-      "status": "implementing",
-      "phase": 4,
+      "status": "validated",
+      "phase": 6,
       "files": {
         "spec": "spec.md",
         "plan": "plan.md",
         "tasks": "tasks.md",
-        "readme": null,
-        "state": "state.json"
+        "readme": "README.md",
+        "review": "review.md",
+        "validation": "validation.md"
       },
       "dependencies": {
         "on": [
@@ -108,7 +109,7 @@
         "priority": "P1",
         "featureId": "FR-SDD-TOOLS-001",
         "createdAt": "2026-04-01T00:00:00Z",
-        "updatedAt": "2026-04-05T00:00:00Z"
+        "updatedAt": "2026-04-06T00:00:00Z"
       },
       "history": [
         {
@@ -134,6 +135,18 @@
           "status": "implementing",
           "implementingAt": "2026-04-05T00:00:00Z",
           "note": "所有任务实现完成，等待代码审查"
+        },
+        {
+          "version": "2.3.0",
+          "status": "reviewed",
+          "reviewedAt": "2026-04-05T00:00:00Z",
+          "note": "代码审查通过，16 个通过项，3 个建议项，0 个问题项"
+        },
+        {
+          "version": "2.3.0",
+          "status": "validated",
+          "validatedAt": "2026-04-06T00:00:00Z",
+          "note": "最终验证通过，34 个通过项，3 个警告项，0 个失败项，功能符合规范"
         }
       ]
     },
@@ -247,8 +260,8 @@
       ]
     },
     {
-      "feature": "login-module",
-      "name": "登录模块",
+      "feature": "specs-tree-sdd-plugin-roadmap",
+      "name": "SDD Roadmap 规划专家",
       "version": "1.0.0",
       "status": "validated",
       "phase": 6,
@@ -256,7 +269,33 @@
         "spec": "spec.md",
         "plan": "plan.md",
         "tasks": "tasks.md",
-        "readme": null
+        "readme": "README.md",
+        "review": "review.md",
+        "validation": "validation.md"
+      },
+      "dependencies": {
+        "on": [],
+        "blocking": []
+      },
+      "metadata": {
+        "priority": "P1",
+        "featureId": "sdd-plugin-roadmap",
+        "createdAt": "2026-04-06T00:00:00Z",
+        "updatedAt": "2026-04-06T00:00:00Z"
+      }
+    },
+    {
+      "feature": "specs-tree-sdd-plugin-baseline",
+      "name": "SDD Plugin Phase 1 基线",
+      "version": "1.1.0",
+      "status": "validated",
+      "phase": 6,
+      "files": {
+        "spec": "spec.md",
+        "plan": "plan.md",
+        "tasks": "tasks.md",
+        "readme": "README.md",
+        "state": "state.json"
       },
       "dependencies": {
         "on": [],
@@ -264,12 +303,12 @@
       },
       "metadata": {
         "priority": "P0",
-        "featureId": "FR-AUTH-001"
-      },
-      "createdAt": "2026-04-02T00:00:00Z",
-      "updatedAt": "2026-04-03T00:00:00Z"
+        "featureId": "sdd-plugin-baseline",
+        "createdAt": "2026-03-28T00:00:00Z",
+        "updatedAt": "2026-04-06T00:00:00Z"
+      }
     }
   ],
   "status": "aggregated",
-  "updatedAt": "2026-04-05T06:57:19.591Z"
+  "updatedAt": "2026-04-06T00:00:00Z"
 }

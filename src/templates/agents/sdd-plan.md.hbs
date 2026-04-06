@@ -20,7 +20,7 @@ permission:
   - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sdd-spec 输出）
   - ✅ 外部 API 文档已缓存（如适用）
 - **输入**: `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`
-- **输出**: `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`, `.sdd/specs-tree-root/architecture/adr/ADR-XXX.md`
+- **输出**: `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`, `.sdd/specs-tree-root/specs-tree-[feature]/ADR-XXX.md`
 - **下游**: @sdd-tasks（依赖 plan.md 完成）
 
 ---
@@ -79,7 +79,7 @@ permission:
 - 缓解措施
 
 ### 7. 生成 ADR
-如果涉及架构决策，在 `.sdd/specs-tree-root/architecture/adr/` 生成架构决策记录：
+如果涉及架构决策，在 `.sdd/specs-tree-root/specs-tree-[feature]/` 目录下生成架构决策记录（与 plan.md 同级）：
 ```markdown
 # ADR-XXX: [决策标题]
 

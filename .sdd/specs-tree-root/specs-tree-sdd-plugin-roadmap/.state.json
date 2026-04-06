@@ -1,0 +1,65 @@
+{
+  "feature": "specs-tree-sdd-plugin-roadmap",
+  "name": "SDD Roadmap 规划专家",
+  "version": "1.0.0",
+  "status": "validated",
+  "phase": 6,
+  "files": {
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "tasks": "tasks.md",
+    "readme": "README.md",
+    "review": "review.md",
+    "validation": "validation.md"
+  },
+  "dependencies": {
+    "on": [],
+    "blocking": []
+  },
+  "metadata": {
+    "priority": "P1",
+    "featureId": "sdd-plugin-roadmap",
+    "createdAt": "2026-04-06T00:00:00Z",
+    "updatedAt": "2026-04-06T00:00:00Z"
+  },
+  "history": [
+    {
+      "version": "1.0.0",
+      "status": "specified",
+      "specifiedAt": "2026-04-06T00:00:00Z",
+      "note": "规范完成，定义 6 个功能需求和输出边界"
+    },
+    {
+      "version": "1.0.0",
+      "status": "planned",
+      "plannedAt": "2026-04-06T00:00:00Z",
+      "note": "技术规划完成，包含 5 个核心模块和 3 个 ADR"
+    },
+    {
+      "version": "1.0.0",
+      "status": "tasked",
+      "taskedAt": "2026-04-06T00:00:00Z",
+      "note": "任务分解完成，6 个任务"
+    },
+    {
+      "version": "1.0.0",
+      "status": "implementing",
+      "implementingAt": "2026-04-06T00:00:00Z",
+      "note": "所有任务实现完成（Agent 已存在于源码中）"
+    },
+    {
+      "version": "1.0.0",
+      "status": "reviewed",
+      "reviewedAt": "2026-04-06T00:00:00Z",
+      "note": "代码审查通过，12 个通过项，2 个建议项，0 个问题项"
+    },
+    {
+      "version": "1.0.0",
+      "status": "validated",
+      "validatedAt": "2026-04-06T00:00:00Z",
+      "note": "最终验证通过，6 个功能需求全部满足"
+    }
+  ],
+  "createdAt": "2026-04-06T00:00:00Z",
+  "updatedAt": "2026-04-06T00:00:00Z"
+}
