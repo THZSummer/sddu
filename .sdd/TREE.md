@@ -10,42 +10,29 @@
 .sdd/
 ├── README.md                       # SDD 工作空间说明
 ├── TREE.md                         # 目录结构定义（本文档）
-├── ROADMAP.md                      # 版本路线图
+├── ROADMAP.md                      # 版本路线图（可选）
 └── specs-tree-root/                # 规范文件根目录（核心）
     ├── README.md                   # 目录导航说明
-    ├── state.json                  # 集中状态管理
-    ├── architecture/               # 架构目录（空，待清理）
-    ├── specs-tree-deprecate-sdd-tools/        # Feature: 废弃 SDD 工具
-    ├── specs-tree-directory-optimization/     # Feature: 目录结构优化
-    ├── specs-tree-sdd-discovery-feature/      # Feature: Discovery 能力增强
-    ├── specs-tree-sdd-multi-module/           # Feature: 子 Feature 并行开发
-    ├── specs-tree-sdd-plugin-baseline/        # Feature: Phase 1 基线
-    ├── specs-tree-sdd-plugin-roadmap/         # Feature: Roadmap 规划专家
-    ├── specs-tree-sdd-tools-optimization/     # Feature: 工具系统优化
-    └── specs-tree-sdd-workflow-state-optimization/ # Feature: 工作流状态优化
+    ├── state.json                  # 集中状态管理（可选）
+    └── specs-tree-[feature]/       # Feature 目录
+        ├── spec.md                 # 需求规格说明
+        ├── plan.md                 # 技术规划
+        ├── tasks.md                # 任务分解
+        ├── review.md               # 代码审查报告
+        ├── validation.md           # 最终验证报告
+        └── README.md               # 导航文档
 ```
 
 ### 目录说明
 
-| 目录/文件 | 类型 | 说明 |
-|-----------|------|------|
-| `README.md` | 文档 | SDD 工作空间入口说明 |
-| `TREE.md` | 文档 | 目录结构规范（本文档） |
-| `ROADMAP.md` | 文档 | 多版本路线图规划 |
-| `specs-tree-root/` | 目录 | **核心目录**，所有 Feature 规范文件 |
-| `specs-tree-root/state.json` | JSON | 集中状态管理（8 个 Feature） |
-
-### 已清理的临时目录
-
-以下目录已在 2026-04-06 清理中移除：
-
-| 目录 | 迁移/删除 | 说明 |
-|------|----------|------|
-| `.specs/` | 删除 | 历史兼容目录 |
-| `docs/` | 迁移到 `docs/` | 文档目录 |
-| `src/` | 删除 | 临时源码（使用项目主 `src/`） |
-| `tests/` | 迁移到 `tests/` | 测试目录 |
-| `tmp/` | 删除 | 临时文件 |
+| 目录/文件 | 类型 | 必填 | 说明 |
+|-----------|------|------|------|
+| `README.md` | 文档 | ✅ | SDD 工作空间说明 |
+| `TREE.md` | 文档 | ✅ | 目录结构规范（本文档） |
+| `ROADMAP.md` | 文档 | ⚠️ | 多版本路线图规划 |
+| `specs-tree-root/` | 目录 | ✅ | 规范文件根目录 |
+| `specs-tree-root/state.json` | JSON | ⚠️ | 集中状态管理 |
+| `specs-tree-[feature]/` | 目录 | ✅ | Feature 规范目录 |
 
 ### Feature 结构
 
@@ -53,13 +40,12 @@
 
 ```
 specs-tree-[feature]/
-├── spec.md            # 需求规格说明
-├── plan.md            # 技术规划
-├── tasks.md           # 任务分解
-├── review.md          # 代码审查报告
-├── validation.md      # 最终验证报告
-├── README.md          # 导航文档
-└── .state.json        # 状态文件（可选，集中管理在 state.json）
+├── spec.md                 # 需求规格说明
+├── plan.md                 # 技术规划
+├── tasks.md                # 任务分解
+├── review.md               # 代码审查报告
+├── validation.md           # 最终验证报告
+└── README.md               # 导航文档
 ```
 
 ## 命名规范
