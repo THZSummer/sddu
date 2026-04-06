@@ -11,56 +11,36 @@
 ├── README.md                       # SDD 工作空间说明
 ├── TREE.md                         # 目录结构定义（本文档）
 ├── ROADMAP.md                      # 版本路线图
-└── specs-tree-root/                # 规范文件根目录（核心）
-    ├── README.md                   # 目录导航说明
-    ├── state.json                  # 集中状态管理
-    ├── architecture/               # 架构目录（空，待清理）
-    ├── specs-tree-deprecate-sdd-tools/        # Feature: 废弃 SDD 工具
-    ├── specs-tree-directory-optimization/     # Feature: 目录结构优化
-    ├── specs-tree-sdd-discovery-feature/      # Feature: Discovery 能力增强
-    ├── specs-tree-sdd-multi-module/           # Feature: 子 Feature 并行开发
-    ├── specs-tree-sdd-plugin-baseline/        # Feature: Phase 1 基线
-    ├── specs-tree-sdd-plugin-roadmap/         # Feature: Roadmap 规划专家
-    ├── specs-tree-sdd-tools-optimization/     # Feature: 工具系统优化
-    └── specs-tree-sdd-workflow-state-optimization/ # Feature: 工作流状态优化
+├── specs-tree-root/                # 根 specs
+│   ├── spec.md                     # 规格说明文档
+│   ├── plan.md                     # 技术计划文档
+│   ├── tasks.md                    # 任务分解文档
+│   ├── state.json                  # 状态跟踪文件
+│   ├── specs-tree-[feature]/       # 一级 specs 目录
+│   │   ├── spec.md                 # 规格说明文档
+│   │   ├── plan.md                 # 技术计划文档
+│   │   ├── tasks.md                # 任务分解文档
+│   │   ├── state.json              # 状态跟踪文件
+│   │   └── specs-tree-[sub]/       # 二级 specs 目录（支持多层嵌套）
+│   │       ├── spec.md             # 规格说明文档
+│   │       ├── plan.md             # 技术计划文档
+│   │       ├── tasks.md            # 任务分解文档
+│   │       └── state.json          # 状态跟踪文件
+│   └── specs-tree-[other]/         # 一级 specs 目录（同级并列）
+│       ├── spec.md                 # 规格说明文档
+│       ├── plan.md                 # 技术计划文档
+│       ├── tasks.md                # 任务分解文档
+│       └── state.json              # 状态跟踪文件
+├── docs/                           # ⚠️ 临时文件，去留待定
+├── src/                            # ⚠️ 临时文件，去留待定
+└── tests/                          # ⚠️ 临时文件，去留待定
 ```
 
-### 目录说明
+### docs/ - ⚠️ 临时文件，去留待定
 
-| 目录/文件 | 类型 | 说明 |
-|-----------|------|------|
-| `README.md` | 文档 | SDD 工作空间入口说明 |
-| `TREE.md` | 文档 | 目录结构规范（本文档） |
-| `ROADMAP.md` | 文档 | 多版本路线图规划 |
-| `specs-tree-root/` | 目录 | **核心目录**，所有 Feature 规范文件 |
-| `specs-tree-root/state.json` | JSON | 集中状态管理（8 个 Feature） |
+### src/ - ⚠️ 临时文件，去留待定
 
-### 已清理的临时目录
-
-以下目录已在 2026-04-06 清理中移除：
-
-| 目录 | 迁移/删除 | 说明 |
-|------|----------|------|
-| `.specs/` | 删除 | 历史兼容目录 |
-| `docs/` | 迁移到 `docs/` | 文档目录 |
-| `src/` | 删除 | 临时源码（使用项目主 `src/`） |
-| `tests/` | 迁移到 `tests/` | 测试目录 |
-| `tmp/` | 删除 | 临时文件 |
-
-### Feature 结构
-
-每个 `specs-tree-[feature]/` 目录包含：
-
-```
-specs-tree-[feature]/
-├── spec.md            # 需求规格说明
-├── plan.md            # 技术规划
-├── tasks.md           # 任务分解
-├── review.md          # 代码审查报告
-├── validation.md      # 最终验证报告
-├── README.md          # 导航文档
-└── .state.json        # 状态文件（可选，集中管理在 state.json）
-```
+### tests/ - ⚠️ 临时文件，去留待定
 
 ## 命名规范
 
@@ -106,11 +86,8 @@ specs-tree-[feature]/
 - 实现阶段通过 `tasks.md` 追踪进度
 
 ### 明确边界
-- `.sdd` 作为规范定义区域，**仅存放 SDD 规范文件**
-- 源码存放在项目主 `src/` 目录
-- 测试存放在项目主 `tests/` 目录
-- 文档存放在项目主 `docs/` 目录
-- 不存放临时工件或实验文件
+- `.sdd` 作为规范定义区域，不存放临时工件或实验文件
+- 开发中的实现细节仍保留在代码仓库主干中
 
 ### 可追溯性
 - 每次对功能实现的修改都有对应的规范文件进行支撑
