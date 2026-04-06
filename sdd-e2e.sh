@@ -6,7 +6,7 @@
 #   bash sdd-e2e.sh "项目名称"    # 自定义项目名（小写字母+数字+连字符，字母开头）
 #
 # 执行流程:
-#   1. 在 /home/usb/workspace/wks-sdd-test-projects 创建测试目录（自动处理重名）
+#   1. 在 /home/usb/workspace/wks-sddu/wks-sdd-test-projects 创建测试目录（自动处理重名）
 #   2. 执行构建脚本 (node build-agents.cjs)
 #   3. 执行安装脚本 (bash install.sh <目录>)
 #   4. 生成 SDD 测试提示词文件
@@ -63,7 +63,7 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # 基础测试目录
-BASE_TEST_DIR="/home/usb/workspace/wks-sdd-test-projects"
+BASE_TEST_DIR="/home/usb/workspace/wks-sddu/wks-sdd-test-projects"
 
 # 生成唯一目录名函数（如果存在则添加数字后缀，统一加前缀）
 generate_unique_dir() {

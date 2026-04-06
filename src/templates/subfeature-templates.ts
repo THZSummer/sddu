@@ -250,7 +250,7 @@ ${template.description || 'Feature 详细说明...'}
 
 \`\`\`
 specs-tree-root/
-└─ ${template.featureId}/
+└─ specs-tree-${template.featureId}/
     ├─ spec.md           # 总体规格文档
     ├─ plan.md           # 技术实现方案
     ├─ tasks.md          # 总体任务分解

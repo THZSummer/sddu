@@ -75,7 +75,7 @@ $dirs = @(
     "$TargetDir\.opencode\plugins\sdd",
     "$TargetDir\.opencode\agents",
     "$TargetDir\.sdd",
-    "$TargetDir\.sdd\.specs"
+    "$TargetDir\.sdd\specs-tree-root"
 )
 foreach ($dir in $dirs) {
     if (Test-Path $dir) {
@@ -217,7 +217,7 @@ $sddReadme = @'
 ├── README.md              # 本文件 - SDD 工作空间说明
 ├── ROADMAP.md             # 版本路线图
 ├── config.json            # SDD 配置（可选）
-└── .specs/                # 规范文件目录
+└── specs-tree-root/                # 规范文件目录
     ├── README.md          # 目录说明
     └── [feature]/         # Feature 目录
 ```
@@ -225,7 +225,7 @@ $sddReadme = @'
 ## 快速开始
 
 1. 使用 `@sdd 开始 [feature 名称]` 开始新 feature
-2. 规范文件将自动创建在 `.sdd/.specs/` 目录
+2. 规范文件将自动创建在 `.sdd/specs-tree-root/` 目录
 3. 文档会自动维护，无需手动创建 README
 
 ## Agents
@@ -237,7 +237,7 @@ $sddReadme = @'
 Set-Content -Path "$TargetDir\.sdd\README.md" -Value $sddReadme -Encoding UTF8
 Write-Host "[OK] Created .sdd/README.md" -ForegroundColor Green
 
-# Create .sdd/.specs/README.md
+# Create .sdd/specs-tree-root/README.md
 $specsReadme = @'
 # SDD 规范目录
 
@@ -260,8 +260,8 @@ $specsReadme = @'
 - 每个 Feature 有独立的目录
 - 文档会自动维护（@sdd-docs）
 '@
-Set-Content -Path "$TargetDir\.sdd\.specs\README.md" -Value $specsReadme -Encoding UTF8
-Write-Host "[OK] Created .sdd/.specs/README.md" -ForegroundColor Green
+Set-Content -Path "$TargetDir\.sdd\specs-tree-root\README.md" -Value $specsReadme -Encoding UTF8
+Write-Host "[OK] Created .sdd/specs-tree-root/README.md" -ForegroundColor Green
 
 # Done
 Write-Host ""
@@ -274,7 +274,7 @@ Write-Host "  - .opencode/plugins/sdd/ ($fileCount files from dist/sdd/src/)"
 Write-Host "  - .opencode/agents/ ($agentCount agents from dist/sdd/agents/ or alternative locations)"
 Write-Host "  - opencode.json (plugin configuration)"
 Write-Host "  - .sdd/ (SDD workspace container)"
-Write-Host "    └── .specs/ (SDD specification files)"
+Write-Host "    └── specs-tree-root/ (SDD specification files)"
 Write-Host ""
 Write-Host "Agents installed ($agentCount total):" -ForegroundColor Cyan
 Write-Host "  @sdd              - Smart entry point"
@@ -341,7 +341,7 @@ $dirs = @(
     "$TargetDir\.opencode\plugins\sdd",
     "$TargetDir\.opencode\agents",
     "$TargetDir\.sdd",
-    "$TargetDir\.sdd\.specs"
+    "$TargetDir\.sdd\specs-tree-root"
 )
 foreach ($dir in $dirs) {
     if (Test-Path $dir) {
@@ -387,7 +387,7 @@ $sddReadme = @'
 ├── README.md              # 本文件 - SDD 工作空间说明
 ├── ROADMAP.md             # 版本路线图
 ├── config.json            # SDD 配置（可选）
-└── .specs/                # 规范文件目录
+└── specs-tree-root/                # 规范文件目录
     ├── README.md          # 目录说明
     └── [feature]/         # Feature 目录
 ```
@@ -395,7 +395,7 @@ $sddReadme = @'
 ## 快速开始
 
 1. 使用 `@sdd 开始 [feature 名称]` 开始新 feature
-2. 规范文件将自动创建在 `.sdd/.specs/` 目录
+2. 规范文件将自动创建在 `.sdd/specs-tree-root/` 目录
 3. 文档会自动维护，无需手动创建 README
 
 ## Agents
@@ -407,14 +407,14 @@ $sddReadme = @'
 Set-Content -Path "$TargetDir\.sdd\README.md" -Value $sddReadme -Encoding UTF8
 Write-Host "[OK] Created .sdd/README.md" -ForegroundColor Green
 
-# Create .sdd/.specs/README.md
+# Create .sdd/specs-tree-root/README.md
 $specsReadme = @'
 # SDD 规范目录
 
 ## 目录结构
 
 ```
-.specs/
+specs-tree-root/
 ├── README.md              # 本文件
 ├── [feature-1]/           # Feature 1
 │   ├── spec.md
@@ -430,8 +430,8 @@ $specsReadme = @'
 - 每个 Feature 有独立的目录
 - 文档会自动维护（@sdd-docs）
 '@
-Set-Content -Path "$TargetDir\.sdd\.specs\README.md" -Value $specsReadme -Encoding UTF8
-Write-Host "[OK] Created .sdd/.specs/README.md" -ForegroundColor Green
+Set-Content -Path "$TargetDir\.sdd\specs-tree-root\README.md" -Value $specsReadme -Encoding UTF8
+Write-Host "[OK] Created .sdd/specs-tree-root/README.md" -ForegroundColor Green
 
 # Done
 Write-Host ""
@@ -444,7 +444,7 @@ Write-Host "  - .opencode/plugins/sdd/ ($fileCount files from dist/)"
 Write-Host "  - .opencode/agents/ (16 agents from dist/templates/agents/)"
 Write-Host "  - opencode.json (plugin configuration)"
 Write-Host "  - .sdd/ (SDD workspace container)"
-Write-Host "    └── .specs/ (SDD specification files)"
+Write-Host "    └── specs-tree-root/ (SDD specification files)"
 Write-Host ""
 Write-Host "Agents installed (16 total):" -ForegroundColor Cyan
 Write-Host "  @sdd              - Smart entry point"
