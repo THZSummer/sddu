@@ -1,19 +1,35 @@
 # OpenCode SDD 插件版本 Roadmap
 
-> **文档版本**: 1.2.15  
+> **文档版本**: 1.2.16  
 > **创建日期**: 2026-03-30  
-> **最后更新**: 2026-04-05 (v1.2.15: 新增 F-260~F-266, 引入 v1.2.12 流程修复版本)  
+> **最后更新**: 2026-04-06 (v1.2.16: 8 个 Feature 全部完成，v1.3.0 品牌升级优先级提升)  
 > **状态**: 规划中
 
 ---
 
 ## 执行摘要
 
+### 当前状态总结 (2026-04-06 更新)
+
+**✅ 已完成**: 8 个 Feature 全部 validated (100% 完成)
+- specs-tree-sdd-discovery-feature
+- specs-tree-directory-optimization
+- sdd-multi-module
+- specs-tree-sdd-tools-optimization
+- deprecate-sdd-tools
+- specs-tree-sdd-workflow-state-optimization
+- specs-tree-sdd-plugin-roadmap
+- specs-tree-sdd-plugin-baseline
+
+**🔄 开发中**: v1.2.0 (Skills + TUI + MCP + Structured Output) - 目标 2026-04-30
+
+**🔥 优先级提升**: v1.3.0 SDDU 品牌升级 从 Q3 提前到 2026-05-31
+
 ### 愿景陈述
 
 > **让每个开发团队都能通过规范化的 AI 协作工作流，持续交付高质量软件。**
 
-OpenCode SDD 插件致力于将 Specification-Driven Development (SDD) 方法论与 AI  Agent 系统深度融合，提供从需求规范到代码验证的完整 6 阶段工作流。通过多版本迭代规划，我们将从基础工作流工具逐步演进为完整的开发生态集成平台。
+OpenCode SDD 插件致力于将 Specification-Driven Development (SDD) 方法论与 AI Agent 系统深度融合，提供从需求规范到代码验证的完整 6 阶段工作流。通过多版本迭代规划，我们将从基础工作流工具逐步演进为完整的开发生态集成平台。
 
 ### 版本总览表
 
@@ -29,133 +45,154 @@ OpenCode SDD 插件致力于将 Specification-Driven Development (SDD) 方法论
 
 ### 本周优先事项
 
-#### 第一周 (2026-03-30 ~ 04-06)
-- [ ] **创建 Skills 系统** (F-201, 8 小时)
-  - [ ] `.opencode/skills/sdd-workflow/SKILL.md`
-  - [ ] `.opencode/skills/sdd-spec-template/SKILL.md`
-  - [ ] `.opencode/skills/sdd-review-checklist/SKILL.md`
-  - [ ] `.opencode/skills/sdd-api-align/SKILL.md`
+#### 本周 (2026-04-07 ~ 04-13) - v1.2.0 冲刺周
 
-- [ ] **配置 MCP 服务** (F-203, 4 小时)
+**🔥 最高优先级**: 完成 v1.2.0 核心功能开发
+
+- [ ] **F-201: Skills 系统** (预计 4 小时)
+  - [ ] 创建 `.opencode/skills/sdd-workflow/SKILL.md`
+  - [ ] 创建 `.opencode/skills/sdd-spec-template/SKILL.md`
+  - [ ] 创建 `.opencode/skills/sdd-review-checklist/SKILL.md`
+  - [ ] 创建 `.opencode/skills/sdd-api-align/SKILL.md`
+  - [ ] 验证 Skill 可被 Agent 加载
+
+- [ ] **F-202: TUI 深度集成** (预计 8 小时)
+  - [ ] 实现 `src/plugins/tui-plugin.ts` - session.idle 通知
+  - [ ] 实现 `src/plugins/compaction-plugin.ts` - 会话压缩上下文注入
+  - [ ] 测试 TUI 通知功能
+  - [ ] 测试会话压缩功能
+
+- [ ] **F-203: MCP 集成** (预计 4 小时)
   - [ ] 更新 `opencode.json` 添加 context7 和 gh_grep
-  - [ ] 测试 MCP 连接
+  - [ ] 测试 MCP 服务连接
+  - [ ] 更新 @sdd-2-plan 和 @sdd-4-build Agent 提示
 
-#### 第二周 (2026-04-07 ~ 04-13)
-- [ ] **实现 TUI 插件** (F-202, 12 小时)
-  - [ ] `src/plugins/tui-plugin.ts` - session.idle 通知
-  - [ ] `src/plugins/compaction-plugin.ts` - 会话压缩上下文
-
-- [ ] **实现 Structured Output** (F-204, 8 小时)
-  - [ ] 定义 spec/plan/tasks JSON Schema
+- [ ] **F-204: Structured Output** (预计 6 小时)
+  - [ ] 定义 spec.md JSON Schema
+  - [ ] 定义 plan.md JSON Schema
+  - [ ] 定义 tasks.md JSON Schema
   - [ ] 集成到 Agent 工作流
 
-#### 第三周 (2026-04-14 ~ 04-20)
-- [ ] **启动 v1.2.11 规划** (F-250~F-256, 12 小时)
-  - [x] **F-250**: 创建 `.sdd/` 容器目录结构规划
-  - [ ] **F-251**: 子 Feature Spec 结构详细设计
-  - [ ] **F-252**: 分布式 State 管理设计
-  - [ ] **F-253**: 并行任务机制设计
-  - [ ] **F-254**: 辅助工具设计
-  - [ ] **F-255**: 目录结构标准化设计
-  - [ ] **F-256**: state.json 状态文件增强设计
-  - [ ] 实现 F-250（构建目录结构）
-  - [ ] 安装到当前项目
+**📋 并行任务**: v1.2.11 预研
+- [ ] 调研 .sdd/ 容器化目录结构设计方案
+- [ ] 编写 F-250~F-256 技术设计草案
 
-#### 第四周 (2026-04-21 ~ 04-27)
-- [ ] **实现 F-250 容器化** (12 小时)
-  - [ ] 实现工作空间识别
-  - [ ] 更新状态管理器
-  - [ ] 更新命令系统
-  - [ ] 编写单元测试
+#### 下周 (2026-04-14 ~ 04-20) - v1.2.0 测试周
+- [ ] v1.2.0 功能集成测试
+- [ ] 修复测试发现的 bug
+- [ ] 准备 v1.2.0 发布文档
 
 ### 功能优先级 Top 5
 
-| 排名 | 功能 | 版本 | RICE Score | 工作量 |
-|------|------|------|------------|--------|
-| 🥇 | **F-301: 插件改名 SDDU** | **v1.3.0** | **85** | 8 小时 |
-| 🥈 | F-264: Spec-Code 自动对齐工具 | v1.2.12 | 90 | 16 小时 |
-| 🥉 | F-250: 容器化目录结构 | v1.2.11 | 80 | 4 小时 |
-| 4 | **F-261: 阶段质量门禁** | v1.2.12 | 85 | 12 小时 |
-| 5 | **F-256: state.json 状态增强** | v1.2.11 | 52 | 6 小时 |
+| 排名 | 功能 | 版本 | RICE Score | 状态 |
+|------|------|------|------------|------|
+| 🥇 | **F-201: Agent Skills 系统** | **v1.2.0** | **48** | 🔄 本周开始 |
+| 🥈 | **F-202: TUI 深度集成** | **v1.2.0** | **36** | 🔄 本周开始 |
+| 🥉 | **F-203: MCP 集成** | **v1.2.0** | **40** | 🔄 本周开始 |
+| 4 | F-204: Structured Output | v1.2.0 | 32 | 📋 下周 |
+| 5 | F-250: 容器化目录结构 | v1.2.11 | 80 | 📋 5 月 |
 
-### 品牌升级（**优先级提升**）⭐
+### 战略调整 (2026-04-06)
 
-| ID | 功能 | 版本 | RICE Score | 优先级 |
-|----|------|------|------------|--------|
-| F-301 | **插件改名 SDDU** | **v1.3.0** | **85** | **🔥 P0** |
-| F-302 | 视觉识别系统设计 | v1.3.0 | 70 | 🔥 P1 |
+**🔥 优先级提升**: v1.3.0 SDDU 品牌升级
+- **原计划**: 2026-06-15 (Q3)
+- **新计划**: 2026-05-31 (Q2 末)
+- **原因**: 
+  - 8 个核心 Feature 已全部完成，团队产能释放
+  - 品牌升级对市场推广至关重要
+  - 与现有功能不冲突，可提前实施
 
-**命名理念**: SDD + DDU = **S**pecification-**D**riven **D**evelopment + **D**ay **D**ay **U**p
+**品牌理念**: SDD + DDU = **S**pecification-**D**riven **D**evelopment + **D**ay **D**ay **U**p
 - SDD: 规范驱动开发（核心方法论）
 - DDU: 天天向上（持续改进理念）
-- 寓意：通过规范化的 AI 协作，让团队每天进步
-
-**影响范围**:
-- [ ] 插件名称：OpenCode SDD Plugin → OpenCode SDDU Plugin
-- [ ] 包名：`opencode-sdd-plugin` → `opencode-sddu-plugin`
-- [ ] Agent 前缀：`@sdd-*` → `@sddu-*`（保持向后兼容）
-- [ ] 目录名：`.sdd/` → `.sddu/`（可选，考虑迁移成本）
-- [ ] 文档：所有文档中的品牌名称更新
-- [ ] Logo/视觉：设计新品牌标识
-
-**迁移策略**:
-1. 保持向后兼容（旧名称仍可用）
-2. 提供迁移指南
-3. 渐进式推广新名称
-
-**优先级提升原因**:
-- 品牌识别度提升
-- 便于市场推广
-- 与现有功能不冲突，可提前实施
 
 ### 关键里程碑
 
-| 日期 | 里程碑 | 版本 |
-|------|--------|------|
-| 2026-04-07 | Skills 完成 | v1.2.0 |
-| 2026-04-14 | TUI 完成 | v1.2.0 |
-| 2026-04-30 | **v1.2.0 发布** | v1.2.0 |
-| 2026-05-16 | **F-250 容器结构完成** | v1.2.11 |
-| 2026-05-17 | F-251 Spec 结构完成 | v1.2.11 |
-| 2026-05-18 | F-252 State 管理完成 | v1.2.11 |
-| 2026-05-19 | F-253 并行机制完成 | v1.2.11 |
-| 2026-05-19 | **F-255 目录标准化完成** | v1.2.11 |
-| 2026-05-19 | **F-256 state.json 增强完成** | v1.2.11 |
-| 2026-05-20 | **v1.2.11 发布** | v1.2.11 |
-| 2026-05-21 | **F-260 状态历史记录完成** | v1.2.12 |
-| 2026-05-22 | **F-261 阶段质量门禁完成** | v1.2.12 |
-| 2026-05-23 | **F-262 职责分离完成** | v1.2.12 |
-| 2026-05-24 | **F-263 任务追踪完成** | v1.2.12 |
-| 2026-05-25 | **F-264 Spec-Code 对齐完成** | v1.2.12 |
-| 2026-05-25 | **v1.2.12 发布** | v1.2.12 |
-| **2026-05-26** | **SDDU 品牌升级启动** | **v1.3.0** |
-| **2026-05-28** | **插件名称变更完成** | **v1.3.0** |
-| **2026-05-30** | **文档和品牌更新完成** | **v1.3.0** |
-| **2026-05-31** | **v1.3.0 发布：SDDU 品牌升级** | **v1.3.0** |
-| 2026-09-30 | **v2.0.0 发布** | v2.0.0 |
+| 日期 | 里程碑 | 版本 | 状态 |
+|------|--------|------|------|
+| **2026-04-06** | **8 个 Feature 全部完成** | **Phase 1+** | ✅ 已完成 |
+| 2026-04-07 | Skills 完成 | v1.2.0 | 🔄 进行中 |
+| 2026-04-10 | TUI 完成 | v1.2.0 | 📋 规划中 |
+| 2026-04-14 | MCP 完成 | v1.2.0 | 📋 规划中 |
+| 2026-04-18 | Structured Output 完成 | v1.2.0 | 📋 规划中 |
+| **2026-04-30** | **v1.2.0 发布** | v1.2.0 | 📋 规划中 |
+| 2026-05-16 | F-250 容器结构完成 | v1.2.11 | 📋 规划中 |
+| 2026-05-20 | **v1.2.11 发布** | v1.2.11 | 📋 规划中 |
+| 2026-05-25 | **v1.2.12 发布** | v1.2.12 | 📋 规划中 |
+| **2026-05-31** | **v1.3.0 发布：SDDU 品牌升级** | **v1.3.0** | 🔥 **优先级提升** |
+| 2026-09-30 | **v2.0.0 发布** | v2.0.0 | 📋 愿景 |
 
 ### 立即开始的命令
 
 ```bash
-# 1. 创建 Skills 目录
+# ===== 今天 (2026-04-06) 可执行的命令 =====
+
+# 1. 创建 Skills 目录结构
 mkdir -p .opencode/skills/{sdd-workflow,sdd-spec-template,sdd-review-checklist,sdd-api-align}
 
-# 2. 更新 opencode.json 添加 MCP
-# 在 "mcp" 部分添加:
-# "context7": { "type": "remote", "url": "https://mcp.context7.com/mcp", "enabled": true },
-# "gh_grep": { "type": "remote", "url": "https://mcp.grep.app", "enabled": true }
-
-# 3. 创建 TUI 插件文件
+# 2. 创建 TUI 插件目录
 mkdir -p src/plugins
-touch src/plugins/tui-plugin.ts
-touch src/plugins/compaction-plugin.ts
+
+# 3. 查看当前 Feature 状态
+cat .sdd/specs-tree-root/*/state.json | jq -r '.featureId + ": " + .status'
+
+# 4. 验证 8 个 Feature 完成状态
+echo "=== 已完成 Feature 清单 ===" && ls -1 .sdd/specs-tree-root/
+
+# 5. 检查 opencode.json 当前 MCP 配置
+cat opencode.json | jq '.mcp'
 ```
 
+### 资源建议
+
+**当前团队配置**: 2 人（1 名核心开发 + 1 名协助开发）
+
+**v1.2.0 冲刺建议 (2026-04-07 ~ 04-30)**:
+- **核心开发**: 负责 F-201 (Skills) + F-202 (TUI) - 预计 12 小时
+- **协助开发**: 负责 F-203 (MCP) + F-204 (Structured Output) - 预计 10 小时
+- **并行开发**: 两人可同时推进，减少依赖阻塞
+
+**v1.3.0 品牌升级 (2026-05-26 ~ 05-31)**:
+- 建议提前开始品牌设计工作 (2026-05-01 启动)
+- 预留 1 周进行品牌迁移测试
+- 准备向后兼容方案，降低用户迁移成本
+
 ### 下一步行动
-1. **今天**: 创建 4 个 SKILL.md 文件
-2. **本周**: 完成 Skills 系统和 MCP 配置
-3. **下周**: 实现 TUI 插件和 Structured Output
-4. **4 月底**: 发布 v1.2.0
+1. **今天 (2026-04-06)**: 创建 4 个 SKILL.md 文件 + TUI 插件目录
+2. **本周 (04-07 ~ 04-13)**: 完成 Skills 系统和 TUI 集成
+3. **下周 (04-14 ~ 04-20)**: 完成 MCP 集成和 Structured Output
+4. **4 月底 (04-21 ~ 04-30)**: 测试 + 发布 v1.2.0
+5. **5 月初 (05-01 ~ 05-20)**: v1.2.11 容器化支持
+6. **5 月底 (05-26 ~ 05-31)**: v1.3.0 品牌升级
+
+### 风险评估
+
+| 风险类型 | 描述 | 可能性 | 影响 | 缓解措施 |
+|----------|------|--------|------|----------|
+| **技术风险** | TUI API 可能不稳定或变更 | 中 | 高 | 预留 2 天缓冲时间，关注官方更新 |
+| **进度风险** | v1.2.0 功能较多，可能延期 | 中 | 中 | 优先保证 F-201/F-202，F-203/F-204 可延后 |
+| **依赖风险** | MCP 服务不可用或受限 | 低 | 中 | 实现优雅降级，MCP 不可用时不影响核心功能 |
+| **品牌风险** | 品牌升级可能导致用户混淆 | 中 | 低 | 保持向后兼容，提供详细迁移指南 |
+| **资源风险** | 2 人团队同时开发多个版本可能分散 | 低 | 中 | 严格按版本顺序开发，不并行多个版本 |
+
+### 资源建议
+
+**当前团队配置**: 2 人（1 名核心开发 + 1 名协助开发）
+
+**v1.2.0 冲刺建议 (2026-04-07 ~ 04-30)**:
+- **核心开发**: 负责 F-201 (Skills) + F-202 (TUI) - 预计 12 小时
+- **协助开发**: 负责 F-203 (MCP) + F-204 (Structured Output) - 预计 10 小时
+- **并行开发**: 两人可同时推进，减少依赖阻塞
+
+**v1.3.0 品牌升级 (2026-05-26 ~ 05-31)**:
+- 建议提前开始品牌设计工作 (2026-05-01 启动)
+- 预留 1 周进行品牌迁移测试
+- 准备向后兼容方案，降低用户迁移成本
+
+**产能估算**:
+- 当前 8 个 Feature 已完成，团队产能释放
+- v1.2.0 预计 22 小时工作量，2 人周可完成
+- v1.3.0 品牌升级约 16 小时，1 人周可完成
 
 ### 版本总览表
 
@@ -1596,58 +1633,101 @@ Plugins: npm packages + 本地插件
 
 ## 下一步行动建议
 
-### 立即可执行 (This Week)
+### 立即可执行 (2026-04-06 ~ 04-07)
 
-1. **启动 v1.2.0 开发**
-   - [ ] 创建 `.opencode/skills/` 目录结构
-   - [ ] 编写 4 个 SKILL.md 文件
-   - [ ] 测试 Skills 加载功能
+**🔥 今天就可以开始**:
 
-2. **配置 MCP 服务**
-   - [ ] 更新 `opencode.json` 添加 context7 和 gh_grep
-   - [ ] 测试 MCP 连接和工具调用
-   - [ ] 更新 Agent 文档说明
+1. **创建 Skills 系统** (预计 4 小时)
+   ```bash
+   # 创建目录结构
+   mkdir -p .opencode/skills/{sdd-workflow,sdd-spec-template,sdd-review-checklist,sdd-api-align}
+   
+   # 创建 SKILL.md 文件
+   touch .opencode/skills/sdd-workflow/SKILL.md
+   touch .opencode/skills/sdd-spec-template/SKILL.md
+   touch .opencode/skills/sdd-review-checklist/SKILL.md
+   touch .opencode/skills/sdd-api-align/SKILL.md
+   ```
+   - [ ] 编写 `sdd-workflow/SKILL.md` - 6 阶段工作流引导
+   - [ ] 编写 `sdd-spec-template/SKILL.md` - 规范模板库
+   - [ ] 编写 `sdd-review-checklist/SKILL.md` - 审查清单
+   - [ ] 编写 `sdd-api-align/SKILL.md` - API 对齐指导
 
-3. **TUI 插件开发**
-   - [ ] 创建 `src/plugins/tui-plugin.ts`
-   - [ ] 实现 `session.idle` 事件处理
-   - [ ] 测试 Toast 通知功能
+2. **创建 TUI 插件框架** (预计 2 小时)
+   ```bash
+   mkdir -p src/plugins
+   touch src/plugins/tui-plugin.ts
+   touch src/plugins/compaction-plugin.ts
+   ```
+   - [ ] 实现 `session.idle` 事件处理 (阶段完成通知)
+   - [ ] 实现 `experimental.session.compacting` 事件处理 (上下文注入)
+
+3. **配置 MCP 服务** (预计 1 小时)
+   ```bash
+   # 查看当前 MCP 配置
+   cat opencode.json | jq '.mcp'
+   ```
+   - [ ] 在 `opencode.json` 中添加 context7 MCP
+   - [ ] 在 `opencode.json` 中添加 gh_grep MCP
+   - [ ] 测试 MCP 连接
+
+4. **验证当前状态** (预计 0.5 小时)
+   ```bash
+   # 查看 8 个 Feature 状态
+   for f in .sdd/specs-tree-root/*/state.json; do
+     echo "=== $(dirname $f | xargs basename) ==="
+     cat "$f" | jq -r '.status'
+   done
+   ```
+   - [ ] 确认所有 Feature 状态为 completed/validated
 
 ---
 
-### 短期计划 (Next 2 Weeks)
+### 短期计划 (2026-04-07 ~ 04-20)
 
 1. **完成 v1.2.0 核心功能**
-   - [ ] Structured Output Schema 定义
-   - [ ] 集成验证到 Agent 工作流
-   - [ ] 端到端测试
+   - [ ] F-201: Skills 系统 (04-07 完成)
+   - [ ] F-202: TUI 深度集成 (04-10 完成)
+   - [ ] F-203: MCP 集成 (04-14 完成)
+   - [ ] F-204: Structured Output (04-18 完成)
 
-2. **准备 v1.2.0 发布**
-   - [ ] 更新 CHANGELOG.md
-   - [ ] 更新 README.md 使用说明
-   - [ ] 发布 v1.2.0 版本
+2. **v1.2.0 测试与发布** (04-21 ~ 04-30)
+   - [ ] 集成测试
+   - [ ] Bug 修复
+   - [ ] 文档更新
+   - [ ] 发布 v1.2.0
+
+3. **启动 v1.2.11 预研** (04-14 ~ 04-20)
+   - [ ] F-250 容器化目录结构设计
+   - [ ] F-251 子 Feature 化 Spec 结构设计
+   - [ ] F-252 分布式 State 管理设计
+   - [ ] 编写技术设计文档
 
 ---
 
-### 中期计划 (Next Month)
+### 中期计划 (2026-05-01 ~ 05-31)
 
-1. **完成 v1.2.11 开发**
-   - [ ] F-250 容器化目录结构实现
-   - [ ] 子 Feature 化 Spec 结构实现 (F-251)
-   - [ ] 分布式 State 管理 (F-252)
-   - [ ] 并行任务机制 (F-253)
-   - [ ] 辅助工具集 (F-254)
-   - [ ] 发布 v1.2.11 版本
+1. **v1.2.11 开发** (05-01 ~ 05-20)
+   - [ ] 实现 F-250 容器化目录结构
+   - [ ] 实现 F-251 子 Feature 化 Spec 结构
+   - [ ] 实现 F-252 分布式 State 管理
+   - [ ] 实现 F-253 并行任务机制
+   - [ ] 实现 F-254 辅助工具集
+   - [ ] 发布 v1.2.11
 
-2. **启动 v1.3.0 规划**
-   - [ ] 细化 F-301 ~ F-305 功能 spec
-   - [ ] 评估技术可行性
-   - [ ] 创建实施计划
+2. **v1.2.12 开发** (05-21 ~ 05-25)
+   - [ ] 实现 F-260 状态历史记录
+   - [ ] 实现 F-261 阶段质量门禁
+   - [ ] 实现 F-262 Review/Validate 职责分离
+   - [ ] 实现 F-263 Build 任务追踪
+   - [ ] 实现 F-264 Spec-Code 自动对齐
+   - [ ] 发布 v1.2.12
 
-3. **用户反馈收集**
-   - [ ] 发布 v1.2.0 用户调研
-   - [ ] 分析使用数据
-   - [ ] 调整 v1.3.0 优先级
+3. **v1.3.0 品牌升级** (05-26 ~ 05-31)
+   - [ ] 插件名称变更 (SDD → SDDU)
+   - [ ] 文档和品牌更新
+   - [ ] 向后兼容处理
+   - [ ] 发布 v1.3.0
 
 ---
 
@@ -1689,6 +1769,35 @@ Plugins: npm packages + 本地插件
 | 1.2.10 | 2026-03-31 | **删除 `sub-features/` 中间目录，目录层级即 Feature 层级** |
 | 1.2.11 | 2026-03-31 | **更新目录结构为参考结构，所有 Feature 结构相同，统一 State Schema** |
 | 1.2.12 | 2026-03-31 | **添加 F-250 容器化支持，版本号更新为 v1.2.11，发布日期 2026-05-20** |
+| 1.2.13 | 2026-04-05 | 新增 v1.2.12 流程修复版本 (F-260~F-266) |
+| **1.2.16** | **2026-04-06** | **8 个 Feature 全部完成，v1.3.0 品牌升级优先级提升** |
+
+---
+
+### D. 2026-04-06 更新说明
+
+**📊 当前状态**:
+- ✅ 8 个核心 Feature 全部 validated (100% 完成)
+- 🔄 v1.2.0 正在开发中 (Skills + TUI + MCP + Structured Output)
+- 📋 v1.2.11 容器化支持规划中
+- 📋 v1.2.12 流程修复规划中
+- 🔥 v1.3.0 品牌升级优先级提升 (从 06-15 提前到 05-31)
+
+**🎯 本周重点 (2026-04-07 ~ 04-13)**:
+1. 完成 F-201 Skills 系统 (4 个 SKILL.md)
+2. 完成 F-202 TUI 深度集成 (tui-plugin.ts + compaction-plugin.ts)
+3. 完成 F-203 MCP 集成 (context7 + gh_grep)
+4. 启动 F-204 Structured Output (JSON Schema)
+
+**⚠️ 风险预警**:
+- TUI API 可能不稳定，需预留缓冲时间
+- 2 人团队同时开发多个版本，需严格按优先级执行
+
+**📈 调整后里程碑**:
+- 2026-04-30: v1.2.0 发布
+- 2026-05-20: v1.2.11 发布
+- 2026-05-25: v1.2.12 发布
+- **2026-05-31: v1.3.0 品牌升级 (提前)**
 
 ---
 
