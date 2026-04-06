@@ -260,29 +260,6 @@
       ]
     },
     {
-      "feature": "login-module",
-      "name": "登录模块",
-      "version": "1.0.0",
-      "status": "validated",
-      "phase": 6,
-      "files": {
-        "spec": "spec.md",
-        "plan": "plan.md",
-        "tasks": "tasks.md",
-        "readme": null
-      },
-      "dependencies": {
-        "on": [],
-        "blocking": []
-      },
-      "metadata": {
-        "priority": "P0",
-        "featureId": "FR-AUTH-001"
-      },
-      "createdAt": "2026-04-02T00:00:00Z",
-      "updatedAt": "2026-04-03T00:00:00Z"
-    },
-    {
       "feature": "specs-tree-sdd-plugin-roadmap",
       "name": "SDD Roadmap 规划专家",
       "version": "1.0.0",
