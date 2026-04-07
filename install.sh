@@ -246,94 +246,18 @@ print_color "${CYAN}[6/7] Merging opencode.json for SDDU + backward compatibilit
 # Prepare SDDU and SDD configurations
 OPENCODE_JSON_SOURCE_SDDU="${SCRIPT_DIR}/dist/sddu/opencode.json"
 OPENCODE_JSON_SOURCE_SDD="${SCRIPT_DIR}/dist/sdd/opencode.json"
-# If either source doesn't exist, construct from original package
-if [ ! -f "$OPENCODE_JSON_SOURCE_SDDU" ] || [ ! -f "$OPENCODE_JSON_SOURCE_SDD" ]; then
-    # Generate both from original source
-    ORIGINAL_PKG_PATH="${SCRIPT_DIR}/package.json"
-    ORIGINAL_PKG=$(cat "$ORIGINAL_PKG_PATH")
-    NAME=$(echo "$ORIGINAL_PKG" | grep -o '"name"[[:space:]]*:[[:space:]]*"[^"]*"' | cut -d'"' -f4)
-    
-    # Create configuration with SDDU support
-    mkdir -p "$(dirname "$OPENCODE_JSON_SOURCE_SDDU")"
-    cat > "$OPENCODE_JSON_SOURCE_SDDU" << EOF
-{
-  "\$schema": "https://opencode.ai/schemas/opencode.v1.json",
-  "plugin": [
-    "opencode-sddu-plugin",
-    "opencode-sdd-plugin"
-  ],
-  "agent": {
-    "sddu": "Smart SDDU workflow router agent (recommended)",
-    "sdd": "Smart SDD workflow router agent (backward compatibility)",
-    "sddu-help": "SDDU Help assistant (recommended)", 
-    "sdd-help": "SDD Help assistant (backward compatibility)",
-    "sddu-discovery": "SDDU Deep requirement analysis agent (Stage 0/6)",
-    "sdd-discovery": "SDD Deep requirement analysis agent, deprecated (Stage 0/6)",
-    "sddu-0-discovery": "SDDU Requirement Discovery with phase indication (Stage 0/6)",
-    "sdd-0-discovery": "SDD Requirement Discovery, deprecated (Stage 0/6)",
-    "sddu-1-spec": "SDDU Specification expert (Phase 1/6)",
-    "sdd-1-spec": "SDD Specification expert, deprecated (Phase 1/6)",
-    "sddu-2-plan": "SDDU Technical planning expert (Phase 2/6)",
-    "sdd-2-plan": "SDD Technical planning expert, deprecated (Phase 2/6)",
-    "sddu-3-tasks": "SDDU Task breakdown expert (Phase 3/6)",
-    "sdd-3-tasks": "SDD Task breakdown expert, deprecated (Phase 3/6)",
-    "sddu-4-build": "SDDU Implementation expert (Phase 4/6)",
-    "sdd-4-build": "SDD Implementation expert, deprecated (Phase 4/6)",
-    "sddu-5-review": "SDDU Code review expert (Phase 5/6)",
-    "sdd-5-review": "SDD Code review expert, deprecated (Phase 5/6)",
-    "sddu-6-validate": "SDDU Validation expert (Phase 6/6)",
-    "sdd-6-validate": "SDD Validation expert, deprecated (Phase 6/6)",
-    "sddu-roadmap": "SDDU Roadmap planning agent (recommended)",
-    "sdd-roadmap": "SDD Roadmap planning agent, backward compatibility",
-    "sddu-docs": "SDDU Directory navigation generator (recommended)",
-    "sdd-docs": "SDD Directory navigation generator, backward compatibility"
-  },
-  "permission": ["fs", "process", "network"]
-}
-EOF
 
-    # Also create a similar config for SDD (mostly deprecated versions)
-    ORIGINAL_PKG_PATH="${SCRIPT_DIR}/package.json"
-    ORIGINAL_PKG=$(cat "$ORIGINAL_PKG_PATH")
-    NAME=$(echo "$ORIGINAL_PKG" | grep -o '"name"[[:space:]]*:[[:space:]]*"[^"]*"' | cut -d'"' -f4)
-    
-    mkdir -p "$(dirname "$OPENCODE_JSON_SOURCE_SDD")"
-    cat > "$OPENCODE_JSON_SOURCE_SDD" << EOF
-{
-  "\$schema": "https://opencode.ai/schemas/opencode.v1.json",
-  "plugin": [
-    "opencode-sdd-plugin",
-    "opencode-sddu-plugin"
-  ],
-  "agent": {
-    "sdd": "Smart SDD workflow router agent",
-    "sddu": "Smart SDDU workflow router agent (recommended new)",
-    "sdd-help": "SDD Help assistant",
-    "sddu-help": "SDDU Help assistant (recommended new)", 
-    "sdd-discovery": "SDD Deep requirement analysis agent (Stage 0/6)",
-    "sddu-discovery": "SDDU Deep requirement analysis agent, recommended (Stage 0/6)",
-    "sdd-0-discovery": "SDD Requirement Discovery (Stage 0/6)",
-    "sddu-0-discovery": "SDDU Requirement Discovery, recommended (Stage 0/6)",
-    "sdd-1-spec": "SDD Specification expert (Phase 1/6)",
-    "sddu-1-spec": "SDDU Specification expert, recommended (Phase 1/6)",
-    "sdd-2-plan": "SDD Technical planning expert (Phase 2/6)",
-    "sddu-2-plan": "SDDU Technical planning expert, recommended (Phase 2/6)",
-    "sdd-3-tasks": "SDD Task breakdown expert (Phase 3/6)",
-    "sddu-3-tasks": "SDDU Task breakdown expert, recommended (Phase 3/6)",
-    "sdd-4-build": "SDD Implementation expert (Phase 4/6)",
-    "sddu-4-build": "SDDU Implementation expert, recommended (Phase 4/6)",
-    "sdd-5-review": "SDD Code review expert (Phase 5/6)",
-    "sddu-5-review": "SDDU Code review expert, recommended (Phase 5/6)",
-    "sdd-6-validate": "SDD Validation expert (Phase 6/6)",
-    "sddu-6-validate": "SDDU Validation expert, recommended (Phase 6/6)",
-    "sdd-roadmap": "SDD Roadmap planning agent",
-    "sddu-roadmap": "SDDU Roadmap planning agent, recommended",
-    "sdd-docs": "SDD Directory navigation generator",
-    "sddu-docs": "SDDU Directory navigation generator, recommended"
-  },
-  "permission": ["fs", "process", "network"]
-}
-EOF
+# Check if dist files exist
+if [ ! -f "$OPENCODE_JSON_SOURCE_SDDU" ]; then
+    print_color "${RED}ERROR: SDDU opencode.json not found at $OPENCODE_JSON_SOURCE_SDDU${NC}"
+    print_color "${YELLOW}Please run 'npm run build' or 'node scripts/package.cjs' first${NC}"
+    exit 1
+fi
+
+if [ ! -f "$OPENCODE_JSON_SOURCE_SDD" ]; then
+    print_color "${RED}ERROR: SDD opencode.json not found at $OPENCODE_JSON_SOURCE_SDD${NC}"
+    print_color "${YELLOW}Please run 'npm run build' or 'node scripts/package.cjs' first${NC}"
+    exit 1
 fi
 
 OPENCODE_JSON_PATH="${TARGET_DIR}/opencode.json"
