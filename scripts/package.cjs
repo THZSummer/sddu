@@ -219,7 +219,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu": {
         "description": "SDDU Master Coordinator - 智能路由助手 (新版本)",
         "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd.md}",
+        "prompt": "{file:agents/sddu.md}",
         "deprecated": false
       },
       "sdd-help": {
@@ -231,7 +231,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-help": {
         "description": "SDDU Help Assistant - 使用指南 (新版本)",
         "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-help.md}",
+        "prompt": "{file:agents/sddu-help.md}",
         "deprecated": false
       },
       "sdd-discovery": {
@@ -243,7 +243,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-discovery": {
         "description": `SDDU 需求挖掘专家 (阶段 0/6, 新版本)`,
         "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-discovery.md}",
+        "prompt": "{file:agents/sddu-discovery.md}",
         "deprecated": false
       },
       "sdd-0-discovery": {
@@ -255,7 +255,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-0-discovery": {
         "description": `SDDU 需求挖掘专家 (阶段 0/6, 新版本)`,
         "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-0-discovery.md}",
+        "prompt": "{file:agents/sddu-0-discovery.md}",
         "deprecated": false
       },
       "sdd-1-spec": {
@@ -267,7 +267,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-1-spec": {
         "description": `SDDU 规范编写专家 (阶段 1/6, 新版本)`,
         "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-1-spec.md}",
+        "prompt": "{file:agents/sddu-1-spec.md}",
         "deprecated": false
       },
       "sdd-2-plan": {
@@ -279,7 +279,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-2-plan": {
         "description": `SDDU 技术规划专家 (阶段 2/6, 新版本)`,
         "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-2-plan.md}",
+        "prompt": "{file:agents/sddu-2-plan.md}",
         "deprecated": false
       },
       "sdd-3-tasks": {
@@ -291,7 +291,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-3-tasks": {
         "description": `SDDU 任务分解专家 (阶段 3/6, 新版本)`,
         "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-3-tasks.md}",
+        "prompt": "{file:agents/sddu-3-tasks.md}",
         "deprecated": false
       },
       "sdd-4-build": {
@@ -303,7 +303,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-4-build": {
         "description": `SDDU 任务实现专家 (阶段 4/6, 新版本)`,
         "model": "bailian/qwen3-coder-plus",
-        "prompt": "{file:agents/sdd-4-build.md}",
+        "prompt": "{file:agents/sddu-4-build.md}",
         "deprecated": false
       },
       "sdd-5-review": {
@@ -315,7 +315,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-5-review": {
         "description": `SDDU 代码审查专家 (阶段 5/6, 新版本)`,
         "model": "bailian/qwen3-coder-plus",
-        "prompt": "{file:agents/sdd-5-review.md}",
+        "prompt": "{file:agents/sddu-5-review.md}",
         "deprecated": false
       },
       "sdd-6-validate": {
@@ -327,7 +327,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-6-validate": {
         "description": `SDDU 验证专家 (阶段 6/6, 新版本)`,
         "model": "bailian/qwen3-coder-plus",
-        "prompt": "{file:agents/sdd-6-validate.md}",
+        "prompt": "{file:agents/sddu-6-validate.md}",
         "deprecated": false
       },
       "sdd-roadmap": {
@@ -339,7 +339,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-roadmap": {
         "description": `SDDU Roadmap 规划专家 - 多版本路线图规划 (新版本)`,
         "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-roadmap.md}",
+        "prompt": "{file:agents/sddu-roadmap.md}",
         "deprecated": false
       },
       "sdd-docs": {
@@ -351,7 +351,7 @@ async function packageSingleVersion(distDir, version, packageName) {
       "sddu-docs": {
         "description": `SDDU 目录导航生成器 - 扫描目录结构生成 README 导航 (新版本)`,
         "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-docs.md}",
+        "prompt": "{file:agents/sddu-docs.md}",
         "deprecated": false
       }
     },
