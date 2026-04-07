@@ -1,167 +1,41 @@
 /**
- * SDD 工具系统打包脚本
- * 实现 FR-022~025: 打包优化需求，生成 dist/sdd/ 目录结构
+ * SDD/SDDU 工具系统打包脚本
+ * 实现 FR-022~025: 打包优化需求，生成 dist/sddu/ 和 dist/sdd/ 目录结构
+ * 为 SDD 到 SDDU 迁移提供双版本支持
  */
 
 const fs = require('fs-extra');
 const path = require('path');
 const archiver = require('archiver');
 
-async function packageSdd() {
+async function packageSddu() {
   try {
-    console.log('📦 开始打包 SDD 工具系统...');
+    console.log('📦 开始打包 SDDU 工具系统 (包含 SDD 兼容性包)...');
     
-    // 1. 创建 dist 目录
+    // 确定 dist 目录
     const distDir = path.join(__dirname, '..', 'dist');
+    
+    // 打包 SDDU 版本
+    console.log('\n🎯 创建 SDDU 版本包...');
+    const sdduDistDir = path.join(distDir, 'sddu');
+    await packageSingleVersion(sdduDistDir, 'sddu', 'opencode-sddu-plugin');
+    
+    console.log('\n🎯 创建 SDD 向后兼容版本包...');
     const sddDistDir = path.join(distDir, 'sdd');
+    await packageSingleVersion(sddDistDir, 'sdd', 'opencode-sdd-plugin');
     
-    console.log(`📁 准备输出目录: ${sddDistDir}`);
+    console.log('\n📦 创建 ZIP 压缩包...');
     
-    // 清空原有的 sdd 目录
-    if (await fs.pathExists(sddDistDir)) {
-      await fs.remove(sddDistDir);
-    }
+    // 创建 SDDU ZIP 包
+    const sdduZipPath = path.join(distDir, 'sddu.zip');
+    await createZip(sdduDistDir, sdduZipPath, 'sddu');
     
-    // 确保 dist 目录存在
-    await fs.ensureDir(distDir);
+    // 创建 SDD ZIP 包
+    const sddZipPath = path.join(distDir, 'sdd.zip'); 
+    await createZip(sddDistDir, sddZipPath, 'sdd');
     
-    // 2. 复制构建产物
-    const srcDir = path.join(__dirname, '..', 'dist');
-    const targetSrcDir = path.join(sddDistDir, 'src');
-    
-    console.log('🔄 复制源码文件...');
-    
-    // 复制编译后的 JS 文件，排除模板目录（因为会特殊处理）
-    const allFiles = await fs.readdir(srcDir);
-    for (const file of allFiles) {
-      // 跳过 'sdd' 目录和 'templates' 目录以及特定要单独处理的文件
-      if (file === 'sdd' || file === 'templates') continue;
-      
-      const sourcePath = path.join(srcDir, file);
-      const destPath = path.join(sddDistDir, file);
-      const stat = await fs.stat(sourcePath);
-      
-      if (stat.isDirectory()) {
-        await fs.copy(sourcePath, destPath);
-      } else {
-        await fs.copy(sourcePath, destPath);
-      }
-    }
-    
-    // 特殊处理模板目录 - 将 dist/templates/agents/ 复制到 dist/sdd/agents/
-    const templatesAgentsDir = path.join(srcDir, 'templates', 'agents');
-    if (await fs.pathExists(templatesAgentsDir)) {
-      const targetAgentsDir = path.join(sddDistDir, 'agents');
-      await fs.ensureDir(targetAgentsDir);
-      await fs.copy(templatesAgentsDir, targetAgentsDir);
-      console.log('🔄 复制 agent 模板到 dist/sdd/agents/ ...');
-    }
-    
-    // 3. 复制根目录 package.json
-    const packageJsonPath = path.join(__dirname, '..', 'package.json');
-    if (await fs.pathExists(packageJsonPath)) {
-      await fs.copy(packageJsonPath, path.join(sddDistDir, 'package.json'));
-      console.log('🔄 复制 package.json ...');
-    }
-    
-    // 4. 复制主要安装脚本 (install.sh, install.ps1)
-    const installShPath = path.join(__dirname, '..', 'install.sh');
-    if (await fs.pathExists(installShPath)) {
-      await fs.copy(installShPath, path.join(sddDistDir, 'install.sh'));
-      console.log('🔄 复制 install.sh ...');
-    }
-    
-    const installPs1Path = path.join(__dirname, '..', 'install.ps1');
-    if (await fs.pathExists(installPs1Path)) {
-      await fs.copy(installPs1Path, path.join(sddDistDir, 'install.ps1'));
-      console.log('🔄 复制 install.ps1 ...');
-    }
-    
-    // 5. 复制许可证和其他根文件
-    const licensePath = path.join(__dirname, '..', 'LICENSE');
-    if (await fs.pathExists(licensePath)) {
-      await fs.copy(licensePath, path.join(sddDistDir, 'LICENSE'));
-    }
-    
-    const readmePath = path.join(__dirname, '..', 'README.md');
-    if (await fs.pathExists(readmePath)) {
-      await fs.copy(readmePath, path.join(sddDistDir, 'README.md'));
-    }
-    
-    // 6. 复制配置文件
-    const configFiles = [
-      '.opencode/agents',
-      '.sdd/config.sample.json',
-      'configs/'
-    ];
-    
-    for (const configFile of configFiles) {
-      const sourcePath = path.join(__dirname, '..', configFile);
-      const targetPath = path.join(sddDistDir, configFile);
-      
-      if (await fs.pathExists(sourcePath)) {
-        const targetDir = path.dirname(targetPath);
-        await fs.ensureDir(targetDir);
-        await fs.copy(sourcePath, targetPath);
-        console.log(`🔄 复制 ${configFile} ...`);
-      }
-    }
-    
-    // 7. 创建打包信息
-    const packageInfo = {
-      version: require('../package.json').version,
-      buildDate: new Date().toISOString(),
-      buildScript: 'scripts/package.cjs',
-      sourceDirStructure: {
-        src: existsSync(path.join(sddDistDir, 'src')),
-        agents: existsSync(path.join(sddDistDir, 'agents')),
-        templates: existsSync(path.join(sddDistDir, 'templates')),
-        scripts: existsSync(path.join(sddDistDir, 'scripts'))
-      }
-    };
-    
-    await fs.writeJson(path.join(sddDistDir, 'BUILD_INFO.json'), packageInfo, { spaces: 2 });
-    console.log('📋 写入构建信息 ...');
-    
-    // 8. 创建 ZIP 压缩包
-    console.log('📦 创建 ZIP 压缩包 ...');
-    
-    const zipPath = path.join(distDir, 'sdd.zip');
-    
-    // 创建输出流
-    const outputStream = fs.createWriteStream(zipPath);
-    
-    // 创建 archiver 实例，设置压缩格式为 zip
-    const archive = archiver('zip', {
-      zlib: { level: 9 } // 设置压缩级别为最大
-    });
-    
-    // 监听压缩过程中的错误事件
-    outputStream.on('close', () => {
-      console.log(`✅ ZIP 文件创建成功: ${archive.pointer()} total bytes`);
-    });
-    
-    archive.on('error', (err) => {
-      console.error('❌ 压缩过程中出错:', err);
-      process.exit(1);
-    });
-    
-    // 设置导出流
-    archive.pipe(outputStream);
-    
-    // 添加整个 sdd 目录到压缩包
-    archive.directory(sddDistDir, 'sdd');
-    
-    // 完成归档
-    await archive.finalize();
-    
-    console.log(`✅ 成功创建打包文件: ${path.relative(process.cwd(), zipPath)}`);
-    console.log(`✅ 打包完成，文件位于: ${path.relative(process.cwd(), sddDistDir)}`);
-    
-    // 9. 清理 dist 目录中的冗余文件（保留 sdd/ 和 sdd.zip）
-    console.log('🧹 清理冗余文件...');
-    
-    const itemsToKeep = ['sdd', 'sdd.zip'];
+    console.log('\n🧹 清理冗余文件...');
+    const itemsToKeep = ['sddu', 'sdd', 'sddu.zip', 'sdd.zip'];
     const allItems = await fs.readdir(distDir);
     
     for (const item of allItems) {
@@ -172,16 +46,23 @@ async function packageSdd() {
       }
     }
     
-    console.log('✅ 清理完成，dist/ 目录仅保留 sdd/ 和 sdd.zip');
+    console.log('\n✅ 打包完成！目录清单：');
+    console.log(`  - dist/sddu/ (SDDU 新版插件包)`);
+    console.log(`  - dist/sdd/ (SDD 兼容版插件包)`);  
+    console.log(`  - dist/sddu.zip (SDDU 插件压缩包)`);
+    console.log(`  - dist/sdd.zip (SDD 插件压缩包)`);
+    console.log(`✅ SDDU + SDD 双版本打包完成`);
     
     // 显示打包目录结构
-    console.log('\n📋 打包目录结构:');
-    await printDirectoryTree(sddDistDir, '');
+    console.log('\n📋 SDDU 目录结构:');
+    await printDirectoryTree(sdduDistDir, '');
     
     return {
       success: true,
-      outputDir: sddDistDir,
-      zipFile: zipPath
+      sdduOutputDir: sdduDistDir,
+      sddOutputDir: sddDistDir,
+      sdduZipFile: sdduZipPath,
+      sddZipFile: sddZipPath
     };
     
   } catch (error) {
@@ -190,43 +71,277 @@ async function packageSdd() {
   }
 }
 
-// 辅助函数：检查目录是否存在
-function existsSync(path) {
-  try {
-    fs.accessSync(path);
-    return true;
-  } catch {
-    return false;
+// 打包单个版本的函数（SDD 或 SDDU）
+async function packageSingleVersion(distDir, version, packageName) {
+  console.log(`📁 准备输出目录: ${distDir}`);
+  
+  // 清空原有目录
+  if (await fs.pathExists(distDir)) {
+    await fs.remove(distDir);
   }
+  
+  // 确保 dist 目录存在
+  await fs.ensureDir(path.dirname(distDir));
+  
+  // 1. 复制构建产物 (JS 文件等)
+  const srcDir = path.join(__dirname, '..', 'dist');
+  const allFiles = await fs.readdir(srcDir);
+  
+  console.log(`🔄 复制构建文件 (${version})...`);
+  for (const file of allFiles) {
+    // 跳过 dist 目录本身和其他输出目录
+    if (file === 'sdd' || file === 'sddu' || file === 'templates') continue;
+    
+    const sourcePath = path.join(srcDir, file);
+    const destPath = path.join(distDir, file);
+    const stat = await fs.stat(sourcePath);
+    
+    if (stat.isDirectory()) {
+      await fs.copy(sourcePath, destPath);
+    } else {
+      await fs.copy(sourcePath, destPath);
+    }
+  }
+  
+  // 特殊处理模板目录 - 将 dist/templates/agents/ 复制到 [distDir]/agents/
+  const templatesAgentsDir = path.join(srcDir, 'templates', 'agents');
+  if (await fs.pathExists(templatesAgentsDir)) {
+    const targetAgentsDir = version === 'sddu' 
+      ? path.join(distDir, 'agents') 
+      : path.join(distDir, 'agents');
+      
+    await fs.ensureDir(targetAgentsDir);
+    
+    // 读取所有模板文件并进行命名替换
+    const agentTemplateFiles = await fs.readdir(templatesAgentsDir);
+    for (const templateFile of agentTemplateFiles) {
+      const templatePath = path.join(templatesAgentsDir, templateFile);
+      const outputPath = path.join(targetAgentsDir, templateFile);
+      
+      if ((await fs.stat(templatePath)).isFile() && templateFile.endsWith('.hbs')) {
+        let content = await fs.readFile(templatePath, 'utf8');
+        
+        // 根据版本替换代理名称 - SDDU 的话替换成 SDDU 版本名，否则保留 SDD 名称
+        if (version === 'sddu') {
+          // SDDU 版本：将所有 SDD 相关名称改为 SDDU
+          content = content 
+            .replace(/SDD(?!\w)/g, 'SDDU')  // 仅替换完整的 "SDD" 单不匹配 "SDDD" 等
+            .replace(/sdd(?!\w)/g, 'sddu')  // 仅替换小写的 "sdd"
+            .replace(/@sdd-/g, '@sddu-');   // 替换命令 @sdd- -> @sddu-
+        } else {
+          // SDD 版本：保持原有命名
+          // 实际不需要替换，但这里保留逻辑扩展性
+        }
+        
+        await fs.writeFile(outputPath, content, 'utf8');
+      } else {
+        // 靠制非模板文件
+        await fs.copy(templatePath, outputPath);
+      }
+    }
+    
+    console.log(`🔄 复制 ${version} agent 模板到 ${path.basename(distDir)}/agents/ ...`);
+  }
+  
+  // 2. 生成插件包特定的 package.json
+  const originalPkg = require('../package.json');
+  const pluginPkg = {
+    ...originalPkg,
+    name: packageName,
+    description: version === 'sddu' 
+      ? 'Specification-Driven Development Ultimate plugin for OpenCode' 
+      : originalPkg.description,
+    // 更新 scripts 部分，为 SDDU 添加带 sddu- 前缀的脚本
+    scripts: {
+      ...originalPkg.scripts,
+      ...(version === 'sddu' ? {
+        'sddu-spec': 'node ./dist/commands/sdd-spec.js',
+        'sddu-plan': 'node ./dist/commands/sdd-plan.js', 
+        'sddu-tasks': 'node ./dist/commands/sdd-tasks.js',
+        'sddu-build': 'node ./dist/commands/sdd-build.js',
+        'sddu-review': 'node ./dist/commands/sdd-review.js',
+        'sddu-validate': 'node ./dist/commands/sdd-validate.js',
+        'sddu-docs': 'node ./dist/commands/sdd-docs.js',
+        'sddu-roadmap': 'node ./dist/commands/sdd-roadmap.js',
+        'sddu-help': 'node ./dist/commands/sdd-help.js',
+      } : {}),
+    },
+    files: [
+      // 更新输出文件路径以匹配版本
+      `dist/${version}/**/*`,  // 版本特定的输出路径
+      'src/**/*',
+      '!.opencode',
+      '!.sdd',
+      'README.md',
+      'LICENSE'
+    ]
+  };
+  
+  await fs.writeJson(path.join(distDir, 'package.json'), pluginPkg, { spaces: 2 });
+  console.log(`🔄 生成 ${version} 版本的 package.json ...`);
+  
+  // 3. 复制主要安装脚本 (install.sh, install.ps1) 
+  const installShPath = path.join(__dirname, '..', 'install.sh');
+  if (await fs.pathExists(installShPath)) {
+    await fs.copy(installShPath, path.join(distDir, 'install.sh'));
+    console.log(`🔄 复制 ${version} install.sh ...`);
+  }
+  
+  const installPs1Path = path.join(__dirname, '..', 'install.ps1');
+  if (await fs.pathExists(installPs1Path)) {
+    await fs.copy(installPs1Path, path.join(distDir, 'install.ps1'));
+    console.log(`🔄 复制 ${version} install.ps1 ...`);
+  }
+  
+  // 4. 复制许可证和其他文件
+  const filesToCopy = [
+    { src: path.join(__dirname, '..', 'LICENSE'), dest: 'LICENSE' },
+    { src: path.join(__dirname, '..', 'README.md'), dest: 'README.md' }
+  ];
+  
+  for (const fileObj of filesToCopy) {
+    if (await fs.pathExists(fileObj.src)) {
+      await fs.copy(fileObj.src, path.join(distDir, fileObj.dest));
+    }
+  }
+  
+  // 5. 准备版本特定的 opencode.json
+  const originalConfig = {
+    "$schema": "https://opencode.ai/schemas/opencode.v1.json",
+    "plugin": [`opencode-${version}-plugin`],
+    "agent": {
+      "sdd": "SDD Router agent (backward compatibility)",
+      "sddu": "SDDU Router agent (new)",
+      "sdd-help": "SDD Help assistant (backward compatibility)",
+      "sddu-help": "SDDU Help assistant (new)",
+      "sdd-discovery": `SDD Discovery agent - Deep requirement analysis (Stage 0/${version == 'sdd'?6:6})`,
+      "sddu-discovery": `SDDU Discovery agent - Deep requirement analysis (Stage 0/6, recommended)`,
+      "sdd-0-discovery": `SDD Discovery with phase (Stage 0/6)`,
+      "sddu-0-discovery": `SDDU Discovery with phase (Stage 0/6, recommended)`,
+      "sdd-1-spec": `SDD Specification expert (Phase 1/6)`,
+      "sddu-1-spec": `SDDU Specification expert (Phase 1/6, recommended)`,
+      "sdd-2-plan": `SDD Technical planning expert (Phase 2/6)`,
+      "sddu-2-plan": `SDDU Technical planning expert (Phase 2/6, recommended)`,
+      "sdd-3-tasks": `SDD Task breakdown expert (Phase 3/6)`, 
+      "sddu-3-tasks": `SDDU Task breakdown expert (Phase 3/6, recommended)`,
+      "sdd-4-build": `SDD Implementation expert (Phase 4/6)`,
+      "sddu-4-build": `SDDU Implementation expert (Phase 4/6, recommended)`,
+      "sdd-5-review": `SDD Code review expert (Phase 5/6)`,
+      "sddu-5-review": `SDDU Code review expert (Phase 5/6, recommended)`,
+      "sdd-6-validate": `SDD Validation expert (Phase 6/6)`,
+      "sddu-6-validate": `SDDU Validation expert (Phase 6/6, recommended)`,
+      "sdd-roadmap": `SDD Roadmap planning agent`,
+      "sddu-roadmap": `SDDU Roadmap planning agent (recommended)`,
+      "sdd-docs": `SDD Directory navigation generator`,
+      "sddu-docs": `SDDU Directory navigation generator (recommended)`
+    },
+    "permission": ["fs", "process", "network"]
+  };
+  
+  // 根据版本调整优先级和说明
+  if (version === 'sddu') {
+    // 在 SDDU 版本中，让 SDDU 代理名更前，SDD 代理名后置
+    const sdduAgents = {};
+    Object.keys(originalConfig.agent).sort((a, b) => {
+      // 具 SDDU 代理在前
+      if (a.startsWith('sddu') && !b.startsWith('sddu')) return -1;
+      if (!a.startsWith('sddu') && b.startsWith('sddu')) return 1;
+      // 然后是普通的 sdd 代理
+      if (a.startsWith('sdd') && !b.startsWith('sddu') && b.startsWith('sdd')) return a.localeCompare(b);
+      return 0; // 保持其他顺序不变
+    }).forEach(key => {
+      sdduAgents[key] = originalConfig.agent[key];
+    });
+    originalConfig.agent = sdduAgents;
+  }
+  
+  await fs.writeJson(path.join(distDir, 'opencode.json'), originalConfig, { spaces: 2 });
+  console.log(`🔄 生成 ${version} 版本的 opencode.json ...`);
+  
+  // 6. 创建打包信息文件
+  const packageInfo = {
+    version: require('../package.json').version,
+    buildDate: new Date().toISOString(),
+    buildScript: 'scripts/package.cjs',
+    versionType: version,
+    packageName: packageName,
+    sourceDirStructure: {
+      src: await fs.pathExists(path.join(distDir, 'src')),
+      agents: await fs.pathExists(path.join(distDir, 'agents')),
+      packageJson: await fs.pathExists(path.join(distDir, 'package.json')),
+      opencodeJson: await fs.pathExists(path.join(distDir, 'opencode.json'))
+    }
+  };
+  
+  await fs.writeJson(path.join(distDir, 'BUILD_INFO.json'), packageInfo, { spaces: 2 });
+  console.log(`📋 写入 ${version} 构建信息 ...`);
+}
+
+// 创建 ZIP 压缩包
+async function createZip(sourceDir, zipPath, versionName) {
+  console.log(`📦 为 ${versionName} 创建 ZIP 压缩包: ${path.basename(zipPath)} ...`);
+  
+  // 创建输出流
+  const outputStream = fs.createWriteStream(zipPath);
+  
+  // 创建 archiver 实例，设置压缩格式为 zip
+  const archive = archiver('zip', {
+    zlib: { level: 9 } // 设置压缩级别为最大
+  });
+  
+  // 监听压缩过程中的错误事件
+  outputStream.on('close', () => {
+    console.log(`✅ ZIP 文件创建成功: ${archive.pointer()} total bytes`);
+  });
+  
+  archive.on('error', (err) => {
+    console.error('❌ 压缩过程中出错:', err);
+    process.exit(1);
+  });
+  
+  // 设置导出流
+  archive.pipe(outputStream);
+  
+  // 添加整个目录到压缩包
+  archive.directory(sourceDir, `${versionName}`);  // 使用版本名作为压缩包内的顶级目录名
+  
+  // 完成归档
+  await archive.finalize();
+  
+  console.log(`✅ 成功创建 ${versionName} 压缩包: ${path.relative(process.cwd(), zipPath)}`);
 }
 
 // 辅助函数：打印目录树
 async function printDirectoryTree(dir, prefix = '', depth = 0) {
   if (depth > 3) return; // 限制最大深度
   
-  const files = await fs.readdir(dir);
-  
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const filePath = path.join(dir, file);
-    const stats = await fs.stat(filePath);
+  try {
+    const files = await fs.readdir(dir);
     
-    const isLast = i === files.length - 1;
-    const connector = isLast ? '└── ' : '├── ';
-    
-    console.log(`${prefix}${connector}${file}${stats.isDirectory() ? '/' : ''}`);
-    
-    if (stats.isDirectory()) {
-      const newPrefix = prefix + (isLast ? '    ' : '│   ');
-      await printDirectoryTree(filePath, newPrefix, depth + 1);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const filePath = path.join(dir, file);
+      const stats = await fs.stat(filePath);
+      
+      const isLast = (i === files.length - 1);
+      const connector = isLast ? '└── ' : '├── ';
+      
+      console.log(`${prefix}${connector}${file}${stats.isDirectory() ? '/' : ''}`);
+      
+      if (stats.isDirectory()) {
+        const newPrefix = prefix + (isLast ? '    ' : '│   ');
+        await printDirectoryTree(filePath, newPrefix, depth + 1);
+      }
     }
+  } catch (err) {
+    console.error(`Error reading directory ${dir}:`, err);
   }
 }
 
 // 导出主函数
-module.exports = packageSdd;
+module.exports = packageSddu;
 
 // 如果直接运行此脚本，则执行打包
 if (require.main === module) {
-  packageSdd();
+  packageSddu();
 }
