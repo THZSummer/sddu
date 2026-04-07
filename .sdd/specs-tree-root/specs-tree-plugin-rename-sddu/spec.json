@@ -1,0 +1,140 @@
+{
+  "featureId": "FR-SDDU-RENAME-001",
+  "featureName": "插件改名 SDDU",
+  "version": "1.0.0",
+  "state": "specified",
+  "createdAt": "2026-04-06",
+  "author": "SDD Spec Agent",
+  "priority": "P0",
+  "summary": {
+    "background": "将插件系统从 SDD 品牌改名为 SDDU 品牌",
+    "goals": [
+      "品牌统一：OpenCode SDD Plugin → OpenCode SDDU Plugin",
+      "命名一致：@sdd-* → @sddu-*",
+      "平滑迁移：提供向后兼容层",
+      "文档同步：更新所有相关文档"
+    ],
+    "scope": {
+      "pluginName": "OpenCode SDD Plugin → OpenCode SDDU Plugin",
+      "packageName": "opencode-sdd-plugin → opencode-sddu-plugin",
+      "agentPrefix": "@sdd-* → @sddu-*",
+      "workspaceDir": ".sdd/ → .sddu/ (可选)",
+      "specsTreeDir": "specs-tree-sdd-* → specs-tree-sddu-*",
+      "toolPrefix": "sdd_* → sddu_*"
+    },
+    "successCriteria": [
+      "新插件包可正常安装和使用",
+      "所有 18 个 @sddu-* Agent 可正常调用",
+      "旧 Agent 名称仍可工作（向后兼容）",
+      "完整工作流正常运行",
+      "所有文档更新完成",
+      "测试覆盖率 ≥ 90%"
+    ]
+  },
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "title": "插件名称更新",
+      "description": "更新插件的品牌名称和包名"
+    },
+    {
+      "id": "FR-002",
+      "title": "包名更新",
+      "description": "更新 npm 包名和相关脚本命令"
+    },
+    {
+      "id": "FR-003",
+      "title": "Agent 命令更新",
+      "description": "更新所有 Agent 的定义和命名"
+    },
+    {
+      "id": "FR-004",
+      "title": "配置文件更新",
+      "description": "更新所有配置文件中的命名引用"
+    },
+    {
+      "id": "FR-005",
+      "title": "文档更新",
+      "description": "更新所有文档文件中的品牌名称和引用"
+    },
+    {
+      "id": "FR-006",
+      "title": "向后兼容支持",
+      "description": "提供向后兼容层，确保现有用户平滑迁移"
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "title": "向后兼容性要求",
+      "description": "确保现有用户的工作流不受影响"
+    },
+    {
+      "id": "NFR-002",
+      "title": "迁移路径",
+      "description": "提供清晰的 3 阶段迁移策略"
+    },
+    {
+      "id": "NFR-003",
+      "title": "测试覆盖率要求",
+      "description": "确保改名后功能完整性"
+    },
+    {
+      "id": "NFR-004",
+      "title": "性能要求",
+      "description": "改名不应影响插件性能"
+    },
+    {
+      "id": "NFR-005",
+      "title": "安全性要求",
+      "description": "改名过程中不引入安全风险"
+    }
+  ],
+  "acceptanceCriteria": {
+    "functional": [
+      "AC-001: 新插件包可安装",
+      "AC-002: 所有 18 个 @sddu-* Agent 可调用",
+      "AC-003: 旧 @sdd-* Agent 仍可调用",
+      "AC-004: 完整工作流正常运行",
+      "AC-005: 状态更新工具正常工作",
+      "AC-006: 目录导航生成正常"
+    ],
+    "documentation": [
+      "AC-101: README.md 完全更新",
+      "AC-102: 所有 Agent 描述更新",
+      "AC-103: 迁移指南发布",
+      "AC-104: Help Agent 说明新旧映射"
+    ],
+    "technical": [
+      "AC-201: 所有测试通过",
+      "AC-202: 构建产物正确",
+      "AC-203: 安装包结构正确",
+      "AC-204: Git 历史清晰",
+      "AC-205: 测试覆盖率 ≥ 90%"
+    ]
+  },
+  "dependencies": {
+    "blocking": [],
+    "blockedBy": [],
+    "external": ["npm registry", "OpenCode 平台"]
+  },
+  "edgeCases": [
+    "EC-001: 旧项目迁移",
+    "EC-002: Agent 名称冲突",
+    "EC-003: 并发调用",
+    "EC-004: 回滚场景"
+  ],
+  "openQuestions": [
+    "OQ-001: 是否强制改名 .sdd/ 目录？(已决策：不强制)",
+    "OQ-002: 旧包何时 deprecated？(待决策)",
+    "OQ-003: 是否需要自动迁移脚本？(建议有)",
+    "OQ-004: specs-tree 现有 Feature 目录是否改名？(已决策：保留)"
+  ],
+  "implementation": {
+    "estimatedHours": 24,
+    "phases": 3,
+    "p0Items": 8,
+    "p1Items": 11,
+    "p2Items": 4
+  }
+}
