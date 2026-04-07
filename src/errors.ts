@@ -1,5 +1,5 @@
 /**
- * SDD 统一错误处理系统
+ * SDDU 统一错误处理系统
  * 实现 FR-016~019: 统一错误处理体系，解决 T-005 错误处理不统一问题
  */
 
@@ -54,19 +54,19 @@ export interface ErrorContext {
 }
 
 /**
- * SDD 基础错误类
- * 所有 SDD 错误类的基类
+ * SDDU 基础错误类
+ * 所有 SDDU 错误类的基类
  */
-export class SddError extends Error {
+export class SdduError extends Error {
   public readonly code: ErrorCode;
   public readonly context: ErrorContext;
-  public readonly isSddError = true;
+  public readonly isSdduError = true;
 
   constructor(message: string, context: ErrorContext) {
     super(message);
     
     // 设置 prototype 链
-    Object.setPrototypeOf(this, SddError.prototype);
+    Object.setPrototypeOf(this, SdduError.prototype);
     
     this.code = context.code;
     this.context = context;
@@ -77,7 +77,18 @@ export class SddError extends Error {
    * 获取错误的详细信息
    */
   public toDetailedString(): string {
-    return `SDD Error [${this.code}]: ${this.message}\nDetails: ${JSON.stringify(this.context.details, null, 2)}`;
+    return `SDDU Error [${this.code}]: ${this.message}\nDetails: ${JSON.stringify(this.context.details, null, 2)}`;
+  }
+}
+
+/**
+ * SDD 基础错误类 (向后兼容)
+ * 所有 SDD 错误类的基类
+ */
+export class SddError extends SdduError {
+  constructor(message: string, context: ErrorContext) {
+    super(message, context);
+    Object.setPrototypeOf(this, SddError.prototype);
   }
 }
 
@@ -169,44 +180,51 @@ export class ErrorHandler {
   /**
    * 根据错误类型执行不同的处理策略
    */
-  static handle(error: unknown, defaultSeverity: 'warn' | 'error' = 'error'): SddError | Error {
-    // 如果已经是 SddError 直接返回
+  static handle(error: unknown, defaultSeverity: 'warn' | 'error' = 'error'): SdduError | Error {
+    // 如果已经是 SdduError 直接返回
+    if (error instanceof SdduError) {
+      return this.logError(error);
+    }
+    
+    // 如果是向后兼容的 SDD 错误
     if (error instanceof SddError) {
       return this.logError(error);
     }
 
-    // 如果是标准 JS 错误，包装成 SddError
+    // 如果是标准 JS 错误，包装成 SdduError
     if (error instanceof Error) {
-      const sddError = new SddError(error.message, {
+      const sdduError = new SdduError(error.message, {
         code: ErrorCode.TOOL_EXECUTE_ERROR,  // 默认工具执行错误
         details: { originalError: error.message, cause: error },
         timestamp: new Date().toISOString(),
         component: 'General Handler'
       });
-      return this.logError(sddError);
+      return this.logError(sdduError);
     }
 
     // 其他未知错误类型，转换为字符串处理
-    const stringError = String(error);
-    const sddError = new SddError(stringError, {
+    const unknownError = String(error);
+    const sdduError = new SdduError(unknownError, {
       code: ErrorCode.TOOL_EXECUTE_ERROR,
-      details: { originalError: stringError },
+      details: { originalError: unknownError },
       timestamp: new Date().toISOString(),
       component: 'General Handler'
     });
     
-    return this.logError(sddError);
+    return this.logError(sdduError);
   }
 
   /**
    * 记录错误日志
    */
-  private static logError<T extends SddError | Error>(error: T): T {
+  private static logError<T extends SdduError | Error>(error: T): T {
     // 使用类型谓词，区分两种情况的处理
-    if (error instanceof SddError) {
-      console.error(`[SDD-${error.code}] ${error.message}`, error.context);
+    if (error instanceof SdduError) {
+      console.error(`[SDDU-${error.code}] ${error.message}`, error.context);
+    } else if (error instanceof SddError) {
+      console.error(`[SDD-${error.code}] ${error.message}`, (error as any).context);
     } else {
-      console.error('[SDD-UNHANDLED] Unhandled error:', error.message);
+      console.error('[SDDU-UNHANDLED] Unhandled error:', error.message);
     }
     
     return error;
@@ -216,11 +234,16 @@ export class ErrorHandler {
 /**
  * 格式化错误信息
  */
-export function formatErrorMessage(error: SddError): string {
+export function formatErrorMessage(error: SdduError): string {
   if (error.context.details) {
     return `${error.message} (${error.code}) - Details: ${JSON.stringify(error.context.details)}`;
   }
   return `${error.message} (${error.code})`;
+}
+
+// 向后兼容函数 - 适用于 SDD 错误
+export function formatSddErrorMessage(error: SddError): string {
+  return formatErrorMessage(error);
 }
 
 export default ErrorHandler;

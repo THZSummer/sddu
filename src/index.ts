@@ -45,7 +45,7 @@ import { StateV2_0_0 } from './state/schema-v2.0.0';
 // 全局实例存储，以确保在会话生命周期内保持单例
 let globalAutoUpdater: AutoUpdater | null = null;
 
-export const SDDPlugin = async ({ project, client, $, directory, worktree }) => {
+export const SDDUPlugin = async ({ project, client, $, directory, worktree }) => {
   // 初始化状态机和自动更新器
   const stateMachine = new StateMachine(directory + '/specs-tree-root');
   
@@ -62,9 +62,9 @@ export const SDDPlugin = async ({ project, client, $, directory, worktree }) => 
   // 使用官方日志 API
   await client.app.log({
     body: {
-      service: "sdd-plugin",
-      level: "info",
-      message: "SDD Plugin loaded with Discovery Engine and AutoUpdater",
+          service: "sddu-plugin",
+          level: "info",
+          message: "SDDU Plugin loaded with Discovery Engine and AutoUpdater",
       extra: {
         directory: directory,
         project: project?.name,
@@ -78,9 +78,9 @@ export const SDDPlugin = async ({ project, client, $, directory, worktree }) => 
     "session.created": async (input) => {
       await client.app.log({
         body: {
-          service: "sdd-plugin",
+          service: "sddu-plugin",
           level: "debug",
-          message: "Session created, initializing SDD state",
+          message: "Session created, initializing SDDU state",
           extra: { directory: directory }
         }
       });
@@ -98,7 +98,7 @@ export const SDDPlugin = async ({ project, client, $, directory, worktree }) => 
       if (input.filePath.includes("specs-tree-root/")) {
         await client.app.log({
           body: {
-            service: "sdd-plugin",
+            service: "sddu-plugin",
             level: "debug",
             message: "Spec file edited, triggering auto-update check",
             extra: { file: input.filePath }
@@ -116,7 +116,7 @@ export const SDDPlugin = async ({ project, client, $, directory, worktree }) => 
     "session.idle": async (input) => {
       await client.app.log({
         body: {
-          service: "sdd-plugin", 
+          service: "sddu-plugin", 
           level: "debug",
           message: "Session idle detected, running complete scan",
           extra: { timestamp: new Date().toISOString() }
@@ -129,7 +129,7 @@ export const SDDPlugin = async ({ project, client, $, directory, worktree }) => 
           await globalAutoUpdater.scanAndAutoUpdate();
           await client.app.log({
             body: {
-              service: "sdd-plugin",
+              service: "sddu-plugin",
               level: "debug", 
               message: "Session idle scan completed successfully"
             }
@@ -137,7 +137,7 @@ export const SDDPlugin = async ({ project, client, $, directory, worktree }) => 
         } catch (error) {
           await client.app.log({
             body: {
-              service: "sdd-plugin",
+              service: "sddu-plugin",
               level: "error",
               message: "Session idle scan failed",
               extra: { error: error instanceof Error ? error.message : String(error) }
@@ -147,7 +147,7 @@ export const SDDPlugin = async ({ project, client, $, directory, worktree }) => 
       } else {
         await client.app.log({
           body: {
-            service: "sdd-plugin",
+            service: "sddu-plugin",
             level: "warn",
             message: "AutoUpdater not initialized, skipping scan"
           }
@@ -159,7 +159,7 @@ export const SDDPlugin = async ({ project, client, $, directory, worktree }) => 
     "session.end": async (input) => {
       await client.app.log({
         body: {
-          service: "sdd-plugin",
+          service: "sddu-plugin",
           level: "debug",
           message: "Session ending, cleaning up resources",
           extra: { timestamp: new Date().toISOString() }
@@ -207,4 +207,7 @@ export {
   MigrationResult,
 };
 
-export default SDDPlugin;
+export default SDDUPlugin;
+
+// 导出 SDDPlugin 作为向后兼容
+export const SDDPlugin = SDDUPlugin; // 用于向后兼容
