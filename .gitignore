@@ -28,3 +28,4 @@ Thumbs.db
 
 # Test coverage reports (generated artifacts)
 coverage/
+.sdd/state.json

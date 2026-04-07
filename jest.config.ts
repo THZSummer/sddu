@@ -1,7 +1,7 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/.sdd/src', '<rootDir>/src', '<rootDir>/.sdd/tests'],
+  roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
   collectCoverageFrom: [
     '**/src/**/*.{js,jsx,ts,tsx}',

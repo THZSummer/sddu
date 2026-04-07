@@ -6,6 +6,7 @@
 import {
   ErrorCode,
   ErrorContext,
+  SdduError,
   SddError,
   StateError,
   DiscoveryError,
@@ -39,9 +40,9 @@ describe('错误系统测试', () => {
     expect(error.message).toBe('Test error message');
     expect(error.code).toBe(ErrorCode.TOOL_ARGUMENT_INVALID);
     expect(error.context.component).toBe('Test Component');
-    // 直接访问属性，而不是通过联合类型访问
-    expect(error.isSddError).toBe(true);
-    expect(error.toDetailedString()).toContain('SDD Error');
+    // 检查是否是 SDDU 错误（新属性名称）
+    expect(error.isSdduError).toBe(true);
+    expect(error.toDetailedString()).toContain('SDDU Error');
   });
 
   test('StateError 测试', () => {
@@ -122,10 +123,10 @@ describe('错误系统测试', () => {
     const rawError = new Error('Raw JavaScript error');
     const result = ErrorHandler.handle(rawError);
     
-    expect(result instanceof SddError).toBe(true);
+    expect(result instanceof SdduError).toBe(true);
     
-    if (result instanceof SddError) {
-      expect(result.isSddError).toBe(true); 
+    if (result instanceof SdduError) {
+      expect(result.isSdduError).toBe(true); 
     }
     
     // 测试处理已有 SddError
@@ -137,7 +138,7 @@ describe('错误系统测试', () => {
     // 测试处理字符串
     const stringError = ErrorHandler.handle('A string error');
     
-    if (stringError instanceof SddError) {
+    if (stringError instanceof SdduError) {
       expect(stringError.message).toBe('A string error');
     }
   });
