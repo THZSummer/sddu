@@ -1,7 +1,43 @@
 {
   "project": "sddu-plugin-migration",
-  "version": "1.4.0", 
-  "status": "completed.legendary",
+  "version": "1.4.1", 
+  "status": "active",
+  "currentFeature": "e2e-script-cleanup",
+  "features": {
+    "completed": [
+      "T-001: Plugin Rename",
+      "T-002: Core Plugin Refactor",
+      "T-003: Main Entry Update",
+      "T-004: Agent Definitions and Templates Update",
+      "T-005: Error Handling Module Update",
+      "T-006: Documentation Update",
+      "T-007: Plugin Configuration Update",
+      "T-008: Backward Compatibility Layer",
+      "T-009: Dual Namespace Management",
+      "T-010: Migration Utilities Creation",
+      "T-011: Documentation and User Guidance",
+      "T-012: Build Pipeline Adoptions",
+      "T-013: Containerization Adaptation",
+      "T-014: .sdd Directory Updates",
+      "T-015: ROADMAP and Milestone Updates",
+      "T-016: Migration Guide Creation",
+      "T-017: Legacy User Documentation",
+      "T-018: Migration Scripts and Tools"
+    ],
+    "inProgress": [
+      "FR-E2E-CLEANUP-001: E2E 脚本清理和统一规范"
+    ]
+  },
+  "activeSpecs": [
+    {
+      "name": "E2E 脚本清理和统一规范",
+      "identifier": "FR-E2E-CLEANUP-001",
+      "state": "specified",
+      "createdDate": "2026-04-08",
+      "priority": "P1",
+      "directory": "specs-tree-e2e-script-cleanup"
+    }
+  ],
   "migrationSummary": {
     "completedTasks": [
       "T-001: Plugin Rename", 

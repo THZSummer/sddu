@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
-# SDD 端到端测试脚本 (SDD/SDDU E2E Test)
+# SDDU 优先端到端测试脚本 (SDD/SDDU E2E Test)
+#
+# 默认模式：SDDU（主推 @sddu-* 命令系列）
+# 兼容模式：SDD（保留 @sdd-* 命令系列，向后兼容用于对比）
 #
 # 使用方式:
-#   # 基本测试 (默认为 SDDU 模式)
+#   # 基本测试 (默认为 SDDU 模式 - 推荐)
 #   bash sdd-e2e.sh                       # 使用默认项目名 user-login
 #   bash sdd-e2e.sh "项目名称"             # 自定义项目名（小写字母+数字+连字符，字母开头）
 #   
 #   # 指定模式测试
-#   bash sdd-e2e.sh "项目名称" --mode=sdd      # 使用旧 SDD 命令（向后兼容测试）
-#   bash sdd-e2e.sh "项目名称" --mode=sddu     # 使用新 SDDU 命令（默认）
+#   bash sdd-e2e.sh "项目名称" --mode=sddu     # 使用新 SDDU 命令（推荐，默认）
+#   bash sdd-e2e.sh "项目名称" --mode=sdd      # 使用旧 SDD 命令（向后兼容，已弃用）
 #   bash sdd-e2e.sh "项目名称" --mode=compare  # 比较模式（同时生成新旧两套提示词）
 #   
 #   # 自动模式
 #   bash sdd-e2e.sh "项目名称" --auto          # 自动执行全流程（无需等待用户输入）
+#
+# 重要说明:
+#   - 此脚本默认使用 SDDU 模式（@sddu-* 命令系列） - 新推荐做法
+#   - @sdd-* 系列命令（传统 SDD）已标记为向后兼容，仅供历史项目维护
+#   - 新项目请使用 @sddu-* 命令系列，提供更好的工作流支持
+#   - @sdd-1-spec, @sdd-2-plan, @sdd-3-tasks 等旧命令虽仍工作，但不推荐使用
 #
 # 执行流程:
 #   1. 创建测试目录

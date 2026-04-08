@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # SDDU 端到端测试脚本 (SDDU E2E Test)
 #
+# 专门用于 SDDU (@sddu-* 命令系列) 的端到端测试
+# 注意：此脚本专注于 SDDU 模式，不支持 --mode 选项
+#
 # 使用方式:
 #   # 基础测试
 #   bash sddu-e2e.sh                        # 使用默认项目名 user-login
