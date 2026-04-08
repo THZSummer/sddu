@@ -7,7 +7,6 @@ import {
   ErrorCode,
   ErrorContext,
   SdduError,
-  SddError,
   StateError,
   DiscoveryError,
   ToolError,
@@ -27,7 +26,7 @@ describe('错误系统测试', () => {
     expect(codes).toContain(ErrorCode.AGENT_NOT_FOUND);
   });
 
-  test('SddError 基本功能', () => {
+  test('SdduError 基本功能', () => {
     const context: ErrorContext = {
       code: ErrorCode.TOOL_ARGUMENT_INVALID,
       details: { argName: 'testArg', expectedType: 'string' },
@@ -35,7 +34,7 @@ describe('错误系统测试', () => {
       component: 'Test Component'
     };
 
-    const error = new SddError('Test error message', context);
+    const error = new SdduError('Test error message', context);
 
     expect(error.message).toBe('Test error message');
     expect(error.code).toBe(ErrorCode.TOOL_ARGUMENT_INVALID);
@@ -111,7 +110,7 @@ describe('错误系统测试', () => {
       component: 'Test Component'
     };
 
-    const error = new SddError('Test error', context);
+    const error = new ToolError(ErrorCode.AGENT_EXECUTION_ERROR, 'Test error', { command: 'test-command' });
     const formattedMessage = formatErrorMessage(error);
 
     expect(formattedMessage).toContain('Test error');

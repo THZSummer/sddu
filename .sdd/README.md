@@ -108,5 +108,6 @@
 - 📝 **迁移指南**: `.sdd/docs/migration-guide.md` - SDD 到 SDDU 迁移详细步骤
 - ❓ **FAQ**: `.sdd/docs/faq.md` - 常见问题解答
 - 🔧 **容器化 FAQ**: `.sdd/docs/containerization-faq.md` - 目录结构 FAQ
+- 📂 **文档目录导航**: `.sdd/docs/README.md` - docs 目录完整导航
 - 🗺️ **路线图**: `.sdd/ROADMAP.md` - 版本规划和未来功能
 - 📊 **TREE**: `.sdd/TREE.md` - 详细目录结构规范

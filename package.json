@@ -23,23 +23,14 @@
     "sddu-docs": "node ./dist/commands/sdd-docs.js",
     "sddu-roadmap": "node ./dist/commands/sdd-roadmap.js",
     "sddu-help": "node ./dist/commands/sdd-help.js",
-    "sdd-spec": "node ./dist/commands/sdd-spec.js",
-    "sdd-plan": "node ./dist/commands/sdd-plan.js",
-    "sdd-tasks": "node ./dist/commands/sdd-tasks.js",
-    "sdd-build": "node ./dist/commands/sdd-build.js",
-    "sdd-review": "node ./dist/commands/sdd-review.js",
-    "sdd-validate": "node ./dist/commands/sdd-validate.js",
-    "sdd-docs": "node ./dist/commands/sdd-docs.js",
-    "sdd-roadmap": "node ./dist/commands/sdd-roadmap.js",
-    "sdd-help": "node ./dist/commands/sdd-help.js",
+
     "prepackage": "npm run build",
     "package": "node scripts/package.cjs",
-    "postpackage": "echo 'Packaging complete. Files are in dist/sdd/ and dist/sdd.zip'"
+    "postpackage": "echo 'Packaging complete. Files are in dist/sddu/ and dist/sddu.zip'"
   },
   "keywords": [
     "opencode",
     "plugin",
-    "sdd",
     "sddu"
   ],
   "author": "",
@@ -61,7 +52,6 @@
   },
   "files": [
     "dist/sddu/**/*",
-    "dist/sdd/**/*",
     "src/**/*",
     "!.opencode",
     "!.sdd",

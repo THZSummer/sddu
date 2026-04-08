@@ -81,22 +81,8 @@ export class SdduError extends Error {
   }
 }
 
-/**
- * SDD 基础错误类 (向后兼容)
- * 所有 SDD 错误类的基类
- */
-export class SddError extends SdduError {
-  constructor(message: string, context: ErrorContext) {
-    super(message, context);
-    Object.setPrototypeOf(this, SddError.prototype);
-  }
-}
-
-/**
- * 状态管理错误
- */
-export class StateError extends SddError {
-  constructor(code: Exclude<ErrorCode, ErrorCode.STATE_INVALID_TRANSITION>, message: string, details?: Record<string, any>) {
+export class StateError extends SdduError {
+  constructor(code: ErrorCode, message: string, details?: Record<string, any>) {
     super(message, {
       code: code,
       details,
@@ -111,7 +97,7 @@ export class StateError extends SddError {
 /**
  * 发现阶段错误
  */
-export class DiscoveryError extends SddError {
+export class DiscoveryError extends SdduError {
   constructor(code: ErrorCode, message: string, details?: Record<string, any>) {
     super(message, {
       code: code,
@@ -127,7 +113,7 @@ export class DiscoveryError extends SddError {
 /**
  * 工具函数错误
  */
-export class ToolError extends SddError {
+export class ToolError extends SdduError {
   constructor(code: ErrorCode, message: string, details?: Record<string, any>) {
     super(message, {
       code: code,
@@ -143,7 +129,7 @@ export class ToolError extends SddError {
 /**
  * Agent 错误
  */
-export class AgentError extends SddError {
+export class AgentError extends SdduError {
   constructor(code: ErrorCode, message: string, details?: Record<string, any>) {
     super(message, {
       code: code,
@@ -159,7 +145,7 @@ export class AgentError extends SddError {
 /**
  * 配置相关错误
  */
-export class ConfigError extends SddError {
+export class ConfigError extends SdduError {
   constructor(code: ErrorCode, message: string, details?: Record<string, any>) {
     super(message, {
       code: code,
@@ -183,11 +169,6 @@ export class ErrorHandler {
   static handle(error: unknown, defaultSeverity: 'warn' | 'error' = 'error'): SdduError | Error {
     // 如果已经是 SdduError 直接返回
     if (error instanceof SdduError) {
-      return this.logError(error);
-    }
-    
-    // 如果是向后兼容的 SDD 错误
-    if (error instanceof SddError) {
       return this.logError(error);
     }
 
@@ -218,11 +199,9 @@ export class ErrorHandler {
    * 记录错误日志
    */
   private static logError<T extends SdduError | Error>(error: T): T {
-    // 使用类型谓词，区分两种情况的处理
+    // 检查是否为 SdduError
     if (error instanceof SdduError) {
       console.error(`[SDDU-${error.code}] ${error.message}`, error.context);
-    } else if (error instanceof SddError) {
-      console.error(`[SDD-${error.code}] ${error.message}`, (error as any).context);
     } else {
       console.error('[SDDU-UNHANDLED] Unhandled error:', error.message);
     }
@@ -239,11 +218,6 @@ export function formatErrorMessage(error: SdduError): string {
     return `${error.message} (${error.code}) - Details: ${JSON.stringify(error.context.details)}`;
   }
   return `${error.message} (${error.code})`;
-}
-
-// 向后兼容函数 - 适用于 SDD 错误
-export function formatSddErrorMessage(error: SddError): string {
-  return formatErrorMessage(error);
 }
 
 export default ErrorHandler;

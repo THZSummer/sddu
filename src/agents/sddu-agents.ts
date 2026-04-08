@@ -1,4 +1,4 @@
-// SDD Agents 注册
+// SDDU Agents 注册
 import { StateMachine, FeatureStateEnum } from "../state/machine";
 import { AgentMetadata } from "../types";
 import { agentRegistry } from "./registry";
@@ -14,108 +14,108 @@ export interface AgentIntegrationResult {
 const builtinAgents: AgentMetadata[] = [
   // 智能入口和帮助
   {
-    name: 'sdd',
-    description: 'SDD 工作流智能入口 - 自动路由到正确阶段',
+    name: 'sddu',
+    description: 'SDDU 工作流智能入口 - 自动路由到正确阶段',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd.md'
+    promptFile: '.opencode/agents/sddu.md'
   },
   {
-    name: 'sdd-help',
-    description: 'SDD 工作流帮助 - 查看完整命令参考',
+    name: 'sddu-help',
+    description: 'SDDU 工作流帮助 - 查看完整命令参考',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-help.md'
+    promptFile: '.opencode/agents/sddu-help.md'
   },
-  // 阶段 1/6: 规范编写
+  // 阶段 1/6: 规范编写  
   {
-    name: 'sdd-1-spec',
-    description: 'SDD 规范编写专家 (阶段 1/6) - 推荐用这个',
+    name: 'sddu-1-spec',
+    description: 'SDDU 规范编写专家 (阶段 1/6) - 推荐用这个',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-spec.md'
+    promptFile: '.opencode/agents/sddu-spec.md'
   },
   {
-    name: 'sdd-spec',
-    description: 'SDD 规范编写专家 (阶段 1/6) - 同 sdd-1-spec',
+    name: 'sddu-spec',
+    description: 'SDDU 规范编写专家 (阶段 1/6) - 同 sddu-1-spec',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-spec.md'
+    promptFile: '.opencode/agents/sddu-spec.md'
   },
   // 阶段 2/6: 技术规划
   {
-    name: 'sdd-2-plan',
-    description: 'SDD 技术规划专家 (阶段 2/6) - 推荐用这个',
+    name: 'sddu-2-plan',
+    description: 'SDDU 技术规划专家 (阶段 2/6) - 推荐用这个',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-plan.md'
+    promptFile: '.opencode/agents/sddu-plan.md'
   },
   {
-    name: 'sdd-plan',
-    description: 'SDD 技术规划专家 (阶段 2/6) - 同 sdd-2-plan',
+    name: 'sddu-plan',
+    description: 'SDDU 技术规划专家 (阶段 2/6) - 同 sddu-2-plan',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-plan.md'
+    promptFile: '.opencode/agents/sddu-plan.md'
   },
   // 阶段 3/6: 任务分解
   {
-    name: 'sdd-3-tasks',
-    description: 'SDD 任务分解专家 (阶段 3/6) - 推荐用这个',
+    name: 'sddu-3-tasks',
+    description: 'SDDU 任务分解专家 (阶段 3/6) - 推荐用这个',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-tasks.md'
+    promptFile: '.opencode/agents/sddu-tasks.md'
   },
   {
-    name: 'sdd-tasks',
-    description: 'SDD 任务分解专家 (阶段 3/6) - 同 sdd-3-tasks',
+    name: 'sddu-tasks',
+    description: 'SDDU 任务分解专家 (阶段 3/6) - 同 sddu-3-tasks',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-tasks.md'
+    promptFile: '.opencode/agents/sddu-tasks.md'
   },
   // 阶段 4/6: 任务实现
   {
-    name: 'sdd-4-build',
-    description: 'SDD 任务实现专家 (阶段 4/6) - 推荐用这个',
+    name: 'sddu-4-build',
+    description: 'SDDU 任务实现专家 (阶段 4/6) - 推荐用这个',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-build.md'
+    promptFile: '.opencode/agents/sddu-build.md'
   },
   {
-    name: 'sdd-build',
-    description: 'SDD 任务实现专家 (阶段 4/6) - 同 sdd-4-build',
+    name: 'sddu-build',
+    description: 'SDDU 任务实现专家 (阶段 4/6) - 同 sddu-4-build',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-build.md'
+    promptFile: '.opencode/agents/sddu-build.md'
   },
   // 阶段 5/6: 代码审查
   {
-    name: 'sdd-5-review',
-    description: 'SDD 代码审查专家 (阶段 5/6) - 推荐用这个',
+    name: 'sddu-5-review',
+    description: 'SDDU 代码审查专家 (阶段 5/6) - 推荐用这个',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-review.md'
+    promptFile: '.opencode/agents/sddu-review.md'
   },
   {
-    name: 'sdd-review',
-    description: 'SDD 代码审查专家 (阶段 5/6) - 同 sdd-5-review',
+    name: 'sddu-review',
+    description: 'SDDU 代码审查专家 (阶段 5/6) - 同 sddu-5-review',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-review.md'
+    promptFile: '.opencode/agents/sddu-review.md'
   },
   // 阶段 6/6: 最终验证
   {
-    name: 'sdd-6-validate',
-    description: 'SDD 验证专家 (阶段 6/6) - 推荐用这个',
+    name: 'sddu-6-validate',
+    description: 'SDDU 验证专家 (阶段 6/6) - 推荐用这个',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-validate.md'
+    promptFile: '.opencode/agents/sddu-validate.md'
   },
   {
-    name: 'sdd-validate',
-    description: 'SDD 验证专家 (阶段 6/6) - 同 sdd-6-validate',
+    name: 'sddu-validate',
+    description: 'SDDU 验证专家 (阶段 6/6) - 同 sddu-6-validate',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-validate.md'
+    promptFile: '.opencode/agents/sddu-validate.md'
   },
   // 扩展功能: Roadmap 规划
   {
-    name: 'sdd-roadmap',
-    description: 'SDD Roadmap 规划专家 - 多版本路线图规划',
+    name: 'sddu-roadmap',
+    description: 'SDDU Roadmap 规划专家 - 多版本路线图规划',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-roadmap.md'
+    promptFile: '.opencode/agents/sddu-roadmap.md'
   },
   // 扩展功能：文档维护
   {
-    name: 'sdd-docs',
-    description: 'SDD 目录导航生成器 - 扫描目录结构生成 README 导航',
+    name: 'sddu-docs',
+    description: 'SDDU 目录导航生成器 - 扫描目录结构生成 README 导航',
     mode: 'subagent',
-    promptFile: '.opencode/agents/sdd-docs.md'
+    promptFile: '.opencode/agents/sddu-docs.md'
   }
 ];
 
@@ -163,18 +163,18 @@ export async function registerAgents(context: any) {
   // Integration function that updates states when agents are called
   const updateStateForAgentCall = async (agentName: string, featureId: string): Promise<AgentIntegrationResult> => {
     const agentStateMapping: Record<string, FeatureStateEnum> = {
-      'sdd-spec': 'specified',
-      'sdd-1-spec': 'specified',
-      'sdd-plan': 'planned', 
-      'sdd-2-plan': 'planned',
-      'sdd-tasks': 'tasked',
-      'sdd-3-tasks': 'tasked',
-      'sdd-build': 'implementing',
-      'sdd-4-build': 'implementing',
-      'sdd-review': 'reviewed',
-      'sdd-5-review': 'reviewed',
-      'sdd-validate': 'validated',
-      'sdd-6-validate': 'validated'
+      'sddu-spec': 'specified',
+      'sddu-1-spec': 'specified',
+      'sddu-plan': 'planned', 
+      'sddu-2-plan': 'planned',
+      'sddu-tasks': 'tasked',
+      'sddu-3-tasks': 'tasked',
+      'sddu-build': 'implementing',
+      'sddu-4-build': 'implementing',
+      'sddu-review': 'reviewed',
+      'sddu-5-review': 'reviewed',
+      'sddu-validate': 'validated',
+      'sddu-6-validate': 'validated'
     };
     
     const targetState = agentStateMapping[agentName];
@@ -195,7 +195,7 @@ export async function registerAgents(context: any) {
           targetState as FeatureStateEnum, 
           {},  // No additional data for now
           agentName,  // triggeredBy
-          `SDD Agent executed: ${agentName}`,
+          `SDDU Agent executed: ${agentName}`,
           true  // skipValidation = true for agent-triggered updates
         );
         

@@ -208,6 +208,3 @@ export {
 };
 
 export default SDDUPlugin;
-
-// 导出 SDDPlugin 作为向后兼容
-export const SDDPlugin = SDDUPlugin; // 用于向后兼容

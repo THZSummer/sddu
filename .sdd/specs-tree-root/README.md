@@ -42,6 +42,27 @@
 - ✅ **无缝工作**: 所有旧功能继续正常运作
 - 🔄 **渐进迁移**: 可逐步更新到新命名标准
 
+## 规范目录导航
+
+### 架构目录
+| 目录 | 说明 |
+|------|------|
+| [architecture/](./architecture/README.md) | 架构决策记录目录 |
+| [architecture/adr/](./architecture/adr/README.md) | ADR 文档集合 (ADR-001 ~ ADR-014) |
+
+### 已完成 Feature 目录
+| 目录 | 说明 | 状态 |
+|------|------|------|
+| [specs-tree-plugin-rename-sddu/](./specs-tree-plugin-rename-sddu/README.md) | 插件改名 SDDU | ✅ completed.legendary.sealed |
+| [specs-tree-sdd-discovery-feature/](./specs-tree-sdd-discovery-feature/README.md) | Discovery 需求挖掘功能 | ✅ completed |
+| [specs-tree-directory-optimization/](./specs-tree-directory-optimization/README.md) | 目录结构优化 | ✅ completed |
+| [specs-tree-sdd-multi-module/](./specs-tree-sdd-multi-module/README.md) | 子 Feature 并行开发支持 | ✅ completed |
+| [specs-tree-sdd-tools-optimization/](./specs-tree-sdd-tools-optimization/README.md) | 工具系统优化 | ✅ completed |
+| [specs-tree-deprecate-sdd-tools/](./specs-tree-deprecate-sdd-tools/README.md) | 废弃旧工具 | ✅ completed |
+| [specs-tree-sdd-workflow-state-optimization/](./specs-tree-sdd-workflow-state-optimization/README.md) | 工作流状态优化 | ✅ completed |
+| [specs-tree-sdd-plugin-roadmap/](./specs-tree-sdd-plugin-roadmap/README.md) | Roadmap 规划专家 | ✅ completed |
+| [specs-tree-sdd-plugin-baseline/](./specs-tree-sdd-plugin-baseline/README.md) | 插件基线建立 | ✅ completed |
+
 ## 规范文件说明
 
 ### SDDU 7 阶段完整工作流
