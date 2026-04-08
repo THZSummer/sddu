@@ -38,7 +38,7 @@ import {
 } from './state/migrator';
 
 // 从命令模块导入
-import { SddMigrateSchemaCommand } from './commands/sdd-migrate-schema';
+import { SddMigrateSchemaCommand } from './commands/sddu-migrate-schema';
 
 import { StateV2_0_0 } from './state/schema-v2.0.0';
 

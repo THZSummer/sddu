@@ -6,7 +6,12 @@
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { spawnSync } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 function updateState(feature, stateUpdate) {
   // Feature目录路径可能为多种情况之一，支持新旧目录
@@ -38,9 +43,11 @@ function updateState(feature, stateUpdate) {
       console.error("No state file found, creating new one in standard location");
       // 创建新的状态文件
       const newStatePath = `.sddu/specs-tree-root/specs-tree-${feature}/state.json`;
-      const newStateDir = require('path').dirname(newStatePath);
+      const newStateDir = dirname(newStatePath);
       if (!existsSync(newStateDir)) {
-        require('fs').mkdirSync(newStateDir, { recursive: true });
+        import('fs').then(fs => {
+          fs.promises.mkdir(newStateDir, { recursive: true }).catch(console.error);
+        }).catch(console.error);
       }
       const newState = {
         feature,
@@ -78,7 +85,6 @@ function updateState(feature, stateUpdate) {
 
 function findStateFiles(featureSubstring) {
   // 递归查找包含feature名称的state.json文件，支持新旧目录
-  const { spawnSync } = require('child_process');
   
   // 检查多个可能的目录位置
   const results = [];
@@ -89,7 +95,7 @@ function findStateFiles(featureSubstring) {
         .filter(line => line.trim() !== '' && line.includes(featureSubstring)));
     }
   } catch(e) {}
-  
+
   try {
     const result2 = spawnSync('find', ['.sdd', '-name', 'state.json'], { encoding: 'utf-8' });
     if (result2.status === 0) {

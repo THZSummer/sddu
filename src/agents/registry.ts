@@ -163,7 +163,7 @@ export class AgentRegistry implements IAgentRegistry {
 
       // 扩展以支持 .md 文件类型的 Agent，这样可以从 templates/agents/ 目录加载
       const agentFiles = configFiles.filter(file => 
-        file.endsWith('.md') && file.startsWith('sdd-')
+        file.endsWith('.md') && file.startsWith('sddu-')
       );
 
       for (const agentFile of agentFiles) {
