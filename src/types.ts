@@ -1,4 +1,4 @@
-// SDD 工具系统类型定义统一出口
+// SDDU 工具系统类型定义统一出口
 // 整合所有分散的类型定义，提供统一导入接口
 // 实现 FR-001~005: 统一工具函数管理
 
@@ -94,10 +94,10 @@ export interface AgentMetadata {
 }
 
 /**
- * SDD 配置选项接口
+ * SDDU 配置选项接口
  * 统一配置接口，便于扩展
  */
-export interface SddConfig {
+export interface SdduConfig {
   autoUpdateState?: boolean;  // 是否自动更新状态
   enableDiscovery?: boolean;  // 是否启用自动发现
   logLevel?: 'debug' | 'info' | 'warn' | 'error';  // 日志级别

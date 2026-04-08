@@ -1,10 +1,10 @@
 // Migration utility from v1.2.11 to v2.0.0
-// Provides backward compatibility for state schema evolution
+// Provides state schema evolution support
 
 import { StateV2_0_0, validateState } from './schema-v2.0.0';
 
 /**
- * Represents legacy state schema v1.2.11 format
+ * Represents legacy state schema v1.2.11 format (for migration purposes)
  */
 interface LegacyStateV1_2_11 {
   featureId: string;
@@ -19,7 +19,7 @@ interface LegacyStateV1_2_11 {
 }
 
 /**
- * Maps legacy status values to new workflow status values
+ * Maps legacy status values to new workflow status values (for migration purposes)
  */
 const mapLegacyStatus = (legacyStatus: string): string => {
   // Simple mapping logic - extendable for complex status mappings

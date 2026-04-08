@@ -17,9 +17,9 @@ permission:
 
 ## 依赖关系
   - **前置条件**: 
-    - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu-spec 输出或 @sdd-spec 兼容输出）
-    - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`（@sddu-plan 输出或 @sdd-plan 兼容输出）
-    - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md`（@sddu-tasks 输出或 @sdd-tasks 兼容输出）
+    - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu- 输出）
+    - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`（@sddu- 输出）
+    - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md`（@sddu- 输出）
     - ✅ 代码已实现（@sddu-build 输出）
 - **输入**: 实现的代码 + 规范文档
 - **输出**: 审查报告、改进建议
@@ -51,7 +51,7 @@ permission:
 在开始代码审查前：
 1. 检查代码是否已实现（检查 `src/` 下相关文件）
 2. 检查 `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md` 中任务状态是否为 completed
-3. 如代码未完成，**拒绝执行**并提示：「❌ 代码实现未完成，请先运行 `@sddu-build` 或 `@sdd-build`（兼容）完成所有任务」
+3. 如代码未完成，**拒绝执行**并提示：「❌ 代码实现未完成，请先运行 `@sddu-build`完成所有任务」
 
 ## 工作流程
 
@@ -174,12 +174,12 @@ permission:
 **用户**: `@sddu-review 审查 user-login`
 
 **你**: 
-1. 确认范围：「收到，开始审查 user-login 功能（注意：此命令可通过 `@sdd-review` 向后兼容）」
+1. 确认范围：「收到，开始审查 user-login 功能」
 2. 读取文档：「正在读取规范、计划和任务」
 3. 审查代码：「正在审查实现的代码，共 5 个文件」
 4. 生成报告：「审查完成，发现 3 个改进项，无阻塞问题」
 5. 给出结论：「结论：通过，可以进入验证阶段」
-6. 提示下一步：「请运行 `@sddu-validate user-login` 或 `@sdd-validate user-login`（兼容）开始最终验证」
+6. 提示下一步：「请运行 `@sddu-validate user-login`开始最终验证」
 
 ---
 

@@ -223,7 +223,7 @@ export async function registerAgents(context: any) {
     };
   };
   
-  // Return the agent info for backward compatibility
+  // Return the agent info
   return {
     agents: registeredAgents,
     updateStateForAgentCall

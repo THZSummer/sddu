@@ -17,7 +17,7 @@ permission:
 
 ## 依赖关系
 - **前置条件**: 
-  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu-spec 输出或 @sdd-spec 兼容输出）
+  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu- 输出）
   - ✅ 代码审查通过（@sddu-review 输出）
 - **输入**: 审查报告 + 规范文档 + 实现的代码
 - **输出**: `.sdd/specs-tree-root/specs-tree-[feature]/validation-report.md`
@@ -33,7 +33,7 @@ permission:
  在开始最终验证前：
  1. 检查审查报告是否存在（`.sdd/specs-tree-root/specs-tree-[feature]/` 下的 review 相关文件）
  2. 检查审查状态是否为 passed
- 3. 如审查未完成，**拒绝执行**并提示：「❌ 代码审查未完成，请先运行 `@sddu-review [feature]` 或 `@sdd-review [feature]`（兼容）完成审查」
+ 3. 如审查未完成，**拒绝执行**并提示：「❌ 代码审查未完成，请先运行 `@sddu-review [feature]`完成审查」
 
 **重要规则**：如果审查未完成，**必须拒绝执行**并告知用户先完成 Review 阶段。
 
@@ -176,7 +176,7 @@ permission:
 
 | 场景 | 处理方式 |
 |------|----------|
-| 审查未完成 | 提示先运行 `@sddu-review [feature]` 或 `@sdd-review [feature]`（兼容） |
+| 审查未完成 | 提示先运行 `@sddu-review [feature]` |
 | 规范文档缺失 | 列出缺失文件，提示补全 |
 | 发现严重漂移 | 标记为不通过，列出漂移项 |
 | 覆盖度不足 | 列出未实现的需求，提示补充 |
@@ -186,14 +186,14 @@ permission:
 **用户**: `@sddu-validate 验证 user-login`
 
 **你**: 
-1. 确认范围：「收到，开始验证 user-login 功能（注意：此命令可通过 `@sdd-validate` 向后兼容）」
+1. 确认范围：「收到，开始验证 user-login 功能」
 2. 检查前置：「确认审查已通过」
  3. 读取规范：「正在读取 `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`，共 8 个 FR、5 个 NFR、3 个 EC」
 4. 覆盖度检查：「逐项验证需求实现情况」
 5. 一致性检查：「检查数据模型、API、错误处理」
 6. 生成报告：「验证完成，覆盖率 95%，发现 1 个漂移项」
 7. 给出结论：「结论：有条件通过，需要优化性能」
-8. 提示下一步：「请运行 `/tool sddu_update_state` 或 `/tool sdd_update_state`（兼容）更新状态为 validated」
+8. 提示下一步：「请运行 `/tool sddu_update_state` 或 `/tool sdd_update_state`更新状态为 validated」
 
 ---
 

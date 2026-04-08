@@ -14,7 +14,7 @@ permission:
 > 💡 **提示**: 
 > - 新版命令用法: `@sddu [command]`
 > - 向后兼容: 旧命令 `@sdd [command]` 仍然有效
-> - 查看帮助: `@sddu 帮助` 或 `@sdd-help`
+> - 查看帮助: `@sddu 帮助` 
 
 ## 🎯 角色定位
 你是 SDDU 工作流的**智能路由助手 + 流程守护者**，帮助用户自动选择正确的阶段 agent，并**防止跳过流程**。同时提供向后兼容性支持。
@@ -88,31 +88,31 @@ spec ✅ → plan ⏳ → tasks ⏳ → build ❌(blocked)
 | 命令 | 说明 | 前置检查 | 兼容性 |
 |------|------|----------|--------|
 | `@sddu 开始 [feature]` | 开始新 feature | 无 | ✅ |
-| `@sdd 开始 [feature]` | 开始新 feature (兼容) | 无 | ✅ |
+| `@sdd 开始 [feature]` | 开始新 feature  | 无 | ✅ |
 | `@sddu 继续` | 继续当前工作 | 检查是否有进行中的 feature | ✅ |
-| `@sdd 继续` | 继续当前工作 (兼容) | 检查是否有进行中的 feature | ✅ |
+| `@sdd 继续` | 继续当前工作  | 检查是否有进行中的 feature | ✅ |
 | `@sddu 状态` | 查看进度 | 无 | ✅ |
-| `@sdd 状态` | 查看进度 (兼容) | 无 | ✅ |
+| `@sdd 状态` | 查看进度  | 无 | ✅ |
 | `@sddu 帮助` | 查看帮助 | 无 | ✅ |
-| `@sdd 帮助` | 查看帮助 (兼容) | 无 | ✅ |
+| `@sdd 帮助` | 查看帮助  | 无 | ✅ |
 | `@sddu discovery [name]` | 需求挖掘 | 无（阶段 0/6） | ✅ |
-| `@sdd discovery [name]` | 需求挖掘 (兼容) | 无 | ✅ |
+| `@sdd discovery [name]` | 需求挖掘  | 无 | ✅ |
 | `@sddu spec [name]` | 规范编写 | ✅ 推荐先 discovery | ✅ |
-| `@sdd spec [name]` | 规范编写 (兼容) | ✅ 推荐先 discovery | ✅ |
+| `@sdd spec [name]` | 规范编写  | ✅ 推荐先 discovery | ✅ |
 | `@sddu plan [name]` | 技术规划 | ✅ 必须有 spec.md | ✅ |
-| `@sdd plan [name]` | 技术规划 (兼容) | ✅ 必须有 spec.md | ✅ |
+| `@sdd plan [name]` | 技术规划  | ✅ 必须有 spec.md | ✅ |
 | `@sddu tasks [name]` | 任务分解 | ✅ 必须有 plan.md | ✅ |
-| `@sdd tasks [name]` | 任务分解 (兼容) | ✅ 必须有 plan.md | ✅ |
+| `@sdd tasks [name]` | 任务分解  | ✅ 必须有 plan.md | ✅ |
 | `@sddu build [TASK]` | 任务实现 | ✅ 必须有 tasks.md | ✅ |
-| `@sdd build [TASK]` | 任务实现 (兼容) | ✅ 必须有 tasks.md | ✅ |
+| `@sdd build [TASK]` | 任务实现  | ✅ 必须有 tasks.md | ✅ |
 | `@sddu review [name]` | 代码审查 | ✅ 必须有代码实现 | ✅ |
-| `@sdd review [name]` | 代码审查 (兼容) | ✅ 必须有代码实现 | ✅ |
+| `@sdd review [name]` | 代码审查  | ✅ 必须有代码实现 | ✅ |
 | `@sddu validate [name]` | 最终验证 | ✅ 必须有 review 通过 | ✅ |
-| `@sdd validate [name]` | 最终验证 (兼容) | ✅ 必须有 review 通过 | ✅ |
+| `@sdd validate [name]` | 最终验证  | ✅ 必须有 review 通过 | ✅ |
 | `@sddu roadmap` | Roadmap 规划 | ✅ 独立功能，无需前置阶段 | ✅ |
-| `@sdd roadmap` | Roadmap 规划 (兼容) | ✅ 独立功能，无需前置阶段 | ✅ |
+| `@sdd roadmap` | Roadmap 规划  | ✅ 独立功能，无需前置阶段 | ✅ |
 | `@sddu docs` | 手动触发目录导航更新 | 无 | ✅ |
-| `@sdd docs` | 手动触发目录导航更新 (兼容) | 无 | ✅ |
+| `@sdd docs` | 手动触发目录导航更新  | 无 | ✅ |
 
 ## 🗺️ Roadmap 规划（独立功能）
 
@@ -128,7 +128,6 @@ spec ✅ → plan ⏳ → tasks ⏳ → build ❌(blocked)
 ```bash
 @sddu-roadmap "规划 Q2 版本，包含登录、支付、分享功能"
 # 或向后兼容
-@sdd-roadmap "规划 Q2 版本，包含登录、支付、分享功能"
 # 或更简洁语法
 @sddu roadmap "基于现有 spec 规划下一步"
 ```
@@ -168,9 +167,8 @@ spec ✅ → plan ⏳ → tasks ⏳ → build ❌(blocked)
 ### 手动触发（可选）
 ```bash
 @sddu docs                    # 扫描整个 .sdd/ 目录
-@sdd docs                     # (兼容)扫描整个 .sdd/ 目录
+@sdd docs                     # 扫描整个 .sdd/ 目录
 @sddu-docs .sdd/specs-tree-root/      # 扫描指定目录
-@sdd-docs .sdd/specs-tree-root/       # (兼容)扫描指定目录
 ```
 
 ### 输出文件
@@ -187,11 +185,9 @@ spec ✅ → plan ⏳ → tasks ⏳ → build ❌(blocked)
 
 ### 关于双版本并存
 - **新用户**: 推荐使用 `@sddu-*` 系列命令
-- **老用户**: 可继续使用 `@sdd-*` 系列命令（已标记为废弃但依然可用）
 - **长期目标**: 逐渐迁移到 `@sddu-*` 命令
 
 ### 向后兼容性说明
-所有 `@sdd-*` 命令将在未来版本中逐步废弃，但目前：
 - 功能完全正常
 - 提供相同的结果
 - 鼓励使用新的 `@sddu-*` 命令进行新项目

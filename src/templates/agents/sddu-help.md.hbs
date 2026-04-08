@@ -29,7 +29,7 @@ permission:
 | **@sddu 继续** | 继续当前工作 | `@sddu 继续` | ✅ `@sdd 继续` |
 | **@sddu 状态** | 查看进度 | `@sddu 状态` | ✅ `@sdd 状态` |
 | **@sddu 帮助** | 查看帮助 | `@sddu 帮助` | ✅ `@sdd 帮助` |
-| **@sddu-help** | 查看帮助（别名） | `@sddu-help` | ✅ `@sdd-help` |
+| **@sddu-help** | 查看帮助（别名） | `@sddu-help` | ✅ help` |
 
 ### 阶段专用 Agent（新版本）
 
@@ -46,21 +46,21 @@ permission:
 
 | Agent | 用途 | 调用方式 | 向后兼容 |
 |-------|------|----------|----------|
-| `@sddu-spec` | 规范编写 | `@sddu-spec "用户登录规范"` | ✅ `@sdd-spec` |
-| `@sddu-plan` | 技术规划 | `@sddu-plan "用户登录计划"` | ✅ `@sdd-plan` |
-| `@sddu-tasks` | 任务分解 | `@sddu-tasks "用户登录任务"` | ✅ `@sdd-tasks` |
-| `@sddu-build` | 任务实现 | `@sddu-build "实现 TASK-001"` | ✅ `@sdd-build` |
-| `@sddu-review` | 代码审查 | `@sddu-review "审查用户登录"` | ✅ `@sdd-review` |
-| `@sddu-validate` | 最终验证 | `@sddu-validate "验证用户登录"` | ✅ `@sdd-validate` |
-| `@sddu-roadmap` | Roadmap 规划 | `@sddu-roadmap "制定 Phase 3 规划"` | ✅ `@sdd-roadmap` |
-| `@sddu-docs` | 目录导航生成器 | `@sddu-docs` | ✅ `@sdd-docs` |
+| `@sddu-spec` | 规范编写 | `@sddu-spec "用户登录规范"` | ✅ spec` |
+| `@sddu-plan` | 技术规划 | `@sddu-plan "用户登录计划"` | ✅ plan` |
+| `@sddu-tasks` | 任务分解 | `@sddu-tasks "用户登录任务"` | ✅ tasks` |
+| `@sddu-build` | 任务实现 | `@sddu-build "实现 TASK-001"` | ✅ build` |
+| `@sddu-review` | 代码审查 | `@sddu-review "审查用户登录"` | ✅ review` |
+| `@sddu-validate` | 最终验证 | `@sddu-validate "验证用户登录"` | ✅ validate` |
+| `@sddu-roadmap` | Roadmap 规划 | `@sddu-roadmap "制定 Phase 3 规划"` | ✅ roadmap` |
+| `@sddu-docs` | 目录导航生成器 | `@sddu-docs` | ✅ docs` |
 
 ### 功能专区 Agent
 
 | 命令 | 说明 | 示例 | 向后兼容 |
 |------|------|------|----------|
-| **@sddu-roadmap [范围]** | 多版本 Roadmap 规划 | `@sddu-roadmap "2026 Q2"` | ✅ `@sdd-roadmap` |
-| **@sddu-docs** | 目录导航生成器 | `@sddu-docs` | ✅ `@sdd-docs` |
+| **@sddu-roadmap [范围]** | 多版本 Roadmap 规划 | `@sddu-roadmap "2026 Q2"` | ✅ roadmap` |
+| **@sddu-docs** | 目录导航生成器 | `@sddu-docs` | ✅ docs` |
 
 `sddu-roadmap` 用于：
 - 制定多版本迭代路线图
@@ -112,11 +112,9 @@ permission:
 
 ### 关于双版本并存
 - **新用户**: 推荐使用 `@sddu-*` 系列命令
-- **老用户**: 可继续使用 `@sdd-*` 系列命令（已标记为废弃但依然可用）
 - **长期目标**: 逐渐迁移到 `@sddu-*` 命令
 
 ### 向后兼容性说明
-所有 `@sdd-*` 命令将在未来版本中逐步废弃，但目前：
 - 功能完全正常
 - 提供相同的结果
 - 鼓励使用新的 `@sddu-*` 命令进行新项目
@@ -145,13 +143,6 @@ permission:
   
 ## ❓ 常见问题
 
-### Q: 为什么有两套命令 (`@sdd-*` 和 `@sddu-*`)？
-A: SDD 项目升级更名为 SDDU，为保持向后兼容性，目前提供双版本并存：
-- `@sddu-*` 是新的命名规范（推荐使用）
-- `@sdd-*` 保持原有功能不变（将被废弃）
-
-### Q: 现有项目的命令会失效吗？
-A: 不会，`@sdd-*` 命令将继续保持功能完整，直到正式通知移除。
 
 ### Q: 如何开始第一个 feature？
 A: 推荐使用新版命令，例如：

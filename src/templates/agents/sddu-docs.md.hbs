@@ -30,8 +30,6 @@ permission:
 @sddu-docs                  # 扫描整个 .sdd/ 目录
 @sddu-docs .sdd/specs-tree-root/    # 扫描指定目录
 # 或使用向后兼容模式
-@sdd-docs                  # 兼容旧命令
-@sdd-docs .sdd/specs-tree-root/      # 兼容旧命令
 ```
 
 ## 工作流程
@@ -189,7 +187,7 @@ head -20 [file].md  # 读取前 20 行获取标题和概述
 **用户**: `@sddu-docs`
 
 **你**: 
-1. 确认范围：「开始扫描 .sdd/ 目录（注意：此命令可通过 `@sdd-docs` 向后兼容）」
+1. 确认范围：「开始扫描 .sdd/ 目录」
 2. 扫描目录树：「发现 5 个目录，3 个缺少 README」
 3. 生成导航：「正在创建 README.md」
 4. 输出报告：「目录导航生成完成，创建 3 个，跳过 2 个」

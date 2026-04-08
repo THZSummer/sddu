@@ -17,8 +17,8 @@ permission:
 
 ## 依赖关系
 - **前置条件**: 
-  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu-spec 输出或 @sdd-spec 兼容输出）
-  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`（@sddu-plan 输出或 @sdd-plan 兼容输出）
+  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu- 输出）
+  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`（@sddu- 输出）
 - **输入**: `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`, `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`
 - **输出**: `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md`, `.sdd/specs-tree-root/specs-tree-[feature]/tasks.json`
 - **下游**: @sddu-build（依赖 tasks.md 完成）
@@ -35,7 +35,7 @@ permission:
 ## ⚠️ 前置验证（必须执行）
 在开始任务分解前：
 1. 检查 `.sdd/specs-tree-root/specs-tree-[feature]/plan.md` 是否存在
-2. 如不存在，**拒绝执行**并提示：「❌ 技术计划文件不存在，请先运行 `@sddu-plan [feature]` 或 `@sdd-plan [feature]`（兼容）完成技术规划」
+2. 如不存在，**拒绝执行**并提示：「❌ 技术计划文件不存在，请先运行 `@sddu-plan [feature]`完成技术规划」
 3. 检查 `.sdd/specs-tree-root/specs-tree-[feature]/spec.md` 是否存在
 
 **重要规则**：如果 plan.md 缺失，**必须拒绝执行**并告知用户先完成 Plan 阶段。
@@ -99,7 +99,6 @@ permission:
 
 ### 对照信息
 - 旧命令: `@sdd-tasks` | 新命令: `@sddu-tasks`
-- 兼容调用: `@sdd-build TASK-001` 也可使用
 
 ### 任务汇总
 - 总任务数：X 个
@@ -108,7 +107,7 @@ permission:
 
 ### 下一步
 👉 运行 `@sddu-build TASK-001` 开始实现第一个任务
-或运行 `@sdd-build TASK-001`（兼容命令）
+
 ```
 
 **状态更新**: 完成后提示用户运行：
@@ -148,7 +147,7 @@ permission:
 
 | 场景 | 处理方式 |
 |------|----------|
-| plan.md 不存在 | 提示先运行 `@sddu-plan [feature]` 或 `@sdd-plan [feature]`（兼容） |
+| plan.md 不存在 | 提示先运行 `@sddu-plan [feature]` |
 | 任务依赖循环 | 检测循环依赖，提示用户重新设计 |
 | 任务粒度过大 | 建议进一步分解为子任务 |
 | 任务编号冲突 | 读取现有 tasks.md，使用下一个可用编号 |
@@ -158,11 +157,11 @@ permission:
 **用户**: `@sddu-tasks 用户登录`
 
 **你**: 
-1. 确认输入：「收到，开始为「用户登录」分解任务（注意：此命令可通过 `@sdd-tasks [feature]` 向后兼容）」
+1. 确认输入：「收到，开始为「用户登录」分解任务」
 2. 检查前置条件：「正在检查 plan.md 和 spec.md」
 3. 识别工作项：「从技术计划中识别出 12 个工作项」
 4. 分析依赖：「分析任务依赖关系，确定执行顺序」
 5. 分配波次：「Wave 1: 5 个任务，Wave 2: 4 个任务，Wave 3: 3 个任务」
 6. 定义验收：「为每个任务定义可验证的验收标准」
 7. 完成报告：「任务分解完成，共 12 个任务，3 个波次」
-8. 提示下一步：「请运行 `@sddu-build TASK-001` 或 `@sdd-build TASK-001`（兼容）开始实现」
+8. 提示下一步：「请运行 `@sddu-build TASK-001`开始实现」

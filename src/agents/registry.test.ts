@@ -86,13 +86,13 @@ describe('AgentRegistry 测试', () => {
   test('按类别获取 Agents', () => {
     const agents: AgentMetadata[] = [
       {
-        name: 'sdd-api-agent',
+        name: 'sddu-api-agent',
         description: 'API related agent',
         mode: 'subagent',
         promptFile: 'api-agent.md'
       },
       {
-        name: 'sdd-db-agent',
+        name: 'sddu-db-agent',
         description: 'Database related agent',
         mode: 'subagent',
         promptFile: 'db-agent.md'
@@ -110,14 +110,14 @@ describe('AgentRegistry 测试', () => {
     // 通过名称查找
     const sddAgents = registry.getByCategory('sdd');
     expect(sddAgents.length).toBe(2);
-    expect(sddAgents.some(a => a.name === 'sdd-api-agent')).toBe(true);
-    expect(sddAgents.some(a => a.name === 'sdd-db-agent')).toBe(true);
+    expect(sddAgents.some(a => a.name === 'sddu-api-agent')).toBe(true);
+    expect(sddAgents.some(a => a.name === 'sddu-db-agent')).toBe(true);
     expect(sddAgents.some(a => a.name === 'other-agent')).toBe(false);
 
     // 通过描述查找
     const apiRelated = registry.getByCategory('API');
     expect(apiRelated.length).toBe(1);
-    expect(apiRelated[0].name).toBe('sdd-api-agent');
+    expect(apiRelated[0].name).toBe('sddu-api-agent');
   });
 
   test('注销 Agent', () => {
