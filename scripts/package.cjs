@@ -205,177 +205,174 @@ async function packageSingleVersion(distDir, version, packageName) {
     }
   }
   
-  // 5. 准备版本特定的 opencode.json
-  const originalConfig = {
-    "$schema": "https://opencode.ai/config.json",
-    "plugin": [`opencode-${version}-plugin`],
-    "agent": {
-      "sdd": {
-        "description": "SDD Master Coordinator - 智能路由助手 (已弃用，使用 @sddu 代替)",
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd.md}",
-        "deprecated": true
-      },
-      "sddu": {
-        "description": "SDDU Master Coordinator - 智能路由助手 (新版本)",
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sddu.md}",
-        "deprecated": false
-      },
-      "sdd-help": {
-        "description": "SDD Help Assistant - 使用指南 (已弃用，使用 @sddu-help 代替)",
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-help.md}",
-        "deprecated": true
-      },
-      "sddu-help": {
-        "description": "SDDU Help Assistant - 使用指南 (新版本)",
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sddu-help.md}",
-        "deprecated": false
-      },
-      "sdd-discovery": {
-        "description": `SDD 需求挖掘专家 (阶段 0/6, 已弃用，使用 @sddu-discovery 代替)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-discovery.md}",
-        "deprecated": true
-      },
-      "sddu-discovery": {
-        "description": `SDDU 需求挖掘专家 (阶段 0/6, 新版本)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sddu-discovery.md}",
-        "deprecated": false
-      },
-      "sdd-0-discovery": {
-        "description": `SDD 需求挖掘专家 (阶段 0/6, 已弃用，使用 @sddu-discovery 代替)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-0-discovery.md}",
-        "deprecated": true
-      },
-      "sddu-0-discovery": {
-        "description": `SDDU 需求挖掘专家 (阶段 0/6, 新版本)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sddu-0-discovery.md}",
-        "deprecated": false
-      },
-      "sdd-1-spec": {
-        "description": `SDD 规范编写专家 (阶段 1/6, 已弃用，使用 @sddu-spec 代替)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-1-spec.md}",
-        "deprecated": true
-      },
-      "sddu-1-spec": {
-        "description": `SDDU 规范编写专家 (阶段 1/6, 新版本)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sddu-1-spec.md}",
-        "deprecated": false
-      },
-      "sdd-2-plan": {
-        "description": `SDD 技术规划专家 (阶段 2/6, 已弃用，使用 @sddu-plan 代替)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-2-plan.md}",
-        "deprecated": true
-      },
-      "sddu-2-plan": {
-        "description": `SDDU 技术规划专家 (阶段 2/6, 新版本)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sddu-2-plan.md}",
-        "deprecated": false
-      },
-      "sdd-3-tasks": {
-        "description": `SDD 任务分解专家 (阶段 3/6, 已弃用，使用 @sddu-tasks 代替)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-3-tasks.md}",
-        "deprecated": true
-      },
-      "sddu-3-tasks": {
-        "description": `SDDU 任务分解专家 (阶段 3/6, 新版本)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sddu-3-tasks.md}",
-        "deprecated": false
-      },
-      "sdd-4-build": {
-        "description": `SDD 任务实现专家 (阶段 4/6, 已弃用，使用 @sddu-build 代替)`,
-        "model": "bailian/qwen3-coder-plus",
-        "prompt": "{file:agents/sdd-4-build.md}",
-        "deprecated": true
-      },
-      "sddu-4-build": {
-        "description": `SDDU 任务实现专家 (阶段 4/6, 新版本)`,
-        "model": "bailian/qwen3-coder-plus",
-        "prompt": "{file:agents/sddu-4-build.md}",
-        "deprecated": false
-      },
-      "sdd-5-review": {
-        "description": `SDD 代码审查专家 (阶段 5/6, 已弃用，使用 @sddu-review 代替)`,
-        "model": "bailian/qwen3-coder-plus",
-        "prompt": "{file:agents/sdd-5-review.md}",
-        "deprecated": true
-      },
-      "sddu-5-review": {
-        "description": `SDDU 代码审查专家 (阶段 5/6, 新版本)`,
-        "model": "bailian/qwen3-coder-plus",
-        "prompt": "{file:agents/sddu-5-review.md}",
-        "deprecated": false
-      },
-      "sdd-6-validate": {
-        "description": `SDD 验证专家 (阶段 6/6, 已弃用，使用 @sddu-validate 代替)`,
-        "model": "bailian/qwen3-coder-plus",
-        "prompt": "{file:agents/sdd-6-validate.md}",
-        "deprecated": true
-      },
-      "sddu-6-validate": {
-        "description": `SDDU 验证专家 (阶段 6/6, 新版本)`,
-        "model": "bailian/qwen3-coder-plus",
-        "prompt": "{file:agents/sddu-6-validate.md}",
-        "deprecated": false
-      },
-      "sdd-roadmap": {
-        "description": `SDD Roadmap 规划专家 - 多版本路线图规划 (已弃用，使用 @sddu-roadmap 代替)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-roadmap.md}",
-        "deprecated": true
-      },
-      "sddu-roadmap": {
-        "description": `SDDU Roadmap 规划专家 - 多版本路线图规划 (新版本)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sddu-roadmap.md}",
-        "deprecated": false
-      },
-      "sdd-docs": {
-        "description": `SDD 目录导航生成器 - 扫描目录结构生成 README 导航 (已弃用，使用 @sddu-docs 代替)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sdd-docs.md}",
-        "deprecated": true
-      },
-      "sddu-docs": {
-        "description": `SDDU 目录导航生成器 - 扫描目录结构生成 README 导航 (新版本)`,
-        "model": "bailian/qwen3.5-plus",
-        "prompt": "{file:agents/sddu-docs.md}",
-        "deprecated": false
-      }
-    },
-    "permission": ["fs", "process", "network"]
-  };
+// 5. 准备版本特定的 opencode.json
+  let opencodeConfig;
   
-  // 根据版本调整优先级和说明
   if (version === 'sddu') {
-    // 在 SDDU 版本中，让 SDDU 代理名更前，SDD 代理名后置
-    const sdduAgents = {};
-    Object.keys(originalConfig.agent).sort((a, b) => {
-      // 具 SDDU 代理在前
-      if (a.startsWith('sddu') && !b.startsWith('sddu')) return -1;
-      if (!a.startsWith('sddu') && b.startsWith('sddu')) return 1;
-      // 然后是普通的 sdd 代理
-      if (a.startsWith('sdd') && !b.startsWith('sddu') && b.startsWith('sdd')) return a.localeCompare(b);
-      return 0; // 保持其他顺序不变
-    }).forEach(key => {
-      sdduAgents[key] = originalConfig.agent[key];
-    });
-    originalConfig.agent = sdduAgents;
+    // SDDU 版本：仅包含 12 个 sddu-* agents
+    opencodeConfig = {
+      "$schema": "https://opencode.ai/config.json",
+      "plugin": [`opencode-${version}-plugin`],
+      "agent": {
+        "sddu": {
+          "description": "SDDU Master Coordinator - 智能路由助手 (新版本)",
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sddu.md}",
+          "deprecated": false
+        },
+        "sddu-help": {
+          "description": "SDDU Help Assistant - 使用指南 (新版本)",
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sddu-help.md}",
+          "deprecated": false
+        },
+        "sddu-discovery": {
+          "description": `SDDU 需求挖掘专家 (阶段 0/6, 新版本)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sddu-discovery.md}",
+          "deprecated": false
+        },
+        "sddu-0-discovery": {
+          "description": `SDDU 需求挖掘专家 (阶段 0/6, 新版本)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sddu-0-discovery.md}",
+          "deprecated": false
+        },
+        "sddu-1-spec": {
+          "description": `SDDU 规范编写专家 (阶段 1/6, 新版本)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sddu-1-spec.md}",
+          "deprecated": false
+        },
+        "sddu-2-plan": {
+          "description": `SDDU 技术规划专家 (阶段 2/6, 新版本)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sddu-2-plan.md}",
+          "deprecated": false
+        },
+        "sddu-3-tasks": {
+          "description": `SDDU 任务分解专家 (阶段 3/6, 新版本)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sddu-3-tasks.md}",
+          "deprecated": false
+        },
+        "sddu-4-build": {
+          "description": `SDDU 任务实现专家 (阶段 4/6, 新版本)`,
+          "model": "bailian/qwen3-coder-plus",
+          "prompt": "{file:agents/sddu-4-build.md}",
+          "deprecated": false
+        },
+        "sddu-5-review": {
+          "description": `SDDU 代码审查专家 (阶段 5/6, 新版本)`,
+          "model": "bailian/qwen3-coder-plus",
+          "prompt": "{file:agents/sddu-5-review.md}",
+          "deprecated": false
+        },
+        "sddu-6-validate": {
+          "description": `SDDU 验证专家 (阶段 6/6, 新版本)`,
+          "model": "bailian/qwen3-coder-plus",
+          "prompt": "{file:agents/sddu-6-validate.md}",
+          "deprecated": false
+        },
+        "sddu-roadmap": {
+          "description": `SDDU Roadmap 规划专家 - 多版本路线图规划 (新版本)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sddu-roadmap.md}",
+          "deprecated": false
+        },
+        "sddu-docs": {
+          "description": `SDDU 目录导航生成器 - 扫描目录结构生成 README 导航 (新版本)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sddu-docs.md}",
+          "deprecated": false
+        }
+      },
+      "permission": ["fs", "process", "network"]
+    };
+  } else {
+    // SDD 版本：仅包含 sdd-* agents (保持原有的逻辑)
+    opencodeConfig = {
+      "$schema": "https://opencode.ai/config.json",
+      "plugin": [`opencode-${version}-plugin`],
+      "agent": {
+        "sdd": {
+          "description": "SDD Master Coordinator - 智能路由助手 (已弃用，使用 @sddu 代替)",
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sdd.md}",
+          "deprecated": true
+        },
+        "sdd-help": {
+          "description": "SDD Help Assistant - 使用指南 (已弃用，使用 @sddu-help 代替)",
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sdd-help.md}",
+          "deprecated": true
+        },
+        "sdd-discovery": {
+          "description": `SDD 需求挖掘专家 (阶段 0/6, 已弃用，使用 @sddu-discovery 代替)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sdd-discovery.md}",
+          "deprecated": true
+        },
+        "sdd-0-discovery": {
+          "description": `SDD 需求挖掘专家 (阶段 0/6, 已弃用，使用 @sddu-discovery 代替)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sdd-0-discovery.md}",
+          "deprecated": true
+        },
+        "sdd-1-spec": {
+          "description": `SDD 规范编写专家 (阶段 1/6, 已弃用，使用 @sddu-spec 代替)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sdd-1-spec.md}",
+          "deprecated": true
+        },
+        "sdd-2-plan": {
+          "description": `SDD 技术规划专家 (阶段 2/6, 已弃用，使用 @sddu-plan 代替)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sdd-2-plan.md}",
+          "deprecated": true
+        },
+        "sdd-3-tasks": {
+          "description": `SDD 任务分解专家 (阶段 3/6, 已弃用，使用 @sddu-tasks 代替)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sdd-3-tasks.md}",
+          "deprecated": true
+        },
+        "sdd-4-build": {
+          "description": `SDD 任务实现专家 (阶段 4/6, 已弃用，使用 @sddu-build 代替)`,
+          "model": "bailian/qwen3-coder-plus",
+          "prompt": "{file:agents/sdd-4-build.md}",
+          "deprecated": true
+        },
+        "sdd-5-review": {
+          "description": `SDD 代码审查专家 (阶段 5/6, 已弃用，使用 @sddu-review 代替)`,
+          "model": "bailian/qwen3-coder-plus",
+          "prompt": "{file:agents/sdd-5-review.md}",
+          "deprecated": true
+        },
+        "sdd-6-validate": {
+          "description": `SDD 验证专家 (阶段 6/6, 已弃用，使用 @sddu-validate 代替)`,
+          "model": "bailian/qwen3-coder-plus",
+          "prompt": "{file:agents/sdd-6-validate.md}",
+          "deprecated": true
+        },
+        "sdd-roadmap": {
+          "description": `SDD Roadmap 规划专家 - 多版本路线图规划 (已弃用，使用 @sddu-roadmap 代替)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sdd-roadmap.md}",
+          "deprecated": true
+        },
+        "sdd-docs": {
+          "description": `SDD 目录导航生成器 - 扫描目录结构生成 README 导航 (已弃用，使用 @sddu-docs 代替)`,
+          "model": "bailian/qwen3.5-plus",
+          "prompt": "{file:agents/sdd-docs.md}",
+          "deprecated": true
+        }
+      },
+      "permission": ["fs", "process", "network"]
+    };
   }
   
-  await fs.writeJson(path.join(distDir, 'opencode.json'), originalConfig, { spaces: 2 });
+    await fs.writeJson(path.join(distDir, 'opencode.json'), opencodeConfig, { spaces: 2 });
   console.log(`🔄 生成 ${version} 版本的 opencode.json ...`);
   
   // 6. 创建打包信息文件
