@@ -55,11 +55,10 @@ print_color "Source: ${SCRIPT_DIR}"
 print_color "Target: ${TARGET_DIR}"
 echo ""
 
-# Show SDD → SDDU Upgrade Information
-print_color "${CYAN}[INFO] SDD to SDDU Migration Support${NC}"
-print_color "${GREEN}This installer supports both SDD and SDDU formats${NC}"
-print_color "${GREEN}All @sdd-* commands will continue to work for backward compatibility${NC}"
-print_color "${GREEN}Recommend using @sddu-* commands for new projects${NC}"
+# Welcome message for clean SDDU installation
+print_color "${CYAN}[INFO] SDDU Plugin Installation${NC}"
+print_color "${GREEN}Installing SDDU plugin with latest features${NC}"
+print_color "${GREEN}Using @sddu-* commands for improved functionality${NC}"
 echo ""
 
 # Step 1: Check source
@@ -70,41 +69,26 @@ if [ ! -f "${SCRIPT_DIR}/package.json" ]; then
 fi
 print_color "${GREEN}[OK] Source validated${NC}"
 
-# Step 2: Check for prebuilt dist/sdd or dist/sddu directory
-print_color "${CYAN}[2/7] Locating distribution files...${NC}"
+# Step 2: Check for prebuilt dist/sddu directory
+print_color "${CYAN}[2/7] Locating SDDU distribution files...${NC}"
 
 DIST_SDDU_DIR="${SCRIPT_DIR}/dist/sddu"
-DIST_SDD_DIR="${SCRIPT_DIR}/dist/sdd"
 DIST_SDDU_ARCHIVE="${SCRIPT_DIR}/dist/sddu.zip"
-DIST_SDD_ARCHIVE="${SCRIPT_DIR}/dist/sdd.zip"
 
 if [ -d "$DIST_SDDU_DIR" ]; then
     print_color "${GREEN}[OK] Using SDDU pre-built distribution in dist/sddu/${NC}"
-elif [ -d "$DIST_SDD_DIR" ]; then
-    print_color "${GREEN}[OK] Using SDD pre-built distribution in dist/sdd/${NC}"
-    print_color "${YELLOW}[INFO] Maintaining backward compatibility${NC}"
 else
-    print_color "${YELLOW}[INFO] Pre-built distribution not found, checking for archives...${NC}"
-    if [ -f "$DIST_SDDU_ARCHIVE" ] || [ -f "$DIST_SDD_ARCHIVE" ]; then
-        # Use SDDU archive first if available, fallback to SDD
-        if [ -f "$DIST_SDDU_ARCHIVE" ]; then
-            print_color "${GREEN}[INFO] SDDU archive found at $DIST_SDDU_ARCHIVE, unpacking...${NC}"
-            mkdir -p "${SCRIPT_DIR}/dist/sddu"
-            unzip -q "${DIST_SDDU_ARCHIVE}" -d "${SCRIPT_DIR}/dist/tmp_extract_sddu"
-            mv "${SCRIPT_DIR}/dist/tmp_extract_sddu/sddu" "${SCRIPT_DIR}/dist/sddu" 2>/dev/null || \
-            mv "${SCRIPT_DIR}/dist/tmp_extract_sddu/sdd" "${SCRIPT_DIR}/dist/sddu"  # In case archive has different name
-            rm -r "${SCRIPT_DIR}/dist/tmp_extract_sddu" 2>/dev/null || true
-            print_color "${GREEN}[OK] SDDU archive extracted to dist/sddu/${NC}"
-        elif [ -f "$DIST_SDD_ARCHIVE" ]; then
-            print_color "${GREEN}[INFO] SDD archive found at $DIST_SDD_ARCHIVE, unpacking...${NC}"
-            mkdir -p "${SCRIPT_DIR}/dist/sdd"
-            unzip -q "${DIST_SDD_ARCHIVE}" -d "${SCRIPT_DIR}/dist/tmp_extract"
-            mv "${SCRIPT_DIR}/dist/tmp_extract/sdd" "${SCRIPT_DIR}/dist/sdd"
-            rm -r "${SCRIPT_DIR}/dist/tmp_extract"
-            print_color "${GREEN}[OK] SDD archive extracted to dist/sdd/${NC}"
-        fi
+    print_color "${YELLOW}[INFO] SDDU pre-built distribution not found, checking for archives...${NC}"
+    if [ -f "$DIST_SDDU_ARCHIVE" ]; then
+        print_color "${GREEN}[INFO] SDDU archive found at $DIST_SDDU_ARCHIVE, unpacking...${NC}"
+        mkdir -p "${SCRIPT_DIR}/dist/sddu"
+        unzip -q "${DIST_SDDU_ARCHIVE}" -d "${SCRIPT_DIR}/dist/tmp_extract_sddu"
+        mv "${SCRIPT_DIR}/dist/tmp_extract_sddu/sddu" "${SCRIPT_DIR}/dist/sddu" 2>/dev/null || \
+        mv "${SCRIPT_DIR}/dist/tmp_extract_sddu/sdd" "${SCRIPT_DIR}/dist/sddu"  # In case archive has different name
+        rm -r "${SCRIPT_DIR}/dist/tmp_extract_sddu" 2>/dev/null || true
+        print_color "${GREEN}[OK] SDDU archive extracted to dist/sddu/${NC}"
     else
-        print_color "${YELLOW}[WARN] No pre-built distributions found, building from source...${NC}"
+        print_color "${YELLOW}[WARN] No SDDU pre-built distributions found, building from source...${NC}"
         print_color "${CYAN}Building from source...${NC}"
         
         # Build agents
@@ -137,23 +121,23 @@ else
             fi
         fi
 
-        # Now run the packaging script to create both distribution packages
-        print_color "${GRAY}  Creating distribution packages...${NC}"
+        # Now run the packaging script to create the sddu distribution package
+        print_color "${GRAY}  Creating SDDU distribution package...${NC}"
         node "${SCRIPT_DIR}/scripts/package.cjs"
         if [ $? -ne 0 ]; then
             print_color "${RED}Package creation failed${NC}"
             exit 1
         fi
         
-        print_color "${GREEN}[OK] Build complete, distribution package created${NC}"
+        print_color "${GREEN}[OK] Build complete, SDDU distribution package created${NC}"
     fi
 fi
 
 # Step 3: Create directories
-print_color "${CYAN}[3/7] Creating directories...${NC}"
+print_color "${CYAN}[3/7] Creating SDDU directories...${NC}"
 
-# Support both .sddu and .sdd directories for SDDU and backward compatibility
-for dir in "${TARGET_DIR}/.opencode/plugins/sddu" "${TARGET_DIR}/.opencode/plugins/sdd" "${TARGET_DIR}/.opencode/agents" "${TARGET_DIR}/.sddu" "${TARGET_DIR}/.sdd" "${TARGET_DIR}/.sdd/specs-tree-root" "${TARGET_DIR}/.sddu/specs-tree-root"; do
+# Support only SDDU directory structure for new installations
+for dir in "${TARGET_DIR}/.opencode/plugins/sddu" "${TARGET_DIR}/.opencode/agents" "${TARGET_DIR}/.sddu" "${TARGET_DIR}/.sddu/specs-tree-root"; do
     if [ -d "$dir" ]; then
         print_color "${YELLOW}[INFO] Path exists: $dir${NC}"
     else
@@ -162,10 +146,9 @@ for dir in "${TARGET_DIR}/.opencode/plugins/sddu" "${TARGET_DIR}/.opencode/plugi
     fi
 done
 
-# Step 4: Copy plugins - both SDDU and legacy SDD for backward compatibility
-print_color "${CYAN}[4/7] Copying plugins from distribution directories...${NC}"
+# Step 4: Copy SDDU plugins only
+print_color "${CYAN}[4/7] Copying SDDU plugins from distribution directory...${NC}"
 SDDU_PLUGIN_DEST="${TARGET_DIR}/.opencode/plugins/sddu"
-SDD_PLUGIN_DEST="${TARGET_DIR}/.opencode/plugins/sdd"
 
 copy_distribution_to_plugin() {
     local source_dir="$1"
@@ -192,23 +175,16 @@ copy_distribution_to_plugin() {
     fi
 }
 
-# Copy SDDU version if available
+# Copy SDDU version
 if ! copy_distribution_to_plugin "${SCRIPT_DIR}/dist/sddu" "$SDDU_PLUGIN_DEST" "SDDU"; then
-    # Fallback to SDD version for SDDU destination if SDDU not built yet
-    copy_distribution_to_plugin "${SCRIPT_DIR}/dist/sdd" "$SDDU_PLUGIN_DEST" "SDD (using as SDDU fallback)"
+    print_color "${RED}FATAL: SDDU plugin source not available. Cannot proceed.${NC}"
+    exit 1
 fi
 
-# Copy SDD version for backward compatibility
-copy_distribution_to_plugin "${SCRIPT_DIR}/dist/sdd" "$SDD_PLUGIN_DEST" "SDD (backward compatibility)"
-
-# Copy agents from source to .opencode/agents/ - copy from both sources to ensure all agents are available
+# Copy agents from source to .opencode/agents/ - only SDDU agents
 if [ -d "${SCRIPT_DIR}/dist/sddu/agents" ]; then
     print_color "${GRAY}  Copying SDDU agents from dist/sddu/agents/...${NC}"
     cp "${SCRIPT_DIR}/dist/sddu/agents/"* "${TARGET_DIR}/.opencode/agents/" 2>/dev/null || print_color "${GRAY}  SDDU agents not found, continuing...${NC}"
-fi
-if [ -d "${SCRIPT_DIR}/dist/sdd/agents" ]; then
-    print_color "${GRAY}  Copying legacy SDD agents...${NC}"
-    cp "${SCRIPT_DIR}/dist/sdd/agents/"* "${TARGET_DIR}/.opencode/agents/" 2>/dev/null || print_color "${GRAY}  Legacy agents not found, continuing...${NC}"
 fi
 
 # Count agents copied
@@ -218,11 +194,8 @@ print_color "${GREEN}[OK] Total agents copied: $AGENT_COUNT${NC}"
 # Step 5: Version Detection
 print_color "${CYAN}[5/7] Version Detection...${NC}"
 
-# Get source version from SDDU directory first
+# Get source version from SDDU directory
 SOURCE_PKG_PATH="${SCRIPT_DIR}/dist/sddu/package.json"
-if [ ! -f "$SOURCE_PKG_PATH" ]; then
-    SOURCE_PKG_PATH="${SCRIPT_DIR}/dist/sdd/package.json"
-fi
 
 if [ -f "$SOURCE_PKG_PATH" ]; then
     SOURCE_VERSION=$(node -p "require('$SOURCE_PKG_PATH').version" 2>/dev/null || echo "")
@@ -240,18 +213,84 @@ fi
 
 print_color "${GREEN}[INFO] Source package version: $SOURCE_VERSION${NC}"
 
-# Step 6: Merge opencode.json (smart merge)
-print_color "${CYAN}[6/7] Merging opencode.json for SDDU + backward compatibility...${NC}"
+# Step 6: Apply opencode.json with new configurations
+print_color "${CYAN}[6/7] Configuring SDDU opencode.json...${NC}"
 
-# Prepare SDDU and SDD configurations
+# Prepare SDDU configuration file
 OPENCODE_JSON_SOURCE_SDDU="${SCRIPT_DIR}/dist/sddu/opencode.json"
-OPENCODE_JSON_SOURCE_SDD="${SCRIPT_DIR}/dist/sdd/opencode.json"
 
-# Check if dist files exist
+# Verify SDDU configuration exists
 if [ ! -f "$OPENCODE_JSON_SOURCE_SDDU" ]; then
     print_color "${RED}ERROR: SDDU opencode.json not found at $OPENCODE_JSON_SOURCE_SDDU${NC}"
     print_color "${YELLOW}Please run 'npm run build' or 'node scripts/package.cjs' first${NC}"
     exit 1
+fi
+
+OPENCODE_JSON_PATH="${TARGET_DIR}/opencode.json"
+
+if [ -f "$OPENCODE_JSON_PATH" ]; then
+    print_color "${CYAN}[CONFIG UPDATE]${NC}"
+    print_color "${GREEN}✅ Existing opencode.json found, updating to SDDU format${NC}"
+    
+    # Update configuration to use SDDU format (keeping existing custom agents if needed but updating plugin definitions and core agent configurations)
+    if node -e "
+const fs = require('fs');
+try {
+    // Read existing and new configs
+    const existingConfig = JSON.parse(fs.readFileSync('${OPENCODE_JSON_PATH}', 'utf-8'));
+    const newConfig = JSON.parse(fs.readFileSync('${OPENCODE_JSON_SOURCE_SDDU}', 'utf-8'));
+    
+    // Create backup
+    fs.writeFileSync('${OPENCODE_JSON_PATH}.backup', JSON.stringify(existingConfig, null, 2));
+    
+    // Only update plugin list to SDDU (remove old SDD references)
+    existingConfig.plugin = newConfig.plugin;
+    
+    // Replace all agent definitions with SDDU versions (clean slate update)
+    existingConfig.agent = newConfig.agent; 
+    
+    // Also update permissions to be secure by default
+    existingConfig.permission = newConfig.permission;
+    
+    // Maintain schema from new config 
+    if (newConfig.\$schema) {
+        existingConfig.\$schema = newConfig.\$schema;
+    }
+    
+    // Write updated config
+    fs.writeFileSync('${OPENCODE_JSON_PATH}', JSON.stringify(existingConfig, null, 2));
+    
+    // Count changes
+    const allAgents = Object.keys(newConfig.agent || {});
+    console.log('PLUGINS_UPDATED_SDDU:1');
+    console.log('AGENTS_TOTAL:' + allAgents.length);
+    
+} catch (error) {
+    console.error('UPDATE_ERROR:', error.message);
+    process.exit(1);
+}
+" > /tmp/sddu_update_result.txt 2>/dev/null; then
+    
+        # Extract results from the output
+        PLUGINS_UPDATED=$(grep "PLUGINS_UPDATED_SDDU:" /tmp/sddu_update_result.txt | cut -d':' -f2)
+        AGENTS_TOTAL=$(grep "AGENTS_TOTAL:" /tmp/sddu_update_result.txt | cut -d':' -f2)
+        
+        print_color "${GREEN}✅ Plugins updated: SDDU plugin configured${NC}"
+        print_color "${GREEN}✅ Agents configured: $AGENTS_TOTAL agents available${NC}"
+    
+    else
+        # If update fails, backup original and copy new SDDU config
+        print_color "${YELLOW}[WARN] Config update failed, copying SDDU config and backing up original${NC}"
+        cp "${OPENCODE_JSON_PATH}" "${OPENCODE_JSON_PATH}.failed_backup"
+        cp "${OPENCODE_JSON_SOURCE_SDDU}" "${OPENCODE_JSON_PATH}"
+        print_color "${GREEN}[OK] Copied new SDDU opencode.json (original backed up as .failed_backup)${NC}"
+    fi
+
+else
+    # No existing file - just copy with SDDU config as primary
+    print_color "${CYAN}ℹ️  No existing opencode.json, creating new SDDU config${NC}"
+    cp "${OPENCODE_JSON_SOURCE_SDDU}" "${OPENCODE_JSON_PATH}"
+    print_color "${GREEN}[OK] Created new SDDU opencode.json${NC}"
 fi
 
 if [ ! -f "$OPENCODE_JSON_SOURCE_SDD" ]; then
@@ -347,150 +386,83 @@ else
     print_color "${GREEN}[OK] Created new SDDU opencode.json${NC}"
 fi
 
-# Step 7: Initialize .sdd/ and .sddu/ directory structures
-print_color "${CYAN}[7/7] Initializing SDD and SDDU workspace directories...${NC}"
+# Step 7: Initialize .sddu/ directory structure
+print_color "${CYAN}[7/7] Initializing SDDU workspace directory...${NC}"
 
-# Create main SDD directory structure
-cat > "${TARGET_DIR}/.sdd/README.md" << 'EOF'
-# SDD/SDDU Workspace
-
-## 目录结构
-
-```
-.sdd/
-├── README.md              # 本文件 - SDD 工作空间说明
-├── ROADMAP.md             # 版本路线图
-├── docs/                  # 文档目录
-├── config.json            # SDD 配置（可选）
-└── specs-tree-root/       # 规范文件目录
-    ├── README.md          # 目录说明
-    └── [feature]/         # Feature 目录
-```
-
-## 快速开始
-
-1. 使用 `@sdd 开始 [feature 名称]` 或新的 `@sddu 开始 [feature 名称]` 开始新 feature
-2. 规范文件将自动创建在 `.sdd/specs-tree-root/` or `.sddu/specs-tree-root/` 目录
-3. 文档会自动维护，无需手动创建 README
-
-## SDD 与 SDDU 对照 (Migration Ready)
-
-| SDD 旧版命令 | SDDU 新版命令 | 状态 |
-|--------------|---------------|------|
-| `@sdd` | `@sddu` | ✅ 推荐使用 |
-| `@sdd-help` | `@sddu-help` | ✅ 推荐使用 | 
-| `@sdd-xxx` | `@sddu-xxx` | ✅ 推荐使用新命令 |
-| `@sdd-xxx` | `@sdd-xxx` | ⚠️ 继续支持但不推荐 |
-
-**所有 SDD 命令将继续正常工作**用于向后兼容！
-
-
-## Agents
-
-- `@sdd` / `@sddu` - 智能入口 (新)
-- `@sdd-docs` / `@sddu-docs` - 目录导航（自动触发）  
-- `@sdd-roadmap` / `@sddu-roadmap` - Roadmap 规划
-EOF
-
-# Create SDDU specific directory structure
+# Only create SDDU directory structure
 cat > "${TARGET_DIR}/.sddu/README.md" << 'EOF'
-# SDDU Workspace (New Standard)
+# SDDU Workspace (Standard)
 
-## 目录结构
-
-```
-.sddu/
-├── README.md              # 本文件 - SDDU 工作空间说明  
-├── ROADMAP.md             # 版本路线图
-├── docs/                  # 文档目录  
-├── config.json            # SDDU 配置（可选）
-└── specs-tree-root/       # 规范文件目录 (SDDU Standard)
-    ├── README.md          # 目录说明
-    └── specs-tree-[feature]/         # Feature 目录 (SDDU naming)
-        ├── spec.md        # 规范文档
-        ├── plan.md        # 技术计划  
-        ├── tasks.md       # 任务分解
-        └── state.json     # 状态文件
-```
-
-## Quick Start
-
-1. Use `@sddu 开始 [feature name]` to start a new feature
-2. Documentation maintains itself (@sddu-docs)
-
-## Migration Status
-
-This project supports both SDD and SDDU workflows:
-- ✅ Original SDD commands still work (backward compatibility) 
-- ✅ New SDDU commands available (recommended forward path)
-- ✅ Mixed usage allowed during transition
-EOF
-
-# Create .sdd/specs-tree-root/README.md
-cat > "${TARGET_DIR}/.sdd/specs-tree-root/README.md" << 'EOF'
-# SDD/SDDU 规范目录
-
-## 目录结构
-
-```
-.sdd/
-├── README.md              # 本文件
-├── [feature-1]/           # Feature 1
-│   ├── spec.md
-│   ├── plan.md
-│   ├── tasks.md  
-│   └── state.json
-├── [feature-2]/           # Feature 2
-└── specs-tree-[feature-n]/ # Feature N (SDDU naming convention)
-    ├── spec.md
-    ├── plan.md
-    ├── tasks.md
-    ├── discovery.md       # SDDU new discovery phase  
-    └── state.json
-```
-
-## 使用说明
-
-- 每个 Feature 有独立的目录 (新SDDU命名: specs-tree-[feature])
-- SDDU 新增了 discovery.md 文件用于需求挖掘
-- 文档会自动维护（@sddu-docs 或 @sdd-docs）
-EOF
-
-# Create .sddu/specs-tree-root/README.md  
-cat > "${TARGET_DIR}/.sddu/specs-tree-root/README.md" << 'EOF'
-# SDDU 规范目录 (New Standard)
-
-## 目录结构
+## Directory Structure
 
 ```
 .sddu/
-├── README.md              # 本文件  
-├── specs-tree-root/       # 规范根目录 (SDDU naming convention)
-│   ├── README.md          # 本说明文件
-│   └── specs-tree-[feature-n]/ # Feature N (SDDU naming convention)
-│       ├── discovery.md   # 需求挖掘 (新阶段 0/6)
-│       ├── spec.md        # 规范文档
-│       ├── plan.md        # 技术计划  
-│       ├── tasks.md       # 任务分解
-│       ├── build.md       # 任务实现 (阶段 4/6)
-│       ├── review.md      # 代码审查 (阶段 5/6)
-│       ├── validation.md  # 功能验证 (阶段 6/6)
-│       └── state.json     # 状态文件
+├── README.md              # This file - SDDU workspace explanation  
+├── ROADMAP.md             # Version roadmap
+├── docs/                  # Documentation directory  
+├── config.json            # SDDU Configuration (optional)
+└── specs-tree-root/       # Specification files directory (SDDU Standard)
+    ├── README.md          # Directory explanation 
+    └── specs-tree-[feature]/         # Feature directory (SDDU naming)
+        ├── discovery.md   # Requirement Discovery (Stage 0/6) 
+        ├── spec.md        # Specification document
+        ├── plan.md        # Technical plan  
+        ├── tasks.md       # Task breakdown
+        ├── build.md       # Implementation (Stage 4/6)
+        ├── review.md      # Code review (Stage 5/6)
+        ├── validation.md  # Validation (Stage 6/6)
+        └── state.json     # State file
 ```
 
 ## Quick Start
 
 Use SDDU commands:
-- `@sddu 开始 [feature name]` - Start new feature
+- `@sddu start [feature name]` - Start new feature
+- `@sddu-discovery [topic]` - Discover requirements (Stage 0/6!)
+- `@sddu-spec [feature]` - Write specification
+
+## Features
+
+- 6-stage workflow (Discovery → Spec → Plan → Tasks → Build → Review → Validate)
+- Standardized directory structure
+- Self-maintaining documentation
+EOF
+
+# Create .sddu/specs-tree-root/README.md  
+cat > "${TARGET_DIR}/.sddu/specs-tree-root/README.md" << 'EOF'
+# SDDU Specification Directory (Standard)
+
+## Directory Structure
+
+```
+.sddu/
+├── README.md              # This file  
+├── specs-tree-root/       # Specification Root Directory (SDDU naming convention)
+│   ├── README.md          # This instructions file
+│   └── specs-tree-[feature-n]/ # Feature N (SDDU naming convention)
+│       ├── discovery.md   # Requirement Discovery (Stage 0/6)
+│       ├── spec.md        # Specification document
+│       ├── plan.md        # Technical plan  
+│       ├── tasks.md       # Task breakdown
+│       ├── build.md       # Implementation (Stage 4/6)
+│       ├── review.md      # Code review (Stage 5/6)
+│       ├── validation.md  # Validation (Stage 6/6)
+│       └── state.json     # State file
+```
+
+## Quick Start
+
+Use SDDU commands:
+- `@sddu start [feature name]` - Start new feature
 - `@sddu-discovery [topic]` - Discover requirements first stage 0/6!
 - `@sddu-spec [feature]` - Write specification
 
-## Migration Notes
+## New in SDDU
 
-This directory follows the new SDDU standard while maintaining compatibility.
+This directory follows the new SDDU standard with 6+1 stage workflow.
 EOF
 
-print_color "${GREEN}[OK] Created .sdd/ and .sddu/ README files${NC}"
+print_color "${GREEN}[OK] Created .sddu/ README files${NC}"
 
 # Done
 echo ""
@@ -500,49 +472,39 @@ print_color "Installed to: ${TARGET_DIR}"
 echo ""
 echo "Files:"
 echo "  - .opencode/plugins/sddu/ ($([ -d ${TARGET_DIR}/.opencode/plugins/sddu ] && find ${TARGET_DIR}/.opencode/plugins/sddu -type f | wc -l || echo 0) files from SDDU dist/)"
-echo "  - .opencode/plugins/sdd/ ($([ -d ${TARGET_DIR}/.opencode/plugins/sdd ] && find ${TARGET_DIR}/.opencode/plugins/sdd -type f | wc -l || echo 0) files from SDD dist/ for backward compatibility)"
 echo "  - .opencode/agents/ ($AGENT_COUNT agents total)"
-echo "  - opencode.json (plugin configuration - with SDDU+SDD dual support)"
-echo "  - .sdd/ and .sddu/ (workspace containers)"
+echo "  - opencode.json (plugin configuration - SDDU standard)"
+echo "  - .sddu/ (workspace container)"
 echo ""
-echo "  🎉 NEW Feature: Stage 0 (Discovery phase) is now available!"
-echo "    - @sddu-discovery / @sdd-discovery - Deep requirement analysis (Stage 0/6)"
-echo "    - @sddu-0-discovery / @sdd-0-discovery - Full name version"
+echo "  🚀 New Feature: 7-Stage Workflow is now available!"
+echo "    - @sddu-discovery / @sddu-0-discovery - Deep requirement analysis (Stage 0/6)"
+echo "    - Followed by Spec, Plan, Tasks, Build, Review, Validate stages"
 echo ""
 print_color "${CYAN}Agents installed ($AGENT_COUNT total):${NC}"
-echo "  Recommended (SDDU):"
-echo "    @sddu              - Smart entry point (recommended)"
-echo "    @sddu-help         - Help assistant (recommended)"
-echo "    @sddu-discovery    - Requirement Discovery (Stage 0/6, recommended)"
-echo "    @sddu-0-discovery  - Requirement Discovery full name (Stage 0/6, recommended)"
-echo "    @sddu-1-spec       - Specification (Phase 1/6, recommended)"  
-echo "    @sddu-2-plan       - Technical planning (Phase 2/6, recommended)"
-echo "    @sddu-3-tasks      - Task breakdown (Phase 3/6, recommended)"
-echo "    @sddu-4-build      - Implementation (Phase 4/6, recommended)"
-echo "    @sddu-5-review     - Code review (Phase 5/6, recommended)"
-echo "    @sddu-6-validate   - Validation (Phase 6/6, recommended)"
+echo "  SDDU Standard Agents:"
+echo "    @sddu              - Smart entry point"
+echo "    @sddu-help         - Help assistant"
+echo "    @sddu-discovery    - Requirement Discovery (Stage 0/6)"
+echo "    @sddu-0-discovery  - Requirement Discovery full name (Stage 0/6)"
+echo "    @sddu-1-spec       - Specification (Phase 1/6)"
+echo "    @sddu-2-plan       - Technical planning (Phase 2/6)"
+echo "    @sddu-3-tasks      - Task breakdown (Phase 3/6)"
+echo "    @sddu-4-build      - Implementation (Phase 4/6)"
+echo "    @sddu-5-review     - Code review (Phase 5/6)"
+echo "    @sddu-6-validate   - Validation (Phase 6/6)"
+echo "    @sddu-roadmap      - Roadmap planning"
+echo "    @sddu-docs         - Directory navigation"
 echo ""
-echo "  Legacy (SDD, backward compatible): "
-echo "    @sdd              - Smart entry point"
-echo "    @sdd-help         - Help assistant"  
-echo "    @sdd-discovery    - Requirement Discovery (Stage 0/6)"
-echo "    @sdd-0-discovery  - Requirement Discovery full name (Stage 0/6)"
-echo "    @sdd-1-spec       - Specification (Phase 1/6)"
-echo "    ..."
-echo "  All legacy commands continue to work unchanged!"
-echo ""
-print_color "${CYAN}Quick Start Options:${NC}"
+print_color "${CYAN}Quick Start:${NC}"
 echo "  cd '${TARGET_DIR}'"
 echo "  opencode"
-echo "  For SDDU (new): @sddu 开始 [feature name]"
-echo "  For SDD (legacy): @sdd 开始 [feature name] (still works!)"
-echo "  For discovery: @sddu-discovery [topic] or @sdd-discovery [topic]" 
+echo "  @sddu start [feature name]"
+echo "  @sddu-discovery [topic]" 
 echo ""
-print_color "${GRAY}Migration Information:${NC}"
-echo "  - SDDU is the new recommended approach"
-echo "  - SDD commands will continue to work (backward compatibility)"
-echo "  - Gradual migration is supported"
-echo "  - Mixed use of both systems is acceptable"
+print_color "${CYAN}SDDU Features:${NC}"
+echo "  - Seven-stage workflow (Discovery → Spec → Plan → Tasks → Build → Review → Validate)"
+echo "  - Improved architecture with standardized naming"
+echo "  - Enhanced documentation maintenance"
 echo ""
-print_color "✅ Installation complete. Ready to start your specifications!"
+print_color "✅ Installation complete. Ready to start your requirements discovery with SDDU!"
 echo ""
