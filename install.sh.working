@@ -292,6 +292,79 @@ else
     cp "${OPENCODE_JSON_SOURCE_SDDU}" "${OPENCODE_JSON_PATH}"
     print_color "${GREEN}[OK] Created new SDDU opencode.json${NC}"
 fi
+    // Create backup
+    fs.writeFileSync('${OPENCODE_JSON_PATH}.backup', JSON.stringify(existingConfig, null, 2));
+    
+    // Merge plugin list with both SDD and SDDU (deduplicate)
+    const existingPlugin = Array.isArray(existingConfig.plugin) ? existingConfig.plugin : [];
+    const newPlugin = Array.isArray(newConfig.plugin) ? newConfig.plugin : [];
+    existingConfig.plugin = [...new Set([...existingPlugin, ...newPlugin])];
+    
+    // Merge agent definitions - preserve existing, add/update new ones
+    const mergedAgents = { ...(existingConfig.agent || {}) };
+    for (const [agentName, agentDef] of Object.entries(newConfig.agent || {})) {
+        if (agentName in mergedAgents) {
+            // Keep existing descriptions if the same agent exists but use new capabilities as needed
+            if (typeof agentDef === 'string') {
+                mergedAgents[agentName] = agentDef; // Just update/refresh
+            } else if (typeof agentDef === 'object') {
+                // If both are objects, merge properties
+                mergedAgents[agentName] = { ...mergedAgents[agentName], ...agentDef };
+            }
+        } else {
+            // New agent - add it
+            mergedAgents[agentName] = agentDef;
+        }
+    }
+    existingConfig.agent = mergedAgents;
+    
+    // Prefer new permissions settings
+    existingConfig.permission = newConfig.permission || existingConfig.permission;
+    
+    // Maintain schema from new config
+    if (newConfig.\$schema) {
+        existingConfig.\$schema = newConfig.\$schema;
+    }
+    
+    // Write merged config
+    fs.writeFileSync('${OPENCODE_JSON_PATH}', JSON.stringify(existingConfig, null, 2));
+    
+    // Count changes
+    const allAgents = Object.keys({ ...(existingConfig.agent || {}), ...(newConfig.agent || {}) });
+    console.log('PLUGINS_UPDATED:' + newPlugin.length);
+    console.log('AGENTS_TOTAL:' + allAgents.length); 
+    console.log('CUSTOM_AGENTS_PRESERVED:' + Object.keys(existingConfig.agent || {}).length);
+    
+} catch (error) {
+    console.error('MERGE_ERROR:', error.message);
+    process.exit(1);
+}
+" > /tmp/sddu_merge_result.txt 2>/dev/null; then
+    
+        # Extract results from the output
+        PLUGINS_UPDATED=$(grep "PLUGINS_UPDATED:" /tmp/sddu_merge_result.txt | cut -d':' -f2)
+        AGENTS_TOTAL=$(grep "AGENTS_TOTAL:" /tmp/sddu_merge_result.txt | cut -d':' -f2)
+        CUSTOM_AGENTS_PRESERVED=$(grep "CUSTOM_AGENTS_PRESERVED:" /tmp/sddu_merge_result.txt | cut -d':' -f2)
+        
+        print_color "${GREEN}✅ Plugins updated: $PLUGINS_UPDATED plugins in system${NC}"
+        print_color "${GREEN}✅ Agents configured: $AGENTS_TOTAL agents available${NC}"
+        print_color "${GREEN}✅ Custom agents maintained: $CUSTOM_AGENTS_PRESERVED existing configurations preserved${NC}"
+    
+    else
+        # If merge fails, backup original and copy new SDDU config
+        print_color "${YELLOW}[WARN] Config merge failed, copying SDDU config and backing up original${NC}"
+        cp "${OPENCODE_JSON_PATH}" "${OPENCODE_JSON_PATH}.failed_backup"
+        cp "${OPENCODE_JSON_SOURCE_SDDU}" "${OPENCODE_JSON_PATH}"
+        print_color "${GREEN}[OK] Copied new SDDU opencode.json (original backed up as .failed_backup)${NC}"
+    fi
+
+else
+    # No existing file - just copy with SDDU config as primary
+    print_color "${CYAN}ℹ️  No existing opencode.json, creating SDDU-compatible config${NC}"
+    cp "${OPENCODE_JSON_SOURCE_SDDU}" "${OPENCODE_JSON_PATH}"
+    print_color "${GREEN}[OK] Created new SDDU opencode.json${NC}"
+fi
+
 # Step 7: Initialize .sddu/ directory structure
 print_color "${CYAN}[7/7] Initializing SDDU workspace directory...${NC}"
 

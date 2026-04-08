@@ -1,0 +1,7 @@
+fix: 打包脚本生成纯 SDDU 配置
+
+- scripts/package.cjs: 移除硬编码的 sdd-* agents
+- 仅生成 12 个 sddu-* agents 到 dist/sddu/opencode.json
+- 完全分离 SDD 和 SDDU 配置
+
+BREAKING CHANGE: SDDU 版本不再包含任何 sdd-* agents
