@@ -286,8 +286,8 @@ export class DiscoveryWorkflowEngine {
    */
   async executeStep(step: DiscoveryStep, context: DiscoveryContext): Promise<StepExecutionResult> {
     try {
-      // 模拟Agent调用
-      // 在实际实现中，这里应该调用 @sdd-discovery Agent 处理当前步骤
+      // 模拟 Agent 调用
+      // 在实际实现中，这里应该调用 @sddu-discovery Agent 处理当前步骤
       const stepOutput = await this.callStepAgent(step, context);
       
       return {
@@ -311,9 +311,9 @@ export class DiscoveryWorkflowEngine {
    * 这里是模拟实现，在实际中应该调用OpenCode Agent系统
    */
   private async callStepAgent(step: DiscoveryStep, context: DiscoveryContext): Promise<any> {
-    // 这里应该调用实际的 @sdd-discovery Agent，针对当前步骤进行交互
+    // 这里应该调用实际的 @sddu-discovery Agent，针对当前步骤进行交互
     // 因为这是一个虚拟的函数，返回模拟数据
-    console.log(`Calling @sdd-discovery Agent for step: ${step.name}`);
+    console.log(`Calling @sddu-discovery Agent for step: ${step.name}`);
     
     // 模拟用户输入或已有的回答
     const simulatedAnswer = `用户对步骤 "${step.name}" 的回答`;

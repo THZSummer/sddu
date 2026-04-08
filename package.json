@@ -1,7 +1,7 @@
 {
-  "name": "opencode-sdd-plugin",
+  "name": "opencode-sddu-plugin",
   "version": "1.1.0",
-  "description": "Specification-Driven Development plugin for OpenCode",
+  "description": "Specification-Driven Development Ultimate plugin for OpenCode",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -14,18 +14,24 @@
     "test:watch": "jest --watch",
     "test:unit": "node --test 'dist/**/*.test.js'",
     "test:state:integration": "node --test 'dist/state/agent-integration.test.js'",
-    "sdd-spec": "node ./dist/commands/sdd-spec.js",
-    "sdd-plan": "node ./dist/commands/sdd-plan.js",
-    "sdd-tasks": "node ./dist/commands/sdd-tasks.js",
-    "sdd-build": "node ./dist/commands/sdd-build.js",
+    "sddu-spec": "node ./dist/commands/sdd-spec.js",
+    "sddu-plan": "node ./dist/commands/sdd-plan.js",
+    "sddu-tasks": "node ./dist/commands/sdd-tasks.js",
+    "sddu-build": "node ./dist/commands/sdd-build.js",
+    "sddu-review": "node ./dist/commands/sdd-review.js",
+    "sddu-validate": "node ./dist/commands/sdd-validate.js",
+    "sddu-docs": "node ./dist/commands/sdd-docs.js",
+    "sddu-roadmap": "node ./dist/commands/sdd-roadmap.js",
+    "sddu-help": "node ./dist/commands/sdd-help.js",
+
     "prepackage": "npm run build",
     "package": "node scripts/package.cjs",
-    "postpackage": "echo 'Packaging complete. Files are in dist/sdd/ and dist/sdd.zip'"
+    "postpackage": "echo 'Packaging complete. Files are in dist/sddu/ and dist/sddu.zip'"
   },
   "keywords": [
     "opencode",
     "plugin",
-    "sdd"
+    "sddu"
   ],
   "author": "",
   "license": "MIT",
@@ -45,7 +51,7 @@
     "uuid": "^13.0.0"
   },
   "files": [
-    "dist/sdd/**/*",
+    "dist/sddu/**/*",
     "src/**/*",
     "!.opencode",
     "!.sdd",

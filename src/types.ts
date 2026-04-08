@@ -49,7 +49,7 @@ export {
 // 从 agents 模块重新导出类型
 export type {
   AgentIntegrationResult,
-} from './agents/sdd-agents';
+} from './agents/sddu-agents';
 
 // 从 utils/tasks-parser 模块重新导出类型  
 export type {

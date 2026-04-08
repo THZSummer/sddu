@@ -1,101 +1,97 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-sdd-plugin"],
+  "plugin": ["opencode-sddu-plugin"],
   "agent": {
-    "sdd": {
-      "description": "SDD Master Coordinator - 智能路由助手",
+    "sddu": {
+      "description": "SDDU Master Coordinator - 智能路由助手",
       "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd.md}"
+      "prompt": "{file:.opencode/agents/sddu.md}"
     },
-    "sdd-help": {
-      "description": "SDD Help Assistant - 使用指南",
+    "sddu-help": {
+      "description": "SDDU Help Assistant - 使用指南",
       "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-help.md}"
+      "prompt": "{file:.opencode/agents/sddu-help.md}"
     },
-    "sdd-0-discovery": {
-      "description": "SDD 需求挖掘专家 (阶段 0/6)",
+    "sddu-discovery": {
+      "description": "SDDU 需求挖掘专家 (阶段 0/6)",
       "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-discovery.md}"
+      "prompt": "{file:.opencode/agents/sddu-discovery.md}"
     },
-    "sdd-discovery": {
-      "description": "SDD 需求挖掘 (短名)",
+    "sddu-0-discovery": {
+      "description": "SDDU 需求挖掘 (长名 0/6)",
       "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-discovery.md}"
+      "prompt": "{file:.opencode/agents/sddu-discovery.md}"
     },
-    "sdd-1-spec": {
-      "description": "SDD 规范编写专家 (阶段 1/6)",
+    "sddu-1-spec": {
+      "description": "SDDU 规范编写专家 (阶段 1/6)",
       "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-1-spec.md}"
+      "prompt": "{file:.opencode/agents/sddu-spec.md}"
     },
-    "sdd-2-plan": {
-      "description": "SDD 技术规划专家 (阶段 2/6)",
+    "sddu-2-plan": {
+      "description": "SDDU 技术规划专家 (阶段 2/6)",
       "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-2-plan.md}"
+      "prompt": "{file:.opencode/agents/sddu-plan.md}"
     },
-    "sdd-3-tasks": {
-      "description": "SDD 任务分解专家 (阶段 3/6)",
+    "sddu-3-tasks": {
+      "description": "SDDU 任务分解专家 (阶段 3/6)",
       "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-3-tasks.md}"
+      "prompt": "{file:.opencode/agents/sddu-tasks.md}"
     },
-    "sdd-4-build": {
-      "description": "SDD 任务实现专家 (阶段 4/6)",
+    "sddu-4-build": {
+      "description": "SDDU 任务实现专家 (阶段 4/6)",
       "model": "bailian/qwen3-coder-plus",
-      "prompt": "{file:.opencode/agents/sdd-4-build.md}"
+      "prompt": "{file:.opencode/agents/sddu-build.md}"
     },
-    "sdd-5-review": {
-      "description": "SDD 代码审查专家 (阶段 5/6)",
+    "sddu-5-review": {
+      "description": "SDDU 代码审查专家 (阶段 5/6)",
       "model": "bailian/qwen3-coder-plus",
-      "prompt": "{file:.opencode/agents/sdd-5-review.md}"
+      "prompt": "{file:.opencode/agents/sddu-review.md}"
     },
-    "sdd-6-validate": {
-      "description": "SDD 验证专家 (阶段 6/6)",
+    "sddu-6-validate": {
+      "description": "SDDU 验证专家 (阶段 6/6)",
       "model": "bailian/qwen3-coder-plus",
-      "prompt": "{file:.opencode/agents/sdd-6-validate.md}"
+      "prompt": "{file:.opencode/agents/sddu-validate.md}"
     },
-    "sdd-spec": {
-      "description": "SDD 规范编写 (短名)",
+    "sddu-roadmap": {
+      "description": "SDDU Roadmap 规划专家 - 多版本路线图规划",
       "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-spec.md}"
+      "prompt": "{file:.opencode/agents/sddu-roadmap.md}"
     },
-    "sdd-plan": {
-      "description": "SDD 技术规划 (短名)",
+    "sddu-docs": {
+      "description": "SDDU 目录导航生成器 - 扫描目录结构生成 README 导航",
       "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-plan.md}"
-    },
-    "sdd-tasks": {
-      "description": "SDD 任务分解 (短名)",
-      "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-tasks.md}"
-    },
-    "sdd-build": {
-      "description": "SDD 任务实现 (短名)",
-      "model": "bailian/qwen3-coder-plus",
-      "prompt": "{file:.opencode/agents/sdd-build.md}"
-    },
-    "sdd-review": {
-      "description": "SDD 代码审查 (短名)",
-      "model": "bailian/qwen3-coder-plus",
-      "prompt": "{file:.opencode/agents/sdd-review.md}"
-    },
-    "sdd-validate": {
-      "description": "SDD 验证 (短名)",
-      "model": "bailian/qwen3-coder-plus",
-      "prompt": "{file:.opencode/agents/sdd-validate.md}"
-    },
-    "sdd-docs": {
-      "description": "SDD 目录导航生成器 - 扫描目录结构生成 README 导航",
-      "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-docs.md}"
-    },
-    "sdd-roadmap": {
-      "description": "SDD Roadmap 规划专家 - 多版本路线图规划",
-      "model": "bailian/qwen3.5-plus",
-      "prompt": "{file:.opencode/agents/sdd-roadmap.md}"
+      "prompt": "{file:.opencode/agents/sddu-docs.md}"
     }
   },
   "permission": {
     "*": "allow",
+    "read": {
+      "*": "allow",
+      "*.env": "ask",
+      "*.env.*": "ask"
+    },
     "edit": "allow",
-    "bash": "allow"
+    "bash": {
+      "*": "ask",
+      "git *": "allow",
+      "npm *": "allow",
+      "yarn *": "allow",
+      "pnpm *": "allow",
+      "grep *": "allow",
+      "ls *": "allow",
+      "cat *": "allow",
+      "mkdir *": "allow",
+      "touch *": "allow",
+      "rm *": "ask",
+      "node *": "allow"
+    },
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "task": "allow",
+    "skill": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "external_directory": "ask"
   }
 }

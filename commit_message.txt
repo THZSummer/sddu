@@ -1,0 +1,9 @@
+fix: 移除所有 SDD 向后兼容逻辑
+
+根据插件改名规范 v1.0.5：
+- opencode.json.hbs: 删除所有 sdd-* agents，仅保留 12 个 sddu-* agents
+- install.sh: 移除 SDD 向后兼容安装逻辑
+- 插件目录：仅部署 .opencode/plugins/sddu/
+- 工作空间：仅创建 .sddu/ 目录
+
+BREAKING CHANGE: 不再支持 SDD 向后兼容，纯 SDDU 部署
