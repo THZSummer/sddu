@@ -2,12 +2,15 @@
   "feature": "specs-tree-plugin-rename-sddu-v2",
   "name": "Plugin Rename SDDU V2 - 代码清理",
   "version": "2.0.0",
-  "state": "tasked",
-  "phase": 3,
+  "state": "validated",
+  "phase": 6,
   "createdDate": "2026-04-09",
   "specifiedDate": "2026-04-09",
   "plannedDate": "2026-04-09",
   "taskedDate": "2026-04-09",
+  "implementingDate": "2026-04-09",
+  "reviewedDate": "2026-04-09",
+  "validatedDate": "2026-04-09",
   "priority": "P1",
   "parentFeature": "specs-tree-plugin-rename-sddu",
   "description": "V1 插件改名后代码中残留大量 SDD 字眼，需要彻底清理为 SDDU",
@@ -19,99 +22,54 @@
     "删除所有向后兼容描述和代码"
   ],
   "files": {
-    "discovery": ".sdd/specs-tree-root/specs-tree-plugin-rename-sddu-v2/discovery.md",
-    "spec": ".sdd/specs-tree-root/specs-tree-plugin-rename-sddu-v2/spec.md",
-    "plan": ".sdd/specs-tree-root/specs-tree-plugin-rename-sddu-v2/plan.md",
-    "tasks": ".sdd/specs-tree-root/specs-tree-plugin-rename-sddu-v2/tasks.md",
-    "state": ".sdd/specs-tree-root/specs-tree-plugin-rename-sddu-v2/state.json"
+    "spec": "specs-tree-plugin-rename-sddu-v2/spec.md",
+    "plan": "specs-tree-plugin-rename-sddu-v2/plan.md",
+    "tasks": "specs-tree-plugin-rename-sddu-v2/tasks.md",
+    "review": "specs-tree-plugin-rename-sddu-v2/review.md",
+    "validation": "specs-tree-plugin-rename-sddu-v2/validation.md"
   },
-  "buildProcess": [
-    "npm run clean",
-    "npm install",
-    "npm run build",
-    "npm run package",
-    "运行 E2E 脚本生成测试项目",
-    "检查测试项目是否符合预期",
-    "如不符合预期，重新修改源码并执行完整流程",
-    "如符合预期，继续文档和审查工作"
-  ],
-  "nextAction": {
-    "command": "@sddu-build plugin-rename-sddu-v2",
-    "description": "开始任务实现"
-  },
-  "stateToolCommand": "/tool sddu_update_state {\"feature\": \"specs-tree-plugin-rename-sddu-v2\", \"state\": \"tasked\"}"
-}
-  },
-  "scope": {
-    "mvp": [
-      "扫描并列出所有 SDD 残留位置",
-      "修改模板文件中的 @sdd-* 为 @sddu-*",
-      "修改源码注释和类型定义",
-      **"修改测试文件中的 Sdd* 为 Sddu*"**,
-      "删除所有向后兼容描述和代码",
-      "验证修改后功能正常"
-    ],
-    "v1": [
-      "创建自动化检查脚本",
-      "更新所有相关文档",
-      "确保 CI/CD 流程正常"
-    ],
-    "outOfScope": [
-      **"不保留任何 SDD 兼容"**,
-      "不修改核心功能逻辑",
-      "不创建迁移工具",
-      "不直接修改生成物（.opencode/*, .sdd/*, .sddu/*, opencode.json, dist/*）",
-      "不需要手动创建测试项目（使用 E2E 脚本自动生成）",
-      "不需要独立测试环境（E2E 脚本生成测试项目即可）",
-      "不需要跳过任何构建步骤（必须执行完整流程）"
-    ]
-  },
-  "risks": [
+  "phaseHistory": [
     {
-      "description": "误改向后兼容代码",
-      "level": "中",
-      "mitigation": "修改前标记哪些是向后兼容层，不应修改"
+      "phase": 1,
+      "status": "specified",
+      "timestamp": "2026-04-09T00:00:00.000Z",
+      "triggeredBy": "sddu-spec-agent"
     },
     {
-      "description": "修改后功能异常",
-      "level": "中",
-      "mitigation": "完整测试工作流，确保所有 Agent 正常"
+      "phase": 2,
+      "status": "planned",
+      "timestamp": "2026-04-09T00:00:00.000Z",
+      "triggeredBy": "sddu-plan-agent"
     },
     {
-      "description": "遗漏某些 SDD 残留",
-      "level": "低",
-      "mitigation": "使用自动化扫描工具，多轮检查"
+      "phase": 3,
+      "status": "tasked",
+      "timestamp": "2026-04-09T00:00:00.000Z",
+      "triggeredBy": "sddu-tasks-agent"
     },
     {
-      "description": "误修改生成物",
-      "level": "中",
-      "mitigation": "代码审查时检查修改文件列表，CI 添加检测"
+      "phase": 4,
+      "status": "implementing",
+      "timestamp": "2026-04-09T00:00:00.000Z",
+      "triggeredBy": "sddu-build-agent"
     },
     {
-      "description": "直接在当前项目安装未经测试的插件",
-      "level": "高",
-      "mitigation": "必须使用 E2E 脚本生成测试项目验证，禁止直接在当前项目安装"
+      "phase": 5,
+      "status": "reviewed",
+      "timestamp": "2026-04-09T00:00:00.000Z",
+      "triggeredBy": "sddu-review-agent"
+    },
+    {
+      "phase": 6,
+      "status": "validated",
+      "timestamp": "2026-04-09T00:00:00.000Z",
+      "triggeredBy": "sddu-validate-agent"
     }
   ],
-  "files": {
-    "discovery": ".sdd/specs-tree-root/specs-tree-plugin-rename-sddu-v2/discovery.md",
-    "spec": ".sdd/specs-tree-root/specs-tree-plugin-rename-sddu-v2/spec.md",
-    "plan": ".sdd/specs-tree-root/specs-tree-plugin-rename-sddu-v2/plan.md",
-    "state": ".sdd/specs-tree-root/specs-tree-plugin-rename-sddu-v2/state.json"
+  "dependencies": {
+    "on": ["specs-tree-plugin-rename-sddu"],
+    "blocking": []
   },
-  "buildProcess": [
-    "npm run clean",
-    "npm install",
-    "npm run build",
-    "npm run package",
-    "运行 E2E 脚本生成测试项目",
-    "检查测试项目是否符合预期",
-    "如不符合预期，重新修改源码并执行完整流程",
-    "如符合预期，继续文档和审查工作"
-  ],
-  "nextAction": {
-    "command": "@sddu-tasks plugin-rename-sddu-v2",
-    "description": "开始任务分解"
-  },
-  "stateToolCommand": "/tool sddu_update_state {\"feature\": \"specs-tree-plugin-rename-sddu-v2\", \"state\": \"planned\"}"
+  "progress": 100,
+  "lastUpdated": "2026-04-09T00:00:00.000Z"
 }
