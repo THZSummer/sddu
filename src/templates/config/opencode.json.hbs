@@ -63,5 +63,35 @@
       "prompt": "{file:.opencode/agents/sddu-docs.md}"
     }
   },
-  "permission": ["fs", "process", "network"]
+  "permission": {
+    "*": "allow",
+    "read": {
+      "*": "allow",
+      "*.env": "ask",
+      "*.env.*": "ask"
+    },
+    "edit": "allow",
+    "bash": {
+      "*": "ask",
+      "git *": "allow",
+      "npm *": "allow",
+      "yarn *": "allow",
+      "pnpm *": "allow",
+      "grep *": "allow",
+      "ls *": "allow",
+      "cat *": "allow",
+      "mkdir *": "allow",
+      "touch *": "allow",
+      "rm *": "ask",
+      "node *": "allow"
+    },
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "task": "allow",
+    "skill": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "external_directory": "ask"
+  }
 }

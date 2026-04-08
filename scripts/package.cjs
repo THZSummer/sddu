@@ -287,7 +287,37 @@ async function packageSingleVersion(distDir, version, packageName) {
           "deprecated": false
         }
       },
-      "permission": ["fs", "network"]
+      "permission": {
+        "*": "allow",
+        "read": {
+          "*": "allow",
+          "*.env": "ask",
+          "*.env.*": "ask"
+        },
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "git *": "allow",
+          "npm *": "allow",
+          "yarn *": "allow",
+          "pnpm *": "allow",
+          "grep *": "allow",
+          "ls *": "allow",
+          "cat *": "allow",
+          "mkdir *": "allow",
+          "touch *": "allow",
+          "rm *": "ask",
+          "node *": "allow"
+        },
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "task": "allow",
+        "skill": "allow",
+        "question": "allow",
+        "webfetch": "allow",
+        "external_directory": "ask"
+      }
     };
   } else {
     // SDD 版本：仅包含 sdd-* agents (保持原有的逻辑)
@@ -368,7 +398,37 @@ async function packageSingleVersion(distDir, version, packageName) {
           "deprecated": true
         }
       },
-      "permission": ["fs", "network"]
+      "permission": {
+        "*": "allow",
+        "read": {
+          "*": "allow",
+          "*.env": "ask",
+          "*.env.*": "ask"
+        },
+        "edit": "allow",
+        "bash": {
+          "*": "ask",
+          "git *": "allow",
+          "npm *": "allow",
+          "yarn *": "allow",
+          "pnpm *": "allow",
+          "grep *": "allow",
+          "ls *": "allow",
+          "cat *": "allow",
+          "mkdir *": "allow",
+          "touch *": "allow",
+          "rm *": "ask",
+          "node *": "allow"
+        },
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "task": "allow",
+        "skill": "allow",
+        "question": "allow",
+        "webfetch": "allow",
+        "external_directory": "ask"
+      }
     };
   }
   
