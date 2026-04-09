@@ -179,106 +179,19 @@ async function packageSingleVersion(distDir, version, packageName) {
     }
   }
   
-// 5. 准备版本特定的 opencode.json
-  let opencodeConfig;
-  
-  if (version === 'sddu') {
-    // SDDU 版本：仅包含 12 个 sddu-* agents
-    opencodeConfig = {
-      "$schema": "https://opencode.ai/config.json",
-      "plugin": [`opencode-${version}-plugin`],
-      "agent": {
-        "sddu": {
-          "description": "SDDU Master Coordinator - 智能路由助手 (新版本)",
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sddu.md}",
-          "deprecated": false
-        },
-        "sddu-help": {
-          "description": "SDDU Help Assistant - 使用指南 (新版本)",
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sddu-help.md}",
-          "deprecated": false
-        },
-        "sddu-discovery": {
-          "description": `SDDU 需求挖掘专家 (阶段 0/6, 新版本)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sddu-discovery.md}",
-          "deprecated": false
-        },
-        "sddu-0-discovery": {
-          "description": `SDDU 需求挖掘专家 (阶段 0/6, 新版本)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sddu-0-discovery.md}",
-          "deprecated": false
-        },
-        "sddu-1-spec": {
-          "description": `SDDU 规范编写专家 (阶段 1/6, 新版本)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sddu-1-spec.md}",
-          "deprecated": false
-        },
-        "sddu-2-plan": {
-          "description": `SDDU 技术规划专家 (阶段 2/6, 新版本)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sddu-2-plan.md}",
-          "deprecated": false
-        },
-        "sddu-3-tasks": {
-          "description": `SDDU 任务分解专家 (阶段 3/6, 新版本)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sddu-3-tasks.md}",
-          "deprecated": false
-        },
-        "sddu-4-build": {
-          "description": `SDDU 任务实现专家 (阶段 4/6, 新版本)`,
-          "model": "bailian/qwen3-coder-plus",
-          "prompt": "{file:.opencode/agents/sddu-4-build.md}",
-          "deprecated": false
-        },
-        "sddu-5-review": {
-          "description": `SDDU 代码审查专家 (阶段 5/6, 新版本)`,
-          "model": "bailian/qwen3-coder-plus",
-          "prompt": "{file:.opencode/agents/sddu-5-review.md}",
-          "deprecated": false
-        },
-        "sddu-6-validate": {
-          "description": `SDDU 验证专家 (阶段 6/6, 新版本)`,
-          "model": "bailian/qwen3-coder-plus",
-          "prompt": "{file:.opencode/agents/sddu-6-validate.md}",
-          "deprecated": false
-        },
-        "sddu-roadmap": {
-          "description": `SDDU Roadmap 规划专家 - 多版本路线图规划 (新版本)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sddu-roadmap.md}",
-          "deprecated": false
-        },
-        "sddu-docs": {
-          "description": `SDDU 目录导航生成器 - 扫描目录结构生成 README 导航 (新版本)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sddu-docs.md}",
-          "deprecated": false
-        }
-      },
-      "permission": {
-        "*": "allow",
-        "read": "allow",
-        "edit": "allow",
-        "bash": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "task": "allow",
-        "skill": "allow",
-        "question": "allow",
-        "webfetch": "allow",
-        "external_directory": "allow"
-      }
-    };
-  
-    await fs.writeJson(path.join(distDir, 'opencode.json'), opencodeConfig, { spaces: 2 });
-  console.log(`🔄 生成 ${version} 版本的 opencode.json ...`);
+// 5. 从模板复制 opencode.json（src 是唯一配置来源）
+  const templatePath = path.join(__dirname, '..', 'src', 'templates', 'config', 'opencode.json.hbs');
+  if (await fs.pathExists(templatePath)) {
+    // 读取模板内容
+    let templateContent = await fs.readFile(templatePath, 'utf8');
+    
+    // 写入 opencode.json
+    await fs.writeFile(path.join(distDir, 'opencode.json'), templateContent, 'utf8');
+    console.log(`🔄 从模板复制 opencode.json ...`);
+  } else {
+    console.error('❌ 模板文件不存在:', templatePath);
+    throw new Error('opencode.json 模板文件不存在');
+  }
   
   // 6. 创建打包信息文件
   const packageInfo = {
@@ -299,7 +212,6 @@ async function packageSingleVersion(distDir, version, packageName) {
   console.log(`📋 写入 ${version} 构建信息 ...`);
 }
 
-}
 // 创建 ZIP 压缩包
 async function createZip(sourceDir, zipPath, versionName) {
   console.log(`📦 为 ${versionName} 创建 ZIP 压缩包: ${path.basename(zipPath)} ...`);
