@@ -1,7 +1,7 @@
 /**
- * SDD/SDDU 工具系统打包脚本
- * 实现 FR-022~025: 打包优化需求，生成 dist/sddu/ 和 dist/sdd/ 目录结构
- * 为 SDD 到 SDDU 迁移提供双版本支持
+ * SDDU 工具系统打包脚本
+ * 实现 FR-022~025: 打包优化需求，生成 dist/sddu/ 目录结构
+ * V2 独家版本 - 不做任何 SDD 向后兼容
  */
 
 const fs = require('fs-extra');
@@ -10,7 +10,7 @@ const archiver = require('archiver');
 
 async function packageSddu() {
   try {
-    console.log('📦 开始打包 SDDU 工具系统 (包含 SDD 兼容性包)...');
+    console.log('📦 开始打包 SDDU 工具系统 (V2 独家版本 - 无 SDD 兼容)...');
     
     // 确定 dist 目录
     const distDir = path.join(__dirname, '..', 'dist');
@@ -20,22 +20,14 @@ async function packageSddu() {
     const sdduDistDir = path.join(distDir, 'sddu');
     await packageSingleVersion(sdduDistDir, 'sddu', 'opencode-sddu-plugin');
     
-    console.log('\n🎯 创建 SDD 向后兼容版本包...');
-    const sddDistDir = path.join(distDir, 'sdd');
-    await packageSingleVersion(sddDistDir, 'sdd', 'opencode-sdd-plugin');
-    
     console.log('\n📦 创建 ZIP 压缩包...');
     
     // 创建 SDDU ZIP 包
     const sdduZipPath = path.join(distDir, 'sddu.zip');
     await createZip(sdduDistDir, sdduZipPath, 'sddu');
     
-    // 创建 SDD ZIP 包
-    const sddZipPath = path.join(distDir, 'sdd.zip'); 
-    await createZip(sddDistDir, sddZipPath, 'sdd');
-    
     console.log('\n🧹 清理冗余文件...');
-    const itemsToKeep = ['sddu', 'sdd', 'sddu.zip', 'sdd.zip'];
+    const itemsToKeep = ['sddu', 'sddu.zip'];
     const allItems = await fs.readdir(distDir);
     
     for (const item of allItems) {
@@ -47,11 +39,9 @@ async function packageSddu() {
     }
     
     console.log('\n✅ 打包完成！目录清单：');
-    console.log(`  - dist/sddu/ (SDDU 新版插件包)`);
-    console.log(`  - dist/sdd/ (SDD 兼容版插件包)`);  
+    console.log(`  - dist/sddu/ (SDDU V2 独家插件包)`);
     console.log(`  - dist/sddu.zip (SDDU 插件压缩包)`);
-    console.log(`  - dist/sdd.zip (SDD 插件压缩包)`);
-    console.log(`✅ SDDU + SDD 双版本打包完成`);
+    console.log(`✅ SDDU V2 独家版本打包完成（无 SDD 兼容）`);
     
     // 显示打包目录结构
     console.log('\n📋 SDDU 目录结构:');
@@ -60,9 +50,7 @@ async function packageSddu() {
     return {
       success: true,
       sdduOutputDir: sdduDistDir,
-      sddOutputDir: sddDistDir,
-      sdduZipFile: sdduZipPath,
-      sddZipFile: sddZipPath
+      sdduZipFile: sdduZipPath
     };
     
   } catch (error) {
@@ -90,7 +78,7 @@ async function packageSingleVersion(distDir, version, packageName) {
   console.log(`🔄 复制构建文件 (${version})...`);
   for (const file of allFiles) {
     // 跳过 dist 目录本身和其他输出目录
-    if (file === 'sdd' || file === 'sddu' || file === 'templates') continue;
+    if (file === 'sddu' || file === 'templates') continue;
     
     const sourcePath = path.join(srcDir, file);
     const destPath = path.join(distDir, file);
@@ -106,9 +94,7 @@ async function packageSingleVersion(distDir, version, packageName) {
   // 特殊处理模板目录 - 将 dist/templates/agents/ 复制到 [distDir]/agents/
   const templatesAgentsDir = path.join(srcDir, 'templates', 'agents');
   if (await fs.pathExists(templatesAgentsDir)) {
-    const targetAgentsDir = version === 'sddu' 
-      ? path.join(distDir, 'agents') 
-      : path.join(distDir, 'agents');
+    const targetAgentsDir = path.join(distDir, 'agents');
       
     await fs.ensureDir(targetAgentsDir);
     
@@ -121,17 +107,11 @@ async function packageSingleVersion(distDir, version, packageName) {
       if ((await fs.stat(templatePath)).isFile() && templateFile.endsWith('.hbs')) {
         let content = await fs.readFile(templatePath, 'utf8');
         
-        // 根据版本替换代理名称 - SDDU 的话替换成 SDDU 版本名，否则保留 SDD 名称
-        if (version === 'sddu') {
-          // SDDU 版本：将所有 SDD 相关名称改为 SDDU
-          content = content 
-            .replace(/SDD(?!\w)/g, 'SDDU')  // 仅替换完整的 "SDD" 单不匹配 "SDDD" 等
-            .replace(/sdd(?!\w)/g, 'sddu')  // 仅替换小写的 "sdd"
-            .replace(/@sdd-/g, '@sddu-');   // 替换命令 @sdd- -> @sddu-
-        } else {
-          // SDD 版本：保持原有命名
-          // 实际不需要替换，但这里保留逻辑扩展性
-        }
+        // SDDU 版本：将所有 SDD 相关名称改为 SDDU
+        content = content 
+          .replace(/SDD(?!\w)/g, 'SDDU')  // 仅替换完整的 "SDD" 单不匹配 "SDDD" 等
+          .replace(/sdd(?!\w)/g, 'sddu')  // 仅替换小写的 "sdd"
+          .replace(/@sdd-/g, '@sddu-');   // 替换命令 @sdd- -> @sddu-
         
         await fs.writeFile(outputPath, content, 'utf8');
       } else {
@@ -148,27 +128,21 @@ async function packageSingleVersion(distDir, version, packageName) {
   const pluginPkg = {
     ...originalPkg,
     name: packageName,
-    description: version === 'sddu' 
-      ? 'Specification-Driven Development Ultimate plugin for OpenCode' 
-      : originalPkg.description,
-    // 更新 scripts 部分，为 SDDU 添加带 sddu- 前缀的脚本
+    description: 'Specification-Driven Development Ultimate plugin for OpenCode (V2 Exclusive - No SDD Compatibility)',
     scripts: {
       ...originalPkg.scripts,
-      ...(version === 'sddu' ? {
-        'sddu-spec': 'node ./dist/commands/sdd-spec.js',
-        'sddu-plan': 'node ./dist/commands/sdd-plan.js', 
-        'sddu-tasks': 'node ./dist/commands/sdd-tasks.js',
-        'sddu-build': 'node ./dist/commands/sdd-build.js',
-        'sddu-review': 'node ./dist/commands/sdd-review.js',
-        'sddu-validate': 'node ./dist/commands/sdd-validate.js',
-        'sddu-docs': 'node ./dist/commands/sdd-docs.js',
-        'sddu-roadmap': 'node ./dist/commands/sdd-roadmap.js',
-        'sddu-help': 'node ./dist/commands/sdd-help.js',
-      } : {}),
+      'sddu-spec': 'node ./dist/commands/sdd-spec.js',
+      'sddu-plan': 'node ./dist/commands/sdd-plan.js', 
+      'sddu-tasks': 'node ./dist/commands/sdd-tasks.js',
+      'sddu-build': 'node ./dist/commands/sdd-build.js',
+      'sddu-review': 'node ./dist/commands/sdd-review.js',
+      'sddu-validate': 'node ./dist/commands/sdd-validate.js',
+      'sddu-docs': 'node ./dist/commands/sdd-docs.js',
+      'sddu-roadmap': 'node ./dist/commands/sdd-roadmap.js',
+      'sddu-help': 'node ./dist/commands/sdd-help.js',
     },
     files: [
-      // 更新输出文件路径以匹配版本
-      `dist/${version}/**/*`,  // 版本特定的输出路径
+      'dist/sddu/**/*',
       'src/**/*',
       '!.opencode',
       '!.sdd',
@@ -319,118 +293,6 @@ async function packageSingleVersion(distDir, version, packageName) {
         "external_directory": "ask"
       }
     };
-  } else {
-    // SDD 版本：仅包含 sdd-* agents (保持原有的逻辑)
-    opencodeConfig = {
-      "$schema": "https://opencode.ai/config.json",
-      "plugin": [`opencode-${version}-plugin`],
-      "agent": {
-        "sdd": {
-          "description": "SDD Master Coordinator - 智能路由助手 (已弃用，使用 @sddu 代替)",
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sdd.md}",
-          "deprecated": true
-        },
-        "sdd-help": {
-          "description": "SDD Help Assistant - 使用指南 (已弃用，使用 @sddu-help 代替)",
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sdd-help.md}",
-          "deprecated": true
-        },
-        "sdd-discovery": {
-          "description": `SDD 需求挖掘专家 (阶段 0/6, 已弃用，使用 @sddu-discovery 代替)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sdd-discovery.md}",
-          "deprecated": true
-        },
-        "sdd-0-discovery": {
-          "description": `SDD 需求挖掘专家 (阶段 0/6, 已弃用，使用 @sddu-discovery 代替)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sdd-0-discovery.md}",
-          "deprecated": true
-        },
-        "sdd-1-spec": {
-          "description": `SDD 规范编写专家 (阶段 1/6, 已弃用，使用 @sddu-spec 代替)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sdd-1-spec.md}",
-          "deprecated": true
-        },
-        "sdd-2-plan": {
-          "description": `SDD 技术规划专家 (阶段 2/6, 已弃用，使用 @sddu-plan 代替)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sdd-2-plan.md}",
-          "deprecated": true
-        },
-        "sdd-3-tasks": {
-          "description": `SDD 任务分解专家 (阶段 3/6, 已弃用，使用 @sddu-tasks 代替)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sdd-3-tasks.md}",
-          "deprecated": true
-        },
-        "sdd-4-build": {
-          "description": `SDD 任务实现专家 (阶段 4/6, 已弃用，使用 @sddu-build 代替)`,
-          "model": "bailian/qwen3-coder-plus",
-          "prompt": "{file:.opencode/agents/sdd-4-build.md}",
-          "deprecated": true
-        },
-        "sdd-5-review": {
-          "description": `SDD 代码审查专家 (阶段 5/6, 已弃用，使用 @sddu-review 代替)`,
-          "model": "bailian/qwen3-coder-plus",
-          "prompt": "{file:.opencode/agents/sdd-5-review.md}",
-          "deprecated": true
-        },
-        "sdd-6-validate": {
-          "description": `SDD 验证专家 (阶段 6/6, 已弃用，使用 @sddu-validate 代替)`,
-          "model": "bailian/qwen3-coder-plus",
-          "prompt": "{file:.opencode/agents/sdd-6-validate.md}",
-          "deprecated": true
-        },
-        "sdd-roadmap": {
-          "description": `SDD Roadmap 规划专家 - 多版本路线图规划 (已弃用，使用 @sddu-roadmap 代替)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sdd-roadmap.md}",
-          "deprecated": true
-        },
-        "sdd-docs": {
-          "description": `SDD 目录导航生成器 - 扫描目录结构生成 README 导航 (已弃用，使用 @sddu-docs 代替)`,
-          "model": "bailian/qwen3.5-plus",
-          "prompt": "{file:.opencode/agents/sdd-docs.md}",
-          "deprecated": true
-        }
-      },
-      "permission": {
-        "*": "allow",
-        "read": {
-          "*": "allow",
-          "*.env": "ask",
-          "*.env.*": "ask"
-        },
-        "edit": "allow",
-        "bash": {
-          "*": "ask",
-          "git *": "allow",
-          "npm *": "allow",
-          "yarn *": "allow",
-          "pnpm *": "allow",
-          "grep *": "allow",
-          "ls *": "allow",
-          "cat *": "allow",
-          "mkdir *": "allow",
-          "touch *": "allow",
-          "rm *": "ask",
-          "node *": "allow"
-        },
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "task": "allow",
-        "skill": "allow",
-        "question": "allow",
-        "webfetch": "allow",
-        "external_directory": "ask"
-      }
-    };
-  }
   
     await fs.writeJson(path.join(distDir, 'opencode.json'), opencodeConfig, { spaces: 2 });
   console.log(`🔄 生成 ${version} 版本的 opencode.json ...`);
@@ -454,6 +316,7 @@ async function packageSingleVersion(distDir, version, packageName) {
   console.log(`📋 写入 ${version} 构建信息 ...`);
 }
 
+}
 // 创建 ZIP 压缩包
 async function createZip(sourceDir, zipPath, versionName) {
   console.log(`📦 为 ${versionName} 创建 ZIP 压缩包: ${path.basename(zipPath)} ...`);
