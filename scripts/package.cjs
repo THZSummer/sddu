@@ -263,26 +263,9 @@ async function packageSingleVersion(distDir, version, packageName) {
       },
       "permission": {
         "*": "allow",
-        "read": {
-          "*": "allow",
-          "*.env": "ask",
-          "*.env.*": "ask"
-        },
+        "read": "allow",
         "edit": "allow",
-        "bash": {
-          "*": "ask",
-          "git *": "allow",
-          "npm *": "allow",
-          "yarn *": "allow",
-          "pnpm *": "allow",
-          "grep *": "allow",
-          "ls *": "allow",
-          "cat *": "allow",
-          "mkdir *": "allow",
-          "touch *": "allow",
-          "rm *": "ask",
-          "node *": "allow"
-        },
+        "bash": "allow",
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
@@ -290,7 +273,7 @@ async function packageSingleVersion(distDir, version, packageName) {
         "skill": "allow",
         "question": "allow",
         "webfetch": "allow",
-        "external_directory": "ask"
+        "external_directory": "allow"
       }
     };
   
