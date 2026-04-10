@@ -351,7 +351,7 @@ export class StateMachine {
         allowed: true,     // 仍然允许通过，但返回警告
         current: transitionCheck.current,
         target: targetState,
-        reason: '允许跳过阶段，建议先执行 @sdd discovery [feature] 进行需求挖掘',
+        reason: '允许跳过阶段，建议先执行 @sddu discovery [feature] 进行需求挖掘',
         missingStages: missingStages
       };
     }
@@ -504,13 +504,13 @@ export class StateMachine {
     
     const nextState = allowed[0];
     const actionMap: Record<FeatureStateEnum, string> = {
-      'drafting': '推荐执行 @sdd discovery [feature] 进行需求挖掘，或者直接 @sdd spec [feature] 定义规范',
-      'discovered': '@sdd spec [feature]',      // 从discovered阶段建议下一步spec
-      'specified': '@sdd plan [feature]',
-      'planned': '@sdd tasks [feature]',
-      'tasked': '@sdd build [TASK-XXX]',
-      'implementing': '@sdd review [feature]',
-      'reviewed': '@sdd validate [feature]',
+      'drafting': '推荐执行 @sddu discovery [feature] 进行需求挖掘，或者直接 @sddu spec [feature] 定义规范',
+      'discovered': '@sddu spec [feature]',      // 从discovered阶段建议下一步spec
+      'specified': '@sddu plan [feature]',
+      'planned': '@sddu tasks [feature]',
+      'tasked': '@sddu build [TASK-XXX]',
+      'implementing': '@sddu review [feature]',
+      'reviewed': '@sddu validate [feature]',
       'validated': '完成',
       'completed': '完成'
     };
