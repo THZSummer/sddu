@@ -72,7 +72,7 @@ opencode-sddu-plugin/
 | `src/` | 源码 | ✅ 是 |
 | `dist/` | 构建产物 | ✅ 是 |
 | `.sddu/` | SDDU 工作空间容器 | ✅ 是 |
-| `.sddu/.specs/` | 规范文件隔离目录 | ✅ 是 |
+| `.sddu/specs-tree-root/` | 规范文件目录 | ✅ 是 |
 | `.opencode/` | 本地安装测试 | ❌ 否 |
 
 ## 🚀 安装
@@ -125,24 +125,6 @@ bash install.sh <目标项目>
 - ✅ 打包脚本优化 (`scripts/package.cjs`)
 - ✅ Discovery 可选状态联动
 - ✅ 安装脚本适配 `dist/sddu/` 结构
-
-### 对照表：SDD 与 SDDU Agent 命令
-
-| SDD 旧版命令 | SDDU 新版命令 | 说明 |
-|---------------|----------------|------|
-| `@sdd` | `@sddu` | 智能入口 |
-| `@sdd-help` | `@sddu-help` | 帮助助手 |
-| `@sdd-discovery` | `@sddu-discovery` | 需求挖掘 |
-| `@sdd-spec` | `@sddu-spec` | 规范编写 |
-| `@sdd-plan` | `@sddu-plan` | 技术规划 |
-| `@sdd-tasks` | `@sddu-tasks` | 任务分解 |
-| `@sdd-build` | `@sddu-build` | 任务实现 |
-| `@sdd-review` | `@sddu-review` | 代码审查 |
-| `@sdd-validate` | `@sddu-validate` | 功能验证 |
-| `@sdd-roadmap` | `@sddu-roadmap` | 路线图规划 |
-| `@sdd-docs` | `@sddu-docs` | 目录导航 |
-
-**✅ 向后兼容**: 所有 `@sdd-*` 命令将继续正常工作，以支持现有项目！
 
 ### Agent 列表
 
@@ -221,7 +203,7 @@ bash install.sh <目标项目>
 │                   SDDU 完整规划体系                           │
 ├─────────────────────────────────────────────────────────────┤
 │  横向规划 (战略层)                                           │
-│  @sddu-roadmap → .sddu/.specs/ROADMAP.md                    │
+│  @sddu-roadmap → .sddu/ROADMAP.md                    │
 │  (多 Feature 多版本规划，可选)                                │
 │                           ↓                                  │
 │  纵向开发 (战术层) - 单 Feature 7 阶段工作流 (含需求挖掘)            │
