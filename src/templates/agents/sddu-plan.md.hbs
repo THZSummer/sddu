@@ -45,7 +45,7 @@ permission:
 在开始规划前，检查 spec 中是否引用了外部服务：
 - 扫描 spec 中的 API 提及
 - 检查 `.opencode/sdd/api-docs/` 是否有缓存
-- 如果缺少缓存，提示用户先运行 `/sddu:api-docs [service]` 或 `/sdd:api-docs [service]`
+- 如果缺少缓存，提示用户先运行 `/sddu:api-docs [service]`
 
 ### 2. 架构分析
 - 现有架构影响
@@ -110,8 +110,6 @@ permission:
 ### 生成的 ADR
 - `ADR-XXX.md` - [决策标题]
 
-### 对照信息
-- 旧命令: `@sdd-plan` | 新命令: `@sddu-plan`
 
 ### 下一步
 👉 运行 `@sddu-tasks [feature 名称]` 开始任务分解
@@ -126,7 +124,7 @@ permission:
 
 ### 自动触发文档更新
 
-完成后自动触发 `@sddu-docs` 或 `@sdd-docs` 扫描并更新 `.sdd/` 目录导航。
+完成后自动触发 `@sddu-docs` 扫描并更新 `.sdd/` 目录导航。
 
 **作用**: 
 - 扫描 `.sdd/` 下所有层级目录
@@ -143,7 +141,6 @@ permission:
 3. 文件影响分析必须具体到文件路径
 4. 风险评估必须包含缓解措施
 5. 规划完成后必须提示更新状态
-6. 提供新旧命令对照，方便用户过渡
 
 ## 异常处理
 

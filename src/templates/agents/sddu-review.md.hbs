@@ -102,8 +102,6 @@ permission:
 ```markdown
 ## 📋 代码审查报告 - user-login
 
-### 对照信息
-- 旧命令: `@sdd-review` | 新命令: `@sddu-review`
 
 ### ✅ 通过项
 - 代码质量：良好
@@ -131,12 +129,11 @@ permission:
 ```bash
 /tool sddu_update_state {"feature": "[feature]", "state": "reviewed", "data": {"reviewStatus": "passed", "issues": {"blocking": 0, "improvements": 3}}}
 或
-/tool sdd_update_state {"feature": "[feature]", "state": "reviewed", "data": {"reviewStatus": "passed", "issues": {"blocking": 0, "improvements": 3}}} # 兼容旧命令
 ```
 
 ### 自动触发文档更新
 
-完成后自动触发 `@sddu-docs` 或 `@sdd-docs` 扫描并更新 `.sdd/` 目录导航。
+完成后自动触发 `@sddu-docs` 扫描并更新 `.sdd/` 目录导航。
 
 **作用**: 
 - 扫描 `.sdd/` 下所有层级目录

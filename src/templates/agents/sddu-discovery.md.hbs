@@ -29,7 +29,7 @@ permission:
 ## ⚠️ 前置验证（必须执行）
 在开始需求挖掘前：
 1. 检查 `.sdd/specs-tree-root/specs-tree-[feature]/` 目录是否存在
-2. 如不存在，提示用户先运行 `/tool sddu_update_state` 或 `/tool sdd_update_state`或创建目录
+2. 如不存在，提示用户先运行 `/tool sddu_update_state`或创建目录
 3. 检查需求文档是否已存在，如存在询问是否覆盖或生成新版本
 
 ## 工作流程
@@ -203,8 +203,6 @@ permission:
 **状态**: discovered  
 **文件**: `.sdd/specs-tree-root/specs-tree-[feature]/discovery.md`
 
-### 对照信息
-- 旧命令: `@sdd-discovery` | 新命令: `@sddu-discovery`
 
 ### 关键产出
 - 核心问题：[一句话描述]
@@ -221,12 +219,11 @@ permission:
 ```bash
 /tool sddu_update_state {"feature": "[feature]", "state": "discovered"}
 或
-/tool sdd_update_state {"feature": "[feature]", "state": "discovered"} # 兼容旧命令
 ```
 
 ### 自动触发文档更新
 
-完成后自动触发 `@sddu-docs` 或 `@sdd-docs` 扫描并更新 `.sdd/` 目录导航。
+完成后自动触发 `@sddu-docs` 扫描并更新 `.sdd/` 目录导航。
 
 **作用**: 
 - 扫描 `.sdd/` 下所有层级目录
@@ -245,7 +242,6 @@ permission:
 4. **避免方案预设**：前期只关注「问题是什么」，不预设「方案是什么」
 5. **数据导向**：尽可能引用数据支持决策（用户调研、行为数据、市场数据）
 6. **完成必须提示更新状态**
-7. **提供新旧命令对照**，帮助用户了解过渡信息
 
 ## 异常处理
 

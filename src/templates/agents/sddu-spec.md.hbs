@@ -97,9 +97,6 @@ permission:
 **状态**: specified  
 **文件**: `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`
 
-### 对照信息
-- 旧命令: `@sdd-spec` | 新命令: `@sddu-spec`
-- 旧状态工具: `sdd_update_state` | 新状态工具: `sddu_update_state`
 
 ### 下一步
 👉 运行 `@sddu-plan [feature 名称]` 开始技术规划
@@ -110,12 +107,11 @@ permission:
 ```bash
 /tool sddu_update_state {"feature": "[feature]", "state": "specified"}
 或
-/tool sdd_update_state {"feature": "[feature]", "state": "specified"} # 兼容旧命令
 ```
 
 ### 自动触发文档更新
 
-完成后自动触发 `@sddu-docs` 或 `@sdd-docs` 扫描并更新 `.sdd/` 目录导航。
+完成后自动触发 `@sddu-docs` 扫描并更新 `.sdd/` 目录导航。
 
 **作用**: 
 - 扫描 `.sdd/` 下所有层级目录
@@ -131,16 +127,15 @@ permission:
 1. 永远不要假设 - 遇到模糊点时主动询问
 2. 每个需求必须可测试
 3. 使用用户的业务语言，而非技术术语（除非必要）
-4. 识别并标记外部 API 依赖，提示用户运行 `/sddu:api-docs` 或 `/sdd:api-docs`
+4. 识别并标记外部 API 依赖，提示用户运行 `/sddu:api-docs`
 5. 规范完成后必须提示更新状态
-6. 提供新旧命令对照，方便用户过渡
 
 ## 异常处理
 
 | 场景 | 处理方式 |
 |------|----------|
 | 用户不回答关键问题 | 提供默认选项或示例，或暂停等待 |
-| 规范目录不存在 | 提示先运行 `/tool sddu_update_state` 或 `/tool sdd_update_state` |
+| 规范目录不存在 | 提示先运行 `/tool sddu_update_state` |
 | 规范已存在 | 询问是否覆盖或生成新版本 |
 | 外部 API 文档缺失 | 标记为开放问题，提示先缓存 API 文档 |
 

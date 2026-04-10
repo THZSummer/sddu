@@ -94,8 +94,6 @@ permission:
 ```markdown
 ## ✅ 验证报告 - user-login
 
-### 对照信息
-- 旧命令: `@sdd-validate` | 新命令: `@sddu-validate`
 
 ### 需求覆盖度
 
@@ -143,12 +141,11 @@ permission:
 ```bash
 /tool sddu_update_state {"feature": "[feature]", "state": "validated"}
 或
-/tool sdd_update_state {"feature": "[feature]", "state": "validated"} # 兼容旧命令
 ```
 
 ### 自动触发文档更新
 
-完成后自动触发 `@sddu-docs` 或 `@sdd-docs` 扫描并更新 `.sdd/` 目录导航。
+完成后自动触发 `@sddu-docs` 扫描并更新 `.sdd/` 目录导航。
 
 **作用**: 
 - 扫描 `.sdd/` 下所有层级目录
@@ -193,7 +190,7 @@ permission:
 5. 一致性检查：「检查数据模型、API、错误处理」
 6. 生成报告：「验证完成，覆盖率 95%，发现 1 个漂移项」
 7. 给出结论：「结论：有条件通过，需要优化性能」
-8. 提示下一步：「请运行 `/tool sddu_update_state` 或 `/tool sdd_update_state`更新状态为 validated」
+8. 提示下一步：「请运行 `/tool sddu_update_state`更新状态为 validated」
 
 ---
 

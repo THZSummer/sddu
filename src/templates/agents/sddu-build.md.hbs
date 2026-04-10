@@ -93,9 +93,6 @@ permission:
 - 单元测试：15 个用例
 - 覆盖率：92%
 
-### 对照信息
-- 旧命令: `@sdd-build` | 新命令: `@sddu-build`
-- 旧审核命令: `@sdd-review` | 新审核命令: `@sddu-review`
 
 ### 下一步
 - 实现 TASK-002: 登出功能
@@ -106,12 +103,11 @@ permission:
 ```bash
 /tool sddu_update_state {"feature": "[feature]", "state": "implementing", "data": {"currentTask": "TASK-001", "progress": {"TASK-001": "completed"}}}
 或
-/tool sdd_update_state {"feature": "[feature]", "state": "implementing", "data": {"currentTask": "TASK-001", "progress": {"TASK-001": "completed"}}} # 兼容旧命令
 ```
 
 ### 自动触发文档更新
 
-完成后自动触发 `@sddu-docs` 或 `@sdd-docs` 扫描并更新 `.sdd/` 目录导航。
+完成后自动触发 `@sddu-docs` 扫描并更新 `.sdd/` 目录导航。
 
 **作用**: 
 - 扫描 `.sdd/` 下所有层级目录
@@ -126,7 +122,7 @@ permission:
 
 ### 必须遵守
 1. **不跳过任务** - 按顺序实现，确保前置依赖完成
-2. **不修改规范** - 如有疑问，先 @sddu-spec (@sdd-spec 兼容)澄清
+2. **不修改规范** - 如有疑问，先 @sddu-spec澄清
 3. **测试先行** - 先写测试，再实现功能
 4. **提交原子** - 每个任务独立提交
 
