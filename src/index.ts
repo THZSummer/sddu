@@ -1,4 +1,4 @@
-// SDD Plugin for OpenCode
+// SDDU Plugin for OpenCode
 // Specification: https://opencode.ai/docs/plugins/
 
 // 统一导入使用新的类型定义系统
@@ -38,7 +38,7 @@ import {
 } from './state/migrator';
 
 // 从命令模块导入
-import { SddMigrateSchemaCommand } from './commands/sddu-migrate-schema';
+import { SdduMigrateSchemaCommand } from './commands/sddu-migrate-schema';
 
 import { StateV2_0_0 } from './state/schema-v2.0.0';
 
@@ -85,7 +85,7 @@ export const SDDUPlugin = async ({ project, client, $, directory, worktree }) =>
         }
       });
       
-      // 可以在这里初始化 SDD 状态
+      // 可以在这里初始化 SDDU 状态
       if (globalAutoUpdater) {
         // 会话启动时确保 AutoUpdater 处于活跃状态
         globalAutoUpdater.setEnabled(true);
@@ -202,7 +202,7 @@ export {
   FeatureWithFullHistory,
   
   // Migration  
-  SddMigrateSchemaCommand,
+  SdduMigrateSchemaCommand,
   migrateState,
   MigrationResult,
 };

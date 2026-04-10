@@ -10,11 +10,11 @@ export { DependencyChecker };
 // Type mapping from old states to new workflow states
 export type OldFeatureStateEnum = 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed';
 
-// Agent workflow stages matching SDD Agent phases
+// Agent workflow stages matching SDDU Agent phases
 export type AgentWorkflowStateEnum = 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed';
 
-// Mapping for phase tracking (matching SDD workflow)
-export type SddPhase = 1 | 2 | 3 | 4 | 5 | 6;
+// Mapping for phase tracking (matching SDDU workflow)
+export type SdduPhase = 1 | 2 | 3 | 4 | 5 | 6;
 
 // New status enum aligned with schema v2.0.0
 export type FeatureStateEnum = 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed';
@@ -272,7 +272,7 @@ export class StateMachine {
         if(stateValue === 'discovered') {
           missing.push({ state: stateValue, name: stageNames[stateValue] });
         } else {
-          // 对于 SDD 工作流阶段，标记可能的跳跃 - 根据 SDD 阶段 1-6 进行考虑
+          // 对于 SDDU 工作流阶段，标记可能的跳跃 - 根据 SDDU 阶段 1-6 进行考虑
           missing.push({ state: stateValue, name: stageNames[stateValue] });
         }
       }
@@ -351,7 +351,7 @@ export class StateMachine {
         allowed: true,     // 仍然允许通过，但返回警告
         current: transitionCheck.current,
         target: targetState,
-        reason: '允许跳过阶段，建议先执行 @sdd discovery [feature] 进行需求挖掘',
+        reason: '允许跳过阶段，建议先执行 @sddu discovery [feature] 进行需求挖掘',
         missingStages: missingStages
       };
     }
@@ -420,7 +420,7 @@ export class StateMachine {
     feature.updatedAt = new Date().toISOString();
     Object.assign(feature, data);
     
-    // Determine SDD phase number based on state
+    // Determine SDDU phase number based on state
     const phase = this.getCurrentPhase(featureId);
     const workflowStatus = this.mapWorkflowStatus(newState);
     
@@ -504,13 +504,13 @@ export class StateMachine {
     
     const nextState = allowed[0];
     const actionMap: Record<FeatureStateEnum, string> = {
-      'drafting': '推荐执行 @sdd discovery [feature] 进行需求挖掘，或者直接 @sdd spec [feature] 定义规范',
-      'discovered': '@sdd spec [feature]',      // 从discovered阶段建议下一步spec
-      'specified': '@sdd plan [feature]',
-      'planned': '@sdd tasks [feature]',
-      'tasked': '@sdd build [TASK-XXX]',
-      'implementing': '@sdd review [feature]',
-      'reviewed': '@sdd validate [feature]',
+      'drafting': '推荐执行 @sddu discovery [feature] 进行需求挖掘，或者直接 @sddu spec [feature] 定义规范',
+      'discovered': '@sddu spec [feature]',      // 从discovered阶段建议下一步spec
+      'specified': '@sddu plan [feature]',
+      'planned': '@sddu tasks [feature]',
+      'tasked': '@sddu build [TASK-XXX]',
+      'implementing': '@sddu review [feature]',
+      'reviewed': '@sddu validate [feature]',
       'validated': '完成',
       'completed': '完成'
     };

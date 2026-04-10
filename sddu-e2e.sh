@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
-# SDDU 端到端测试脚本 (SDDU E2E Test)
+# SDDU E2E Test Script (Simplified)
 #
-# 专门用于 SDDU (@sddu-* 命令系列) 的端到端测试
-# 注意：此脚本专注于 SDDU 模式，不支持 --mode 选项
+# 端到端测试脚本 - 利用 install.sh 完成构建和安装
 #
 # 使用方式:
-#   # 基础测试
-#   bash sddu-e2e.sh                        # 使用默认项目名 user-login
-#   bash sddu-e2e.sh "项目名称"              # 自定义项目名（小写字母+数字+连字符，字母开头）
-#   
-#   # 高级选项
-#   bash sddu-e2e.sh "项目名" --auto        # 自动执行全流程（无需等待用户输入）
+#   bash sddu-e2e.sh                        # 默认项目名 user-login
+#   bash sddu-e2e.sh "项目名称"              # 自定义项目名
+#   bash sddu-e2e.sh "项目名" --auto        # 自动执行全流程
 #   bash sddu-e2e.sh "项目名" --report      # 生成详细测试报告
 #
+# 执行步骤:
+#   [1/4] 初始化测试环境 (创建目录)
+#   [2/4] 调用一键安装脚本 (自动完成 8 步构建 + 安装)
+#   [3/4] 创建测试提示词文件 (SDDU 全流程命令)
+#   [4/4] 生成测试报告 (验证 + 统计)
+#
+
 
 set -e
 
@@ -154,7 +157,7 @@ initialize_test() {
     echo ""
 
     # Create test directory
-    print_color "${CYAN}[初始化] 创建测试环境...${NC}"
+    print_color "${CYAN}[1/4] 初始化测试环境...${NC}"
     print_color "${GRAY}  创建测试目录: ${TEST_DIR}${NC}"
     mkdir -p "$TEST_DIR"
     print_color "${GREEN}  ✅ 测试目录创建成功${NC}"
@@ -162,41 +165,15 @@ initialize_test() {
     start_timer
 }
 
-# Execute build script
-execute_build() {
-    print_color "${CYAN}[步骤 1/6] 执行构建脚本...${NC}"
-    cd "$SCRIPT_DIR"
-    
-    if [ ! -f "build-agents.cjs" ]; then
-        print_color "${RED}  ❌ 构建脚本 build-agents.cjs 不存在${NC}"
-        exit 1
-    fi
-    
-    print_color "${GRAY}  执行: node build-agents.cjs${NC}"
-    if node build-agents.cjs > /dev/null; then
-        print_color "${GREEN}  ✅ 构建成功${NC}"
-    else
-        print_color "${RED}  ❌ 构建失败${NC}"
-        exit 1
-    fi
-    echo ""
-}
-
-# Execute installation script
+# Execute installation script (includes full build)
 execute_installation() {
-    print_color "${CYAN}[步骤 2/6] 执行一键安装脚本...${NC}"
-    
-    if [ ! -f "install.sh" ]; then
-        print_color "${RED}  ❌ 安装脚本 install.sh 不存在${NC}"
-        exit 1
-    fi
-    
-    print_color "${GRAY}  目标目录: ${TEST_DIR}${NC}"
-    print_color "${GRAY}  执行: bash install.sh ${TEST_DIR}${NC}"
+    print_color "${CYAN}[2/4] 调用一键安装脚本...${NC}"
+    print_color "${GRAY}  目标目录：${TEST_DIR}${NC}"
+    print_color "${GRAY}  说明：install.sh 会自动执行完整构建流程 (8 步)${NC}"
     echo ""
     
-    # Execute installation script (automatically confirm)
-    if echo "Y" | bash install.sh "$TEST_DIR" > /dev/null; then
+    # Execute installation script (includes full build)
+    if bash "$SCRIPT_DIR/install.sh" "$TEST_DIR"; then
         print_color "${GREEN}  ✅ 安装成功${NC}"
     else
         print_color "${RED}  ❌ 安装失败${NC}"
@@ -207,7 +184,7 @@ execute_installation() {
 
 # Generate prompt file with SDDU commands
 create_prompt_file() {
-    print_color "${CYAN}[步骤 3/6] 创建 SDDU 测试提示词文件...${NC}"
+    print_color "${CYAN}[3/4] 创建 SDDU 测试提示词文件...${NC}"
     
     # Create prompt file path
     PROMPT_FILE="${TEST_DIR}/sddu-test-prompt.md"
@@ -390,7 +367,7 @@ validate_phase_result() {
 # Generate test report if requested
 generate_report() {
     if [ "$REPORT_MODE" = true ]; then
-        print_color "${CYAN}[生成] 测试报告...${NC}"
+        print_color "${CYAN}[4/4] 生成测试报告...${NC}"
         
         local report_file="${TEST_DIR}/sddu-test-report.md"
         local duration=$(stop_timer)
@@ -489,7 +466,6 @@ main() {
     parse_arguments "$@"
     initialize_test
     
-    execute_build
     execute_installation
     create_prompt_file
     

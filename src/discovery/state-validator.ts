@@ -70,7 +70,7 @@ export class DiscoveryStateValidator {
       return {
         canTransition: true, // 允许转移，但在UI中显示警告
         reason: 'discovery.md 不存在',
-        warning: '发现阶段未完成，建议执行 @sdd discovery [feature] 完善需求挖掘',
+        warning: '发现阶段未完成，建议执行 @sddu discovery [feature] 完善需求挖掘',
         discoveryExists: false
       };
     }

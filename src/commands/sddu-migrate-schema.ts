@@ -30,7 +30,7 @@ export interface MigrationReport {
 /**
  * Schema 迁移命令类
  */
-export class SddMigrateSchemaCommand {
+export class SdduMigrateSchemaCommand {
   private specsDir: string;
 
   constructor(specsDir: string = 'specs-tree-root') {
@@ -350,6 +350,6 @@ export async function runMigrateCommand(args: string[]): Promise<void> {
     options.all = true;
   }
 
-  const command = new SddMigrateSchemaCommand(options.specsDir);
+  const command = new SdduMigrateSchemaCommand(options.specsDir);
   await command.execute(options);
 }

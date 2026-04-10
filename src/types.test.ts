@@ -49,7 +49,7 @@ import {
   // 额外类型 import
   CoachingLevel,
   AgentMetadata,
-  SddConfig,
+  SdduConfig,
 } from './types';
 
 describe('类型导出测试', () => {
@@ -184,7 +184,7 @@ describe('类型导出测试', () => {
     
     expect(metadata.name).toBe('test-agent');
     
-    const config: SddConfig = {
+    const config: SdduConfig = {
       autoUpdateState: true,
       enableDiscovery: false,
       logLevel: 'info',

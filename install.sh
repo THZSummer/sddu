@@ -1,8 +1,23 @@
 #!/usr/bin/env bash
-# SDDU Plugin Installer (Linux/macOS) 
-# Usage: bash install.sh <TargetDir>
-#    or: ./install.sh <TargetDir>
-# Note: Must use bash, not sh!
+# SDDU Plugin Installer (Linux/macOS)
+# 
+# 一键安装脚本 - 自动完成从构建到安装的全部流程
+#
+# 使用方式:
+#   bash install.sh <TargetDir>
+#   or: ./install.sh <TargetDir>
+#
+# 执行步骤:
+#   [1/8] 清理旧的构建产物 (npm run clean)
+#   [2/8] 安装依赖 (npm install)
+#   [3/8] 构建 agents (npm run build:agents)
+#   [4/8] 构建 TypeScript (npm run build:ts)
+#   [5/8] 打包 (npm run package)
+#   [6/8] 创建目标目录 (.opencode/, .sddu/ 等)
+#   [7/8] 复制插件文件到目标项目
+#   [8/8] 配置 opencode.json 和工作空间
+#
+# 注意：必须使用 bash 运行，不能使用 sh
 
 # Detect if running with sh instead of bash
 if [ -z "$BASH_VERSION" ]; then
@@ -35,7 +50,7 @@ print_color() {
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Parse arguments
+# Get target directory from command line argument
 if [ -z "$1" ]; then
     print_color "${RED}ERROR: Target directory required${NC}"
     echo ""
@@ -61,16 +76,65 @@ print_color "${GREEN}Installing SDDU plugin with latest features${NC}"
 print_color "${GREEN}Using @sddu-* commands for improved functionality${NC}"
 echo ""
 
+# Total steps for complete build and installation
+TOTAL_STEPS=8
+
 # Step 1: Check source
-print_color "${CYAN}[1/7] Checking source...${NC}"
+print_color "${CYAN}[1/${TOTAL_STEPS}] Checking source...${NC}"
 if [ ! -f "${SCRIPT_DIR}/package.json" ]; then
     print_color "${RED}ERROR: package.json not found${NC}"
     exit 1
 fi
 print_color "${GREEN}[OK] Source validated${NC}"
 
-# Step 2: Check for prebuilt dist/sddu directory
-print_color "${CYAN}[2/7] Locating SDDU distribution files...${NC}"
+# Step 2: Clean and rebuild from source
+print_color "${CYAN}[2/${TOTAL_STEPS}] Cleaning and rebuilding from source...${NC}"
+
+# Clean
+print_color "${GRAY}  Cleaning dist directory...${NC}"
+rm -rf "${SCRIPT_DIR}/dist"
+if [ $? -ne 0 ]; then
+    print_color "${RED}Clean failed${NC}"
+    exit 1
+fi
+
+# Install dependencies
+print_color "${GRAY}  Installing dependencies...${NC}"
+npm install --prefix "${SCRIPT_DIR}"
+if [ $? -ne 0 ]; then
+    print_color "${RED}Install failed${NC}"
+    exit 1
+fi
+
+# Build agents
+print_color "${GRAY}  Building agents...${NC}"
+node "${SCRIPT_DIR}/build-agents.cjs"
+if [ $? -ne 0 ]; then
+    print_color "${RED}Agent build failed${NC}"
+    exit 1
+fi
+
+# Build TypeScript
+print_color "${GRAY}  Building TypeScript...${NC}"
+"${SCRIPT_DIR}/node_modules/.bin/tsc" --project "${SCRIPT_DIR}/tsconfig.json"
+if [ $? -ne 0 ]; then
+    print_color "${RED}TS build failed${NC}"
+    exit 1
+fi
+
+# Package
+print_color "${GRAY}  Packaging...${NC}"
+node "${SCRIPT_DIR}/scripts/package.cjs"
+if [ $? -ne 0 ]; then
+    print_color "${RED}Package failed${NC}"
+    exit 1
+fi
+
+print_color "${GREEN}[OK] Build complete, using latest code${NC}"
+echo ""
+
+# Step 3: Check for prebuilt dist/sddu directory
+print_color "${CYAN}[3/${TOTAL_STEPS}] Locating SDDU distribution files...${NC}"
 
 DIST_SDDU_DIR="${SCRIPT_DIR}/dist/sddu"
 DIST_SDDU_ARCHIVE="${SCRIPT_DIR}/dist/sddu.zip"
@@ -133,8 +197,8 @@ else
     fi
 fi
 
-# Step 3: Create directories
-print_color "${CYAN}[3/7] Creating SDDU directories...${NC}"
+# Step 4: Create directories
+print_color "${CYAN}[4/${TOTAL_STEPS}] Creating SDDU directories...${NC}"
 
 # Support only SDDU directory structure for new installations
 for dir in "${TARGET_DIR}/.opencode/plugins/sddu" "${TARGET_DIR}/.opencode/agents" "${TARGET_DIR}/.sddu" "${TARGET_DIR}/.sddu/specs-tree-root"; do
@@ -146,8 +210,8 @@ for dir in "${TARGET_DIR}/.opencode/plugins/sddu" "${TARGET_DIR}/.opencode/agent
     fi
 done
 
-# Step 4: Copy SDDU plugins only
-print_color "${CYAN}[4/7] Copying SDDU plugins from distribution directory...${NC}"
+# Step 5: Copy SDDU plugins only
+print_color "${CYAN}[5/${TOTAL_STEPS}] Copying SDDU plugins from distribution directory...${NC}"
 SDDU_PLUGIN_DEST="${TARGET_DIR}/.opencode/plugins/sddu"
 
 copy_distribution_to_plugin() {
@@ -191,8 +255,8 @@ fi
 AGENT_COUNT=$(find "${TARGET_DIR}/.opencode/agents" -type f | wc -l)
 print_color "${GREEN}[OK] Total agents copied: $AGENT_COUNT${NC}"
 
-# Step 5: Version Detection
-print_color "${CYAN}[5/7] Version Detection...${NC}"
+# Step 6: Version Detection
+print_color "${CYAN}[6/${TOTAL_STEPS}] Version Detection...${NC}"
 
 # Get source version from SDDU directory
 SOURCE_PKG_PATH="${SCRIPT_DIR}/dist/sddu/package.json"
@@ -213,8 +277,8 @@ fi
 
 print_color "${GREEN}[INFO] Source package version: $SOURCE_VERSION${NC}"
 
-# Step 6: Apply opencode.json with new configurations
-print_color "${CYAN}[6/7] Configuring SDDU opencode.json...${NC}"
+# Step 7: Apply opencode.json with new configurations
+print_color "${CYAN}[7/${TOTAL_STEPS}] Configuring SDDU opencode.json...${NC}"
 
 # Prepare SDDU configuration file
 OPENCODE_JSON_SOURCE_SDDU="${SCRIPT_DIR}/dist/sddu/opencode.json"
@@ -292,8 +356,8 @@ else
     cp "${OPENCODE_JSON_SOURCE_SDDU}" "${OPENCODE_JSON_PATH}"
     print_color "${GREEN}[OK] Created new SDDU opencode.json${NC}"
 fi
-# Step 7: Initialize .sddu/ directory structure
-print_color "${CYAN}[7/7] Initializing SDDU workspace directory...${NC}"
+# Step 8: Initialize .sddu/ directory structure
+print_color "${CYAN}[8/${TOTAL_STEPS}] Initializing SDDU workspace directory...${NC}"
 
 # Only create SDDU directory structure
 cat > "${TARGET_DIR}/.sddu/README.md" << 'EOF'

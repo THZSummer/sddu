@@ -128,11 +128,11 @@ describe('错误系统测试', () => {
       expect(result.isSdduError).toBe(true); 
     }
     
-    // 测试处理已有 SddError
-    const sddError = new ToolError(ErrorCode.TOOL_EXECUTE_ERROR, 'Tool error', { test: true });
-    const handledSddError = ErrorHandler.handle(sddError);
+    // 测试处理已有 SdduError
+    const sdduError = new ToolError(ErrorCode.TOOL_EXECUTE_ERROR, 'Tool error', { test: true });
+    const handledSdduError = ErrorHandler.handle(sdduError);
     
-    expect(handledSddError).toBe(sddError); // 应该返回相同的实例
+    expect(handledSdduError).toBe(sdduError); // 应该返回相同的实例
     
     // 测试处理字符串
     const stringError = ErrorHandler.handle('A string error');

@@ -11,25 +11,25 @@ const validState: StateV2_0_0 = {
       phase: 1,
       status: 'specified',
       timestamp: '2023-08-14T10:30:00Z',
-      triggeredBy: 'sdd-spec-agent'
+      triggeredBy: 'sddu-spec-agent'
     },
     {
       phase: 2,
       status: 'planned',
       timestamp: '2023-08-15T11:00:00Z',
-      triggeredBy: 'sdd-plan-agent'
+      triggeredBy: 'sddu-plan-agent'
     },
     {
       phase: 3,
       status: 'tasked',
       timestamp: '2023-08-16T09:45:00Z',
-      triggeredBy: 'sdd-tasks-agent'
+      triggeredBy: 'sddu-tasks-agent'
     },
     {
       phase: 4,
       status: 'building',
       timestamp: '2023-08-17T14:20:00Z',
-      triggeredBy: 'sdd-build-agent'
+      triggeredBy: 'sddu-build-agent'
     }
   ],
   files: {
@@ -53,7 +53,7 @@ const validState: StateV2_0_0 = {
       timestamp: '2023-08-14T10:30:00Z',
       from: undefined,
       to: 'specified',
-      triggeredBy: 'sdd-spec-agent',
+      triggeredBy: 'sddu-spec-agent',
       comment: 'Initial specification completed',
       version: 'v2.0.0'
     }
