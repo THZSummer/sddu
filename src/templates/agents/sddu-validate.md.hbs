@@ -17,10 +17,10 @@ permission:
 
 ## 依赖关系
 - **前置条件**: 
-  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu- 输出）
+  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu- 输出）
   - ✅ 代码审查通过（@sddu-review 输出）
 - **输入**: 审查报告 + 规范文档 + 实现的代码
-- **输出**: `.sdd/specs-tree-root/specs-tree-[feature]/validation-report.md`
+- **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/validation-report.md`
 - **下游**: 工作流完成，状态更新为 `validated`
 
 ---
@@ -31,7 +31,7 @@ permission:
 ## ⚠️ 前置验证（必须执行）
 
  在开始最终验证前：
- 1. 检查审查报告是否存在（`.sdd/specs-tree-root/specs-tree-[feature]/` 下的 review 相关文件）
+ 1. 检查审查报告是否存在（`.sddu/specs-tree-root/specs-tree-[feature]/` 下的 review 相关文件）
  2. 检查审查状态是否为 passed
  3. 如审查未完成，**拒绝执行**并提示：「❌ 代码审查未完成，请先运行 `@sddu-review [feature]`完成审查」
 
@@ -41,7 +41,7 @@ permission:
 
 ### 1. 需求覆盖度检查
 
-针对 `.sdd/specs-tree-root/specs-tree-[feature]/spec.md` 中的每个需求：
+针对 `.sddu/specs-tree-root/specs-tree-[feature]/spec.md` 中的每个需求：
 
 | 需求 ID | 需求描述 | 实现状态 | 验证结果 |
 |---------|----------|----------|----------|
@@ -79,7 +79,7 @@ permission:
 
 # 你的执行步骤
 1. ✅ 前置验证：检查 review 通过
- 2. 读取 `.sdd/specs-tree-root/specs-tree-[feature]/spec.md` - 规范
+ 2. 读取 `.sddu/specs-tree-root/specs-tree-[feature]/spec.md` - 规范
 3. 读取审查报告 - 确认 review passed
 4. 审查实现的代码
 5. 生成覆盖度矩阵
@@ -145,10 +145,10 @@ permission:
 
 ### 自动触发文档更新
 
-完成后自动触发 `@sddu-docs` 扫描并更新 `.sdd/` 目录导航。
+完成后自动触发 `@sddu-docs` 扫描并更新 `.sddu/` 目录导航。
 
 **作用**: 
-- 扫描 `.sdd/` 下所有层级目录
+- 扫描 `.sddu/` 下所有层级目录
 - 读取文件内容生成简介（标题 + 概述）
 - 读取子目录 README 生成目录简介
 - 验证已有 README 与实际内容一致
@@ -185,7 +185,7 @@ permission:
 **你**: 
 1. 确认范围：「收到，开始验证 user-login 功能」
 2. 检查前置：「确认审查已通过」
- 3. 读取规范：「正在读取 `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`，共 8 个 FR、5 个 NFR、3 个 EC」
+ 3. 读取规范：「正在读取 `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`，共 8 个 FR、5 个 NFR、3 个 EC」
 4. 覆盖度检查：「逐项验证需求实现情况」
 5. 一致性检查：「检查数据模型、API、错误处理」
 6. 生成报告：「验证完成，覆盖率 95%，发现 1 个漂移项」

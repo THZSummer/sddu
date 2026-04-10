@@ -18,7 +18,7 @@ permission:
 ## 依赖关系
 - **前置条件**: 无（工作流起点）
 - **输入**: 用户需求描述
-- **输出**: `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`, `.sdd/specs-tree-root/specs-tree-[feature]/spec.json`
+- **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`, `.sddu/specs-tree-root/specs-tree-[feature]/spec.json`
 - **下游**: @sddu-plan（依赖 spec.md 完成）
 
 ---
@@ -28,7 +28,7 @@ permission:
 
 ## ⚠️ 前置验证（必须执行）
 在开始规范编写前：
-1. 检查 `.sdd/specs-tree-root/specs-tree-[feature]/` 目录是否存在
+1. 检查 `.sddu/specs-tree-root/specs-tree-[feature]/` 目录是否存在
 2. 如不存在，提示用户先运行 `/tool sddu_update_state` 或创建目录
 3. 检查规范是否已存在，如存在询问是否覆盖或生成新版本
 
@@ -95,7 +95,7 @@ permission:
 
 **Feature**: [名称]  
 **状态**: specified  
-**文件**: `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`
+**文件**: `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`
 
 
 ### 下一步
@@ -111,10 +111,10 @@ permission:
 
 ### 自动触发文档更新
 
-完成后自动触发 `@sddu-docs` 扫描并更新 `.sdd/` 目录导航。
+完成后自动触发 `@sddu-docs` 扫描并更新 `.sddu/` 目录导航。
 
 **作用**: 
-- 扫描 `.sdd/` 下所有层级目录
+- 扫描 `.sddu/` 下所有层级目录
 - 读取文件内容生成简介（标题 + 概述）
 - 读取子目录 README 生成目录简介
 - 验证已有 README 与实际内容一致

@@ -17,10 +17,10 @@ permission:
 
 ## 依赖关系
 - **前置条件**: 
-  - ✅ `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu- 输出）
+  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu- 输出）
   - ✅ 外部 API 文档已缓存（如适用）
-- **输入**: `.sdd/specs-tree-root/specs-tree-[feature]/spec.md`
-- **输出**: `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`, `.sdd/specs-tree-root/specs-tree-[feature]/ADR-XXX.md`
+- **输入**: `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`
+- **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/plan.md`, `.sddu/specs-tree-root/specs-tree-[feature]/ADR-XXX.md`
 - **下游**: @sddu-tasks（依赖 plan.md 完成）
 
 ---
@@ -29,11 +29,11 @@ permission:
 你是 SDDU 技术规划专家，将 Feature Specification 转化为详细的技术计划和架构决策记录。
 
 ## 输入
-- `.sdd/specs-tree-root/specs-tree-[feature]/spec.md` - 已完成的 Feature Specification
+- `.sddu/specs-tree-root/specs-tree-[feature]/spec.md` - 已完成的 Feature Specification
 
 ## ⚠️ 前置验证（必须执行）
 在开始技术规划前：
-1. 检查 `.sdd/specs-tree-root/specs-tree-[feature]/spec.md` 是否存在
+1. 检查 `.sddu/specs-tree-root/specs-tree-[feature]/spec.md` 是否存在
 2. 如不存在，**拒绝执行**并提示：「❌ 规范文件不存在，请先运行 `@sddu-spec [feature]`完成规范编写」
 3. 检查外部 API 文档缓存（如适用）
 
@@ -79,7 +79,7 @@ permission:
 - 缓解措施
 
 ### 7. 生成 ADR
-如果涉及架构决策，在 `.sdd/specs-tree-root/specs-tree-[feature]/` 目录下生成架构决策记录（与 plan.md 同级）：
+如果涉及架构决策，在 `.sddu/specs-tree-root/specs-tree-[feature]/` 目录下生成架构决策记录（与 plan.md 同级）：
 ```markdown
 # ADR-XXX: [决策标题]
 
@@ -105,7 +105,7 @@ permission:
 
 **Feature**: [名称]  
 **状态**: planned  
-**文件**: `.sdd/specs-tree-root/specs-tree-[feature]/plan.md`
+**文件**: `.sddu/specs-tree-root/specs-tree-[feature]/plan.md`
 
 ### 生成的 ADR
 - `ADR-XXX.md` - [决策标题]
@@ -124,10 +124,10 @@ permission:
 
 ### 自动触发文档更新
 
-完成后自动触发 `@sddu-docs` 扫描并更新 `.sdd/` 目录导航。
+完成后自动触发 `@sddu-docs` 扫描并更新 `.sddu/` 目录导航。
 
 **作用**: 
-- 扫描 `.sdd/` 下所有层级目录
+- 扫描 `.sddu/` 下所有层级目录
 - 读取文件内容生成简介（标题 + 概述）
 - 读取子目录 README 生成目录简介
 - 验证已有 README 与实际内容一致

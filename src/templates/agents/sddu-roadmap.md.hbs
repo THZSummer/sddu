@@ -27,18 +27,18 @@ permission:
 ### ✅ 允许输出
 | 文件 | 说明 |
 |------|------|
-| `.sdd/ROADMAP.md` | **唯一输出文件**，完整的多版本规划文档 |
+| `.sddu/ROADMAP.md` | **唯一输出文件**，完整的多版本规划文档 |
 
 ### ❌ 禁止输出
 | 文件 | 原因 | 正确 Agent |
 |------|------|------------|
-| `.sdd/specs-tree-root/specs-tree-[feature]/tasks.md` | 越界，属于任务分解阶段 | `@sddu-3-tasks` |
-| `.sdd/specs-tree-root/specs-tree-[feature]/plan.md` | 越界，属于技术规划阶段 | `@sddu-2-plan` |
-| `.sdd/ROADMAP-EXECUTIVE-SUMMARY.md` | 冗余，执行摘要应放在 ROADMAP.md 顶部 | - |
-| `.sdd/ROADMAP-COMPLETION.md` | 冗余，无需 completion 报告 | - |
+| `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md` | 越界，属于任务分解阶段 | `@sddu-3-tasks` |
+| `.sddu/specs-tree-root/specs-tree-[feature]/plan.md` | 越界，属于技术规划阶段 | `@sddu-2-plan` |
+| `.sddu/ROADMAP-EXECUTIVE-SUMMARY.md` | 冗余，执行摘要应放在 ROADMAP.md 顶部 | - |
+| `.sddu/ROADMAP-COMPLETION.md` | 冗余，无需 completion 报告 | - |
 
 ### 📋 输出格式要求
-1. **单文件原则**: 只生成 `.sdd/ROADMAP.md`
+1. **单文件原则**: 只生成 `.sddu/ROADMAP.md`
 2. **摘要置顶**: 执行摘要放在文档顶部前 20%
 3. **结构清晰**: 使用标题层级组织内容
 4. **禁止越界**: 不创建任何 feature 的 plan.md 或 tasks.md
@@ -72,10 +72,10 @@ permission:
 ### 项目上下文扫描
 
 主动读取以下文件获取上下文：
-- `.sdd/specs-tree-root/specs-tree-[feature]/state.json` - 查看已有 Feature 状态
-- `.sdd/specs-tree-root/specs-tree-[feature]/spec.md` - 了解功能详情
+- `.sddu/specs-tree-root/specs-tree-[feature]/state.json` - 查看已有 Feature 状态
+- `.sddu/specs-tree-root/specs-tree-[feature]/spec.md` - 了解功能详情
 - `README.md` - 查看版本历史
-- `.sdd/specs-tree-root/[sub-feature]/` - 查看既有规划
+- `.sddu/specs-tree-root/[sub-feature]/` - 查看既有规划
 
 ### 推荐输入
 - 详细功能规格说明 (如存在)
@@ -97,9 +97,9 @@ permission:
 2. **扫描项目状态**
      ```bash
      # 读取现有 spec
-     find .sdd/specs-tree-root -name "spec.md"
+     find .sddu/specs-tree-root -name "spec.md"
      # 读取状态
-     cat .sdd/specs-tree-root/*/state.json
+     cat .sddu/specs-tree-root/*/state.json
      ```
 
 3. **推荐扩展 Feature**
@@ -151,7 +151,7 @@ permission:
 
 ### 第六步：输出生成
 
-生成详细的 Roadmap 报告到 `.sdd/ROADMAP.md`：
+生成详细的 Roadmap 报告到 `.sddu/ROADMAP.md`：
 - **执行摘要**: 放在文档顶部（前 20%）
 - **版本总览表**: 包含所有计划版本
 - **功能优先级排序**: 使用 RICE 评分
@@ -160,13 +160,13 @@ permission:
 - **风险评估与缓解**: 识别风险并提出应对措施
 - **下一步行动**: 立即可执行的任务
 
-**重要**: 只生成 `.sdd/ROADMAP.md` 一个文件，不创建其他文档。
+**重要**: 只生成 `.sddu/ROADMAP.md` 一个文件，不创建其他文档。
 
 ---
 
 ## 📊 输出格式
 
-生成结构化的 Roadmap 文档到 `.sdd/ROADMAP.md`：
+生成结构化的 Roadmap 文档到 `.sddu/ROADMAP.md`：
 
 ```markdown
 # [项目名称] 版本 Roadmap
