@@ -168,6 +168,19 @@ specs-tree-root/
 
 ---
 
+### v2.6.0 - 📋 Phase 2: 能力增强
+
+**发布时间**: 2026-04-30  
+**状态**: 📋 规划中
+
+**关键功能**:
+- Skills 系统
+- TUI 界面
+- MCP 集成
+- Structured Output
+
+---
+
 ### v2.7.0 - 📋 状态管理优化
 
 **预计发布**: 2026-05-02  
@@ -240,19 +253,6 @@ specified < planned < tasked < building < reviewed < validated
 - `templates/build/4-build-summary.md.hbs` - Build 总结模板
 - `src/templates/agents/sddu-build.md.hbs` (增强)
 - `docs/build-workflow.md` - Build 工作流指南
-
----
-
-### v2.6.0 - 📋 Phase 2: 能力增强
-
-**发布时间**: 2026-04-30  
-**状态**: 📋 规划中
-
-**关键功能**:
-- Skills 系统
-- TUI 界面
-- MCP 集成
-- Structured Output
 
 ---
 
