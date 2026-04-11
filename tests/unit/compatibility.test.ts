@@ -10,7 +10,7 @@ import {
   readStateWithCompatibility,
   detectSDDStructure,
   CompatibilityConfig
-} from '../../../.sdd/src/utils/compatibility';
+} from '../../../src/utils/compatibility';
 
 describe('F-250: Compatibility Utilities - Unit Tests', () => {
   const tempDir = '.temp-test-compat-units';

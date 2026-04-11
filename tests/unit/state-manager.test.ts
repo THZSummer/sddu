@@ -1,10 +1,10 @@
-import { StateManager } from '../../../.sdd/src/state/manager';
+import { StateManager } from '../../../src/state/manager';
 import { join } from 'path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync, rmdirSync, readdirSync } from 'fs';
 import { tmpdir } from 'os';
 
 // Mock workspace functions before importing StateManager to ensure the mock works
-jest.mock('../../../.sdd/src/utils/workspace', () => {
+jest.mock('../../../src/utils/workspace', () => {
   return {
     getSpecsDir: jest.fn(),
   };
@@ -14,7 +14,7 @@ describe('F-250: State Manager - Unit Tests', () => {
   let stateManager: StateManager;
   let tempSpecsDir: string;
   // Using imported mocked version  
-  const mockGetSpecsDir = require('../../../.sdd/src/utils/workspace').getSpecsDir;
+  const mockGetSpecsDir = require('../../../src/utils/workspace').getSpecsDir;
   let tempDir: string;
 
   beforeEach(() => {
