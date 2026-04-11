@@ -1,5 +1,5 @@
 // Import modules after setting up mocks
-import { getSDDWorkspace, getSpecsDir } from '../../../.sdd/src/utils/workspace';
+import { getSDDWorkspace, getSpecsDir } from '../../../src/utils/workspace';
 
 // We need to mock before importing
 const originalEnv = process.env;

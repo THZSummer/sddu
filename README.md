@@ -1,6 +1,6 @@
 # OpenCode SDDU Plugin
 
-[![Version](https://img.shields.io/badge/version-2.3.0-blue)](https://github.com/THZSummer/sddu/releases)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/THZSummer/sddu/releases)
 [![Phase](https://img.shields.io/badge/Phase-2-complete)](https://github.com/THZSummer/sddu)
 [![Status](https://img.shields.io/badge/status-stable-green)](https://github.com/THZSummer/sddu)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/THZSummer/sddu/blob/main/LICENSE)
@@ -58,6 +58,13 @@ opencode-sddu-plugin/
 │       │   ├── validation.md
 │       │   └── state.json
 │       └── ...                 # 其他 Feature
+│
+├── tests/                      # 测试目录
+│   ├── README.md               # 测试说明文档
+│   ├── unit/                   # 单元测试
+│   ├── state/                  # 集成测试
+│   ├── e2e/                    # E2E 测试
+│   └── compatibility/          # 兼容性测试
 │
 ├── install.sh                  # 安装脚本 (Linux/macOS)
 ├── install.ps1                 # 安装脚本 (Windows)
@@ -261,18 +268,20 @@ opencode
 @sddu-build "实现 TASK-001"
 ```
 
-## ✅ 已完成 Feature
+## ✅ 已完成 Feature (11 个)
 
 ### SDDU 专业版 (v1.1.0)
-- **状态**: validated ✅
-- **阶段**: 6/6 (完成)
-- **核心成果**:
-  - 插件改名 SDDU 
-  - 统一类型导出
-  - 统一错误处理
-  - Agent 动态注册
-
-**详细文档**: [.sddu/specs-tree-root/specs-tree-plugin-rename-sddu/](.sddu/specs-tree-root/specs-tree-plugin-rename-sddu/)
+- specs-tree-plugin-rename-sddu-v2/ - 插件改名 SDDU V2（代码清理）
+- specs-tree-plugin-rename-sddu/ - 插件改名 SDDU V1（历史记录）
+- specs-tree-sdd-discovery-feature/ - Discovery 需求挖掘功能
+- specs-tree-directory-optimization/ - 目录结构优化
+- specs-tree-sdd-multi-module/ - 子 Feature 并行开发支持
+- specs-tree-sdd-tools-optimization/ - 工具系统优化
+- specs-tree-deprecate-sdd-tools/ - 废弃旧工具
+- specs-tree-sdd-workflow-state-optimization/ - 工作流状态优化
+- specs-tree-sdd-plugin-roadmap/ - Roadmap 规划专家
+- specs-tree-sdd-plugin-baseline/ - 插件基线建立
+- architecture/ - 架构决策记录目录
 
 ## 🔨 开发命令
 
@@ -300,6 +309,20 @@ npm run clean
 # 本地测试
 npm run test
 ```
+
+## 🧪 测试
+
+运行测试：
+```bash
+# 运行所有测试
+npm test
+
+# 运行特定测试
+npm test -- --testPathPattern=tests/unit
+npm test -- --testPathPattern=tests/e2e
+```
+
+测试目录结构详见 [tests/README.md](tests/README.md)
 
 ## 🧹 SDD 残留检查
 
