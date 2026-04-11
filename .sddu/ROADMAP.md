@@ -15,7 +15,6 @@
 | 版本 | 主题 | 发布时间 | 状态 | 优先级 | 关键交付物 | 详细规划 |
 |------|------|----------|------|--------|------------|----------|
 | **v1.1.1** | Phase 1+ | 2026-03-30 | ✅ 已完成 | P1 🥈 | 16 个 Agent | [↓ 展开 ↓](#v111------phase-1) |
-| **v1.2.0** | Phase 2: 能力增强 | 2026-04-30 | 🔄 开发中 | P1 🥈 | Skills + TUI + MCP | [↓ 展开 ↓](#v120------phase-2-能力增强) |
 | **v1.3.0** | 品牌升级规划 | 2026-04-13 | ✅ 已完成 | P0 🥇 | 已整合至 v1.4.0 | [↓ 展开 ↓](#v130------品牌升级规划) |
 | **v1.4.0** | SDD → SDDU 品牌升级 | 2026-04-20 | ✅ 已完成 | P0 🥇 | 插件改名 + 双版本命令 | [↓ 展开 ↓](#v140------sdd--sddu-品牌升级) |
 | **v2.4.0** | 顶层规划规范化 | 2026-04-18 | 📋 规划中 | P0 🥇 | 1-spec.md, 2-plan.md, 3-tasks.md | [↓ 展开 ↓](#v240------顶层规划规范化) |
@@ -23,6 +22,7 @@
 | **v2.6.0** | 状态管理优化 | 2026-05-02 | 📋 规划中 | P0 🥈 | auto-aggregator, schema-v2.1.0 | [↓ 展开 ↓](#v260------状态管理优化) |
 | **v2.7.0** | 文件命名标准化 | 2026-05-09 | 📋 规划中 | P2 | migrate-naming.sh | [↓ 展开 ↓](#v270------文件命名标准化) |
 | **v2.8.0** | Build 阶段完善 | 2026-05-16 | 📋 规划中 | P2 | 4-build.md.hbs | [↓ 展开 ↓](#v280------build-阶段完善) |
+| **v1.2.0** | Phase 2: 能力增强 | 2026-04-30 | 🔄 开发中 | P1 🥈 | Skills + TUI + MCP | [↓ 展开 ↓](#v120------phase-2-能力增强) |
 
 ### 状态图例
 
@@ -60,19 +60,6 @@
 - ✅ specs-tree-sdd-plugin-roadmap
 - ✅ specs-tree-sdd-plugin-baseline
 - ✅ specs-tree-plugin-rename-sddu
-
----
-
-### v1.2.0 - 🔄 Phase 2: 能力增强
-
-**发布时间**: 2026-04-30  
-**状态**: 🔄 开发中
-
-**关键功能**:
-- Skills 系统
-- TUI 界面
-- MCP 集成
-- Structured Output
 
 ---
 
@@ -253,6 +240,19 @@ specified < planned < tasked < building < reviewed < validated
 - `templates/build/4-build-summary.md.hbs` - Build 总结模板
 - `src/templates/agents/sddu-build.md.hbs` (增强)
 - `docs/build-workflow.md` - Build 工作流指南
+
+---
+
+### v1.2.0 - 🔄 Phase 2: 能力增强
+
+**发布时间**: 2026-04-30  
+**状态**: 🔄 开发中
+
+**关键功能**:
+- Skills 系统
+- TUI 界面
+- MCP 集成
+- Structured Output
 
 ---
 
