@@ -9,7 +9,7 @@
 
 ## 📁 项目结构
 
-````
+```
 opencode-sddu-plugin/
 ├── src/                        # 源码目录
 │   ├── index.ts                # 插件入口
