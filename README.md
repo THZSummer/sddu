@@ -9,7 +9,7 @@
 
 ## 📁 项目结构
 
-````
+```
 opencode-sddu-plugin/
 ├── src/                        # 源码目录
 │   ├── index.ts                # 插件入口
@@ -121,6 +121,50 @@ bash install.sh <目标项目>
 - ✅ 生成 `dist/sddu.zip` 新版插件包
 - ✅ 支持 ZIP 解压安装
 
+## 🏗️ 项目架构
+
+```mermaid
+graph LR
+    subgraph Core[核心层]
+        C1["src/index.ts\n插件入口"]
+        C2["src/types.ts\n类型定义"]
+        C3["src/errors.ts\n错误处理"]
+    end
+    
+    subgraph Agents[Agent 层]
+        A1["src/agents/\n动态注册表"]
+        A2["src/templates/agents/\nPrompt 模板"]
+    end
+    
+    subgraph Commands[命令层]
+        CM1["src/commands/\nCLI 命令"]
+        CM2["src/discovery/\n发现阶段"]
+    end
+    
+    subgraph State[状态层]
+        S1["src/state/\n状态机"]
+        S2["src/state/\n管理器"]
+    end
+    
+    subgraph Utils[工具层]
+        U1["src/utils/\n任务解析"]
+        U2["src/utils/\n子 Feature 管理"]
+        U3["src/utils/\nREADME 生成"]
+        U4["src/utils/\n依赖通知"]
+    end
+    
+    Core --> Agents
+    Agents --> Commands
+    Commands --> State
+    State --> Utils
+    
+    style Core fill:#ffe0e0
+    style Agents fill:#e0ffe0
+    style Commands fill:#e0e0ff
+    style State fill:#ffffe0
+    style Utils fill:#ffe0ff
+```
+
 ## 🎯 使用方法
 
 ### 核心功能
@@ -205,21 +249,43 @@ bash install.sh <目标项目>
 
 #### 📊 完整 Agent 关系图
 
-````
-┌─────────────────────────────────────────────────────────────┐
-│                   SDDU 完整规划体系                           │
-├─────────────────────────────────────────────────────────────┤
-│  横向规划 (战略层)                                           │
-│  @sddu-roadmap → .sddu/ROADMAP.md                    │
-│  (多 Feature 多版本规划，可选)                                │
-│                           ↓                                  │
-│  纵向开发 (战术层) - 单 Feature 7 阶段工作流 (含需求挖掘)            │
-│  @sddu-discovery → @sddu-spec → @sddu-plan → @sddu-tasks    │
-│  (需求挖掘)       (需求规范)    (技术方案)   (任务分解)     │
-│                           ↓                                  │
-│           @sddu-build → @sddu-review → @sddu-validate       │
-│           (实现)      (审查)        (验证)                  │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph SDDU[🎯 SDDU 完整规划体系]
+        direction TB
+        
+        Strategic[📊 战略层 - 横向规划]
+        Tactical[📋 战术层 - 纵向开发]
+        Execution[🔨 执行层 - 实现验证]
+        
+        Strategic --> Tactical
+        Tactical --> Execution
+        
+        subgraph StrategicLayer[ ]
+            SR1["@sddu-roadmap\n📋 多版本路线图"]
+        end
+        
+        subgraph TacticalLayer[ ]
+            TL1["@sddu-discovery\n🔍 需求挖掘"]
+            TL2["@sddu-spec\n📝 规范编写"]
+            TL3["@sddu-plan\n🛠️ 技术规划"]
+            TL4["@sddu-tasks\n📌 任务分解"]
+        end
+        
+        subgraph ExecutionLayer[ ]
+            EL1["@sddu-build\n💻 任务实现"]
+            EL2["@sddu-review\n👁️ 代码审查"]
+            EL3["@sddu-validate\n✅ 功能验证"]
+        end
+        
+        SR1 --> TL1
+        TL1 --> TL2 --> TL3 --> TL4
+        TL4 --> EL1 --> EL2 --> EL3
+        
+        style Strategic fill:#e1f5ff
+        style Tactical fill:#fff4e1
+        style Execution fill:#e8f5e9
+    end
 ```
 
 #### 📋 Agent 对比表
@@ -228,12 +294,52 @@ bash install.sh <目标项目>
 |-------|------|------|------|------|------|
 | `@sddu-roadmap` | 战略层 | 零散想法/约束 | 多版本 Roadmap | ❌ 可选 | SDDU 版 |
 | `@sddu-discovery` | 认知层 | 用户初步想法 | discovery.md | ⚠️ 推荐 | SDDU 版 |
-| `@sddu-spec` | 战术层 | 用户需求(推荐已挖掘的) | spec.md | ✅ 必需 | SDDU 版 |
+| `@sddu-spec` | 战术层 | 用户需求 (推荐已挖掘的) | spec.md | ✅ 必需 | SDDU 版 |
 | `@sddu-plan` | 战术层 | spec.md | plan.md | ✅ 必需 | SDDU 版 |
 | `@sddu-tasks` | 战术层 | plan.md | tasks.md | ✅ 必需 | SDDU 版 |
 | `@sddu-build` | 执行层 | tasks.md | 源代码 | ✅ 必需 | SDDU 版 |
 | `@sddu-review` | 执行层 | 代码 | 审查报告 | ✅ 必需 | SDDU 版 |
 | `@sddu-validate` | 执行层 | 审查报告 | 验证结果 | ✅ 必需 | SDDU 版 |
+
+## 🔄 7 阶段工作流
+
+SDDU 实现从需求到验证的完整 7 阶段工作流（含阶段 0：需求挖掘）：
+
+```mermaid
+sequenceDiagram
+    participant User as 👤 用户
+    participant D as 🔍 Discovery (阶段 0)
+    participant S as 📝 Spec (阶段 1)
+    participant P as 🛠️ Plan (阶段 2)
+    participant T as 📌 Tasks (阶段 3)
+    participant B as 💻 Build (阶段 4)
+    participant R as 👁️ Review (阶段 5)
+    participant V as ✅ Validate (阶段 6)
+    
+    User->>D: 初步想法
+    D->>S: 挖掘后的需求
+    S->>P: 需求规范
+    P->>T: 技术方案
+    T->>B: 任务列表
+    B->>R: 实现代码
+    R->>V: 审查报告
+    V->>User: 验证通过
+    
+    Note over D,V: 每个阶段生成对应文档
+    Note over D,V: 状态自动流转
+```
+
+**阶段说明**:
+
+| 阶段 | Agent | 输入 | 输出 | 文档 |
+|------|-------|------|------|------|
+| 0 | @sddu-discovery | 用户初步想法 | 挖掘后的需求 | discovery.md |
+| 1 | @sddu-spec | 需求文档 | 技术规范 | spec.md |
+| 2 | @sddu-plan | 需求规范 | 技术方案 | plan.md |
+| 3 | @sddu-tasks | 技术方案 | 任务列表 | tasks.md |
+| 4 | @sddu-build | 任务列表 | 源代码 | build.md |
+| 5 | @sddu-review | 代码 | 审查报告 | review.md |
+| 6 | @sddu-validate | 审查报告 | 验证结果 | validation.md |
 
 ## ⚡ 快速开始
 
@@ -269,6 +375,32 @@ opencode
 ```
 
 ## ✅ 已完成 Feature (11 个)
+
+```mermaid
+gantt
+    title SDDU Feature 完成时间线
+    dateFormat  YYYY-MM-DD
+    axisFormat  %m-%d
+    
+    section 基础功能
+    插件基线建立          :done, baseline, 2026-04-05, 2d
+    工具系统优化          :done, tools, after baseline, 2d
+    
+    section SDDU 升级
+    插件改名 SDDU V1      :done, rename_v1, 2026-04-06, 1d
+    代码清理 V2           :done, rename_v2, after rename_v1, 1d
+    Discovery 功能        :done, discovery, 2026-04-06, 1d
+    
+    section 架构优化
+    目录结构优化          :done, dir_opt, 2026-04-06, 1d
+    状态管理优化          :done, state_opt, 2026-04-06, 1d
+    多模块支持            :done, multi_module, 2026-04-06, 1d
+    
+    section 规划与治理
+    Roadmap 规划          :done, roadmap, 2026-04-06, 1d
+    废弃旧工具            :done, deprecate, 2026-04-06, 1d
+    架构决策记录          :done, adr, 2026-04-06, 1d
+```
 
 ### SDDU 专业版 (v1.1.0)
 - specs-tree-plugin-rename-sddu-v2/ - 插件改名 SDDU V2（代码清理）
@@ -383,6 +515,53 @@ V2 版本提供了自动化检查工具，用于验证代码中是否还有 SDD 
 - [OpenCode Plugin 开发](https://opencode.ai/docs/plugins)
 - [OpenCode Agent 系统](https://opencode.ai/docs/agents)
 - [OpenCode MCP 集成](https://opencode.ai/docs/mcp-servers)
+
+## 📚 文档导航
+
+```mermaid
+flowchart TD
+    root[("📖 SDDU 文档")]
+    
+    subgraph Guide[用户指南]
+        G1[安装指南]
+        G2[快速开始]
+        G3[使用示例]
+    end
+    
+    subgraph Dev[开发文档]
+        D1[项目架构]
+        D2[Agent 系统]
+        D3[状态机设计]
+    end
+    
+    subgraph Spec[规范文档]
+        S1[specs-tree-root]
+        S2[11 个 Feature 文档]
+        S3[架构决策 ADR]
+    end
+    
+    subgraph Mig[迁移指南]
+        M1[SDD 到 SDDU]
+        M2[目录结构迁移]
+        M3[常见问题 FAQ]
+    end
+    
+    root --> Guide
+    root --> Dev
+    root --> Spec
+    root --> Mig
+    
+    Guide --> G1 & G2 & G3
+    Dev --> D1 & D2 & D3
+    Spec --> S1 & S2 & S3
+    Mig --> M1 & M2 & M3
+```
+
+详细文档请查看：
+- 📁 **工作空间**: [.sddu/README.md](.sddu/README.md)
+- 📋 **规范目录**: [.sddu/specs-tree-root/README.md](.sddu/specs-tree-root/README.md)
+- 🗺️ **路线图**: [.sddu/ROADMAP.md](.sddu/ROADMAP.md)
+- 📝 **测试说明**: [tests/README.md](tests/README.md)
 
 ## 📄 许可证
 
