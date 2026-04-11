@@ -14,10 +14,10 @@
 
 | 版本 | 主题 | 发布时间 | 状态 | 优先级 | 关键交付物 | 详细规划 |
 |------|------|----------|------|--------|------------|----------|
-| **v1.4.0** | SDD → SDDU 品牌升级 | 2026-04-20 | ✅ 已完成 | P0 🥇 | 插件改名 + 双版本命令 | [↓ 展开 ↓](#v140---sdd--sddu-品牌升级) |
-| **v1.3.0** | 品牌升级规划 | 2026-04-13 | ✅ 已完成 | P0 🥇 | 已整合至 v1.4.0 | [↓ 展开 ↓](#v130---品牌升级规划) |
-| **v1.2.0** | Phase 2: 能力增强 | 2026-04-30 | 🔄 开发中 | P1 🥈 | Skills + TUI + MCP | [↓ 展开 ↓](#v120---phase-2-能力增强) |
 | **v1.1.1** | Phase 1+ | 2026-03-30 | ✅ 已完成 | P1 🥈 | 16 个 Agent | [↓ 展开 ↓](#v111---phase-1) |
+| **v1.2.0** | Phase 2: 能力增强 | 2026-04-30 | 🔄 开发中 | P1 🥈 | Skills + TUI + MCP | [↓ 展开 ↓](#v120---phase-2-能力增强) |
+| **v1.3.0** | 品牌升级规划 | 2026-04-13 | ✅ 已完成 | P0 🥇 | 已整合至 v1.4.0 | [↓ 展开 ↓](#v130---品牌升级规划) |
+| **v1.4.0** | SDD → SDDU 品牌升级 | 2026-04-20 | ✅ 已完成 | P0 🥇 | 插件改名 + 双版本命令 | [↓ 展开 ↓](#v140---sdd--sddu-品牌升级) |
 | **v2.4.0** | 顶层规划规范化 | 2026-04-18 | 📋 规划中 | P0 🥇 | 1-spec.md, 2-plan.md, 3-tasks.md | [↓ 展开 ↓](#v240---顶层规划规范化) |
 | **v2.5.0** | 树形 Feature 结构 | 2026-04-25 | 📋 规划中 | P1 🥉 | subfeature-manager, tree-guide | [↓ 展开 ↓](#v250---树形-feature-结构) |
 | **v2.6.0** | 状态管理优化 | 2026-05-02 | 📋 规划中 | P0 🥈 | auto-aggregator, schema-v2.1.0 | [↓ 展开 ↓](#v260---状态管理优化) |
@@ -43,9 +43,49 @@
 
 ---
 
-## 📜 已完成版本详情
+### v1.1.1 - ✅ Phase 1+
 
-### v1.4.0 - SDD → SDDU 品牌升级
+**发布时间**: 2026-03-30  
+**状态**: ✅ 已完成
+
+**核心成果**: 16 个 Agent (6 阶段×2 + 4 特殊)
+
+**已完成 Feature**:
+- ✅ specs-tree-sdd-discovery-feature
+- ✅ specs-tree-directory-optimization
+- ✅ sdd-multi-module
+- ✅ specs-tree-sdd-tools-optimization
+- ✅ deprecate-sdd-tools
+- ✅ specs-tree-sdd-workflow-state-optimization
+- ✅ specs-tree-sdd-plugin-roadmap
+- ✅ specs-tree-sdd-plugin-baseline
+- ✅ specs-tree-plugin-rename-sddu
+
+---
+
+### v1.2.0 - 🔄 Phase 2: 能力增强
+
+**发布时间**: 2026-04-30  
+**状态**: 🔄 开发中
+
+**关键功能**:
+- Skills 系统
+- TUI 界面
+- MCP 集成
+- Structured Output
+
+---
+
+### v1.3.0 - ✅ 品牌升级规划
+
+**发布时间**: 2026-04-13  
+**状态**: ✅ 已完成 (已整合至 v1.4.0)
+
+**说明**: 本版本规划内容已完全整合至 v1.4.0，不单独发布。
+
+---
+
+### v1.4.0 - ✅ SDD → SDDU 品牌升级
 
 **发布时间**: 2026-04-20  
 **状态**: ✅ 已完成
@@ -79,51 +119,7 @@
 
 ---
 
-### v1.3.0 - 品牌升级规划
-
-**发布时间**: 2026-04-13  
-**状态**: ✅ 已完成 (已整合至 v1.4.0)
-
-**说明**: 本版本规划内容已完全整合至 v1.4.0，不单独发布。
-
----
-
-### v1.2.0 - Phase 2: 能力增强
-
-**发布时间**: 2026-04-30  
-**状态**: 🔄 开发中
-
-**关键功能**:
-- Skills 系统
-- TUI 界面
-- MCP 集成
-- Structured Output
-
----
-
-### v1.1.1 - Phase 1+
-
-**发布时间**: 2026-03-30  
-**状态**: ✅ 已完成
-
-**核心成果**: 16 个 Agent (6 阶段×2 + 4 特殊)
-
-**已完成 Feature**:
-- ✅ specs-tree-sdd-discovery-feature
-- ✅ specs-tree-directory-optimization
-- ✅ sdd-multi-module
-- ✅ specs-tree-sdd-tools-optimization
-- ✅ deprecate-sdd-tools
-- ✅ specs-tree-sdd-workflow-state-optimization
-- ✅ specs-tree-sdd-plugin-roadmap
-- ✅ specs-tree-sdd-plugin-baseline
-- ✅ specs-tree-plugin-rename-sddu
-
----
-
-## 🚀 规划中版本详情
-
-### v2.4.0 - 顶层规划规范化
+### v2.4.0 - 📋 顶层规划规范化
 
 **预计发布**: 2026-04-18  
 **状态**: 📋 规划中  
@@ -149,7 +145,7 @@
 
 ---
 
-### v2.5.0 - 树形 Feature 结构
+### v2.5.0 - 📋 树形 Feature 结构
 
 **预计发布**: 2026-04-25  
 **状态**: 📋 规划中  
@@ -185,7 +181,7 @@ specs-tree-root/
 
 ---
 
-### v2.6.0 - 状态管理优化
+### v2.6.0 - 📋 状态管理优化
 
 **预计发布**: 2026-05-02  
 **状态**: 📋 规划中  
@@ -212,7 +208,7 @@ specified < planned < tasked < building < reviewed < validated
 
 ---
 
-### v2.7.0 - 文件命名标准化
+### v2.7.0 - 📋 文件命名标准化
 
 **预计发布**: 2026-05-09  
 **状态**: 📋 规划中  
@@ -241,7 +237,7 @@ specified < planned < tasked < building < reviewed < validated
 
 ---
 
-### v2.8.0 - Build 阶段完善
+### v2.8.0 - 📋 Build 阶段完善
 
 **预计发布**: 2026-05-16  
 **状态**: 📋 规划中  
