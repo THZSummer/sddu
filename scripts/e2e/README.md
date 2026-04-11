@@ -10,10 +10,6 @@ e2e/
 │   └── README.md
 └── fullstack/                # 全栈 E2E（前后端分离）
     ├── sddu-e2e-fullstack.sh
-    ├── templates/            # 全栈专用模板
-    │   ├── backend/          # SpringBoot 后端模板
-    │   ├── frontend/         # React 前端模板
-    │   └── docker-compose.yml
     └── README.md
 ```
 
@@ -33,12 +29,12 @@ bash scripts/e2e/fullstack/sddu-e2e-fullstack.sh "project-name" --auto
 
 1. **每个 E2E 脚本有自己的资源目录**
    - 基础 E2E: 无需模板（纯 TypeScript 代码由 Agent 生成）
-   - 全栈 E2E: 有 templates/ 目录（Phase 4 参考）
+   - 全栈 E2E: 规范驱动（前后端代码由 Agent 根据提示词生成）
 
-2. **模板不直接复制**
-   - 模板作为 Agent 参考示例
+2. **规范驱动开发**
+   - 不依赖模板复制
    - 在提示词中说明架构要求
-   - Phase 4 (Build) 时由 Agent 生成代码
+   - Phase 0-6 由 Agent 自主生成代码
 
 3. **脚本自包含**
    - 每个 E2E 脚本 + 自己的资源
