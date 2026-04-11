@@ -519,24 +519,42 @@ V2 版本提供了自动化检查工具，用于验证代码中是否还有 SDD 
 ## 📚 文档导航
 
 ```mermaid
-mindmap
-  root((📖 SDDU 文档))
-    用户指南
-      安装指南
-      快速开始
-      使用示例
-    开发文档
-      项目架构
-      Agent 系统
-      状态机设计
-    规范文档
-      specs-tree-root
-      11 个 Feature 文档
-      架构决策 ADR
-    迁移指南
-      SDD 到 SDDU
-      目录结构迁移
-      常见问题 FAQ
+flowchart TD
+    root[("📖 SDDU 文档")]
+    
+    subgraph Guide[用户指南]
+        G1[安装指南]
+        G2[快速开始]
+        G3[使用示例]
+    end
+    
+    subgraph Dev[开发文档]
+        D1[项目架构]
+        D2[Agent 系统]
+        D3[状态机设计]
+    end
+    
+    subgraph Spec[规范文档]
+        S1[specs-tree-root]
+        S2[11 个 Feature 文档]
+        S3[架构决策 ADR]
+    end
+    
+    subgraph Mig[迁移指南]
+        M1[SDD 到 SDDU]
+        M2[目录结构迁移]
+        M3[常见问题 FAQ]
+    end
+    
+    root --> Guide
+    root --> Dev
+    root --> Spec
+    root --> Mig
+    
+    Guide --> G1 & G2 & G3
+    Dev --> D1 & D2 & D3
+    Spec --> S1 & S2 & S3
+    Mig --> M1 & M2 & M3
 ```
 
 详细文档请查看：
