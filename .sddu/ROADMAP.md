@@ -1,58 +1,61 @@
 # SDDU 合并版 Roadmap
 
-> **文档版本**: 3.0.0 (结构重构)  
+> **文档版本**: 3.1.0 (统一版本表)  
 > **更新日期**: 2026-04-12  
 > **状态**: 已优化
 
-本文档整合了 SDDU 版本历史 (v1.1-v1.4) 与未来多 Feature 树形结构优化规划 (v2.4-v2.8)。
+本文档整合了 SDDU 完整版本历史 (v1.1-v1.4) 与未来多 Feature 树形结构优化规划 (v2.4-v2.8)。
 
 ---
 
-## 📚 版本演进历史 (v1.1-v1.4)
+## 📊 全版本规划总览
 
-> **来源**: 合并自 `.sdd/ROADMAP.md`  
-> **作用**: 历史背景，说明当前版本的来源
+### 版本总览表
 
-### 执行摘要
+| 版本 | 主题 | 发布时间 | 状态 | 优先级 | 关键交付物 | 详细规划 |
+|------|------|----------|------|--------|------------|----------|
+| **v1.4.0** | SDD → SDDU 品牌升级 | 2026-04-20 | ✅ 已完成 | P0 🥇 | 插件改名 + 双版本命令 | [↓ 展开 ↓](#v140---sdd--sddu-品牌升级) |
+| **v1.3.0** | 品牌升级规划 | 2026-04-13 | ✅ 已完成 | P0 🥇 | 已整合至 v1.4.0 | [↓ 展开 ↓](#v130---品牌升级规划) |
+| **v1.2.0** | Phase 2: 能力增强 | 2026-04-30 | 🔄 开发中 | P1 🥈 | Skills + TUI + MCP | [↓ 展开 ↓](#v120---phase-2-能力增强) |
+| **v1.1.1** | Phase 1+ | 2026-03-30 | ✅ 已完成 | P1 🥈 | 16 个 Agent | [↓ 展开 ↓](#v111---phase-1) |
+| **v2.4.0** | 顶层规划规范化 | 2026-04-18 | 📋 规划中 | P0 🥇 | 1-spec.md, 2-plan.md, 3-tasks.md | [↓ 展开 ↓](#v240---顶层规划规范化) |
+| **v2.5.0** | 树形 Feature 结构 | 2026-04-25 | 📋 规划中 | P1 🥉 | subfeature-manager, tree-guide | [↓ 展开 ↓](#v250---树形-feature-结构) |
+| **v2.6.0** | 状态管理优化 | 2026-05-02 | 📋 规划中 | P0 🥈 | auto-aggregator, schema-v2.1.0 | [↓ 展开 ↓](#v260---状态管理优化) |
+| **v2.7.0** | 文件命名标准化 | 2026-05-09 | 📋 规划中 | P2 | migrate-naming.sh | [↓ 展开 ↓](#v270---文件命名标准化) |
+| **v2.8.0** | Build 阶段完善 | 2026-05-16 | 📋 规划中 | P2 | 4-build.md.hbs | [↓ 展开 ↓](#v280---build-阶段完善) |
 
-**✅ 已完成**: SDD → SDDU 升级 (100% 完成)
-- `opencode-sdd-plugin` → `opencode-sddu-plugin`
-- `@sdd-*` 旧版命令完全向后兼容
-- `@sddu-*` 新版命令上线启用
-- 插件名称、包名、品牌标识全面升级
-- 新增 Discovery 阶段功能 (Stage 0)
-- 引入 specs-tree- 规范化目录结构
+### 状态图例
 
-### v1.1-v1.4 版本总览
+| 状态标识 | 含义 |
+|----------|------|
+| ✅ 已完成 | 版本已发布并交付 |
+| 🔄 开发中 | 版本正在开发迭代 |
+| 📋 规划中 | 版本已规划待启动 |
 
-| 版本 | 主题 | 发布时间 | 状态 | 核心功能 |
-|------|------|----------|------|----------|
-| **v1.4.0** | SDD → SDDU 品牌升级 | 2026-04-20 | ✅ 完成 | 插件改名 + 双版本命令并存 |
-| **v1.3.0** | 品牌升级规划 | 2026-04-13 | ✅ 合并 | 已整合至 v1.4.0 |
-| **v1.2.0** | Phase 2: 能力增强 | 2026-04-30 | 🔄 开发中 | Skills + TUI + MCP + Structured Output |
-| **v1.1.1** | Phase 1+ | 2026-03-30 | ✅ 已完成 | 16 个 Agent (6 阶段×2 + 4 特殊) |
+### 优先级图例
 
-### 已完成功能列表
+| 优先级 | 标识 | 说明 |
+|--------|------|------|
+| P0 🥇 | 最高优先级 | 必须优先完成 |
+| P1 🥈 | 高优先级 | 重要功能 |
+| P1 🥉 | 中高优先级 | 次重要功能 |
+| P2 | 中优先级 | 可延后功能 |
 
-**v1.4.0 完成交付**:
+---
+
+## 📜 已完成版本详情
+
+### v1.4.0 - SDD → SDDU 品牌升级
+
+**发布时间**: 2026-04-20  
+**状态**: ✅ 已完成
+
+**核心成果**:
 - ✅ F-301: 插件名称升级 (`opencode-sdd-plugin` → `opencode-sddu-plugin`)
 - ✅ F-320: 双版本 Agent 系统 (@sdd-* 与 @sddu-* 并存)
 - ✅ F-303: 文档和配置系统升级
 
-**Phase 1+ 完成 Feature**:
-- ✅ specs-tree-sdd-discovery-feature
-- ✅ specs-tree-directory-optimization
-- ✅ sdd-multi-module
-- ✅ specs-tree-sdd-tools-optimization
-- ✅ deprecate-sdd-tools
-- ✅ specs-tree-sdd-workflow-state-optimization
-- ✅ specs-tree-sdd-plugin-roadmap
-- ✅ specs-tree-sdd-plugin-baseline
-- ✅ specs-tree-plugin-rename-sddu
-
-### 品牌升级历史
-
-**SDDU**: **S**pecification-**D**riven **D**evelopment **U**ltimate
+**品牌升级历史**:
 
 | 阶段 | 日期 | 里程碑 |
 |------|------|--------|
@@ -61,7 +64,7 @@
 | 双版本 | 2026-04-15 | 双版本指令上线 |
 | 发布 | 2026-04-20 | v1.4.0 正式发布 |
 
-### 新旧命令对照表
+**新旧命令对照**:
 
 | SDD 旧版命令 | SDDU 新版命令 | 兼容性 |
 |---------------|---------------|--------|
@@ -74,33 +77,57 @@
 | `@sdd-review` | `@sddu-review` | ✅ 双版本可用 |
 | `@sdd-validate` | `@sddu-validate` | ✅ 双版本可用 |
 
-### 当前版本状态
+---
 
-| 项目 | 值 |
-|------|-----|
-| **当前版本** | v1.1.0 |
-| **当前分支** | `feature/merge-sdd-to-sddu` |
-| **分支状态** | 已推送到 `origin/feature/merge-sdd-to-sddu` |
+### v1.3.0 - 品牌升级规划
+
+**发布时间**: 2026-04-13  
+**状态**: ✅ 已完成 (已整合至 v1.4.0)
+
+**说明**: 本版本规划内容已完全整合至 v1.4.0，不单独发布。
 
 ---
 
-## 🎯 未来版本规划 (v2.4-v2.8)
+### v1.2.0 - Phase 2: 能力增强
 
-### 版本规划总览
+**发布时间**: 2026-04-30  
+**状态**: 🔄 开发中
 
-| 版本 | 主题 | 发布时间 | 状态 | 优先级 | 关键交付物 | 详细规划 |
-|------|------|----------|------|--------|------------|----------|
-| **v2.4.0** | 顶层规划规范化 | 2026-04-18 | 📋 | P0 🥇 | 1-spec.md, 2-plan.md, 3-tasks.md | [↓ 展开 ↓](#v240---顶层规划规范化) |
-| **v2.5.0** | 树形 Feature 结构 | 2026-04-25 | 📋 | P1 🥉 | subfeature-manager, tree-guide | [↓ 展开 ↓](#v250---树形-feature-结构) |
-| **v2.6.0** | 状态管理优化 | 2026-05-02 | 📋 | P0 🥈 | auto-aggregator, schema-v2.1.0 | [↓ 展开 ↓](#v260---状态管理优化) |
-| **v2.7.0** | 文件命名标准化 | 2026-05-09 | 📋 | P2 | migrate-naming.sh | [↓ 展开 ↓](#v270---文件命名标准化) |
-| **v2.8.0** | Build 阶段完善 | 2026-05-16 | 📋 | P2 | 4-build.md.hbs | [↓ 展开 ↓](#v280---build-阶段完善) |
+**关键功能**:
+- Skills 系统
+- TUI 界面
+- MCP 集成
+- Structured Output
 
 ---
 
-### 版本详细规划
+### v1.1.1 - Phase 1+
 
-#### v2.4.0 - 顶层规划规范化
+**发布时间**: 2026-03-30  
+**状态**: ✅ 已完成
+
+**核心成果**: 16 个 Agent (6 阶段×2 + 4 特殊)
+
+**已完成 Feature**:
+- ✅ specs-tree-sdd-discovery-feature
+- ✅ specs-tree-directory-optimization
+- ✅ sdd-multi-module
+- ✅ specs-tree-sdd-tools-optimization
+- ✅ deprecate-sdd-tools
+- ✅ specs-tree-sdd-workflow-state-optimization
+- ✅ specs-tree-sdd-plugin-roadmap
+- ✅ specs-tree-sdd-plugin-baseline
+- ✅ specs-tree-plugin-rename-sddu
+
+---
+
+## 🚀 规划中版本详情
+
+### v2.4.0 - 顶层规划规范化
+
+**预计发布**: 2026-04-18  
+**状态**: 📋 规划中  
+**优先级**: P0 🥇
 
 **解决问题**: P-001 specs-tree-root 缺少顶层规划文档  
 **依赖关系**: 无（起点版本）  
@@ -108,9 +135,9 @@
 **风险评估**: 范围蔓延 → 严格控制 Non-Goals
 
 **关键交付物**:
-- `specs-tree-root/1-spec.md` - [顶层规范](../specs-tree-root/1-spec.md)
-- `specs-tree-root/2-plan.md` - [技术规划](../specs-tree-root/2-plan.md)
-- `specs-tree-root/3-tasks.md` - [任务分解](../specs-tree-root/3-tasks.md)
+- `specs-tree-root/1-spec.md` - 顶层规范
+- `specs-tree-root/2-plan.md` - 技术规划
+- `specs-tree-root/3-tasks.md` - 任务分解
 - `specs-tree-root/state.json` - 全局状态文件
 - `docs/module-guidelines.md` - 业务模块划分原则
 
@@ -122,7 +149,11 @@
 
 ---
 
-#### v2.5.0 - 树形 Feature 结构
+### v2.5.0 - 树形 Feature 结构
+
+**预计发布**: 2026-04-25  
+**状态**: 📋 规划中  
+**优先级**: P1 🥉
 
 **解决问题**: P-002 Feature 水平拆分，非树形结构  
 **依赖关系**: ← v2.4.0  
@@ -131,8 +162,8 @@
 
 **关键交付物**:
 - `src/utils/subfeature-manager.ts` (增强) - 支持嵌套子 Feature
-- `docs/tree-structure-guide.md` - [树形结构指南](../docs/tree-structure-guide.md)
-- `docs/migration-guide.md` - [迁移指南](../docs/migration-guide.md)
+- `docs/tree-structure-guide.md` - 树形结构指南
+- `docs/migration-guide.md` - 迁移指南
 - `templates/tree-structure-example/` - 示例项目
 
 **目录结构设计**:
@@ -154,7 +185,11 @@ specs-tree-root/
 
 ---
 
-#### v2.6.0 - 状态管理优化
+### v2.6.0 - 状态管理优化
+
+**预计发布**: 2026-05-02  
+**状态**: 📋 规划中  
+**优先级**: P0 🥈
 
 **解决问题**: P-003 状态管理分散，无父子汇聚  
 **依赖关系**: ← v2.5.0  
@@ -177,7 +212,11 @@ specified < planned < tasked < building < reviewed < validated
 
 ---
 
-#### v2.7.0 - 文件命名标准化
+### v2.7.0 - 文件命名标准化
+
+**预计发布**: 2026-05-09  
+**状态**: 📋 规划中  
+**优先级**: P2
 
 **解决问题**: P-004 文件命名不统一  
 **依赖关系**: ← v2.6.0（可与 v2.8.0 并行）  
@@ -198,11 +237,15 @@ specified < planned < tasked < building < reviewed < validated
 **关键交付物**:
 - `scripts/migrate-naming.sh` - Bash 迁移脚本
 - `scripts/migrate-naming.ps1` - PowerShell 迁移脚本
-- `docs/naming-convention.md` - [命名规范文档](../docs/naming-convention.md)
+- `docs/naming-convention.md` - 命名规范文档
 
 ---
 
-#### v2.8.0 - Build 阶段完善
+### v2.8.0 - Build 阶段完善
+
+**预计发布**: 2026-05-16  
+**状态**: 📋 规划中  
+**优先级**: P2
 
 **解决问题**: P-005 缺少 Build 阶段文档  
 **依赖关系**: ← v2.6.0（可与 v2.7.0 并行）  
@@ -213,11 +256,11 @@ specified < planned < tasked < building < reviewed < validated
 - `templates/build/4-build.md.hbs` - Build 文档模板
 - `templates/build/4-build-summary.md.hbs` - Build 总结模板
 - `src/templates/agents/sddu-build.md.hbs` (增强)
-- `docs/build-workflow.md` - [Build 工作流指南](../docs/build-workflow.md)
+- `docs/build-workflow.md` - Build 工作流指南
 
 ---
 
-### 依赖关系图谱
+## 🔗 依赖关系图谱
 
 ```
 v2.4.0 (顶层规划)
@@ -267,6 +310,16 @@ v2.6.0 (状态汇聚)
 - 📝 **规范目录**: [specs-tree-root/README.md](./specs-tree-root/README.md)
 - 🧪 **测试说明**: [tests/README.md](tests/README.md)
 - 📖 **工作流指南**: [docs/guide.md](./docs/guide.md)
+
+---
+
+## 📌 当前版本状态
+
+| 项目 | 值 |
+|------|-----|
+| **当前版本** | v1.1.0 |
+| **当前分支** | `feature/merge-sdd-to-sddu` |
+| **分支状态** | 已推送到 `origin/feature/merge-sdd-to-sddu` |
 
 ---
 
