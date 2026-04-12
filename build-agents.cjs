@@ -16,7 +16,7 @@ const path = require('path');
 const AGENT_SRC_DIR = path.join(__dirname, 'src', 'templates', 'agents');
 const AGENT_OUT_DIR = path.join(__dirname, 'dist', 'templates', 'agents');
 
-// SDDU 代理配置
+// SDDU 代理配置（只生成短名版本，不生成序号别名）
 const AGENT_MAP = [
   { num: '0', short: 'discovery', desc: '需求挖掘专家' },
   { num: '1', short: 'spec', desc: '规范编写专家' },
@@ -48,52 +48,6 @@ function readSdduTemplate(name) {
   return fs.readFileSync(filePath, 'utf-8');
 }
 
-// 生成 SDDU 带序号的 agent 文件
-function generateNumberedAgentSddu(template, num, short, desc) {
-  const frontMatterMatch = template.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
-  if (!frontMatterMatch) {
-    throw new Error(`No front matter in ${short}`);
-  }
-
-  let frontMatter = frontMatterMatch[1];
-  const content = template.slice(frontMatterMatch[0].length);
-
-  // 更新 description 为 SDDU 版本
-  frontMatter = frontMatter.replace(
-    /description:.*$/,
-    `description: SDDU ${desc} (阶段 ${num}/6)`
-  );
-
-  // 移除 model（配置在 opencode.json 中），保留 temperature
-  frontMatter = frontMatter.replace(/^model:.*$\r?\n?/gm, '');
-
-  // 根据阶段号生成正确的执行顺序
-  let orderText = '';
-  switch(num) {
-    case '0': orderText = '[当前] 0.discovery → 1.spec → 2.plan → 3.tasks → 4.build → 5.review → 6.validate'; break;
-    case '1': orderText = '0.discovery → [当前] 1.spec → 2.plan → 3.tasks → 4.build → 5.review → 6.validate'; break;
-    case '2': orderText = '1.spec → [当前] 2.plan → 3.tasks → 4.build → 5.review → 6.validate'; break;
-    case '3': orderText = '2.plan → [当前] 3.tasks → 4.build → 5.review → 6.validate'; break;
-    case '4': orderText = '3.tasks → [当前] 4.build → 5.review → 6.validate'; break;
-    case '5': orderText = '4.build → [当前] 5.review → 6.validate'; break;
-    case '6': orderText = '5.review → [当前] 6.validate'; break;
-    default: orderText = `[当前] ${num}-${short} → ...`; break;
-  }
-
-  return '---\n' + frontMatter + '\n---\n\n' +
-'# 🎯 SDDU 工作流 - 阶段 ' + num + '/6\n\n' +
-'## 执行顺序\n```\n' + orderText + '\n```\n\n' +
-'## 依赖关系\n' +
-'- **前置条件**: 见各阶段说明\n' +
-'- **输出**: 见各阶段说明\n' +
-'- **下游**: 见各阶段说明\n\n' +
-'---\n\n' +
-'# @sddu-' + num + '-' + short + ' - SDDU ' + desc + '（阶段 ' + num + '/6）\n\n' +
-'> 💡 **提示**: 也可以用 `@sddu-' + short + '`（两者等价）\n\n' +
-'---\n\n' +
-content;
-}
-
 // 生成 SDDU 短名版本的 agent 文件
 function generateShortAgentSddu(template, short, desc) {
   const frontMatterMatch = template.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
@@ -123,7 +77,7 @@ function build() {
   // ========== 构建 Agent 定义 ==========
   console.log('📄 Building exclusive SDDU agents (without SDD backward compatibility)...');
   var sourceMsg = '   Source: src/templates/agents/sddu-*.md.hbs (SDDU templates)';
-  var outputMsg = '   Output: dist/templates/agents/*sddu*.md (SDDU only names)';
+  var outputMsg = '   Output: dist/templates/agents/sddu-*.md (短名版本，无序号别名)';
   console.log(sourceMsg);
   console.log(outputMsg + '\n');
   
@@ -137,12 +91,7 @@ function build() {
       process.exit(1);
     }
     
-    // 生成 SDDU 带号版本
-    const numberedPathSddu = path.join(AGENT_OUT_DIR, 'sddu-' + num + '-' + short + '.md');
-    fs.writeFileSync(numberedPathSddu, generateNumberedAgentSddu(templateSddu, num, short, desc), 'utf-8');
-    console.log('  ✅ dist/templates/agents/sddu-' + num + '-' + short + '.md');
-    
-    // 生成 SDDU 短名版本
+    // 生成 SDDU 短名版本（只生成短名，不生成序号别名）
     const shortPathSddu = path.join(AGENT_OUT_DIR, 'sddu-' + short + '.md');
     fs.writeFileSync(shortPathSddu, generateShortAgentSddu(templateSddu, short, desc), 'utf-8');
     console.log('  ✅ dist/templates/agents/sddu-' + short + '.md');
