@@ -142,22 +142,33 @@
 - TASK-2.2: 创建迁移指南
 - TASK-2.3: 提供示例项目
 
-**目录结构设计**:
+**目录结构设计** (符合 TREE.md 定义):
 ```
 specs-tree-root/
-└── specs-tree-online-bookstore/
-    ├── state.json
-    └── sub-features/
-        ├── specs-tree-user-module/
-        │   ├── state.json
-        │   └── sub-features/
-        │       ├── specs-tree-login/
-        │       └── specs-tree-profile/
-        └── specs-tree-commerce-module/
-            └── sub-features/
-                ├── specs-tree-cart/
-                └── specs-tree-order/
+├── spec.md                     # 根 specs 规范（顶层 Feature 定义）
+├── plan.md                     # 根 specs 技术计划
+├── tasks.md                    # 根 specs 任务分解
+├── discovery.md                # 根 specs 需求挖掘
+├── state.json                  # 根 specs 状态（汇聚所有子 Feature 状态）
+└── specs-tree-user-authentication/          # 一级子 Feature（直接嵌套，无 sub-features 目录）
+    ├── spec.md                 # 子 specs 规范
+    ├── plan.md                 # 子 specs 技术计划
+    ├── tasks.md                # 子 specs 任务分解
+    ├── discovery.md            # 子 specs 需求挖掘
+    ├── state.json              # 子 specs 状态
+    └── specs-tree-login/       # 二级嵌套（支持多层嵌套）
+        ├── spec.md
+        ├── plan.md
+        ├── tasks.md
+        ├── discovery.md
+        └── state.json
 ```
+
+**关键说明**:
+1. **specs-tree-root 本身是完整 specs**: 拥有完整的 6 阶段文档，走 SDDU 完整流程
+2. **直接嵌套**: 子 Feature 直接位于 root 下 (`specs-tree-root/specs-tree-[feature]/`)，无 `sub-features/` 中间目录
+3. **每个 specs 都完整**: 每个层级的 specs 目录都有独立的 spec.md, plan.md, tasks.md, discovery.md, state.json
+4. **状态汇聚**: 父 Feature 状态 = 最慢子 Feature 的状态（如：登录 building + 注册 planned → 认证系统 planned）
 
 ---
 
