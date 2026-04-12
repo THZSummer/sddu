@@ -332,7 +332,7 @@ validate_phase_result() {
     
     print_color "${CYAN}[验证] Phase ${phase} 状态检查...${NC}"
     
-    local test_dir_path="${TEST_DIR}/.sdd/specs-tree-root/${PROJECT_NAME}"
+    local test_dir_path="${TEST_DIR}/.sddu/specs-tree-root/${PROJECT_NAME}"
     
     # Check if expected directory exists
     if [ -d "$test_dir_path" ]; then
@@ -446,7 +446,7 @@ complete_test() {
     print_color "   - .opencode/plugins/sddu/ (插件文件)"
     print_color "   - .opencode/agents/ (Agent定义)"
     print_color "   - opencode.json (配置文件)"
-    print_color "   - .sdd/ (SDDU工作空间)"
+    print_color "   - .sddu/ (SDDU工作空间)"
     print_color "   - ${CYAN}sddu-test-prompt.md${NC} (测试提示词文件)"
     if [ "$REPORT_MODE" = true ]; then
         print_color "   - ${CYAN}sddu-test-report.md${NC} (详细报告)"
@@ -483,7 +483,7 @@ main() {
     fi
     
     # Post-test validation (only if directory exists)
-    if [ -d "${TEST_DIR}/.sdd/specs-tree-root/${PROJECT_NAME}" ]; then
+    if [ -d "${TEST_DIR}/.sddu/specs-tree-root/${PROJECT_NAME}" ]; then
         print_color "${CYAN}========================================${NC}"
         print_color "${CYAN}     验证阶段结果${NC}"
         print_color "${CYAN}========================================${NC}"

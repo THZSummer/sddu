@@ -448,7 +448,7 @@ validate_phase_result() {
     
     print_color "${CYAN}[验证] Phase ${phase} 状态检查...${NC}"
     
-    local test_dir_path="${TEST_DIR}/.sdd/specs-tree-root/${PROJECT_NAME}"
+    local test_dir_path="${TEST_DIR}/.sddu/specs-tree-root/${PROJECT_NAME}"
     
     # Check if expected directory exists
     if [ -d "$test_dir_path" ]; then
@@ -562,7 +562,7 @@ complete_test() {
     print_color "   - .opencode/plugins/sddu/ (插件文件)"
     print_color "   - .opencode/agents/ (Agent 定义)"
     print_color "   - opencode.json (配置文件)"
-    print_color "   - .sdd/ (SDDU 工作空间)"
+    print_color "   - .sddu/ (SDDU 工作空间)"
     print_color "   - backend/ (SpringBoot 后端项目)"
     print_color "   - frontend/ (React 前端项目)"
     print_color "   - docker-compose.yml (Docker 编排)"
@@ -604,7 +604,7 @@ main() {
     fi
     
     # Post-test validation (only if directory exists)
-    if [ -d "${TEST_DIR}/.sdd/specs-tree-root/${PROJECT_NAME}" ]; then
+    if [ -d "${TEST_DIR}/.sddu/specs-tree-root/${PROJECT_NAME}" ]; then
         print_color "${CYAN}========================================${NC}"
         print_color "${CYAN}     验证阶段结果${NC}"
         print_color "${CYAN}========================================${NC}"
