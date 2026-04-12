@@ -121,16 +121,10 @@
 - 范围蔓延 → 严格控制 Non-Goals
 - 树形结构导致性能下降 → 增加缓存，限制树深度≤5 层
 
-**关键交付物**:
-- `specs-tree-root/1-spec.md` - 顶层规范
-- `specs-tree-root/2-plan.md` - 技术规划
-- `specs-tree-root/3-tasks.md` - 任务分解
-- `specs-tree-root/state.json` - 全局状态文件
-- `docs/module-guidelines.md` - 业务模块划分原则
-- `src/utils/subfeature-manager.ts` (增强) - 支持嵌套子 Feature
-- `docs/tree-structure-guide.md` - 树形结构指南
-- `docs/migration-guide.md` - 迁移指南
-- `templates/tree-structure-example/` - 示例项目
+**关键交付**:
+- 建立 specs-tree-root 顶层规划体系
+- 实现 Feature 树形结构支持
+- 提供迁移指南和示例
 
 **任务分解**:
 - TASK-1.0: 创建顶层规范 (1-spec.md)
@@ -196,11 +190,10 @@ specs-tree-root/
 **资源需求**: 架构师 20% + 开发 80% + 测试 20%  
 **风险评估**: 状态汇聚算法复杂度高 → 提前原型验证，分阶段实现
 
-**关键交付物**:
-- `src/state/machine.ts` (增强) - 状态汇聚逻辑
-- `src/state/multi-feature-manager.ts` (增强) - 树形状态管理
-- `src/state/schema-v2.1.0.ts` - 新状态 schema
-- `src/state/auto-aggregator.ts` - 状态自动汇聚器
+**关键交付**:
+- 增强状态汇聚逻辑
+- 实现树形状态管理
+- 提供状态自动汇聚器
 
 **状态汇聚规则**:
 ```
@@ -234,10 +227,9 @@ specified < planned < tasked < building < reviewed < validated
 | 5 | review.md | 5-review.md |
 | 6 | validation.md | 6-validate.md |
 
-**关键交付物**:
-- `scripts/migrate-naming.sh` - Bash 迁移脚本
-- `scripts/migrate-naming.ps1` - PowerShell 迁移脚本
-- `docs/naming-convention.md` - 命名规范文档
+**关键交付**:
+- 提供跨平台迁移脚本
+- 建立命名规范文档
 
 ---
 
@@ -252,11 +244,9 @@ specified < planned < tasked < building < reviewed < validated
 **资源需求**: 开发 40% + 文档 30%  
 **风险评估**: 范围蔓延导致延期 → 严格控制 Non-Goals
 
-**关键交付物**:
-- `templates/build/4-build.md.hbs` - Build 文档模板
-- `templates/build/4-build-summary.md.hbs` - Build 总结模板
-- `src/templates/agents/sddu-build.md.hbs` (增强)
-- `docs/build-workflow.md` - Build 工作流指南
+**关键交付**:
+- 完善 Build 阶段文档模板
+- 建立 Build 工作流指南
 
 ---
 
