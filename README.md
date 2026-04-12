@@ -1,7 +1,7 @@
 # OpenCode SDDU Plugin
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/THZSummer/sddu/releases)
-[![Phase](https://img.shields.io/badge/Phase-2-complete)](https://github.com/THZSummer/sddu)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue)](https://github.com/THZSummer/sddu/releases)
+[![Phase](https://img.shields.io/badge/Phase-3-complete)](https://github.com/THZSummer/sddu)
 [![Status](https://img.shields.io/badge/status-stable-green)](https://github.com/THZSummer/sddu)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/THZSummer/sddu/blob/main/LICENSE)
 
@@ -172,7 +172,8 @@ graph LR
 - ✅ 统一错误处理体系 (`src/errors.ts`)
 - ✅ 工具函数统一导出 (`src/utils/index.ts`)
 - ✅ Agent 动态注册表 (`src/agents/registry.ts`)
-- ✅ SDD → SDDU 迁移支持 (`src/agents/sddu-agents.ts`)  
+- ✅ 7 个阶段 Agent 使用 `mode: all` 支持双模式
+- ✅ 移除重复序号别名，简化配置
 - ✅ 打包脚本优化 (`scripts/package.cjs`)
 - ✅ Discovery 可选状态联动
 - ✅ 安装脚本适配 `dist/sddu/` 结构
@@ -183,27 +184,20 @@ graph LR
 - @sddu - SDDU Master Coordinator - 智能路由助手  
 - @sddu-help - SDDU Help Assistant - 使用指南  
 
-#### 7 阶段标准版 (含新增阶段 0 - 需求挖掘)
-- @sddu-0-discovery - SDDU 需求挖掘专家 (阶段 0/6)  
-- @sddu-1-spec - SDDU 规范编写专家 (阶段 1/6)  
-- @sddu-2-plan - SDDU 技术规划专家 (阶段 2/6)  
-- @sddu-3-tasks - SDDU 任务分解专家 (阶段 3/6)  
-- @sddu-4-build - SDDU 任务实现专家 (阶段 4/6)  
-- @sddu-5-review - SDDU 代码审查专家 (阶段 5/6)  
-- @sddu-6-validate - SDDU 验证专家 (阶段 6/6)  
-
-#### 7 阶段短名版  
-- @sddu-discovery - SDDU 需求挖掘 (短名)  
-- @sddu-spec - SDDU 规范编写 (短名)  
-- @sddu-plan - SDDU 技术规划 (短名)  
-- @sddu-tasks - SDDU 任务分解 (短名)  
-- @sddu-build - SDDU 任务实现 (短名)  
-- @sddu-review - SDDU 代码审查 (短名)  
-- @sddu-validate - SDDU 验证 (短名)  
+#### 7 阶段标准版 (mode: all 双模式支持)
+- @sddu-discovery - SDDU 需求挖掘专家 (阶段 0/6)  
+- @sddu-spec - SDDU 规范编写专家 (阶段 1/6)  
+- @sddu-plan - SDDU 技术规划专家 (阶段 2/6)  
+- @sddu-tasks - SDDU 任务分解专家 (阶段 3/6)  
+- @sddu-build - SDDU 任务实现专家 (阶段 4/6)  
+- @sddu-review - SDDU 代码审查专家 (阶段 5/6)  
+- @sddu-validate - SDDU 验证专家 (阶段 6/6)  
 
 #### 特殊功能
 - @sddu-roadmap - SDDU Roadmap 规划专家 - 多版本路线图规划
 - @sddu-docs - SDDU 目录导航生成器 - 扫描目录结构生成 README 导航  
+
+**总计：11 个 Agent** (mode: all 支持双模式)
 
 使用 `@sddu` 作为统一入口，自动根据当前状态路由到正确阶段：
 
@@ -217,13 +211,13 @@ graph LR
 
 直接调用特定阶段 Agent：
 ```bash
-@sddu-discovery "用户需要登录和注册功能"      # 需求挖掘 (新增阶段 0)  
-@sddu-spec "基于需求完善技术规范"              # 技术规范 (阶段 1) 
-@sddu-plan "制定实现计划"                     # 技术规划 (阶段 2)
-@sddu-tasks "拆解为具体任务"                 # 任务分解 (阶段 3)
-@sddu-build "实现代码"                       # 任务实现 (阶段 4)
-@sddu-review "代码审查"                      # 代码审查 (阶段 5)
-@sddu-validate "验证功能"                    # 功能验证 (阶段 6)
+@sddu-discovery "用户需要登录和注册功能"    # 需求挖掘 (阶段 0)  
+@sddu-spec "基于需求完善技术规范"            # 技术规范 (阶段 1) 
+@sddu-plan "制定实现计划"                   # 技术规划 (阶段 2)
+@sddu-tasks "拆解为具体任务"                # 任务分解 (阶段 3)
+@sddu-build "实现代码"                      # 任务实现 (阶段 4)
+@sddu-review "代码审查"                     # 代码审查 (阶段 5)
+@sddu-validate "验证功能"                   # 功能验证 (阶段 6)
 ```
 
 ### 规划辅助 Agent（整体规划支持）
@@ -303,7 +297,7 @@ flowchart TD
 
 ## 🔄 7 阶段工作流
 
-SDDU 实现从需求到验证的完整 7 阶段工作流（含阶段 0：需求挖掘）：
+SDDU 实现从需求到验证的完整 7 阶段工作流：
 
 ```mermaid
 sequenceDiagram
@@ -374,7 +368,7 @@ opencode
 @sddu-build "实现 TASK-001"
 ```
 
-## ✅ 已完成 Feature (11 个)
+## ✅ 已完成 Feature (12 个)
 
 ```mermaid
 gantt
@@ -402,7 +396,8 @@ gantt
     架构决策记录          :done, adr, 2026-04-06, 1d
 ```
 
-### SDDU 专业版 (v1.1.0)
+### SDDU 专业版 (v1.2.0)
+- specs-tree-mode-all-dual-mode/ - mode: all 双模式支持
 - specs-tree-plugin-rename-sddu-v2/ - 插件改名 SDDU V2（代码清理）
 - specs-tree-plugin-rename-sddu/ - 插件改名 SDDU V1（历史记录）
 - specs-tree-sdd-discovery-feature/ - Discovery 需求挖掘功能
@@ -502,6 +497,7 @@ V2 版本提供了自动化检查工具，用于验证代码中是否还有 SDD 
 
 | 版本 | 日期 | 说明 |
 |------|------|------|
+| v1.2.0 | 2026-04-12 | 🔄 mode: all 双模式支持 + 移除序号别名简化配置 |
 | v1.1.0 | 2026-04-06 | ⚡ SDDU 专业版 - 全新命令行界面 + 优化工作流 |
 | v1.0.0 | 2026-04-05 | ✅ SDD 工具系统基础版 - 统一导出层 + Agent 注册表 + 打包优化 |
 
@@ -536,7 +532,7 @@ flowchart TD
     
     subgraph Spec[规范文档]
         S1[specs-tree-root]
-        S2[11 个 Feature 文档]
+        S2[12 个 Feature 文档]
         S3[架构决策 ADR]
     end
     

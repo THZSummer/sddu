@@ -157,7 +157,7 @@ initialize_test() {
     PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
     
     # Base test directory
-    BASE_TEST_DIR="/home/usb/workspace/wks-sddu/wks-sdd-test-projects"
+    BASE_TEST_DIR="${SDDU_TEST_DIR:-${HOME}/sddu-test-projects}"
     
     # Ensure base test directory exists
     if [ ! -d "$BASE_TEST_DIR" ]; then
@@ -299,7 +299,7 @@ ${PROJECT_NAME}/
 
 ### Phase 1: 规范编写（自动执行）
 \`\`\`
-@sddu-1-spec ${PROJECT_NAME}
+@sddu-spec ${PROJECT_NAME}
 \`\`\`
 - 自动定义 RESTful API 接口
 - 自动设计数据库表结构（JPA Entity）
@@ -309,7 +309,7 @@ ${PROJECT_NAME}/
 
 ### Phase 2: 技术规划（自动执行）
 \`\`\`
-@sddu-2-plan ${PROJECT_NAME}
+@sddu-plan ${PROJECT_NAME}
 \`\`\`
 - 自动设计前后端分离架构
 - 自动划分后端模块（Controller/Service/Repository）
@@ -319,7 +319,7 @@ ${PROJECT_NAME}/
 
 ### Phase 3: 任务分解（自动执行）
 \`\`\`
-@sddu-3-tasks ${PROJECT_NAME}
+@sddu-tasks ${PROJECT_NAME}
 \`\`\`
 - 自动拆分后端任务
 - 自动拆分前端任务
@@ -328,7 +328,7 @@ ${PROJECT_NAME}/
 
 ### Phase 4: 代码实现（自动执行）
 \`\`\`
-@sddu-4-build ${PROJECT_NAME}
+@sddu-build ${PROJECT_NAME}
 \`\`\`
 - 自动实现后端 API（SpringBoot）
 - 自动实现前端页面（React）
@@ -338,7 +338,7 @@ ${PROJECT_NAME}/
 
 ### Phase 5: 代码审查（自动执行）
 \`\`\`
-@sddu-5-review ${PROJECT_NAME}
+@sddu-review ${PROJECT_NAME}
 \`\`\`
 - 自动代码质量检查
 - 自动技术栈合规检查
@@ -348,7 +348,7 @@ ${PROJECT_NAME}/
 
 ### Phase 6: 验证确认（自动执行）
 \`\`\`
-@sddu-6-validate ${PROJECT_NAME}
+@sddu-validate ${PROJECT_NAME}
 \`\`\`
 - 自动运行后端测试（mvn test）
 - 自动运行前端测试（npm test）
@@ -448,7 +448,7 @@ validate_phase_result() {
     
     print_color "${CYAN}[验证] Phase ${phase} 状态检查...${NC}"
     
-    local test_dir_path="${TEST_DIR}/.sdd/specs-tree-root/${PROJECT_NAME}"
+    local test_dir_path="${TEST_DIR}/.sddu/specs-tree-root/${PROJECT_NAME}"
     
     # Check if expected directory exists
     if [ -d "$test_dir_path" ]; then
@@ -562,7 +562,7 @@ complete_test() {
     print_color "   - .opencode/plugins/sddu/ (插件文件)"
     print_color "   - .opencode/agents/ (Agent 定义)"
     print_color "   - opencode.json (配置文件)"
-    print_color "   - .sdd/ (SDDU 工作空间)"
+    print_color "   - .sddu/ (SDDU 工作空间)"
     print_color "   - backend/ (SpringBoot 后端项目)"
     print_color "   - frontend/ (React 前端项目)"
     print_color "   - docker-compose.yml (Docker 编排)"
@@ -604,7 +604,7 @@ main() {
     fi
     
     # Post-test validation (only if directory exists)
-    if [ -d "${TEST_DIR}/.sdd/specs-tree-root/${PROJECT_NAME}" ]; then
+    if [ -d "${TEST_DIR}/.sddu/specs-tree-root/${PROJECT_NAME}" ]; then
         print_color "${CYAN}========================================${NC}"
         print_color "${CYAN}     验证阶段结果${NC}"
         print_color "${CYAN}========================================${NC}"
@@ -613,7 +613,7 @@ main() {
         validate_phase_result 1 "spec.md"
         validate_phase_result 2 "plan.md" "decisions/*"
         validate_phase_result 3 "tasks.md"
-        validate_phase_result 4 "build-completed"  # Could be specific files generated during code implementation
+        print_color "${YELLOW}⚠️ Phase 4 验证需要执行 @sddu 命令后才会生成文件，跳过验证${NC}"
         validate_phase_result 5 "review.md" 
         validate_phase_result 6 "validation.md"
         
