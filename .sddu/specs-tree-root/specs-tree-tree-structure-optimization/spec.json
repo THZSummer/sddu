@@ -1,0 +1,101 @@
+{
+  "$schema": "https://opencode.ai/sdd/spec-schema.json",
+  "featureId": "tree-structure-optimization",
+  "name": "v2.4.0 Feature 拆分与树形结构优化",
+  "version": "2.4.0",
+  "status": "specified",
+  "priority": "P0",
+  "createdAt": "2026-04-12",
+  "author": "SDDU Team",
+  "stakeholders": [
+    "插件开发团队",
+    "架构师",
+    "开发工程师",
+    "路由 Agent"
+  ],
+  "goals": [
+    "FR-001~005: 实现 Feature 拆分能力（识别时机、用户指定、轻量化父级文档）",
+    "FR-010~014: 支持无限层树形嵌套（递归扫描、直接嵌套、无深度限制）",
+    "FR-020~026: 状态管理升级（schema v2.1.0、混合状态、手动扫描）",
+    "FR-030~033: 依赖检查升级（跨子树依赖、完整路径引用、循环检测）",
+    "FR-040~045: Agent 模板升级（父级/叶子识别、拆分建议、协作关系）",
+    "FR-050~051: 提供示例与文档（拆分原则、示例项目）"
+  ],
+  "nonGoals": [
+    "历史 .sddu 工作空间迁移/兼容",
+    "状态自动实时汇聚（后续版本）",
+    "跨子树依赖自动冲突检测（后续版本）",
+    "树形结构可视化（后续版本）",
+    "v2.5.0 Skills/TUI/MCP",
+    "v2.7.0 文件命名标准化"
+  ],
+  "userStories": [
+    {
+      "id": "US-001",
+      "role": "架构师",
+      "want": "在 root 层级看到顶层 spec/plan",
+      "value": "产品级视图，新人快速上手"
+    },
+    {
+      "id": "US-002",
+      "role": "开发工程师",
+      "want": "将大型需求拆分为独立子 Feature",
+      "value": "关注点分离，独立开发"
+    },
+    {
+      "id": "US-003",
+      "role": "开发工程师",
+      "want": "子 Feature 以父级文档为上下文",
+      "value": "避免信息重复，保持一致性"
+    },
+    {
+      "id": "US-004",
+      "role": "路由 Agent",
+      "want": "自动识别树形结构并正确路由",
+      "value": "自动化程度提升"
+    },
+    {
+      "id": "US-005",
+      "role": "架构师",
+      "want": "父级能看到自身状态和每个子级独立状态",
+      "value": "全景视角，手动触发更新"
+    },
+    {
+      "id": "US-006",
+      "role": "开发工程师",
+      "want": "子 Feature 能依赖跨子树的其他 Feature",
+      "value": "灵活的依赖管理"
+    },
+    {
+      "id": "US-007",
+      "role": "用户",
+      "want": "在 Discovery/Spec 阶段获得拆分建议",
+      "value": "引导式拆分，减少手动决策"
+    }
+  ],
+  "functionalRequirements": {
+    "split": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005"],
+    "tree": ["FR-010", "FR-011", "FR-012", "FR-013", "FR-014"],
+    "state": ["FR-020", "FR-021", "FR-022", "FR-023", "FR-024", "FR-025", "FR-026"],
+    "dependency": ["FR-030", "FR-031", "FR-032", "FR-033"],
+    "agent": ["FR-040", "FR-041", "FR-042", "FR-043", "FR-044", "FR-045"],
+    "docs": ["FR-050", "FR-051"]
+  },
+  "nonFunctionalRequirements": [
+    "NFR-001", "NFR-002", "NFR-003", "NFR-004", "NFR-005", "NFR-006", "NFR-007"
+  ],
+  "edgeCases": [
+    "EC-001", "EC-002", "EC-003", "EC-004", "EC-005",
+    "EC-006", "EC-007", "EC-008", "EC-009", "EC-010",
+    "EC-011", "EC-012"
+  ],
+  "openProblems": [
+    "OP-001", "OP-002", "OP-003", "OP-004", "OP-005"
+  ],
+  "dependencies": [
+    ".sddu/specs-tree-root/specs-tree-tree-structure-optimization/discovery.md"
+  ],
+  "nextPhase": "plan",
+  "nextAction": "@sddu-plan tree-structure-optimization",
+  "state": "specified"
+}

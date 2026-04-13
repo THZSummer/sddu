@@ -66,6 +66,12 @@
 | [specs-tree-sdd-plugin-baseline/](./specs-tree-sdd-plugin-baseline/README.md) | 插件基线建立 | ✅ completed |
 | [architecture/](./architecture/README.md) | 架构决策记录目录 | ✅ active |
 
+### 进行中 Feature 目录（1 个）
+
+| 目录 | 说明 | 状态 |
+|------|------|------|
+| [specs-tree-tree-structure-optimization/](./specs-tree-tree-structure-optimization/README.md) | v2.4.0 树形结构优化（P0） | 🔄 specified (1/7) |
+
 ## 规范文件说明
 
 ### SDDU 7 阶段完整工作流

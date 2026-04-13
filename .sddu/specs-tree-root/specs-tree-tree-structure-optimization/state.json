@@ -2,25 +2,25 @@
   "feature": "specs-tree-tree-structure-optimization",
   "name": "v2.4.0 Feature 拆分与树形结构优化",
   "version": "2.4.0",
-  "status": "discovered",
-  "phase": 0,
+  "status": "specified",
+  "phase": 1,
   "depth": 1,
-  "parent": "specs-tree-root",
   "discoveredDate": "2026-04-12",
   "priority": "P0",
   "description": "实现 Feature 分而治之能力：支持无限层树形嵌套（类比文件系统），定义「轻量化父级」vs「完整叶子」规范，支持状态汇聚与跨子树依赖检查",
   "goals": [
     "FR-001: 实现 Feature 拆分能力",
     "FR-002: 支持无限层树形嵌套（技术上不限制深度）",
-    "FR-003: 向后兼容现有 11 个 Feature",
+    "FR-003: 全新树形设计，无需为旧版平级做特殊兼容（平级是深度为1的树形特例，无需背负历史债）",
     "FR-004: 定义轻量化父级规范（仅 discovery/spec/plan/README）",
     "FR-005: 定义完整叶子规范（完整 6 阶段工作流）",
-    "FR-006: 状态汇聚（父 = 最慢子）",
+    "FR-006: 混合状态管理（父级 status 为自身状态，childrens 记录各子级状态）",
     "FR-007: 支持跨子树依赖关系",
-    "FR-008: 统一 state.json schema 为 v2.1.0"
+    "FR-008: 统一 state.json schema 为 v2.1.0（新增 childrens 数组、depth 字段）"
   ],
   "files": {
-    "discovery": "discovery.md"
+    "discovery": "discovery.md",
+    "spec": "spec.md"
   },
   "dependencies": {
     "on": [],
@@ -32,6 +32,12 @@
       "status": "discovered",
       "timestamp": "2026-04-12T00:00:00.000Z",
       "triggeredBy": "sddu-discovery-agent"
+    },
+    {
+      "phase": 1,
+      "status": "specified",
+      "timestamp": "2026-04-12T00:00:00.000Z",
+      "triggeredBy": "sddu-spec-agent"
     }
   ],
   "createdAt": "2026-04-12T00:00:00.000Z",
