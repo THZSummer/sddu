@@ -6,8 +6,8 @@ v2.4.0 Feature 拆分与树形结构优化 — 实现 Feature 分而治之能力
 
 **Feature ID**: `tree-structure-optimization`  
 **版本**: 2.4.0  
-**状态**: specified ✅  
-**阶段**: 1/7 (Spec)  
+**状态**: planned ✅  
+**阶段**: 2/7 (Plan)  
 **创建日期**: 2026-04-12  
 **优先级**: P0
 
@@ -19,9 +19,10 @@ v2.4.0 Feature 拆分与树形结构优化 — 实现 Feature 分而治之能力
 specs-tree-tree-structure-optimization/
 ├── README.md              # 本文件 - 目录导航
 ├── discovery.md           # 需求挖掘报告 (v3.0.0)
-├── spec.md                # Feature 规范 (2.4.0, 939 行)
+├── spec.md                # Feature 规范 (2.4.0)
 ├── spec.json              # 规范元数据
-└── state.json             # 状态文件 (specified, phase 1)
+├── plan.md                # 技术规划 (2.4.0)
+└── state.json             # 状态文件 (planned, phase 2)
 ```
 
 ---
@@ -33,7 +34,8 @@ specs-tree-tree-structure-optimization/
 | discovery.md | 需求挖掘报告 — 5 Whys 根因分析、用户画像、需求清单、推荐方案 | ✅ discovery-complete |
 | spec.md | Feature 规范 — 树形结构设计、state.json v2.1.0 Schema、技术设计方案 | ✅ specified |
 | spec.json | 规范元数据 — goals、userStories、requirements 结构化摘要 | ✅ 存在 |
-| state.json | 状态文件 — specified (phase 1), depth=1 | ✅ 存在 |
+| plan.md | 技术规划 — 方案对比、架构影响、文件影响、实施顺序、3 个 ADR | ✅ planned |
+| state.json | 状态文件 — planned (phase 2), depth=1 | ✅ 存在 |
 
 ---
 
@@ -90,7 +92,7 @@ specs-tree-root/                              # ← 轻量化父级
     ↓
 ✅ Spec      → 2026-04-12 完成 (specified)
     ↓
-⏳ Plan      → 待执行
+✅ Plan      → 2026-04-12 完成 (planned)
     ↓
 ⏳ Tasks     → 待执行
     ↓
@@ -123,10 +125,13 @@ specs-tree-root/                              # ← 轻量化父级
 - **ADR-005**: 7 步工作流固定顺序 → ⚠️ 仅叶子完整走 6 阶段
 - **ADR-009**: 混合模式依赖检查 → ✅ 可增强为跨子树
 - **ADR-014**: 打包分发结构优化 → ⚠️ 树形结构需纳入打包
+- **ADR-015**: 原地升级 Schema 而非新建文件 → ✅ PROPOSED
+- **ADR-016**: TreeScanner 为纯模块 → ✅ PROPOSED
+- **ADR-017**: 集中式 state.json 保持不变 → ✅ PROPOSED
 
 ### 下一步
-👉 运行 `@sddu-plan tree-structure-optimization` 开始技术规划
+👉 运行 `@sddu-tasks tree-structure-optimization` 开始任务分解
 
 ---
 
-*最后更新：2026-04-12 | 状态：specified | 阶段：1/7*
+*最后更新：2026-04-12 | 状态：planned | 阶段：2/7*

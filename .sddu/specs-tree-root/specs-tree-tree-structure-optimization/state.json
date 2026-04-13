@@ -2,8 +2,8 @@
   "feature": "specs-tree-tree-structure-optimization",
   "name": "v2.4.0 Feature 拆分与树形结构优化",
   "version": "2.4.0",
-  "status": "specified",
-  "phase": 1,
+  "status": "planned",
+  "phase": 2,
   "depth": 1,
   "discoveredDate": "2026-04-12",
   "priority": "P0",
@@ -20,7 +20,8 @@
   ],
   "files": {
     "discovery": "discovery.md",
-    "spec": "spec.md"
+    "spec": "spec.md",
+    "plan": "plan.md"
   },
   "dependencies": {
     "on": [],
@@ -38,6 +39,12 @@
       "status": "specified",
       "timestamp": "2026-04-12T00:00:00.000Z",
       "triggeredBy": "sddu-spec-agent"
+    },
+    {
+      "phase": 2,
+      "status": "planned",
+      "timestamp": "2026-04-12T00:00:00.000Z",
+      "triggeredBy": "sddu-plan-agent"
     }
   ],
   "createdAt": "2026-04-12T00:00:00.000Z",

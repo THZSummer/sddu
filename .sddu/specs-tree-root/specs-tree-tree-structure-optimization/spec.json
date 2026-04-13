@@ -82,7 +82,7 @@
     "docs": ["FR-050", "FR-051"]
   },
   "nonFunctionalRequirements": [
-    "NFR-001", "NFR-002", "NFR-003", "NFR-004", "NFR-005", "NFR-006", "NFR-007"
+    "NFR-001", "NFR-002", "NFR-003", "NFR-004", "NFR-005", "NFR-006"
   ],
   "edgeCases": [
     "EC-001", "EC-002", "EC-003", "EC-004", "EC-005",
