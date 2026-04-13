@@ -13,6 +13,12 @@ export enum ErrorCode {
   STATE_SAVE_ERROR = 'STATE_SAVE_ERROR',                      // 状态保存错误
   STATE_MISSING_DEPENDENCY = 'STATE_MISSING_DEPENDENCY',      // 状态依赖缺失
   
+  // 树结构相关错误 (NEW)
+  TREE_SCAN_FAILED = 'TREE_SCAN_FAILED',                      // 树扫描失败
+  TREE_DEPTH_EXCEEDED = 'TREE_DEPTH_EXCEEDED',                // 树深度超出限制
+  CROSS_TREE_DEP_NOT_FOUND = 'CROSS_TREE_DEP_NOT_FOUND',      // 跨树依赖未找到
+  PARENT_STATE_UPDATE_FAILED = 'PARENT_STATE_UPDATE_FAILED',  // 父级状态更新失败
+  
   // 发现阶段相关错误
   DISCOVERY_STEP_EXECUTION_FAILED = 'DISCOVERY_STEP_EXECUTION_FAILED',  // 发现步骤执行失败
   DISCOVERY_CONTEXT_INVALID = 'DISCOVERY_CONTEXT_INVALID',      // 发现上下文无效
@@ -155,6 +161,22 @@ export class ConfigError extends SdduError {
     });
 
     Object.setPrototypeOf(this, ConfigError.prototype);
+  }
+}
+
+/**
+ * 树结构相关错误
+ */
+export class TreeStructureError extends SdduError {
+  constructor(code: ErrorCode, message: string, details?: Record<string, any>) {
+    super(message, {
+      code,
+      details,
+      timestamp: new Date().toISOString(),
+      component: 'Tree Structure Manager'
+    });
+
+    Object.setPrototypeOf(this, TreeStructureError.prototype);
   }
 }
 

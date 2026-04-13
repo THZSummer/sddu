@@ -28,10 +28,10 @@
 - [MODIFY] `src/state/schema-v2.0.0.ts`
 
 **验收标准**
-- [ ] 新增 `ChildFeatureInfo` 接口
-- [ ] `StateV2_1_0` 接口继承或扩展 v2.0.0，新增 `childrens` 数组和 `depth` 字段
-- [ ] `validateStateV2_1_0()` 验证函数实现
-- [ ] TypeScript 编译通过，无类型错误
+- [x] 新增 `ChildFeatureInfo` 接口
+- [x] `StateV2_1_0` 接口继承或扩展 v2.0.0，新增 `childrens` 数组和 `depth` 字段
+- [x] `validateStateV2_1_0()` 验证函数实现
+- [x] TypeScript 编译通过，无类型错误
 
 **验证命令**
 ```bash
@@ -54,11 +54,11 @@ npx tsc --noEmit
 - [NEW] `src/state/tree-scanner.test.ts`
 
 **验收标准**
-- [ ] `scanTreeStructure(rootDir)` 返回 `ScanResult { nodes, flatMap }`
-- [ ] 正确识别任意深度嵌套的 `specs-tree-*` 目录
-- [ ] `flatMap` 提供 O(1) 路径查找
-- [ ] `isParentFeature(node)` 正确判断父级/叶子
-- [ ] 单元测试覆盖率 > 80%
+- [x] `scanTreeStructure(rootDir)` 返回 `ScanResult { nodes, flatMap }`
+- [x] 正确识别任意深度嵌套的 `specs-tree-*` 目录
+- [x] `flatMap` 提供 O(1) 路径查找
+- [x] `isParentFeature(node)` 正确判断父级/叶子
+- [x] 单元测试覆盖率 > 80%
 
 **验证命令**
 ```bash
@@ -80,12 +80,12 @@ npx jest tree-scanner.test.ts
 - [NEW] `src/state/state-loader.ts`
 
 **验收标准**
-- [ ] `loadAll()` 通过 TreeScanner 扫描并加载所有分布式 state.json
-- [ ] `get(featurePath)` 读取单个 Feature 状态
-- [ ] `set(featurePath, state)` 写入单个 Feature 状态
-- [ ] `create(featurePath, initialState)` 创建新 Feature 状态
-- [ ] 缓存机制（3 秒过期）
-- [ ] 不再读写 `.sdd/state.json` 文件
+- [x] `loadAll()` 通过 TreeScanner 扫描并加载所有分布式 state.json
+- [x] `get(featurePath)` 读取单个 Feature 状态
+- [x] `set(featurePath, state)` 写入单个 Feature 状态
+- [x] `create(featurePath, initialState)` 创建新 Feature 状态
+- [x] 缓存机制（3 秒过期）
+- [x] 不再读写 `.sdd/state.json` 文件
 
 **验证命令**
 ```bash
@@ -109,13 +109,13 @@ npx tsc --noEmit
 - [MODIFY] `src/state/machine.ts`
 
 **验收标准**
-- [ ] `load()` 使用 StateLoader 分布式加载
-- [ ] `save()` 变为空操作或仅触发缓存刷新
-- [ ] `updateState()` 通过 StateLoader 写入分布式文件
-- [ ] `isParentFeature()` 识别父级 Feature
-- [ ] `checkRequiredFiles()` 对父级只检查 discovery/spec/plan
-- [ ] 删除所有 `.sdd/state.json` 读写代码
-- [ ] 依赖注入 StateLoader
+- [x] `load()` 使用 StateLoader 分布式加载
+- [x] `save()` 变为空操作或仅触发缓存刷新
+- [x] `updateState()` 通过 StateLoader 写入分布式文件
+- [x] `isParentFeature()` 识别父级 Feature
+- [x] `checkRequiredFiles()` 对父级只检查 discovery/spec/plan
+- [x] 删除所有 `.sdd/state.json` 读写代码
+- [x] 依赖注入 StateLoader
 
 **验证命令**
 ```bash
@@ -138,9 +138,9 @@ npx tsc --noEmit
 - [MODIFY] `src/errors.ts`
 
 **验收标准**
-- [ ] `types.ts` 导出 `FeatureTreeNode`, `ScanResult`, `StateV2_1_0` 等
-- [ ] `errors.ts` 新增 `ErrorCode`：`TREE_SCAN_FAILED`, `TREE_DEPTH_EXCEEDED`, `CROSS_TREE_DEP_NOT_FOUND`, `PARENT_STATE_UPDATE_FAILED`
-- [ ] 所有新增错误码有对应的错误类或工厂函数
+- [x] `types.ts` 导出 `FeatureTreeNode`, `ScanResult`, `StateV2_1_0` 等
+- [x] `errors.ts` 新增 `ErrorCode`：`TREE_SCAN_FAILED`, `TREE_DEPTH_EXCEEDED`, `CROSS_TREE_DEP_NOT_FOUND`, `PARENT_STATE_UPDATE_FAILED`
+- [x] 所有新增错误码有对应的错误类或工厂函数
 
 **验证命令**
 ```bash
@@ -162,10 +162,10 @@ npx tsc --noEmit
 - [NEW] `src/state/parent-state-manager.ts`
 
 **验收标准**
-- [ ] `scanAndUpdateParentState(parentDir)` 扫描子 Feature 并更新 `childrens`
-- [ ] 正确读取子 Feature state.json 的 `status` 字段
-- [ ] 处理子 Feature 不存在或 state.json 读取失败的情况
-- [ ] 更新后写入父级 state.json
+- [x] `scanAndUpdateParentState(parentDir)` 扫描子 Feature 并更新 `childrens`
+- [x] 正确读取子 Feature state.json 的 `status` 字段
+- [x] 处理子 Feature 不存在或 state.json 读取失败的情况
+- [x] 更新后写入父级 state.json
 
 **验证命令**
 ```bash
@@ -189,10 +189,10 @@ npx tsc --noEmit
 - [MODIFY] `src/state/auto-updater.ts`
 
 **验收标准**
-- [ ] `getAllFeatureIds()` 使用 TreeScanner 返回完整路径列表
-- [ ] `scanAndAutoUpdate()` 支持嵌套路径
-- [ ] 路径提取逻辑适配 `specs-tree-parent/specs-tree-child` 格式
-- [ ] 防抖逻辑正常工作
+- [x] `getAllFeatureIds()` 使用 TreeScanner 返回完整路径列表
+- [x] `scanAndAutoUpdate()` 支持嵌套路径
+- [x] 路径提取逻辑适配 `specs-tree-parent/specs-tree-child` 格式
+- [x] 防抖逻辑正常工作
 
 **验证命令**
 ```bash
@@ -214,10 +214,10 @@ npx tsc --noEmit
 - [MODIFY] `src/state/dependency-checker.ts`
 
 **验收标准**
-- [ ] `scanAllFeatures()` 使用 TreeScanner 递归扫描
-- [ ] 依赖路径解析支持 `specs-tree-parent/specs-tree-child` 格式
-- [ ] `checkDependenciesForStateChange()` 正确处理跨子树依赖
-- [ ] 循环依赖检测覆盖嵌套结构
+- [x] `scanAllFeatures()` 使用 TreeScanner 递归扫描
+- [x] 依赖路径解析支持 `specs-tree-parent/specs-tree-child` 格式
+- [x] `checkDependenciesForStateChange()` 正确处理跨子树依赖
+- [x] 循环依赖检测覆盖嵌套结构
 
 **验证命令**
 ```bash
@@ -239,10 +239,10 @@ npx tsc --noEmit
 - [MODIFY] `src/utils/subfeature-manager.ts`
 
 **验收标准**
-- [ ] `detectFeatureMode()` 通过检查 `specs-tree-*` 子目录判断父/叶
-- [ ] `createSubFeature()` 创建正确的嵌套目录结构
-- [ ] 移除所有 `sub-features/` 路径引用
-- [ ] 兼容旧的 `sub-features/` 目录存在但不优先识别
+- [x] `detectFeatureMode()` 通过检查 `specs-tree-*` 子目录判断父/叶
+- [x] `createSubFeature()` 创建正确的嵌套目录结构
+- [x] 移除所有 `sub-features/` 路径引用
+- [x] 兼容旧的 `sub-features/` 目录存在但不优先识别
 
 **验证命令**
 ```bash
@@ -266,11 +266,11 @@ npx tsc --noEmit
 - [MODIFY] `src/templates/agents/sddu.md.hbs`
 
 **验收标准**
-- [ ] 状态检查改为递归扫描树形结构
-- [ ] 不再读取 `.opencode/sdd/state.json`
-- [ ] 父级 Feature 拒绝 tasks/build/review/validate 阶段
-- [ ] 路径模式支持 `**/specs-tree-[name]/` 通配
-- [ ] 路由提示包含正确的树形路径
+- [x] 状态检查改为递归扫描树形结构
+- [x] 不再读取 `.opencode/sdd/state.json`
+- [x] 父级 Feature 拒绝 tasks/build/review/validate 阶段
+- [x] 路径模式支持 `**/specs-tree-[name]/` 通配
+- [x] 路由提示包含正确的树形路径
 
 **验证命令**
 ```bash
@@ -292,9 +292,9 @@ npx tsc --noEmit
 - [MODIFY] `src/discovery/workflow-engine.ts`
 
 **验收标准**
-- [ ] 新增 `suggestSplit(context)` 方法
-- [ ] 识别多模块需求并输出拆分建议
-- [ ] 在 discovery 完成后调用
+- [x] 新增 `suggestSplit(context)` 方法
+- [x] 识别多模块需求并输出拆分建议
+- [x] 在 discovery 完成后调用
 
 **验证命令**
 ```bash
@@ -316,11 +316,11 @@ npx tsc --noEmit
 - [MODIFY] `src/index.ts`
 
 **验收标准**
-- [ ] StateMachine 初始化传入 StateLoader
-- [ ] 删除所有 `.sdd/state.json` 相关代码
-- [ ] 文件监听覆盖嵌套路径
-- [ ] 完整工作流测试：discovery → spec → plan → tasks → build → review → validate
-- [ ] 父级/叶子状态管理正确
+- [x] StateMachine 初始化传入 StateLoader
+- [x] 删除所有 `.sddu/state.json` 相关代码  
+- [x] 文件监听覆盖嵌套路径
+- [x] 完整工作流测试：discovery → spec → plan → tasks → build → review → validate
+- [x] 父级/叶子状态管理正确
 
 **验证命令**
 ```bash

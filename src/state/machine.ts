@@ -1,11 +1,12 @@
 // 状态机实现 - 带流程防跳过验证
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { PhaseHistory, WorkflowStatus, StateV2_0_0, validateState } from './schema-v2.0.0';
+import { PhaseHistory, WorkflowStatus, StateV2_1_0, StateV2_0_0, validateState, validateStateV2_1_0 } from './schema-v2.0.0';
 import { DependencyChecker } from './dependency-checker';
+import { StateLoader } from './state-loader';
 
-// 导出 DependencyChecker 以便其他模块使用
-export { DependencyChecker };
+// 导出 DependencyChecker 和 StateLoader 以便其他模块使用
+export { DependencyChecker, StateLoader };
 
 // Type mapping from old states to new workflow states
 export type OldFeatureStateEnum = 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed';
@@ -13,12 +14,19 @@ export type OldFeatureStateEnum = 'drafting' | 'discovered' | 'specified' | 'pla
 // Agent workflow stages matching SDDU Agent phases
 export type AgentWorkflowStateEnum = 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed';
 
+// Updated State type to incorporate schema v2.1.0
+interface DistributedFeatureState extends StateV2_1_0 {
+  id: string;  // Added by us for consistency with the original design 
+  name: string; 
+}
+
 // Mapping for phase tracking (matching SDDU workflow)
 export type SdduPhase = 1 | 2 | 3 | 4 | 5 | 6;
 
 // New status enum aligned with schema v2.0.0
 export type FeatureStateEnum = 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed';
 
+// FeatureState remains backward compatible but with the distributed state integration
 export interface FeatureState {
   id: string;
   name: string;
@@ -44,7 +52,8 @@ export {
   PhaseHistory, 
   WorkflowStatus, 
   StateV2_0_0, 
-  validateState 
+  StateV2_1_0,  // New export
+  validateState
 };
 
 // Interface for Agent workflow integration
@@ -70,14 +79,16 @@ export interface HistoryEntry {
   comment?: string;     // Additional context about the transition
 }
 
-export interface FeatureWithFullHistory extends FeatureState {
-  phaseHistory: PhaseHistory[];
-  history: HistoryEntry[];
+// FeatureWithFullHistory now uses extended state schema
+export interface FeatureWithFullHistory extends DistributedFeatureState {
+  id: string;  // For backward compatibility
+  name: string; // For backward compatibility
+  tasks?: any[]; // Keep for compatibility
 }
 
 export class StateMachine {
-  private states: Map<string, FeatureWithFullHistory> = new Map();
-  private stateFilePath: string;
+  private stateLoader: StateLoader;
+  private specsDir: string;
   private dependencyChecker?: DependencyChecker;
   
   // Hook for Agent workflow integration
@@ -109,8 +120,9 @@ export class StateMachine {
     'completed': ['spec.md', 'plan.md', 'tasks.md', 'review.md', 'validation.md', 'discovery.md']
   };
 
-  constructor(private specsDir: string = 'specs-tree-root') {
-    this.stateFilePath = path.join(specsDir, '.sdd', 'state.json');
+  constructor(specsDir: string = '.sddu/specs-tree-root') {
+    this.specsDir = specsDir;
+    this.stateLoader = new StateLoader(specsDir);  // Initialize the StateLoader
   }
 
   // Set the agent hook for workflow integration
@@ -123,105 +135,150 @@ export class StateMachine {
     this.dependencyChecker = checker;
   }
 
-  async load() {
-    try {
-      const data = await fs.readFile(this.stateFilePath, 'utf-8');
-      const parsed = JSON.parse(data);
-      if (parsed.features) {
-        for (const [key, value] of Object.entries<any>(parsed.features)) {
-          // Convert loaded objects to FeatureWithFullHistory structure with defaults for new fields
-          const featureState = {
-            id: value.id,
-            name: value.name,
-            state: value.state,
-            createdAt: value.createdAt,
-            updatedAt: value.updatedAt,
-            tasks: value.tasks || [],
-            // Initialize new fields if not present
-            phaseHistory: value.phaseHistory || [],
-            history: value.history || []
-          };
-          this.states.set(key, featureState as FeatureWithFullHistory);
-        }
-      }
-    } catch {
-      // 文件不存在 - 初始化为空状态
-      console.log('State file not found, will initialize empty state');
+  async load(featurePath?: string) {
+    // Now the StateMachine uses distributed loading - either load a specific featurePath or return empty set if no feature specified
+    // Since this is called by various operations, the logic will now come from the stateLoader
+    if (featurePath) {
+      return await this.stateLoader.get(featurePath);
     }
+    // In a distributed system, individual loading is done through stateLoader per feature path
+    return null;
   }
 
   async save() {
-    const dir = path.dirname(this.stateFilePath);
-    await fs.mkdir(dir, { recursive: true });
-    
-    const data = {
-      version: '2.0.0',
-      updatedAt: new Date().toISOString(),
-      features: Object.fromEntries(this.states)
-    };
-    
-    await fs.writeFile(this.stateFilePath, JSON.stringify(data, null, 2));
+    // Save operations now are handled distributed through stateLoader, this is now a no-op for the centralized file
+    console.warn("Using StateLoader for distributed saving, no centralized save operation");
+    // For backward compatibility - keeping this function but it does nothing now
   }
 
-  async createFeature(name: string): Promise<FeatureWithFullHistory> {
+  async createFeature(name: string, featurePath: string): Promise<FeatureWithFullHistory> {
     const id = name.toLowerCase().replace(/\s+/g, '-').slice(0, 50);
     const now = new Date().toISOString();
     
-    const state: FeatureWithFullHistory = {
-      id,
+    // Create and save distributed state
+    const state: DistributedFeatureState = {
+      id,  // Added for compatibility
+      feature: id, // Required field
       name,
-      state: 'drafting',
-      createdAt: now,
-      updatedAt: now,
-      tasks: [],
-      phaseHistory: [],
-      history: []
+      version: 'v2.1.0', // v2.1.0 schema with tree support
+      status: 'specified', // Default status for a new feature
+      phase: 1,           // Start at phase 1 (spec phase)
+      phaseHistory: [{
+        phase: 1,
+        status: 'specified',
+        timestamp: now,
+        triggeredBy: 'system',
+        comment: 'Feature created'
+      }],
+      files: {
+        spec: path.join(featurePath, 'spec.md')
+      },
+      dependencies: {
+        on: [],
+        blocking: []
+      },
+      history: [{
+        timestamp: now,
+        from: 'drafting',
+        to: 'specified',
+        triggeredBy: 'system',
+        comment: 'Initial feature setup'
+      }]
     };
     
-    this.states.set(id, state);
-    await this.save();
-    return state;
+    // Save via StateLoader
+    const success = await this.stateLoader.create(featurePath, state as StateV2_1_0);
+    if (!success) {
+      throw new Error('Failed to create distributed state for feature: ' + id);
+    }
+    
+    // Return a FeatureWithFullHistory shape with expanded fields
+    return {...state, id, name, tasks: []} as FeatureWithFullHistory;
   }
 
-  getState(featureId: string): FeatureWithFullHistory | undefined {
-    return this.states.get(featureId);
+  async getState(featurePath: string): Promise<FeatureWithFullHistory | undefined> {
+    const state = await this.stateLoader.get(featurePath) as StateV2_1_0;
+    if (!state) return undefined;
+
+    // Convert to FeatureWithFullHistory for backward compatibility
+    return {
+      ...state,
+      id: state.feature, // Match the legacy field access for id
+      name: state.name || state.feature, // Use name or feature as fallback
+      tasks: [] // Legacy field for backward compatibility
+    };
+  }
+  
+  // Method to check if feature is a parent feature with children
+  async isParentFeature(featurePath: string): Promise<boolean> {
+    const state = await this.stateLoader.get(featurePath) as StateV2_1_0 | null;
+    
+    if (state && state.version === 'v2.1.0' && state.childrens && Array.isArray(state.childrens)) {
+      return state.childrens.length > 0;
+    }
+    
+    // Also check with tree scanner if we don't have the childrens explicitly in state
+    try {
+      const treeStructure = this.stateLoader.getTreeStructure();
+      const node = treeStructure.flatMap.get(featurePath);
+      if (node) {
+        // We can also determine if it's a parent by checking tree structure
+        return node.children.length > 0;
+      }
+    } catch (error) {
+      console.warn(`Error checking tree structure for ${featurePath}: `, error.message);
+    }
+    
+    return false;
   }
 
-  getAllFeatures(): FeatureWithFullHistory[] {
-    return Array.from(this.states.values());
+  async getAllFeatures(): Promise<FeatureWithFullHistory[]> {
+    // Load all distributed states using stateLoader
+    const allStates = await this.stateLoader.loadAll();
+    const features: FeatureWithFullHistory[] = [];
+
+    for (const [featurePath, state] of allStates.entries()) {
+      features.push({
+        ...state,
+        id: state.feature, // Map feature id for compat
+        name: state.name || state.feature, // Use name or feature as fallback
+        tasks: [] // Legacy compatibility field
+      });
+    }
+
+    return features;
   }
   
   /**
    * 获取特定 feature 当前的相位 (SDD Phase: 1-6)
    */
-  getCurrentPhase(featureId: string): number {
-    const feature = this.getState(featureId);
+  async getCurrentPhase(featurePath: string): Promise<number> {
+    const feature = await this.getState(featurePath);
     if (!feature) return 0;
     
-    switch(feature.state) {
-      case 'drafting':
-      case 'discovered': 
-      case 'specified': return 1;  // Spec phase
-      case 'planned': return 2;    // Plan phase
-      case 'tasked': return 3;     // Tasks phase
-      case 'implementing': return 4; // Build phase
-      case 'reviewed': return 5;   // Review phase
-      case 'validated': return 6;  // Validate phase
-      case 'completed': return 7;  // Completed
-      default: return 0;
-    }
+    return feature.phase || 0;
   }
   
   /**
    * 验证状态流转是否合法
    */
-  canTransition(featureId: string, targetState: FeatureStateEnum): { valid: boolean; reason?: string; current?: FeatureStateEnum; target?: FeatureStateEnum; allowed?: FeatureStateEnum[] } {
-    const current = this.states.get(featureId);
+  async canTransition(featurePath: string, targetState: FeatureStateEnum): Promise<{ valid: boolean; reason?: string; current?: FeatureStateEnum; target?: FeatureStateEnum; allowed?: FeatureStateEnum[] }> {
+    const current = await this.getState(featurePath);
     if (!current) {
       return { valid: false, reason: 'Feature 不存在', current: undefined, target: targetState };
     }
     
-    const currentState = current.state as FeatureStateEnum;
+    // Map the workflow status to our internal state enums
+    // First, convert status field to a comparable state
+    let currentState: FeatureStateEnum = 'drafting';
+    if (current.status === 'specified') currentState = 'specified';
+    else if (current.status === 'planned') currentState = 'planned';
+    else if (current.status === 'tasked') currentState = 'tasked';
+    else if (current.status === 'building') currentState = 'implementing';
+    else if (current.status === 'reviewed') currentState = 'reviewed';
+    else if (current.status === 'validated') currentState = 'validated';
+    else currentState = 'drafting'; // default fallback
+    
     const allowedTargets = this.validTransitions[currentState] || [];
     
     if (!allowedTargets.includes(targetState)) {
@@ -240,11 +297,20 @@ export class StateMachine {
   /**
    * 获取缺失的前置阶段（用于显示跳过阶段的警告）
    */
-  getMissingStages(featureId: string, targetState: FeatureStateEnum): { state: string; name: string }[] {
-    const current = this.states.get(featureId);
+  async getMissingStages(featurePath: string, targetState: FeatureStateEnum): Promise<{ state: string; name: string }[]> {
+    const current = await this.getState(featurePath);
     if (!current) return [];
     
-    const currentState = current.state as FeatureStateEnum;
+    // Need to determine the current state based on status
+    let currentState: FeatureStateEnum = 'drafting';
+    if (current.status === 'specified') currentState = 'specified';
+    else if (current.status === 'planned') currentState = 'planned';
+    else if (current.status === 'tasked') currentState = 'tasked';
+    else if (current.status === 'building') currentState = 'implementing';
+    else if (current.status === 'reviewed') currentState = 'reviewed';
+    else if (current.status === 'validated') currentState = 'validated';
+    else currentState = 'drafting'; // default fallback
+    
     const allStates: FeatureStateEnum[] = ['drafting', 'discovered', 'specified', 'planned', 'tasked', 'implementing', 'reviewed', 'validated', 'completed'];
     const currentIndex = allStates.indexOf(currentState);
     const targetIndex = allStates.indexOf(targetState);
@@ -282,23 +348,49 @@ export class StateMachine {
   }
   
   /**
-   * 检查必需文件是否存在
+   * 检查必需文件是否存在 for parents vs leaves
    */
-  async checkRequiredFiles(featureId: string, targetState: FeatureStateEnum): Promise<{ valid: boolean; missing: string[]; present?: string[]; reason?: string }> {
+  async checkRequiredFiles(featurePath: string, targetState: FeatureStateEnum, isParent: boolean = false): Promise<{ valid: boolean; missing: string[]; present?: string[]; reason?: string }> {
     const required = this.requiredFiles[targetState];
     if (!required) return { valid: true, missing: [] }; // 若没有指定文件要求则认为有效
     
-    const feature = this.states.get(featureId);
-    if (!feature) return { valid: false, missing: required, reason: 'Feature 不存在' };
+    if (isParent) {
+      // For parent features, we only check discovery, spec, and plan - not implement/test/validate stages
+      const parentRequired = required.filter(file => 
+        file.includes('discovery') || 
+        file.includes('spec') || 
+        file.includes('plan')
+      );  // Parents don't require implement/test/validate related files
+      
+      const missing: string[] = [];
+      
+      for (const file of parentRequired) {
+        const filePath = path.join(featurePath, file);
+        try {
+          await fs.access(filePath);
+        } catch {
+          missing.push(file);
+        }
+      }
+      
+      return {
+        valid: missing.length === 0,
+        missing,
+        present: parentRequired.filter(f => !missing.includes(f))
+      };
+    }
     
-    const featureDir = path.join(this.specsDir, feature.id);
+    const state = await this.load(featurePath) as any;
+    if (!state) return { valid: false, missing: required, reason: 'Feature 不存在' };
+    
     const missing: string[] = [];
     
     for (const file of required) {
-      const filePath = path.join(featureDir, file);
+      const filePath = path.join(featurePath, file);
       try {
         await fs.access(filePath);
       } catch {
+        if (file === 'discovery.md') continue; // Make discovery optional in tree structure
         missing.push(file);
       }
     }
@@ -313,12 +405,23 @@ export class StateMachine {
   /**
    * 完整的阶段跳转验证（核心方法 - 防跳过提醒关键）
    */
-  async validateStageTransition(featureId: string, targetState: FeatureStateEnum): Promise<TransitionResult> {
-    // 1. 加载最新状态
-    await this.load();
+  async validateStageTransition(featurePath: string, targetState: FeatureStateEnum): Promise<TransitionResult> {
+    // Check if this is a parent state
+    const isParent = await this.isParentFeature(featurePath);
+    
+    // 1. Check state existence and validity
+    const current = await this.getState(featurePath);
+    if (!current) {
+      return {
+        allowed: false, 
+        current: undefined, 
+        target: targetState,
+        reason: 'Feature 路径不存在'
+      };
+    }
     
     // 2. 验证状态流转合法性
-    const transitionCheck = this.canTransition(featureId, targetState);
+    const transitionCheck = await this.canTransition(featurePath, targetState);
     if (!transitionCheck.valid) {
       return {
         allowed: false,
@@ -326,12 +429,12 @@ export class StateMachine {
         current: transitionCheck.current,
         target: targetState,
         allowedTargets: transitionCheck.allowed,
-        missingStages: this.getMissingStages(featureId, targetState)
+        missingStages: await this.getMissingStages(featurePath, targetState)
       };
     }
     
-    // 3. 检查必需文件
-    const fileCheck = await this.checkRequiredFiles(featureId, targetState);
+    // 3. Check required files, taking into account parent/child differences  
+    const fileCheck = await this.checkRequiredFiles(featurePath, targetState, isParent);
     if (!fileCheck.valid) {
       return {
         allowed: false,
@@ -343,10 +446,9 @@ export class StateMachine {
       };
     }
     
-    // 4. 特殊处理：如果从drafting直接跳转到非discovered状态，给出警告
-    const feature = this.states.get(featureId);
-    if (feature && feature.state === 'drafting' && targetState !== 'discovered') {
-      const missingStages = this.getMissingStages(featureId, targetState);
+    const feature = current;  // Using current as current feature
+    if (feature && this.mapFeatureStateToInternal(current.status) === 'drafting' && targetState !== 'discovered') {
+      const missingStages = await this.getMissingStages(featurePath, targetState);
       return {
         allowed: true,     // 仍然允许通过，但返回警告
         current: transitionCheck.current,
@@ -365,97 +467,123 @@ export class StateMachine {
   }
   
   /**
-   * 更新状态（带验证），支持钩子和历史追踪
+   * Updates state (with validation) using distributed storage with hooks and history tracking
    */
-  async updateState(featureId: string, newState: FeatureStateEnum, data: any = {}, triggeredBy?: string, comment?: string, skipValidation: boolean = false): Promise<FeatureWithFullHistory> {
-    await this.load();
-    
-    const feature = this.states.get(featureId) as FeatureWithFullHistory | undefined;
+  async updateState(featurePath: string, newState: FeatureStateEnum, data: any = {}, triggeredBy?: string, comment?: string, skipValidation: boolean = false, isParent: boolean = false): Promise<FeatureWithFullHistory> {
+    const feature = await this.getState(featurePath) as FeatureWithFullHistory;
     if (!feature) {
-      throw new Error(`Feature 不存在：${featureId}`);
+      throw new Error(`State does not exist at ${featurePath}`);
     }
     
-    // 记录原始状态
-    const originalState = { ...feature };
+    const originalStatus = (feature as any).status as WorkflowStatus; // Get old status
+    const previousState = this.mapFeatureStateToInternal(originalStatus as any);
     
-    // 只在非强制更新情况下检查验证
+    // Only check verification in non-force update cases
     if (!skipValidation) {
-      // 验证流转 - 这里会返回是否符合规则以及可能的警告
-      const validation = await this.validateStageTransition(featureId, newState);
+      // Verify transition - will return whether rules permit it and possible warnings
+      const validation = await this.validateStageTransition(featurePath, newState);
       
-      // 注意：对于跳过 discovered 阶段的情况，我们只发出警告而不是阻止，因为这是可选的
+      // Note: For skipped discovered stage, issue warning but don't prevent for tree structure
       if (!validation.allowed && !validation.missingStages?.some(ms => ms.state === 'discovered')) {
-        // 只有在不是 discovered 跳过的情况下才抛出错误
-        throw new Error(`状态流转失败：${validation.reason}`);
+        // Only throw error in cases where its not about discovered skip
+        // But if it's a parent and going to advanced phases, reject
+        if (isParent) {
+          const newStatePhase = this.getStatePhase(newState);
+          if (newStatePhase > 2) { // Don't let parents advance beyond planning phase  
+            throw new Error(`Parent features cannot advance beyond planning phase (${newStatePhase}), only leaf-features should proceed to implementation.`);
+          }
+        }
+        throw new Error(`State transition failed: ${validation.reason}`);
       }
       
-      // 依赖状态检查（如果依赖检查器已初始化）
+      // Dependency state check (if dependency checker is configured)
       if (this.dependencyChecker) {
-        const depCheck = await this.dependencyChecker.checkDependenciesForStateChange(featureId, newState);
+        const depCheck = await this.dependencyChecker.checkDependenciesForStateChange(featurePath, newState);
         if (!depCheck.allowed && depCheck.blockingFeatures && depCheck.blockingFeatures.length > 0) {
           const blockingList = depCheck.blockingFeatures
             .map(bf => `  - ${bf.featureId} (${bf.featureName}): ${bf.currentState} < ${bf.requiredState}`)
             .join('\n');
-          throw new Error(`依赖检查失败，以下依赖 Feature 未就绪:\n${blockingList}`);
+          throw new Error(`Dependency check failed, the following dependent Feature are not ready:\n${blockingList}`);
         }
       }
     } else {
       console.log(`Skipping validation for direct agent state update`);
     }
     
-    const previousState = feature.state as FeatureStateEnum;
-    
-    // 执行过渡前的Hook (如果注册了agent hook)
+    // Execute pre-transition hook (if agent hook is registered)
     try {
       if (this.agentHook?.onTransitionStart) {
-        this.agentHook.onTransitionStart(featureId, newState);
+        this.agentHook.onTransitionStart(featurePath.split('/').pop() || featurePath, newState);
       }
     } catch (error) {
       console.warn('Warning: Agent hook onTransitionStart failed:', error);
-      // 不阻塞主操作
+      // Do not block main operation
     }
     
-    // 更新状态
-    feature.state = newState as FeatureStateEnum;
-    feature.updatedAt = new Date().toISOString();
-    Object.assign(feature, data);
+    // Create new state object based on existing state
+    const now = new Date().toISOString();
+    const updatedPhase = this.getStatePhase(newState);
+    const workflowStatusFromNewState = this.mapInternalStateToWorkflowStatus(newState);
     
-    // Determine SDDU phase number based on state
-    const phase = this.getCurrentPhase(featureId);
-    const workflowStatus = this.mapWorkflowStatus(newState);
-    
-    // Add to phase history
-    const phaseHistoryItem: PhaseHistory = {
-      phase: phase as number,
-      status: workflowStatus,
-      timestamp: new Date().toISOString(),
-      triggeredBy: triggeredBy || 'unknown',
-      comment: comment
+    // Prepare updated state following the StateV2_1_0 schema
+    const updatedState: StateV2_1_0 = {
+      ...feature,
+      status: workflowStatusFromNewState,
+      phase: updatedPhase,
+      phaseHistory: [
+        ...(feature.phaseHistory || []),
+        {
+          phase: updatedPhase,
+          status: workflowStatusFromNewState,
+          timestamp: now,
+          triggeredBy: triggeredBy || 'system',
+          comment: comment
+        }
+      ],
+      dependencies: {
+        on: (feature.dependencies && feature.dependencies.on) || [],
+        blocking: (feature.dependencies && feature.dependencies.blocking) || []
+      },
+      files: {
+        spec: (feature.files && feature.files.spec) || '',
+        plan: (feature.files && feature.files.plan) || undefined,
+        tasks: (feature.files && feature.files.tasks) || undefined,
+        readme: (feature.files && feature.files.readme) || undefined,
+        review: (feature.files && feature.files.review) || undefined,
+        validation: (feature.files && feature.files.validation) || undefined
+      }
     };
     
-    // Add to detailed history
-    const historyItem: HistoryEntry = {
-      timestamp: new Date().toISOString(),
-      from: previousState,
-      to: newState,
-      triggeredBy: triggeredBy || 'unknown',
-      comment: comment
-    };
+    // Add history entry
+    const updatedHistory = [
+      ...(feature.history || []),
+      {
+        timestamp: now,
+        from: previousState,
+        to: newState,
+        triggeredBy: triggeredBy || 'system',
+        comment: comment
+      }
+    ];
     
-    feature.phaseHistory = feature.phaseHistory || [];
-    feature.history = feature.history || [];
+    updatedState.history = updatedHistory;
     
-    feature.phaseHistory.push(phaseHistoryItem);
-    feature.history.push(historyItem);
+    // Validate the state before saving
+    if (!validateStateV2_1_0(updatedState)) {
+      throw new Error(`New state for ${featurePath} failed validation against v2.1.0 schema`);
+    }
     
-    this.states.set(featureId, feature);
-    await this.save();
+    // Save using StateLoader (distributed state save)
+    const success = await this.stateLoader.set(featurePath, updatedState);
+    if (!success) {
+      throw new Error(`Failed to save state to ${featurePath}`);
+    }
     
-    // 执行过渡完成后的Hook (如果注册了agent hook)
+    // Execute post-transition hook (if agent hook is registered)
     try {
       if (this.agentHook?.onTransitionComplete) {
         this.agentHook.onTransitionComplete(
-          featureId, 
+          featurePath.split('/').pop() || featurePath, 
           previousState, 
           newState, 
           triggeredBy,
@@ -465,16 +593,38 @@ export class StateMachine {
     } catch (error) {
       console.warn('Warning: Agent hook onTransitionComplete failed:', error);
       if (this.agentHook?.onError) {
-        this.agentHook.onError(error, featureId, newState);
+        this.agentHook.onError(error, featurePath, newState.toString());
       }
-      // 不阻塞主操作
+      // Do not block main operation
     }
     
-    return feature;
+    // Convert and return in expected format for compatibility
+    return {
+      ...updatedState,
+      id: updatedState.feature,
+      name: updatedState.name || updatedState.feature,
+      tasks: [...(feature.tasks || [])]
+    };
+  }
+  
+  // Helper method to determine phase number based on internal state
+  private getStatePhase(internState: FeatureStateEnum): number {
+    switch(internState) {
+      case 'drafting':
+      case 'discovered': 
+      case 'specified': return 1;  // Spec phase
+      case 'planned': return 2;    // Plan phase
+      case 'tasked': return 3;     // Tasks phase
+      case 'implementing': return 4; // Build phase
+      case 'reviewed': return 5;   // Review phase
+      case 'validated': 
+      case 'completed': return 6;  // Validate phase
+      default: return 1;
+    }
   }
   
   // Map internal state to workflow status as defined in schema v2.0.0
-  private mapWorkflowStatus(state: FeatureStateEnum): WorkflowStatus {
+  private mapInternalStateToWorkflowStatus(state: FeatureStateEnum): WorkflowStatus {
     switch (state) {
       case 'specified': return 'specified';
       case 'planned': return 'planned';
@@ -483,20 +633,34 @@ export class StateMachine {
       case 'reviewed': return 'reviewed';
       case 'validated': return 'validated';
       default: 
-        // For other states like 'drafting', 'discovered', 'completed', return 'validated' as a generic completion
+        // For other states like 'drafting', 'discovered', 'completed', return 'specified' as a default
         if (state === 'completed') return 'validated';
         return 'specified';
+    }
+  }
+  
+  // Map internal workflow status back internal state
+  private mapFeatureStateToInternal(workflowStatus: WorkflowStatus): FeatureStateEnum {
+    switch(workflowStatus) {
+      case 'specified': return 'specified';
+      case 'planned': return 'planned';
+      case 'tasked': return 'tasked';
+      case 'building': return 'implementing';
+      case 'reviewed': return 'reviewed';
+      case 'validated': return 'validated';
+      default: return 'drafting';
     }
   }
   
   /**
    * 获取下一步建议
    */
-  getNextStep(featureId: string): { state: string; action: string } | null {
-    const feature = this.states.get(featureId);
+  async getNextStep(featurePath: string): Promise<{ state: string; action: string } | null> {
+    const feature = await this.getState(featurePath);
     if (!feature) return null;
     
-    const stateValue = feature.state as FeatureStateEnum;
+    const stateStatus = (feature as any).status as WorkflowStatus;
+    const stateValue = this.mapFeatureStateToInternal(stateStatus) as FeatureStateEnum;
     const allowed = this.validTransitions[stateValue] || [];
     if (allowed.length === 0) {
       return { state: 'completed', action: '已完成，无需操作' };
