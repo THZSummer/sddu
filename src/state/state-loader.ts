@@ -1,5 +1,6 @@
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
 import * as path from 'path';
+import { constants as fsConstants } from 'fs';
 import { scanTreeStructure } from './tree-scanner';
 import { StateV2_1_0 } from './schema-v2.0.0';
 
@@ -23,16 +24,25 @@ export class StateLoader {
    */
   public async loadAll(): Promise<Map<string, StateV2_1_0>> {
     const result = new Map<string, StateV2_1_0>();
-    const scanResult = scanTreeStructure(this.specRootDir);
+    const scanResult = await scanTreeStructure(this.specRootDir);
     const flatMap = scanResult.flatMap;
 
     for (const [featurePath, _] of flatMap) {
       // Extract the expected state file path for this feature
       const stateFilePath = path.join(featurePath, 'state.json');
       
-      if (fs.existsSync(stateFilePath)) {
+      let fileExists = false;
+      try {
+        await fs.access(stateFilePath, fsConstants.F_OK);
+        fileExists = true;
+      } catch {
+        // File does not exist
+      }
+
+      if (fileExists) {
         try {
-          const stateData = JSON.parse(fs.readFileSync(stateFilePath, 'utf8'));
+          const stateDataContent = await fs.readFile(stateFilePath, 'utf8');
+          const stateData = JSON.parse(stateDataContent);
           
           // Verify the state against our schema
           if (this.validateState(stateData)) {
@@ -84,7 +94,15 @@ export class StateLoader {
     // Cache expired or not available, load fresh
     const stateFilePath = path.join(featurePath, 'state.json');
     
-    if (!fs.existsSync(stateFilePath)) {
+    let fileExists = false;
+    try {
+      await fs.access(stateFilePath, fsConstants.F_OK);
+      fileExists = true;
+    } catch {
+      // File does not exist
+    }
+
+    if (!fileExists) {
       this.cache.set(featurePath, {
         state: null,
         timestamp: Date.now()
@@ -93,7 +111,8 @@ export class StateLoader {
     }
 
     try {
-      const stateData = JSON.parse(fs.readFileSync(stateFilePath, 'utf8'));
+      const stateDataContent = await fs.readFile(stateFilePath, 'utf8');
+      const stateData = JSON.parse(stateDataContent);
       
       if (this.validateState(stateData)) {
         this.cache.set(featurePath, {
@@ -132,13 +151,17 @@ export class StateLoader {
     // Ensure the directory exists
     const stateFilePath = path.join(featurePath, 'state.json');
     const dirPath = path.dirname(stateFilePath);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
+    
+    try {
+      await fs.mkdir(dirPath, { recursive: true });
+    } catch (error) {
+      console.error(`Error creating directory ${dirPath}: ${error.message}`);
+      return false;
     }
 
     try {
       // Write the new state to file
-      fs.writeFileSync(stateFilePath, JSON.stringify(state, null, 2));
+      await fs.writeFile(stateFilePath, JSON.stringify(state, null, 2));
       
       // Update cache
       this.cache.set(featurePath, {
@@ -165,20 +188,31 @@ export class StateLoader {
     const stateFilePath = path.join(featurePath, 'state.json');
 
     // Check if a state file already exists
-    if (fs.existsSync(stateFilePath)) {
+    let fileExists = false;
+    try {
+      await fs.access(stateFilePath, fsConstants.F_OK);
+      fileExists = true;
+    } catch {
+      // File doesn't exist, that's fine for create operation
+    }
+
+    if (fileExists) {
       console.error(`State file already exists at ${stateFilePath}`);
       return false;
     }
 
     // Ensure the directory exists
     const dirPath = path.dirname(stateFilePath);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
+    try {
+      await fs.mkdir(dirPath, { recursive: true });
+    } catch (error) {
+      console.error(`Error creating directory ${dirPath}: ${error.message}`);
+      return false;
     }
 
     try {
       // Write the new state to file
-      fs.writeFileSync(stateFilePath, JSON.stringify(initialState, null, 2));
+      await fs.writeFile(stateFilePath, JSON.stringify(initialState, null, 2));
       
       // Update cache
       this.cache.set(featurePath, {
@@ -216,7 +250,7 @@ export class StateLoader {
   /**
    * Gets the scan tree structure for the root director
    */
-  public getTreeStructure(): ReturnType<typeof scanTreeStructure> {
-    return scanTreeStructure(this.specRootDir);
+  public async getTreeStructure(): Promise<ReturnType<typeof scanTreeStructure>> {
+    return await scanTreeStructure(this.specRootDir);
   }
 }

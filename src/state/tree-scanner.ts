@@ -1,5 +1,6 @@
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
 import * as path from 'path';
+import { constants as fsConstants } from 'fs';
 
 // Result type for tree scanning
 export interface ScanResult {
@@ -21,12 +22,12 @@ export interface FeatureTreeNode {
  * Scans and returns the tree structure rooted at specRootDir
  * Identifies specs-tree-* directories recursively and creates a node map
  */
-export function scanTreeStructure(specRootDir: string): ScanResult {
+export async function scanTreeStructure(specRootDir: string): Promise<ScanResult> {
   const nodes: FeatureTreeNode[] = [];
   const flatMap: Map<string, FeatureTreeNode> = new Map();
 
   // Start scanning from the root directory
-  const rootNodes = scanDirectoryRecursively(specRootDir, 0, undefined);
+  const rootNodes = await scanDirectoryRecursively(specRootDir, 0, undefined);
   
   // Collect all nodes and populate the flatMap
   for (const node of rootNodes) {
@@ -39,12 +40,15 @@ export function scanTreeStructure(specRootDir: string): ScanResult {
 /**
  * Recursive helper to scan a directory and return feature tree nodes
  */
-function scanDirectoryRecursively(dir: string, level: number, parentPath?: string): FeatureTreeNode[] {
-  if (!fs.existsSync(dir)) {
+async function scanDirectoryRecursively(dir: string, level: number, parentPath?: string): Promise<FeatureTreeNode[]> {
+  try {
+    await fs.access(dir, fsConstants.F_OK);
+  } catch {
+    // Directory does not exist, return empty array
     return [];
   }
 
-  const entries = fs.readdirSync(dir);
+  const entries = await fs.readdir(dir);
   const featureNodeChildren: FeatureTreeNode[] = [];
 
   for (const entry of entries) {
@@ -70,10 +74,10 @@ function scanDirectoryRecursively(dir: string, level: number, parentPath?: strin
 
       // Look for nested specs-tree-* subdirectories within this feature's directory
       try {
-        const stat = fs.statSync(fullPath);
+        const stat = await fs.stat(fullPath);
         if (stat.isDirectory()) {
           // Recursively scan subdirectories for nested features
-          featureNode.children = scanDirectoryRecursively(fullPath, level + 1, fullPath);
+          featureNode.children = await scanDirectoryRecursively(fullPath, level + 1, fullPath);
         }
       } catch (error) {
         console.warn(`Failed to scan subdirectory ${fullPath}: ${error.message}`);

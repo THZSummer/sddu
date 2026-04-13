@@ -219,7 +219,7 @@ export class StateMachine {
     
     // Also check with tree scanner if we don't have the childrens explicitly in state
     try {
-      const treeStructure = this.stateLoader.getTreeStructure();
+      const treeStructure = await this.stateLoader.getTreeStructure();
       const node = treeStructure.flatMap.get(featurePath);
       if (node) {
         // We can also determine if it's a parent by checking tree structure

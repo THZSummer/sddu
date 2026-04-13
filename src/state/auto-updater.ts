@@ -72,21 +72,21 @@ export class AutoUpdater {
           // Extract the feature path including nesting levels
           const fullRelativePath = pathParts.slice(1).join('specs-tree-'); // Get the part after the first occurrence
           
-          // Find the actual feature path in the tree structure
-          if (targetPath.includes('specs-tree-')) {
-            const treeStructure = scanTreeStructure(this.specsDir);
-            // Try to locate the feature path that contains the targetFile
-            const potentialPaths = Array.from(treeStructure.flatMap.keys()).sort((a, b) => {
-              // Sort by length descending to match most specific path first
-              return b.length - a.length;
-            });
-            
-            for (const featurePath of potentialPaths) {
-              if (targetPath.startsWith(featurePath)) {
-                featuresToCheck = [featurePath];
-                break;
-              }
-            }
+         // Find the actual feature path in the tree structure
+         if (targetPath.includes('specs-tree-')) {
+           const treeStructure = await scanTreeStructure(this.specsDir);
+           // Try to locate the feature path that contains the targetFile
+           const potentialPaths = Array.from(treeStructure.flatMap.keys()).sort((a, b) => {
+             // Sort by length descending to match most specific path first
+             return b.length - a.length;
+           });
+           
+           for (const featurePath of potentialPaths) {
+             if (targetPath.startsWith(featurePath)) {
+               featuresToCheck = [featurePath];
+               break;
+             }
+           }
           }
         } else {
           // Fallback to the old method if the path pattern doesn't match
@@ -112,7 +112,7 @@ export class AutoUpdater {
    */
   async getAllFeatureIds(): Promise<string[]> {
     try {
-      const treeResult = scanTreeStructure(this.specsDir);
+      const treeResult = await scanTreeStructure(this.specsDir);
       const featurePaths = Array.from(treeResult.flatMap.keys());
       console.log(`Found features: ${featurePaths.join(', ')}`);
       return featurePaths;

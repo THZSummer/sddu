@@ -31,6 +31,7 @@ import {
 
 // Import Tree related functionality
 import { ParentStateManager } from './state/parent-state-manager';
+import { TreeStateValidator } from './state/tree-state-validator';
 
 // 导入 AutoUpdater 
 import { AutoUpdater } from './state/auto-updater';
@@ -277,6 +278,7 @@ export {
   DependencyChecker,
   StateLoader,         // New export for distributed state
   ParentStateManager,  // New export for parent feature management
+  TreeStateValidator,  // New export for tree state validation
   
   // Schema
   StateV2_0_0,

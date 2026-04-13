@@ -24,7 +24,7 @@ export interface SubFeatureMeta {
 export async function detectFeatureMode(featurePath: string): Promise<'single' | 'multi'> {
   // First, try to identify nested structures using tree scanner
   try {
-    const treeStructure = scanTreeStructure(path.dirname(featurePath));
+    const treeStructure = await scanTreeStructure(path.dirname(featurePath));
     
     // Check if this particular feature path has children  
     const featureNode = Array.from(treeStructure.flatMap.values()).find(node => 
@@ -162,7 +162,7 @@ export async function generateSubFeatureIndex(parentFeaturePath: string): Promis
   
   try {
     // Use tree scanner to get nested structure info
-    const treeStructure = scanTreeStructure(path.dirname(parentFeaturePath));
+    const treeStructure = await scanTreeStructure(path.dirname(parentFeaturePath));
     const featureNode = Array.from(treeStructure.flatMap.values()).find(node =>
       node.path === parentFeaturePath  
     );
@@ -232,7 +232,7 @@ export async function scanSubFeatures(parentFeaturePath: string): Promise<SubFea
   
   // Get the direct children from tree structure
   try {
-    const treeStructure = scanTreeStructure(path.dirname(parentFeaturePath));
+    const treeStructure = await scanTreeStructure(path.dirname(parentFeaturePath));
     const featureNode = Array.from(treeStructure.flatMap.values()).find(
       node => node.path === parentFeaturePath
     );

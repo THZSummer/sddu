@@ -24,8 +24,24 @@ import {
   ScanResult,
 } from './state/tree-scanner';
 
-// Import the ChildFeatureInfo from the correct module
+// Import the ChildFeatureInfo and tree validator types 
 import { ChildFeatureInfo } from './state/schema-v2.0.0';
+
+// Import tree state validator types
+import {
+  TreeValidationResult, 
+  TreeValidationError, 
+  TreeValidationWarning
+} from './state/tree-state-validator';
+export type {
+  TreeValidationResult, 
+  TreeValidationError, 
+  TreeValidationWarning 
+} from './state/tree-state-validator';
+
+// Additional import for the actual class
+import { TreeStateValidator } from './state/tree-state-validator';
+export { TreeStateValidator } from './state/tree-state-validator';
 
 export type {
   WorkflowStatus,

@@ -80,7 +80,7 @@ export class DependencyChecker {
 
     try {
       // Use TreeScanner to find all features in nested structure
-      const treeStructure = scanTreeStructure(this.specsDir);
+      const treeStructure = await scanTreeStructure(this.specsDir);
       
       for (const [featurePath, _] of treeStructure.flatMap.entries()) {
         try {

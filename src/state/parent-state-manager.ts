@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fsPromises from 'fs/promises';
 import * as path from 'path';
 import { StateV2_1_0, ChildFeatureInfo, validateStateV2_1_0 } from './schema-v2.0.0';
 import { TreeStructureError, ErrorCode } from '../errors';
@@ -90,13 +90,6 @@ export class ParentStateManager {
     }
   }
   
-  /**
-   * Discovers direct child features in a parent directory and gets their states
-   * 
-   * @param parentDir Path to the parent feature directory
-   * @param stateLoader Instance of StateLoader for reading child states
-   * @returns Array of child feature information
-   */
   private async discoverChildFeatures(parentDir: string, stateLoader: StateLoader): Promise<Array<{
     featurePath: string;
     featureName: string;
@@ -105,7 +98,7 @@ export class ParentStateManager {
   }>> {
     try {
       // We'll rely on stateLoader's getTreeStructure method to discover the tree
-      const treeStructure = stateLoader.getTreeStructure();
+      const treeStructure = await stateLoader.getTreeStructure();
       
       // Find the parent node in the tree and get its direct children
       const parentNode = Array.from(treeStructure.flatMap.values()).find(node => 
@@ -126,9 +119,12 @@ export class ParentStateManager {
         // Try to get more accurate modification date from a state file
         try {
           const statePath = path.join(childNode.path, 'state.json');
-          const stats = fs.existsSync(statePath) ? 
-            require('fs').statSync(statePath) : 
-            null;
+          let stats = null;
+          try {
+            stats = await fsPromises.stat(statePath);
+          } catch (error) {
+            // File does not exist or cannot be accessed, leave stats as null
+          }
           if (stats) {
             lastModifiedDate = stats.mtime.toISOString();
           }
