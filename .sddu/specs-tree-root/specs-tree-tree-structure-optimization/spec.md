@@ -182,6 +182,23 @@ P-001: 插件缺少分而治之的能力 ←── 核心根因
 | **FR-050** | 提供拆分原则文档 | 文档说明拆分粒度建议、父子关系规则 |
 | **FR-051** | 提供示例项目 | 包含 3 层嵌套 + 轻量父级/完整叶子的示例 |
 
+### 4.7 State 生成验证（解决 P0：Schema 版本格式不一致）
+
+| FR-ID | 需求 | 验收标准 |
+|-------|------|----------|
+| **FR-060** | state.json 创建时验证 v2.1.0 schema | 新 Feature 创建时必须生成完整 v2.1.0 格式，包含所有必填字段 |
+| **FR-061** | State Machine 初始化必填字段 | machine.ts 创建 state 时包含所有必填字段（feature, version, status, phase, phaseHistory, files, dependencies, depth） |
+| **FR-062** | version 格式统一为 'v2.1.0' | 所有代码路径生成的 version 必须带 'v' 前缀，与 `tree-state-validator.ts` 验证逻辑一致 |
+
+### 4.8 树形嵌套测试验证（解决 P1：无树形嵌套测试）
+
+| FR-ID | 需求 | 验收标准 |
+|-------|------|----------|
+| **FR-070** | E2E 测试包含树形嵌套场景 | 测试项目至少有 1 个父级 + 2 个子 Feature 目录 |
+| **FR-071** | 验证 childrens 数组正确填充 | 父级 state.json 的 childrens 包含子级信息（name, status, lastScannedAt） |
+| **FR-072** | 验证 depth 字段正确计算 | root=0, 第一层子=1, 第二层子=2，递归扫描正确计算 |
+| **FR-073** | 验证跨子树依赖解析 | 子 Feature 可引用其他子树的 Feature，依赖检查能正确解析完整路径 |
+
 ---
 
 ## 5. 非功能需求
@@ -255,10 +272,35 @@ specs-tree-root/                              # ← 轻量化父级：仅 discov
 | `phase` | **文件拥有者自身**当前阶段（父级/叶子通用） |
 | `childrens` | 数组类型，记录每个直接子 Feature 的简要信息（仅父级使用） |
 | `depth` | 当前层级深度（root=0, 第一层子=1, 以此类推） |
+| `version` | Schema 版本号，**必须为 `'v2.1.0'`**（带 'v' 前缀，与代码验证逻辑一致） |
 
 > ~~`parent`~~：树形结构本身隐含父子关系，上级目录即父级，无需显式存储。
 
-#### 6.2.2 完整 Schema 定义
+#### 6.2.2 字段必填性定义
+
+> **⚠️ 重要**：以下字段在 state.json 创建时必须存在，缺失将导致 schema 验证失败。
+
+| 字段 | 必填 | 类型 | 说明 |
+|------|------|------|------|
+| `feature` | ✅ 必填 | `string` | Feature 唯一标识（相对路径） |
+| `version` | ✅ 必填 | `'v2.1.0'` | Schema 版本号，**必须带 'v' 前缀** |
+| `status` | ✅ 必填 | `WorkflowStatus` | 工作流状态（discovered/specified/planned/tasked/building/reviewed/validated） |
+| `phase` | ✅ 必填 | `number` | 当前阶段（0-6） |
+| `phaseHistory` | ✅ 必填 | `PhaseHistory[]` | 阶段历史记录数组，记录每次阶段变更 |
+| `files` | ✅ 必填 | `object` | 文件引用对象 `{ spec, plan?, tasks?, readme?, review?, validation? }` |
+| `dependencies` | ✅ 必填 | `object` | 依赖关系 `{ on: string[], blocking: string[] }` |
+| `depth` | ✅ 必填 | `number` | 层级深度（root=0, 第一层子=1, 以此类推） |
+| `childrens` | ⚠️ 条件必填 | `ChildFeatureInfo[]` | **父级必填**（至少为空数组 `[]`），叶子节点可省略或为空数组 |
+| `name` | ⚠️ 可选 | `string` | Feature 显示名称 |
+| `metadata` | ⚠️ 可选 | `object` | 扩展元数据 |
+| `history` | ⚠️ 可选 | `array` | 操作历史记录 |
+| `createdAt` | ⚠️ 可选 | `string` | 创建时间（ISO 8601） |
+| `updatedAt` | ⚠️ 可选 | `string` | 更新时间（ISO 8601） |
+
+> **EC-012 处理**：如果创建时缺少必填字段，系统应自动填充默认值并记录警告日志。
+> **EC-013 处理**：如果 version 格式错误（如 `'2.1.0'` 缺少 `'v'`），自动修正为 `'v2.1.0'` 并记录警告。
+
+#### 6.2.3 完整 Schema 定义
 
 ```typescript
 // State Schema v2.1.0 - 树形结构增强版
@@ -295,7 +337,7 @@ export interface StateV2_1_0 extends StateV2_0_0 {
   // files, dependencies, metadata, history ...
 
   // === 新增：树形结构字段 ===
-  version: '2.1.0';                // Schema 版本号
+  version: 'v2.1.0';               // Schema 版本号（带 'v' 前缀，与代码验证逻辑一致）
 
   /** 子 Feature 简要信息数组（仅父级使用，叶子节点为空数组或省略） */
   childrens?: ChildFeatureInfo[];
@@ -305,13 +347,13 @@ export interface StateV2_1_0 extends StateV2_0_0 {
 }
 ```
 
-#### 6.2.3 父级 state.json 示例
+#### 6.2.4 父级 state.json 示例
 
 ```json
 {
   "feature": "specs-tree-root/specs-tree-[parent-feature]",
   "name": "父级 Feature 名称",
-  "version": "2.1.0",
+  "version": "v2.1.0",
   "status": "planned",
   "phase": 2,
   "depth": 1,
@@ -359,13 +401,13 @@ export interface StateV2_1_0 extends StateV2_0_0 {
 }
 ```
 
-#### 6.2.4 叶子 state.json 示例
+#### 6.2.5 叶子 state.json 示例
 
 ```json
 {
   "feature": "specs-tree-root/specs-tree-[parent-feature]/specs-tree-[sub-feature]",
   "name": "子 Feature A",
-  "version": "2.1.0",
+  "version": "v2.1.0",
   "status": "validated",
   "phase": 6,
   "depth": 2,
@@ -581,7 +623,7 @@ export async function createSubFeature(
   const stateContent = JSON.stringify({
     feature: `${path.relative(SPECS_TREE_ROOT, subFeatureDir)}`,
     name: name,
-    version: '2.1.0',
+    version: 'v2.1.0',
     status: 'discovered',
     phase: 0,
     depth: depth,
@@ -836,6 +878,9 @@ sddu/
 | **EC-009** | 同级目录下同时存在 `sub-features/` 和 `specs-tree-*` | 优先识别 `specs-tree-*` 为树形结构，忽略 `sub-features/` |
 | **EC-010** | 跨子树依赖路径格式错误 | 依赖解析器报错并提示正确格式 |
 | **EC-011** | Agent 生成文档时误判父级/叶子角色 | 允许用户显式指定 `--mode parent|leaf` 参数覆盖 |
+| **EC-012** | state.json 创建时缺少必填字段 | 自动填充默认值，记录警告日志 |
+| **EC-013** | version 格式错误（如 '2.1.0' 缺少 'v'） | 自动修正为 'v2.1.0'，记录警告 |
+| **EC-014** | phaseHistory 为空数组但 phase > 0 | 自动填充历史阶段记录 |
 
 ---
 
@@ -881,6 +926,8 @@ sddu/
 - [ ] **FR-030 ~ FR-033**: 跨子树依赖支持，依赖解析器处理完整路径，循环依赖检测
 - [ ] **FR-040 ~ FR-045**: Agent 模板升级，父级/叶子角色识别，拆分建议输出
 - [ ] **FR-050 ~ FR-051**: 拆分原则文档和示例项目
+- [ ] **FR-060 ~ FR-062**: state.json 创建时验证 v2.1.0 schema，version 格式统一为 'v2.1.0'
+- [ ] **FR-070 ~ FR-073**: E2E 测试包含树形嵌套场景，验证 childrens/depth/跨子树依赖
 
 ### 10.2 非功能验收
 

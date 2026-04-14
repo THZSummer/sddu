@@ -5,8 +5,8 @@
 | 元数据 | 值 |
 |--------|-----|
 | **Feature ID** | `tree-structure-optimization` |
-| **总任务数** | 12 个 |
-| **复杂度分布** | S 级 4 个，M 级 6 个，L 级 2 个 |
+| **总任务数** | 14 个 |
+| **复杂度分布** | S 级 5 个，M 级 8 个，L 级 1 个 |
 | **执行波次** | 4 个波次 |
 
 ---
@@ -30,7 +30,8 @@
 **验收标准**
 - [x] 新增 `ChildFeatureInfo` 接口
 - [x] `StateV2_1_0` 接口继承或扩展 v2.0.0，新增 `childrens` 数组和 `depth` 字段
-- [x] `validateStateV2_1_0()` 验证函数实现
+- [x] `version` 字段类型必须为字面量 `'v2.1.0'`（带 'v' 前缀）
+- [x] `validateStateV2_1_0()` 验证函数实现（包含 version 格式校验）
 - [x] TypeScript 编译通过，无类型错误
 
 **验证命令**
@@ -84,6 +85,9 @@ npx jest tree-scanner.test.ts
 - [x] `get(featurePath)` 读取单个 Feature 状态
 - [x] `set(featurePath, state)` 写入单个 Feature 状态
 - [x] `create(featurePath, initialState)` 创建新 Feature 状态
+- [x] `create()` 方法初始化 `version` 必须为 `'v2.1.0'`（FR-062）
+- [x] `create()` 方法确保所有必填字段存在：`phaseHistory`, `files`, `dependencies`, `depth`（FR-061）
+- [x] `create()` 方法创建后调用 `validateStateV2_1_0` 验证 schema 合规性（FR-060）
 - [x] 缓存机制（3 秒过期）
 - [x] 不再读写 `.sdd/state.json` 文件
 
@@ -251,6 +255,33 @@ npx tsc --noEmit
 
 ---
 
+#### TASK-013: State 生成验证增强
+
+**复杂度**: M
+**前置依赖**: TASK-003
+**执行波次**: 3
+
+**描述**
+实现 `TreeStateValidator.validateNewState`，处理 EC-012~EC-014 边界情况。确保所有新创建的 state.json 严格符合 v2.1.0 schema，对异常情况进行自动修复。
+
+**涉及文件**
+- [NEW] `src/state/tree-state-validator.ts`
+- [NEW] `src/state/tree-state-validator.test.ts`
+
+**验收标准**
+- [ ] 检测缺失必填字段并警告/自动填充默认值（EC-012）
+- [ ] 检测 `version` 非 `'v2.1.0'`（如 `'2.1.0'`）并自动修正为 `'v2.1.0'`（EC-013）
+- [ ] 检测 `phaseHistory` 为空数组但 `phase > 0` 并自动填充历史阶段记录（EC-014）
+- [ ] 所有自动修正操作记录警告日志
+- [ ] 单元测试覆盖率 > 80%
+
+**验证命令**
+```bash
+npx jest tree-state-validator.test.ts
+```
+
+---
+
 ### Wave 4: Agent 与集成
 
 #### TASK-010: 主路由 Agent 改造
@@ -329,6 +360,36 @@ npm run build
 
 ---
 
+#### TASK-014: 树形嵌套 E2E 测试脚本
+
+**复杂度**: M
+**前置依赖**: TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-006, TASK-007, TASK-008, TASK-009, TASK-010, TASK-011, TASK-012, TASK-013
+**执行波次**: 4
+
+**描述**
+增强 `scripts/e2e/basic/sddu-e2e.sh`，支持生成 1 父 + 2 子的树形测试结构，验证完整的树形嵌套场景（FR-070 ~ FR-073）。
+
+**涉及文件**
+- [MODIFY] `scripts/e2e/basic/sddu-e2e.sh`
+- [NEW] `scripts/e2e/basic/e2e-tree-scenario.sh`（可选，独立树形场景脚本）
+
+**验收标准**
+- [ ] 脚本能生成 `specs-tree-e2e-parent` 父级目录及两个子目录 `specs-tree-e2e-child-a`、`specs-tree-e2e-child-b`（FR-070）
+- [ ] 父级 `state.json` 的 `childrens` 数组包含两个子级信息（name, status, lastScannedAt）（FR-071）
+- [ ] 父级 `depth` = 0，子级 `depth` = 1（FR-072）
+- [ ] 子级 A 的 `dependencies.on` 包含子级 B 的完整路径（跨子树依赖）（FR-073）
+- [ ] 所有 `state.json` 的 `version` 为 `'v2.1.0'`
+- [ ] 所有必填字段完整存在
+- [ ] 运行脚本后 TreeScanner 能正确扫描出 1 父 2 子结构
+- [ ] 运行脚本后 StateLoader 能正确加载所有状态
+
+**验证命令**
+```bash
+bash scripts/e2e/basic/sddu-e2e.sh --scenario tree
+```
+
+---
+
 ## 依赖关系图
 
 ```
@@ -336,7 +397,8 @@ Wave 1:
   TASK-001 (Schema)
     ├── TASK-002 (TreeScanner)
     │     └── TASK-003 (StateLoader)
-    │           └── TASK-006 (ParentStateManager)
+    │           ├── TASK-006 (ParentStateManager)
+    │           └── TASK-013 (State Validator) ← 新增
     └── TASK-005 (Types/Errors)
 
 Wave 2:
@@ -346,9 +408,15 @@ Wave 3:
   TASK-007 (AutoUpdater) ← TASK-004
   TASK-008 (DependencyChecker) ← TASK-004
   TASK-009 (SubFeatureManager) ← TASK-002
+  TASK-013 (State Validator) ← TASK-003  ← 新增
 
 Wave 4:
   TASK-010 (Main Router) ← TASK-004
   TASK-011 (Discovery)
   TASK-012 (Index Integration) ← TASK-004, 007, 008, 010, 011
+  TASK-014 (E2E Tree Test) ← ALL TASK-001 ~ TASK-013  ← 新增
 ```
+
+> **变更说明**:
+> - 🔵 **TASK-013** 新增于 Wave 3，依赖 TASK-003（StateLoader），实现 State 生成验证增强
+> - 🔵 **TASK-014** 新增于 Wave 4，依赖所有核心任务，验证完整树形嵌套 E2E 场景

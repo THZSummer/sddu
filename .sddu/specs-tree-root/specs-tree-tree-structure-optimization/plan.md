@@ -171,7 +171,7 @@ export interface ChildFeatureInfo {
 export interface StateV2_1_0 {
   feature: string;
   name?: string;
-  version: '2.1.0';
+  version: 'v2.1.0';
   status: WorkflowStatus | 'drafting' | 'discovered' | string;
   phase: number;
   phaseHistory: PhaseHistory[];
@@ -515,7 +515,7 @@ export class StateLoader {
     const state: StateV2_1_0 = {
       feature: featurePath,
       name: initialState.name ?? featurePath,
-      version: '2.1.0',
+      version: 'v2.1.0',
       status: initialState.status ?? 'discovered',
       phase: initialState.phase ?? 0,
       phaseHistory: initialState.phaseHistory ?? [],
@@ -755,6 +755,173 @@ export class StateLoader {
 | `sddu-spec.md.hbs` | 增加父级/叶子角色识别，轻量化文档生成规则 |
 | `sddu-plan.md.hbs` | 增加父级子级协作关系描述指引 |
 
+### 3.12 State 生成验证（对应 FR-060 ~ FR-062）
+
+**目标**：确保新 Feature 创建时生成完整 v2.1.0 格式的 state.json。
+
+#### 3.12.1 StateLoader.create 增强
+
+```typescript
+// src/state/state-loader.ts - create 方法增强
+
+async create(featurePath: string, initialState: Partial<StateV2_1_0>): Promise<StateV2_1_0> {
+  const now = new Date().toISOString();
+
+  const state: StateV2_1_0 = {
+    feature: featurePath,
+    name: initialState.name ?? featurePath,
+    version: 'v2.1.0',  // 强制使用正确格式
+    status: initialState.status ?? 'discovered',
+    phase: initialState.phase ?? 0,
+    phaseHistory: initialState.phaseHistory ?? [{
+      phase: 0,
+      status: 'discovered',
+      timestamp: now,
+      triggeredBy: 'system'
+    }],
+    files: initialState.files ?? { spec: 'spec.md' },
+    dependencies: { on: [], blocking: [] },
+    childrens: initialState.childrens ?? [],
+    depth: initialState.depth ?? 0,
+    createdAt: initialState.createdAt ?? now,
+    updatedAt: now,
+    ...initialState
+  };
+
+  // FR-060: 创建时验证 v2.1.0 schema
+  const { validateStateV2_1_0 } = await import('./schema-v2.0.0');
+  if (!validateStateV2_1_0(state)) {
+    throw new Error(`Invalid state.json schema for ${featurePath}`);
+  }
+
+  // FR-062: 确保 version 格式正确
+  if (state.version !== 'v2.1.0') {
+    console.warn(`Auto-correcting version from '${state.version}' to 'v2.1.0'`);
+    state.version = 'v2.1.0';
+  }
+
+  await this.set(featurePath, state);
+  return state;
+}
+```
+
+#### 3.12.2 TreeStateValidator 增强
+
+```typescript
+// src/state/tree-state-validator.ts - 新增验证方法
+
+/**
+ * FR-060: 验证 state.json 创建时的 schema 合规性
+ */
+export async function validateNewState(state: unknown, featurePath: string): Promise<ValidationResult> {
+  const issues: string[] = [];
+
+  // 必填字段检查
+  const requiredFields = ['feature', 'version', 'status', 'phase', 'phaseHistory', 'files', 'dependencies'];
+  for (const field of requiredFields) {
+    if (!(state as any)[field]) {
+      issues.push(`Missing required field: ${field}`);
+    }
+  }
+
+  // version 格式检查
+  if ((state as any).version !== 'v2.1.0') {
+    issues.push(`Invalid version format: expected 'v2.1.0', got '${(state as any).version}'`);
+  }
+
+  // phaseHistory 检查
+  if (!Array.isArray((state as any).phaseHistory) || (state as any).phaseHistory.length === 0) {
+    issues.push('phaseHistory must be a non-empty array');
+  }
+
+  return {
+    valid: issues.length === 0,
+    issues,
+    featurePath
+  };
+}
+```
+
+### 3.13 树形嵌套测试验证（对应 FR-070 ~ FR-073）
+
+**目标**：确保 E2E 测试覆盖树形嵌套场景。
+
+#### 3.13.1 测试目录结构设计
+
+```
+.sddu/specs-tree-root/
+├── specs-tree-e2e-parent/           # 父级 Feature（FR-070）
+│   ├── state.json                   # depth: 0, childrens: [...]
+│   ├── spec.md
+│   ├── plan.md
+│   ├── specs-tree-e2e-child-a/      # 子 Feature A（FR-071）
+│   │   ├── state.json               # depth: 1
+│   │   └── ...
+│   └── specs-tree-e2e-child-b/      # 子 Feature B（FR-072）
+│       ├── state.json               # depth: 1
+│       └── ...
+```
+
+#### 3.13.2 测试用例设计
+
+| 测试 ID | 对应 FR | 验证内容 |
+|---------|---------|----------|
+| T-070 | FR-070 | E2E 测试创建 1 父 + 2 子的树形结构 |
+| T-071 | FR-071 | 父级 childrens 数组包含 2 个子级信息 |
+| T-072 | FR-072 | 子级 depth = 1，父级 depth = 0 |
+| T-073 | FR-073 | 子 Feature A 依赖子 Feature B（跨子树） |
+
+#### 3.13.3 E2E 测试脚本增强
+
+```bash
+# scripts/e2e/basic/sddu-e2e.sh 增强
+
+# 新增：创建树形嵌套测试场景
+create_tree_test_scenario() {
+  local parent_dir="$1/specs-tree-e2e-parent"
+  mkdir -p "$parent_dir"
+
+  # 创建父级 state.json
+  cat > "$parent_dir/state.json" << EOF
+  {
+    "feature": "specs-tree-e2e-parent",
+    "version": "v2.1.0",
+    "status": "planned",
+    "phase": 2,
+    "depth": 0,
+    "childrens": [],
+    ...
+  }
+  EOF
+
+  # 创建子 Feature A 和 B
+  for child in "child-a" "child-b"; do
+    mkdir -p "$parent_dir/specs-tree-e2e-$child"
+    cat > "$parent_dir/specs-tree-e2e-$child/state.json" << EOF
+    {
+      "feature": "specs-tree-e2e-parent/specs-tree-e2e-$child",
+      "version": "v2.1.0",
+      "status": "discovered",
+      "phase": 0,
+      "depth": 1,
+      ...
+    }
+    EOF
+  done
+
+  # 设置跨子树依赖（FR-073）
+  cat > "$parent_dir/specs-tree-e2e-child-a/state.json" << EOF
+  {
+    ...
+    "dependencies": {
+      "on": ["specs-tree-e2e-parent/specs-tree-e2e-child-b"],
+      "blocking": []
+    }
+  }
+  EOF
+}
+```
+
 ---
 
 ## 4. 文件影响分析
@@ -850,7 +1017,9 @@ Phase 4: 集成与完善（1-2 天）
   ├── 4.1 discovery workflow 拆分建议
   ├── 4.2 types.ts / errors.ts 扩展
   ├── 4.3 Agent 模板修改
-  └── 4.4 index.ts 集成
+  ├── 4.4 index.ts 集成
+  ├── 4.5 State 生成验证（FR-060 ~ FR-062）
+  └── 4.6 树形嵌套 E2E 测试（FR-070 ~ FR-073）
 ```
 
 ---
@@ -876,6 +1045,20 @@ Phase 4: 集成与完善（1-2 天）
 - [ ] 无循环依赖引入
 - [ ] 现有 11 个 Feature 目录结构不受影响
 
+### 7.3 State 生成验证验收
+
+- [ ] 新 Feature 创建时 state.json 包含所有必填字段
+- [ ] version 字段格式为 `'v2.1.0'`
+- [ ] phaseHistory 初始化为非空数组
+- [ ] 缺少必填字段时自动填充默认值并记录警告
+
+### 7.4 树形嵌套测试验收
+
+- [ ] E2E 测试包含 1 父 + 2 子的树形场景
+- [ ] 父级 childrens 数组正确填充子级信息
+- [ ] depth 字段正确计算（父级=0，子级=1）
+- [ ] 跨子树依赖解析正确
+
 ---
 
 ## 8. 架构决策记录 (ADR)
@@ -895,7 +1078,7 @@ Phase 4: 集成与完善（1-2 天）
 
 **后果**:
 - 所有 state.json 统一使用 v2.1.0 schema
-- 版本字段固定为 `'2.1.0'`
+- 版本字段固定为 `'v2.1.0'`（带 'v' 前缀）
 
 ### ADR-016: TreeScanner 为纯模块
 

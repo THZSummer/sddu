@@ -1,0 +1,132 @@
+{
+  "feature": "tree-structure-optimization",
+  "totalTasks": 14,
+  "complexityDistribution": { "S": 5, "M": 8, "L": 1 },
+  "waves": 4,
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "Schema v2.1.0 升级",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "files": [{ "action": "MODIFY", "path": "src/state/schema-v2.0.0.ts" }]
+    },
+    {
+      "id": "TASK-002",
+      "name": "TreeScanner 实现 + 测试",
+      "complexity": "S",
+      "wave": 1,
+      "dependencies": ["TASK-001"],
+      "files": [
+        { "action": "NEW", "path": "src/state/tree-scanner.ts" },
+        { "action": "NEW", "path": "src/state/tree-scanner.test.ts" }
+      ]
+    },
+    {
+      "id": "TASK-003",
+      "name": "StateLoader 实现",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": ["TASK-001", "TASK-002"],
+      "files": [{ "action": "NEW", "path": "src/state/state-loader.ts" }]
+    },
+    {
+      "id": "TASK-004",
+      "name": "StateMachine 重构为分布式",
+      "complexity": "L",
+      "wave": 2,
+      "dependencies": ["TASK-003"],
+      "files": [{ "action": "MODIFY", "path": "src/state/machine.ts" }]
+    },
+    {
+      "id": "TASK-005",
+      "name": "Types/Errors 扩展",
+      "complexity": "S",
+      "wave": 2,
+      "dependencies": ["TASK-001"],
+      "files": [
+        { "action": "MODIFY", "path": "src/types.ts" },
+        { "action": "MODIFY", "path": "src/errors.ts" }
+      ]
+    },
+    {
+      "id": "TASK-006",
+      "name": "ParentStateManager 实现",
+      "complexity": "S",
+      "wave": 2,
+      "dependencies": ["TASK-002", "TASK-003"],
+      "files": [{ "action": "NEW", "path": "src/state/parent-state-manager.ts" }]
+    },
+    {
+      "id": "TASK-007",
+      "name": "AutoUpdater 递归扫描改造",
+      "complexity": "M",
+      "wave": 3,
+      "dependencies": ["TASK-004"],
+      "files": [{ "action": "MODIFY", "path": "src/state/auto-updater.ts" }]
+    },
+    {
+      "id": "TASK-008",
+      "name": "DependencyChecker 跨子树改造",
+      "complexity": "M",
+      "wave": 3,
+      "dependencies": ["TASK-004"],
+      "files": [{ "action": "MODIFY", "path": "src/state/dependency-checker.ts" }]
+    },
+    {
+      "id": "TASK-009",
+      "name": "SubFeatureManager 树形改造",
+      "complexity": "S",
+      "wave": 3,
+      "dependencies": ["TASK-002"],
+      "files": [{ "action": "MODIFY", "path": "src/utils/subfeature-manager.ts" }]
+    },
+    {
+      "id": "TASK-010",
+      "name": "主路由 Agent 改造",
+      "complexity": "M",
+      "wave": 4,
+      "dependencies": ["TASK-004"],
+      "files": [{ "action": "MODIFY", "path": "src/templates/agents/sddu.md.hbs" }]
+    },
+    {
+      "id": "TASK-011",
+      "name": "DiscoveryWorkflow 拆分建议",
+      "complexity": "S",
+      "wave": 4,
+      "dependencies": [],
+      "files": [{ "action": "MODIFY", "path": "src/discovery/workflow-engine.ts" }]
+    },
+    {
+      "id": "TASK-012",
+      "name": "Index 集成与整体联调",
+      "complexity": "M",
+      "wave": 4,
+      "dependencies": ["TASK-004", "TASK-007", "TASK-008", "TASK-010", "TASK-011"],
+      "files": [{ "action": "MODIFY", "path": "src/index.ts" }]
+    },
+    {
+      "id": "TASK-013",
+      "name": "State 生成验证增强",
+      "complexity": "M",
+      "wave": 3,
+      "dependencies": ["TASK-003"],
+      "files": [
+        { "action": "NEW", "path": "src/state/tree-state-validator.ts" },
+        { "action": "NEW", "path": "src/state/tree-state-validator.test.ts" }
+      ]
+    },
+    {
+      "id": "TASK-014",
+      "name": "树形嵌套 E2E 测试脚本",
+      "complexity": "M",
+      "wave": 4,
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-010", "TASK-011", "TASK-012", "TASK-013"],
+      "files": [
+        { "action": "MODIFY", "path": "scripts/e2e/basic/sddu-e2e.sh" },
+        { "action": "NEW", "path": "scripts/e2e/basic/e2e-tree-scenario.sh" }
+      ]
+    }
+  ]
+}

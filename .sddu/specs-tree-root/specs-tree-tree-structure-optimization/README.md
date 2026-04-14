@@ -6,9 +6,10 @@ v2.4.0 Feature 拆分与树形结构优化 — 实现 Feature 分而治之能力
 
 **Feature ID**: `tree-structure-optimization`  
 **版本**: 2.4.0  
-**状态**: planned ✅  
-**阶段**: 2/7 (Plan)  
+**状态**: validated ✅  
+**阶段**: 6/7 (Validate)  
 **创建日期**: 2026-04-12  
+**最后更新**: 2026-04-13  
 **优先级**: P0
 
 ---
@@ -22,7 +23,10 @@ specs-tree-tree-structure-optimization/
 ├── spec.md                # Feature 规范 (2.4.0)
 ├── spec.json              # 规范元数据
 ├── plan.md                # 技术规划 (2.4.0)
-└── state.json             # 状态文件 (planned, phase 2)
+├── tasks.md               # 任务分解 (14 个任务, 4 波次)
+├── tasks.json             # 任务元数据 (JSON)
+├── validation-report.md   # 验证报告
+└── state.json             # 状态文件 (validated, phase 6)
 ```
 
 ---
@@ -35,7 +39,10 @@ specs-tree-tree-structure-optimization/
 | spec.md | Feature 规范 — 树形结构设计、state.json v2.1.0 Schema、技术设计方案 | ✅ specified |
 | spec.json | 规范元数据 — goals、userStories、requirements 结构化摘要 | ✅ 存在 |
 | plan.md | 技术规划 — 方案对比、架构影响、文件影响、实施顺序、3 个 ADR | ✅ planned |
-| state.json | 状态文件 — planned (phase 2), depth=1 | ✅ 存在 |
+| tasks.md | 任务分解 — 14 个任务 (S×5, M×8, L×1), 4 个波次, 含 TASK-013/014 | ✅ tasked |
+| tasks.json | 任务元数据 — JSON 格式任务清单 (14 个任务) | ✅ 存在 |
+| validation-report.md | 验证报告 — 最终验证结果 | ✅ validated |
+| state.json | 状态文件 — validated (phase 6), depth=1 | ✅ validated |
 
 ---
 
@@ -94,13 +101,13 @@ specs-tree-root/                              # ← 轻量化父级
     ↓
 ✅ Plan      → 2026-04-12 完成 (planned)
     ↓
-⏳ Tasks     → 待执行
+✅ Tasks     → 2026-04-12 完成 (tasked)
     ↓
-⏳ Build     → 待执行
+✅ Build     → 2026-04-13 完成 (building)
     ↓
-⏳ Review    → 待执行
+✅ Review    → 2026-04-13 完成 (reviewed)
     ↓
-⏳ Validate  → 待执行
+✅ Validate  → 2026-04-13 完成 (validated)
 ```
 
 ---
@@ -134,4 +141,4 @@ specs-tree-root/                              # ← 轻量化父级
 
 ---
 
-*最后更新：2026-04-12 | 状态：planned | 阶段：2/7*
+*最后更新：2026-04-13 | 状态：validated | 阶段：6/7*

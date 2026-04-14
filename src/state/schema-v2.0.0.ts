@@ -28,14 +28,7 @@ export interface ChildFeatureInfo {
   lastModified: string;    // Last modified timestamp
 }
 
-// Extended State Schema v2.1.0 supporting tree structure
-export interface StateV2_1_0 extends Omit<StateV2_0_0, 'version'> {
-  version: 'v2.1.0';      // Updated schema version
-  depth?: number;         // Depth in the tree (0 for root, 1 for first level, etc.)
-  childrens?: ChildFeatureInfo[];    // Direct child features
-}
-
-// State Schema v2.0.0
+// State Schema v2.0.0 - keeping the original schema as foundation
 export interface StateV2_0_0 {
   // Basic information
   feature: string;         // Feature ID (required)
@@ -80,6 +73,28 @@ export interface StateV2_0_0 {
     comment?: string;
     version?: string;
   }>;
+}
+
+// Extended State Schema v2.1.0 supporting tree structure
+export interface StateV2_1_0 extends Omit<StateV2_0_0, 'version'> {
+  version: 'v2.1.0';         // Updated schema version with 'v' prefix - FIX for EC-013
+  depth?: number;             // Depth in the tree (0 for root, 1 for first level, etc.)
+  childrens?: ChildFeatureInfo[];    // Direct child features
+  
+  // Adding the required fields (fix for EC-012)
+  phaseHistory: PhaseHistory[];      // Required field
+  files: {
+    spec: string;
+    plan?: string;
+    tasks?: string;
+    readme?: string;
+    review?: string;
+    validation?: string;
+  };
+  dependencies: {
+    on: string[];       // Features this depends on
+    blocking: string[]; // Features blocked by this feature
+  };
 }
 
 // Validation function for v2.0.0

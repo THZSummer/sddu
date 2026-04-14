@@ -5,7 +5,7 @@
 
 import { scanTreeStructure, FeatureTreeNode, isParentFeature } from './tree-scanner';
 import { StateLoader } from './state-loader';
-import { StateV2_1_0, validateStateV2_1_0 } from './schema-v2.0.0';
+import { StateV2_1_0, validateStateV2_1_0, WorkflowStatus, PhaseHistory } from './schema-v2.0.0';
 import { TreeStructureError, ErrorCode } from '../errors';
 import * as path from 'path';
 
@@ -34,6 +34,151 @@ export class TreeStateValidator {
   
   constructor(stateLoader: StateLoader) {
     this.stateLoader = stateLoader;
+  }
+
+  /**
+   * Validates a new state object before creation/setting, and repairs common issues
+   * Handles EC-012: Missing required fields
+   * Handles EC-013: Incorrect format version ('2.1.0' vs 'v2.1.0')
+   * Handles EC-014: Empty phaseHistory when phase > 0
+   */
+  public validateNewState(state: any, featurePath?: string): { isValid: boolean; repairedState: StateV2_1_0; warnings: string[] } {
+    // Track any warnings for repairs made
+    const warnings: string[] = [];
+    let repairedState: StateV2_1_0 = { ...state };  // Start with original state
+    
+    // Handle EC-013: Ensure version field is properly formatted as 'v2.1.0' 
+    if (state.version) {
+      if (state.version !== 'v2.1.0') {
+        const oldVersion = state.version;
+        if (typeof state.version === 'string' && state.version === '2.1.0') {
+          // Specifically fix '2.1.0' to 'v2.1.0' format
+          repairedState.version = 'v2.1.0';
+          warnings.push(`Fixed incorrect version format from '${oldVersion}' to 'v2.1.0' at ${featurePath || 'unknown'}`);
+        } else if (typeof state.version === 'string' && state.version.match(/^\d+\.\d+\.\d+$/)) {
+          // Handle other numerical-only versions, default to v2.1.0 to be safe
+          repairedState.version = 'v2.1.0';
+          warnings.push(`Fixed numerical-only version by converting to 'v2.1.0' at ${featurePath || 'unknown'}, was '${oldVersion}'`);
+        } else if (typeof state.version === 'string' && state.version.startsWith('v') && state.version !== 'v2.1.0') {
+          // Different version number with 'v' prefix, convert to 2.1.0
+          repairedState.version = 'v2.1.0';
+          warnings.push(`Updated version from '${oldVersion}' to 'v2.1.0' at ${featurePath || 'unknown'}`);
+        } else {
+          // Some other invalid version - override to correct format
+          repairedState.version = 'v2.1.0';
+          warnings.push(`Set version to 'v2.1.0' at ${featurePath || 'unknown'}, was '${oldVersion}'`);
+        }
+      }
+    } else {
+      // EC-012: Missing version field
+      repairedState.version = 'v2.1.0';
+      warnings.push(`Added missing version field as 'v2.1.0' at ${featurePath || 'unknown'}`);
+    }
+    
+    // EC-012: Check for missing required fields and add defaults
+    // Ensure required fields are present
+    if (!repairedState.feature && state.feature) {
+      repairedState.feature = state.feature;
+    } else if (!repairedState.feature) {
+      // This is a major problem, cannot proceed without a feature ID
+      repairedState.feature = featurePath ? path.basename(featurePath) : 'unknown-feature';
+      warnings.push(`Added missing state.feature field from path, this is critical for identification in ${featurePath || 'unknown'}`);
+    }
+    
+    if (typeof repairedState.phase !== 'number') {
+      if (typeof state.phase === 'number') {
+        repairedState.phase = state.phase;
+      } else {
+        repairedState.phase = 1;
+      }
+      warnings.push(`Set default phase to ${repairedState.phase} at ${featurePath || 'unknown'}`);
+    }
+    
+    if (typeof repairedState.status !== 'string' || !repairedState.status) {
+      if (typeof state.status === 'string' && state.status) {
+        repairedState.status = state.status;
+      } else {
+        repairedState.status = 'specified';
+      }
+      warnings.push(`Set default status to '${repairedState.status}' at ${featurePath || 'unknown'}`);
+    }
+    
+    // EC-012: Check for missing dependencies field
+    if (!repairedState.dependencies || typeof repairedState.dependencies !== 'object') {
+      repairedState.dependencies = state.dependencies || { 
+        on: state.dependencies?.on || [], 
+        blocking: state.dependencies?.blocking || [] 
+      };
+      warnings.push(`Added default empty dependencies object at ${featurePath || 'unknown'}`);
+    } else {
+      // Make sure dependencies has proper fallback for on/blocking
+      if (!repairedState.dependencies.on) {
+        repairedState.dependencies.on = [];
+        warnings.push(`Added default empty 'on' dependencies array at ${featurePath || 'unknown'}`);
+      }
+      if (!repairedState.dependencies.blocking) {
+        repairedState.dependencies.blocking = [];
+        warnings.push(`Added default empty 'blocking' dependencies array at ${featurePath || 'unknown'}`);
+      }
+    }
+    
+    // EC-012: Similar for required files field
+    if (!repairedState.files || typeof repairedState.files !== 'object') {
+      const basename = featurePath ? path.basename(featurePath) : 'unknown';
+      repairedState.files = state.files || { 
+        spec: `${basename}/spec.md`  // At minimum, we need a placeholder
+      };
+      if (!repairedState.files.spec) {
+        repairedState.files.spec = `${basename}/spec.md`;
+        warnings.push(`Added default 'spec' file path at ${featurePath || 'unknown'}`);
+      }
+      warnings.push(`Added default files object at ${featurePath || 'unknown'}`);
+    }
+    
+    // EC-012: Make sure phaseHistory is an array (empty if not specified)
+    if (!Array.isArray(repairedState.phaseHistory)) {
+      repairedState.phaseHistory = state.phaseHistory && Array.isArray(state.phaseHistory) 
+        ? [...state.phaseHistory] 
+        : [];
+      warnings.push(`Initialized empty phaseHistory array at ${featurePath || 'unknown'}`);
+    }
+    
+    // EC-014: If phase > 0 but phaseHistory is empty, add initial record
+    if (repairedState.phase > 0 && Array.isArray(repairedState.phaseHistory) && repairedState.phaseHistory.length === 0) {
+      // Ensure status is a valid WorkflowStatus - use type assertion since state.status is 'any' but we know it should conform
+      const validWorkflowStatuses: WorkflowStatus[] = ['specified', 'planned', 'tasked', 'building', 'reviewed', 'validated']; 
+      const validatedStatus: WorkflowStatus = validWorkflowStatuses.includes(repairedState.status as WorkflowStatus) 
+        ? repairedState.status as WorkflowStatus 
+        : 'specified';  // Default fallback status
+      
+      const newRecord: PhaseHistory = {
+        phase: repairedState.phase,
+        status: validatedStatus,
+        timestamp: new Date().toISOString(),
+        triggeredBy: 'TreeStateValidator.fixEmptyPhaseHistory'
+      };
+      
+      if (state.phaseHistory && Array.isArray(state.phaseHistory)) {
+        repairedState.phaseHistory = [ ...state.phaseHistory, newRecord ];
+        if (state.phaseHistory.length > 0) {
+          warnings.push(`Added initial phase history record for phase ${repairedState.phase}, but also kept existing entries at ${featurePath || 'unknown'}`);
+        } else {
+          warnings.push(`Added initial phase history record for phase ${repairedState.phase} at ${featurePath || 'unknown'}`);
+        }
+      } else {
+        repairedState.phaseHistory = [newRecord];
+        warnings.push(`Added initial phase history record for phase ${repairedState.phase} at ${featurePath || 'unknown'}`);
+      }
+    }
+      
+    // Finally validate against the schema
+    const isValid = validateStateV2_1_0(repairedState);
+    
+    return {
+      isValid,
+      repairedState,
+      warnings
+    };
   }
 
   /**
