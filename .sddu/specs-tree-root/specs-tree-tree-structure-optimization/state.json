@@ -1,0 +1,86 @@
+{
+  "feature": "specs-tree-tree-structure-optimization",
+  "name": "v2.4.0 Feature 拆分与树形结构优化",
+  "version": "v2.1.0",
+  "status": "validated",
+  "phase": 6,
+  "depth": 1,
+  "discoveredDate": "2026-04-12",
+  "priority": "P0",
+  "description": "实现 Feature 分而治之能力：支持无限层树形嵌套（类比文件系统），定义「轻量化父级」vs「完整叶子」规范，支持状态汇聚与跨子树依赖检查",
+  "goals": [
+    "FR-001: 实现 Feature 拆分能力",
+    "FR-002: 支持无限层树形嵌套（技术上不限制深度）",
+    "FR-003: 全新树形设计，无需为旧版平级做特殊兼容（平级是深度为1的树形特例，无需背负历史债）",
+    "FR-004: 定义轻量化父级规范（仅 discovery/spec/plan/README）",
+    "FR-005: 定义完整叶子规范（完整 6 阶段工作流）",
+    "FR-006: 混合状态管理（父级 status 为自身状态，childrens 记录各子级状态）",
+    "FR-007: 支持跨子树依赖关系",
+    "FR-008: 统一 state.json schema 为 v2.1.0（新增 childrens 数组、depth 字段）"
+  ],
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md",
+    "plan": "plan.md"
+  },
+  "dependencies": {
+    "on": [],
+    "blocking": []
+  },
+  "phaseHistory": [
+    {
+      "phase": 0,
+      "status": "discovered",
+      "timestamp": "2026-04-12T00:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent"
+    },
+    {
+      "phase": 1,
+      "status": "specified",
+      "timestamp": "2026-04-12T00:00:00.000Z",
+      "triggeredBy": "sddu-spec-agent"
+    },
+    {
+      "phase": 2,
+      "status": "planned",
+      "timestamp": "2026-04-12T00:00:00.000Z",
+      "triggeredBy": "sddu-plan-agent"
+    },
+    {
+      "phase": 3,
+      "status": "tasked",
+      "timestamp": "2026-04-12T00:00:00.000Z",
+      "triggeredBy": "sddu-tasks-agent"
+    },
+    {
+      "phase": 4,
+      "status": "building",
+      "timestamp": "2026-04-13T12:00:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "Fixed P0 review issues: schema version, async APIs, tree-state-validator"
+    },
+    {
+      "phase": 4,
+      "status": "building",
+      "timestamp": "2026-04-13T15:30:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "Removed unused sync fs import from parent-state-manager.ts"
+    },
+    {
+      "phase": 5,
+      "status": "reviewed",
+      "timestamp": "2026-04-13T16:00:00.000Z",
+      "triggeredBy": "sddu-review-agent",
+      "comment": "Code review completed with conditional pass (9.0/10) - All P0 issues resolved"
+    },
+    {
+      "phase": 6,
+      "status": "validated",
+      "timestamp": "2026-04-13T23:00:00.000Z",
+      "triggeredBy": "sddu-validate-agent",
+      "comment": "Final validation completed - all requirements satisfied and implementation verified"
+    }
+  ],
+  "createdAt": "2026-04-12T00:00:00.000Z",
+  "updatedAt": "2026-04-13T23:00:00.000Z"
+}

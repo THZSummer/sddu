@@ -26,6 +26,8 @@ export interface DiscoveryContext {
   data: Record<string, any>;
   /** 进度追踪 */
   progress?: DiscoveryProgress;
+  /** 功能拆分建议 */
+  splitSuggestions?: string[];
 }
 
 export interface DiscoveryProgress {

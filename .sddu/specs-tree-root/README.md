@@ -48,9 +48,9 @@
 | 目录 | 说明 |
 |------|------|
 | [architecture/](./architecture/README.md) | 架构决策记录目录 |
-| [architecture/adr/](./architecture/adr/README.md) | ADR 文档集合 (ADR-001 ~ ADR-014) |
+| [architecture/adr/](./architecture/adr/README.md) | ADR 文档集合 (ADR-001 ~ ADR-017) |
 
-### 已完成 Feature 目录（11 个）
+### 已完成 Feature 目录（12 个）
 
 | 目录 | 说明 | 状态 |
 |------|------|------|
@@ -64,7 +64,12 @@
 | [specs-tree-sdd-workflow-state-optimization/](./specs-tree-sdd-workflow-state-optimization/README.md) | 工作流状态优化 | ✅ validated |
 | [specs-tree-sdd-plugin-roadmap/](./specs-tree-sdd-plugin-roadmap/README.md) | Roadmap 规划专家 | ✅ validated |
 | [specs-tree-sdd-plugin-baseline/](./specs-tree-sdd-plugin-baseline/README.md) | 插件基线建立 | ✅ completed |
+| [specs-tree-tree-structure-optimization/](./specs-tree-tree-structure-optimization/README.md) | v2.4.0 树形结构优化（P0） | ✅ validated |
 | [architecture/](./architecture/README.md) | 架构决策记录目录 | ✅ active |
+
+### 进行中 Feature 目录（0 个）
+
+_当前无进行中的 Feature_
 
 ## 规范文件说明
 

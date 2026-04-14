@@ -1,6 +1,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { existsSync, statSync } from 'fs';
+import { scanTreeStructure } from '../state/tree-scanner';
 
 /**
  * 子 Feature 元数据接口
@@ -14,241 +15,310 @@ export interface SubFeatureMeta {
 }
 
 /**
- * 检测 Feature 模式（单模块 vs 多子 Feature）
+ * 检测 Feature 模式（父/叶结构），通过检查嵌套的 specs-tree-* 目录
+ * 优先使用 specs-tree-* 模式而非旧的 sub-features/
  * 
  * @param featurePath Feature 的根目录路径
- * @returns 'single' - 单模块模式, 'multi' - 多子 Feature 模式
+ * @returns 'single' - 叶节点模式, 'multi' - 父节点模式
  */
 export async function detectFeatureMode(featurePath: string): Promise<'single' | 'multi'> {
-  const subFeaturesPath = path.join(featurePath, 'sub-features');
-  
+  // First, try to identify nested structures using tree scanner
   try {
-    // 检查是否有 sub-features 目录
-    const dirExists = await pathExists(subFeaturesPath);
+    const treeStructure = await scanTreeStructure(path.dirname(featurePath));
     
-    if (dirExists) {
-      // 检查 sub-features 目录下有没有非隐藏的子目录
-      const items = await fs.readdir(subFeaturesPath);
-      const subDirectories = items.filter(item => {
-        const itemPath = path.join(subFeaturesPath, item);
-        const stat = statSync(itemPath);  // 使用同步 fs.statSync
-        return stat.isDirectory() && !item.startsWith('.');
-      });
-
-      if (subDirectories.length > 0) {
-        return 'multi';
+    // Check if this particular feature path has children  
+    const featureNode = Array.from(treeStructure.flatMap.values()).find(node => 
+      node.path === featurePath
+    );
+    
+    if (featureNode && featureNode.children.length > 0) {
+      return 'multi'; // Has children, so it's a parent feature  
+    }
+  } catch (error) {
+    console.warn(`Failed to scan tree structure for ${featurePath}: `, error?.message);
+  }
+  
+  // Alternative check: look for specs-tree-* subdirectories directly
+  try {
+    const items = await fs.readdir(featurePath);
+    for (const item of items) {
+      if (item.startsWith('specs-tree-')) {
+        const itemPath = path.join(featurePath, item);
+        const stat = statSync(itemPath);
+        if (stat.isDirectory()) {
+          return 'multi'; // Has specs-tree-* subdirectories - it's a parent
+        }
       }
     }
   } catch (error) {
-    // 如果 sub-features 目录不存在或其他错误，认为是单模块模式
+    console.warn(`Failed to check subdirectories for ${featurePath}: `, error?.message);
+  }
+  
+  // Check for old sub-features as fallback if new pattern isn't found
+  const oldSubFeaturesPath = path.join(featurePath, 'sub-features');
+  try {
+    const oldDirExists = await pathExists(oldSubFeaturesPath);
+    if (oldDirExists) {
+      // But only consider this as multi if it has actual subdirs
+      const items = await fs.readdir(oldSubFeaturesPath);
+      for (const item of items) {
+        const itemPath = path.join(oldSubFeaturesPath, item);
+        const stat = statSync(itemPath); 
+        if (stat.isDirectory() && !item.startsWith('.')) {
+          return 'multi'; // Old sub-features found but marked as lower priority
+        }
+      }
+    }
+  } catch (error) {
+    // Old method doesn't exist or accessible
   }
 
+  // Default to single if no evidence of being a parent
   return 'single';
 }
 
 /**
- * 创建子 Feature 目录结构
+ * 创建子 Feature 目录结构 using nested specs-tree layout
  * 
- * @param featurePath Feature 的根目录路径
- * @param subFeatureId 子 Feature ID
- * @param name 子 Feature 名称
+ * @param parentFeaturePath Parent Feature 的根目录路径
+ * @param subFeatureId Sub feature identifier (will become specs-tree-[id])
+ * @param name Sub_feature 名称
  * @returns 子 Feature 目录路径
  */
 export async function createSubFeature(
-  featurePath: string,
+  parentFeaturePath: string,
   subFeatureId: string,
   name: string
 ): Promise<string> {
-  const subFeaturesDir = path.join(featurePath, 'sub-features');
+  // Create the subfeature using nested specs-tree format
+  const subFeatureDirName = `specs-tree-${subFeatureId}`;
+  const subFeatureDir = path.join(parentFeaturePath, subFeatureDirName);
   
-  // 确保 sub-features 父目录存在
-  await fs.mkdir(subFeaturesDir, { recursive: true });
-  
-  // 创建子 Feature 目录
-  const subFeatureDir = path.join(subFeaturesDir, subFeatureId);
+  // Create the subfeature directory
   await fs.mkdir(subFeatureDir, { recursive: true });
   
-  // 创建子 Feature 的基本文件
-  const specContent = `# 子 Feature: ${name}\n\n## 概述\n\n[子 Feature 概述]\n\n## 需求规格\n\n[需求规格详细描述]\n\n## 实现计划\n\n[实现计划]\n\n## 任务分解\n\n[任务分解信息]\n`;
+  // Create sub feature's basic files
+  const specContent = `# Sub Feature: ${name}\n\n## Overview\n\n[Sub Feature overview]\n\n## Requirements Specification\n\n[Detailed requirement specification]\n\n## Implementation Plan\n\n[Implementation plan]\n\n## Task Breakdown\n\n[Task breakdown info]\n`;
   await fs.writeFile(path.join(subFeatureDir, 'spec.md'), specContent);
   
-  // 创建子 Feature 的 README
-  const readmeContent = `# ${name}\n\n子 Feature: ${subFeatureId}\n\n## 快速导航\n\n- 📋 [Spec](spec.md) - 需求规格\n- 🏗️ [Plan](plan.md) - 技术规划\n- 📝 [Tasks](tasks.md) - 任务分解\n\n## 当前状态\n- 状态: [to-do]\n- 负责人: [未分配]\n`;
+  // Create sub feature's README  
+  const readmeContent = `# ${name}\n\nSub Feature: ${subFeatureId}\n\n## Quick Navigation\n\n- 📋 [Spec](spec.md) - Requirements Specification\n- 🏗️ [Plan](plan.md) - Technical Planning\n- 📝 [Tasks](tasks.md) - Task Breakdown\n\n## Current Status\n- Status: [to-do]\n- Assignee: [Unassigned]\n`;
   await fs.writeFile(path.join(subFeatureDir, 'README.md'), readmeContent);
   
-  // 创建初始状态文件
-  const stateContent = JSON.stringify({
-    id: subFeatureId,
+  // Initialize this as a proper feature with state
+  const initialFeatureState = {
+    feature: subFeatureId,
     name: name,
+    version: 'v2.1.0',
     status: 'specified',
-    assignee: '',
-    dir: `sub-features/${subFeatureId}`,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }, null, 2);
-  await fs.writeFile(path.join(subFeatureDir, '.state.json'), stateContent);
+    phase: 1,
+    phaseHistory: [{
+      phase: 1,
+      status: 'specified',
+      timestamp: new Date().toISOString(),
+      triggeredBy: 'system',
+      comment: 'Initial sub feature creation'
+    }],
+    files: {
+      spec: path.join(subFeatureDir, 'spec.md')
+    },
+    dependencies: {
+      on: [],
+      blocking: []
+    },
+    metadata: {
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    history: [{
+      timestamp: new Date().toISOString(),
+      from: 'drafting',
+      to: 'specified', 
+      triggeredBy: 'system',
+      comment: 'Created as subfeature'
+    }]
+  };
   
+  await fs.writeFile(path.join(subFeatureDir, 'state.json'), JSON.stringify(initialFeatureState, null, 2));
+  
+  // Also create a placeholder plan.md and tasks.md  
+  await fs.writeFile(path.join(subFeatureDir, 'plan.md'), `# ${name} - Plan\n\nTODO: Generate plan\n`);
+  await fs.writeFile(path.join(subFeatureDir, 'tasks.md'), `# ${name} - Tasks\n\nTODO: Generate tasks\n`);
+
   return subFeatureDir;
 }
 
 /**
- * 生成子 Feature 索引表
+ * Generates sub-feature index table for the tree structure
  * 
- * @param featurePath Feature 的根目录路径
- * @returns 子 Feature 索引表的 Markdown 内容
+ * @param parentFeaturePath Parent Feature's root directory path
+ * @returns Index table Markdown content
  */
-export async function generateSubFeatureIndex(featurePath: string): Promise<string> {
-  const subFeaturesPath = path.join(featurePath, 'sub-features');
-  
-  // 如果是单模块模式，则返回空索引
-  const mode = await detectFeatureMode(featurePath);
+export async function generateSubFeatureIndex(parentFeaturePath: string): Promise<string> {
+  const mode = await detectFeatureMode(parentFeaturePath);
   if (mode === 'single') {
     return '';
   }
   
   try {
-    const subDirectories = await getSubFeatureDirectories(subFeaturesPath);
+    // Use tree scanner to get nested structure info
+    const treeStructure = await scanTreeStructure(path.dirname(parentFeaturePath));
+    const featureNode = Array.from(treeStructure.flatMap.values()).find(node =>
+      node.path === parentFeaturePath  
+    );
     
-    if (subDirectories.length === 0) {
+    if (!featureNode) {
       return '';
     }
     
-    // 为每个子目录生成索引条目
-    const indexRows = await Promise.all(subDirectories.map(async (dir) => {
-      const specPath = path.join(subFeaturesPath, dir, 'spec.md');
-      let name = dir;
+    // Process child features  
+    const indexRows = await Promise.all(featureNode.children.map(async (childNode) => {
+      const specPath = path.join(childNode.path, 'spec.md');
+      let name = childNode.featureName;
       
       try {
         const specContent = await fs.readFile(specPath, 'utf8');
         
-        // 从 spec.md 中提取子 Feature 信息
-        const titleMatch = specContent.match(/^#\s*子 Feature:\s*(.+)$/m);
+        // Extract subfeature info from spec.md
+        const titleMatch = specContent.match(/^#\s*Sub Feature:\s*(.+)$/im);
         if (titleMatch) {
           name = titleMatch[1];
         }
         
-        // 尝试从状态文件获取更多信息
-        const statePath = path.join(subFeaturesPath, dir, '.state.json');
-        let stateInfo = { status: 'unknown', assignee: '-' };
+        // Try to get more info from state file  
+        const statePath = path.join(childNode.path, 'state.json');
+        let statusInfo = { status: 'unknown' };
         
         try {
           const stateContent = await fs.readFile(statePath, 'utf8');
           const stateData = JSON.parse(stateContent);
-          stateInfo = {
-            status: stateData.status || 'unknown',
-            assignee: stateData.assignee || '-'
+          statusInfo = {
+            status: stateData.status || 'unknown'
           };
         } catch (error) {
-          // 如果状态文件不存在或无效，则使用默认值
+          // State file doesn't exist, use default
         }
         
-        const dirPath = `sub-features/${dir}`;
-        return `| ${dir} | ${name} | ${dirPath} | ${stateInfo.status} | ${stateInfo.assignee} | - |`;
+        return `| ${childNode.featureName} | ${name} | ${childNode.path} | ${statusInfo.status} | - | - |`;
       } catch (error) {
-        // 如果 spec 文件不存在，仍然为这个子目录创建一个索引项，但使用默认值
-        const dirPath = `sub-features/${dir}`;
-        return `| ${dir} | ${name} | ${dirPath} | [spec missing] | - | - |`;
+        // If spec file doesn't exist, still create index entry with defaults  
+        return `| ${childNode.featureName} | ${name} | ${childNode.path} | [spec missing] | - | - |`;
       }
     }));
     
-    // 构建完整的索引表格
-    const tableHeader = '| 子 Feature ID | 子 Feature 名称 | 目录路径 | 状态 | 负责人 | 阻塞依赖 |\n|---------------|-----------------|----------|------|--------|----------|';
+    if (indexRows.length === 0) {
+      return '';
+    }
+    
+    // Build complete table
+    const tableHeader = '| Sub Feature ID | Sub Feature Name | Directory Path | Status | Assignee | Blockers |\n|----------------|------------------|----------------|--------|----------|----------|';
     return [tableHeader, ...indexRows].join('\n');
   } catch (error) {
-    // 如果出现错误（比如没有 sub-features 目录），返回空字符串
     return '';
   }
 }
 
 /**
- * 扫描子 Feature 目录，获取所有子 Feature 的元数据
+ * Scans sub feature directories and gets all sub feature metadata
  * 
- * @param featurePath Feature 的根目录路径
- * @returns 子 Feature 元数据数组
+ * @param parentFeaturePath Parent Feature root directory path  
+ * @returns Array of sub feature metadata
  */
-export async function scanSubFeatures(featurePath: string): Promise<SubFeatureMeta[]> {
-  const mode = await detectFeatureMode(featurePath);
+export async function scanSubFeatures(parentFeaturePath: string): Promise<SubFeatureMeta[]> {
+  const mode = await detectFeatureMode(parentFeaturePath);
   if (mode === 'single') {
-    return []; // 单模块模式下没有子 Feature
+    return []; // Single mode means no sub-features in this new pattern
   }
   
-  const subFeaturesPath = path.join(featurePath, 'sub-features');
-  
+  // Get the direct children from tree structure
   try {
-    const subDirectories = await getSubFeatureDirectories(subFeaturesPath);
+    const treeStructure = await scanTreeStructure(path.dirname(parentFeaturePath));
+    const featureNode = Array.from(treeStructure.flatMap.values()).find(
+      node => node.path === parentFeaturePath
+    );
+  
+    if (!featureNode || featureNode.children.length === 0) {
+      return [];
+    } 
     
-    const subFeatures = await Promise.all(subDirectories.map(async (dir) => {
-      const dirPath = `sub-features/${dir}`;
-      const statePath = path.join(subFeaturesPath, dir, '.state.json');
+    const subFeatures = await Promise.all(featureNode.children.map(async (childNode) => {
+      const statePath = path.join(childNode.path, 'state.json');
       
-      let stateData: Partial<SubFeatureMeta> = {
-        id: dir,
-        name: dir,
+      let stateData: Partial<SubFeatureMeta> & { status?: string, feature?: string, name?: string } = {
+        id: childNode.featureName,
+        name: childNode.featureName,
         status: 'uninit',
-        dir: dirPath
+        dir: childNode.path
       };
       
       try {
         const stateContent = await fs.readFile(statePath, 'utf8');
-        stateData = JSON.parse(stateContent);
+        stateData = { ...stateData, ...JSON.parse(stateContent) };
       } catch (error) {
-        // 如果状态文件不存在，则尝试从 spec 文件中提取基本信息
-        const specPath = path.join(subFeaturesPath, dir, 'spec.md');
+        // If state file doesn't exist, try to extract basic info from spec file  
+        const specPath = path.join(childNode.path, 'spec.md');
         try {
           const specContent = await fs.readFile(specPath, 'utf8');
-          const titleMatch = specContent.match(/^#\s*子 Feature:\s*(.+)$/m);
+          const titleMatch = specContent.match(/^#\s*Sub Feature:\s*(.+)$/im);
           if (titleMatch) {
-            stateData = {
-              ...stateData,
-              id: dir,
+            stateData = { 
+              ...stateData, 
+              id: childNode.featureName, 
               name: titleMatch[1],
-              status: 'spec-missing'
+              status: 'spec-missing' 
+            };
+          } else {
+            stateData = { 
+              id: childNode.featureName,
+              name: childNode.featureName,
+              status: 'not-initialized',
+              dir: childNode.path
             };
           }
         } catch (specError) {
-          // spec 文件也不存在
+          // Both state and spec don't exist  
           stateData = {
-            id: dir,
-            name: dir,
+            id: childNode.featureName,
+            name: childNode.featureName, 
             status: 'not-initialized',
-            dir: dirPath
+            dir: childNode.path
           };
         }
       }
       
-      // 确保返回的对象完整
+      // Ensure returned object is complete   
       return {
-        id: stateData.id || dir,
-        name: stateData.name || dir,
+        id: stateData.feature || stateData.id || childNode.featureName,
+        name: stateData.name || stateData.id || childNode.featureName,  
         status: stateData.status || 'unknown',
         assignee: stateData.assignee,
-        dir: stateData.dir || dirPath
+        dir: stateData.dir || childNode.path
       };
     }));
-    
+  
     return subFeatures;
   } catch (error) {
-    // 如果无法扫描，返回空数组
-    return [];
+    return []; // If scan fails, return empty array
   }
 }
 
 /**
- * 验证子 Feature 文档的完整性
+ * Validates sub feature document completeness
  * 
- * @param subFeature 子 Feature 元数据
- * @returns 包含验证结果的对象
+ * @param subFeature Sub feature metadata
+ * @returns Object containing validation results
  */
 export function validateSubFeatureCompleteness(subFeature: SubFeatureMeta): {
   valid: boolean;
   missing: string[]
 } {
-  const featureDir = path.join(process.cwd(), 'specs-tree-root', subFeature.dir);
+  // Use the full path from the subFeature dir property
+  const featureDir = subFeature.dir;
   const missing: string[] = [];
 
   try {
-    // 检查必需的文件是否存在
-    const requiredFiles = ['spec.md', 'plan.md', 'tasks.md', 'README.md'];
+    // Check for required files
+    const requiredFiles = ['spec.md', 'plan.md', 'tasks.md', 'README.md', 'state.json'];
     
     for (const file of requiredFiles) {
       const fullPath = path.join(featureDir, file);
@@ -257,30 +327,23 @@ export function validateSubFeatureCompleteness(subFeature: SubFeatureMeta): {
       }
     }
     
-    // 检查子特征的状态文件
-    const stateFile = path.join(featureDir, '.state.json');
-    if (!existsSync(stateFile)) {
-      missing.push('.state.json');
-    }
-    
     return {
       valid: missing.length === 0,
       missing: missing
     };
   } catch (error) {
-    // 如果发生错误（访问文件系统问题），则认为有缺失
     return {
-      valid: false,
-      missing: ['[访问权限或系统错误]']
+      valid: false,  
+      missing: ['[access error or system issue]']
     };
   }
 }
 
 /**
- * 检查路径是否存在
+ * Checks if path exists
  * 
- * @param filepath 路径
- * @returns 路径是否存在
+ * @param filepath Path to check
+ * @returns Whether the path exists
  */
 async function pathExists(filepath: string): Promise<boolean> {
   try {
@@ -288,34 +351,5 @@ async function pathExists(filepath: string): Promise<boolean> {
     return true;
   } catch (error) {
     return false;
-  }
-}
-
-/**
- * 获取有效的子 Feature 目录列表
- * 
- * @param subFeaturesPath sub-features 目录路径
- * @returns 有效子目录名数组
- */
-async function getSubFeatureDirectories(subFeaturesPath: string): Promise<string[]> {
-  try {
-    const items = await fs.readdir(subFeaturesPath);
-    
-    // 过滤出目录且不是以.开头的文件夹（如 .git）
-    const validDirectories = [];
-    for (const item of items) {
-      if (item.startsWith('.')) continue;
-      
-      const itemPath = path.join(subFeaturesPath, item);
-      const stat = await fs.stat(itemPath);
-      
-      if (stat.isDirectory()) {
-        validDirectories.push(item);
-      }
-    }
-    
-    return validDirectories;
-  } catch (error) {
-    return [];
   }
 }

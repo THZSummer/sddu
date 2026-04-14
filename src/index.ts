@@ -18,6 +18,7 @@ import {
   // 状态管理相关类和接口
   StateMachine,
   DependencyChecker,
+  StateLoader,
   FeatureStateEnum,
   FeatureState,
   TransitionResult,
@@ -27,6 +28,10 @@ import {
   PhaseHistory,
   validateState,
 } from './state/machine';
+
+// Import Tree related functionality
+import { ParentStateManager } from './state/parent-state-manager';
+import { TreeStateValidator } from './state/tree-state-validator';
 
 // 导入 AutoUpdater 
 import { AutoUpdater } from './state/auto-updater';
@@ -40,41 +45,63 @@ import {
 // 从命令模块导入
 import { SdduMigrateSchemaCommand } from './commands/sddu-migrate-schema';
 
-import { StateV2_0_0 } from './state/schema-v2.0.0';
+import { StateV2_0_0, StateV2_1_0 } from './state/schema-v2.0.0';
 
 // 全局实例存储，以确保在会话生命周期内保持单例
 let globalAutoUpdater: AutoUpdater | null = null;
+let globalStateMachine: StateMachine | null = null;
 
 export const SDDUPlugin = async ({ project, client, $, directory, worktree }) => {
-  // 初始化状态机和自动更新器
-  const stateMachine = new StateMachine(directory + '/specs-tree-root');
+  // Initialize StateMachine with the new distributed approach
+  const stateMachine = new StateMachine(directory + '/.sddu/specs-tree-root');  // Updated to .sddu path for new structure
+   
+  // Initialize the dependency checker with updated state machine
+  const dependencyChecker = new DependencyChecker(stateMachine, directory + '/.sddu/specs-tree-root');
+  stateMachine.setDependencyChecker(dependencyChecker);
   
-  // 等待状态加载后再初始化 autoUpdater
-  await stateMachine.load();
+  // Initialize ParentStateManager for handling parent feature state updates
+  const parentStateManager = new ParentStateManager();
+  
+  // Await state loading using distributed approach
+  try {
+    await stateMachine.load();
+  } catch (error) {
+    await client.app.log({
+      body: {
+        service: "sddu-plugin",
+        level: "debug",
+        message: "No existing states loaded, starting fresh",
+        extra: { error: String(error) }
+      }
+    });
+  }
+  
+  // Initialize AutoUpdater with the state machine
   const autoUpdater = new AutoUpdater(stateMachine);
   
-  // 存储为全局实例，便于后续事件访问
+  // Store as global instances for subsequent event access
   globalAutoUpdater = autoUpdater;
+  globalStateMachine = stateMachine;
   
-  // 启动时启用自动更新器
+  // Enable auto-updater at startup
   autoUpdater.setEnabled(true);
 
-  // 使用官方日志 API
+  // Use official logging API
   await client.app.log({
     body: {
           service: "sddu-plugin",
           level: "info",
-          message: "SDDU Plugin loaded with Discovery Engine and AutoUpdater",
+          message: "SDDU Plugin loaded with Tree Structure Optimization, Discovery Engine and AutoUpdater",
       extra: {
         directory: directory,
         project: project?.name,
-        features: ["spec", "plan", "task", "build", "review", "validate", "discovery", "autoUpdater"]
+        features: ["spec", "plan", "task", "build", "review", "validate", "discovery", "autoUpdater", "tree-structure"]
       }
     }
   });
 
   return {
-    // 监听会话创建
+    // Listen for session creation
     "session.created": async (input) => {
       await client.app.log({
         body: {
@@ -85,17 +112,17 @@ export const SDDUPlugin = async ({ project, client, $, directory, worktree }) =>
         }
       });
       
-      // 可以在这里初始化 SDDU 状态
-      if (globalAutoUpdater) {
-        // 会话启动时确保 AutoUpdater 处于活跃状态
+      // Initialize SDDU state
+      if (globalAutoUpdater && globalStateMachine) {
+        // Ensure AutoUpdater is active when session starts
         globalAutoUpdater.setEnabled(true);
       }
     },
 
-    // 监听文件编辑
+    // Listen for file edits
     "file.edited": async (input) => {
-      // 追踪规范文件变更
-      if (input.filePath.includes("specs-tree-root/")) {
+      // Track spec file changes in both old and new structure paths
+      if (input.filePath.includes(".sddu/specs-tree") || input.filePath.includes("specs-tree")) {
         await client.app.log({
           body: {
             service: "sddu-plugin",
@@ -105,14 +132,37 @@ export const SDDUPlugin = async ({ project, client, $, directory, worktree }) =>
           }
         });
         
-        // 触发自动更新检查
+        // Trigger auto-update check
         if (globalAutoUpdater) {
           globalAutoUpdater.triggerAutoUpdate(input.filePath);
+        }
+        
+        // Check if this is a parent feature being edited and update accordingly
+        if (globalStateMachine) {
+          // Determine if the file belongs to a potential parent node
+          try {
+            const featureDir = input.filePath.substring(0, input.filePath.lastIndexOf('/'));
+            const isParentFeature = await globalStateMachine.isParentFeature(featureDir);
+            if (isParentFeature) {
+              // If it's a parent feature, potentially update the aggregated state in parent feature
+              await client.app.log({
+                body: {
+                  service: "sddu-plugin",
+                  level: "debug",
+                  message: "Detected change in parent feature, considering parent state update",
+                  extra: { featureDir: featureDir }
+                }
+              });
+            }
+          } catch (error) {
+            // Safe to ignore - may be just checking features in process
+            console.log('Info: Error checking parent state for file:', input.filePath);
+          }
         }
       }
     },
     
-    // 监听会话空闲事件 (模拟 session.idle)
+    // Listen for session idle events (simulated session.idle)
     "session.idle": async (input) => {
       await client.app.log({
         body: {
@@ -123,10 +173,45 @@ export const SDDUPlugin = async ({ project, client, $, directory, worktree }) =>
         }
       });
       
-      // 如果 autoUpdater 可用，运行完整扫描
+      // If autoUpdater is available, run full scan
       if (globalAutoUpdater) {
         try {
           await globalAutoUpdater.scanAndAutoUpdate();
+          
+          // For tree structure - if there are parent features, update their children information
+          if (globalStateMachine && parentStateManager) {
+            // Scan for any updated parent features and update their aggregated state
+            const allFeatures = await globalStateMachine.getAllFeatures();
+            for (const feature of allFeatures) {
+              try {
+                // Only run the parent state update for parent features, not individual leaf features
+                const isParent = await globalStateMachine.isParentFeature(feature.id);
+                if (isParent) {
+                  await client.app.log({
+                    body: {
+                      service: "sddu-plugin", 
+                      level: "debug",
+                      message: `Updating parent feature state for: ${feature.id}`
+                    }
+                  });
+                  
+                  // Update parent state with current children information
+                  await parentStateManager.scanAndUpdateParentState(feature.id, 
+                    new StateLoader(directory + '/.sddu/specs-tree-root'));
+                }
+              } catch (error) {
+                await client.app.log({
+                  body: {
+                    service: "sddu-plugin",
+                    level: "warn", 
+                    message: `Error checking parent state for: ${feature.id}`,
+                    extra: { error: String(error) }
+                  }
+                });
+              }
+            }
+          }
+          
           await client.app.log({
             body: {
               service: "sddu-plugin",
@@ -155,7 +240,7 @@ export const SDDUPlugin = async ({ project, client, $, directory, worktree }) =>
       }
     },
     
-    // 监听会话结束，清理资源
+    // Listen for session end, clean up resources
     "session.end": async (input) => {
       await client.app.log({
         body: {
@@ -170,6 +255,8 @@ export const SDDUPlugin = async ({ project, client, $, directory, worktree }) =>
         globalAutoUpdater.dispose();
         globalAutoUpdater = null;
       }
+      
+      globalStateMachine = null;
     }
   };
 };
@@ -189,9 +276,13 @@ export {
   AutoUpdater,
   StateMachine,
   DependencyChecker,
+  StateLoader,         // New export for distributed state
+  ParentStateManager,  // New export for parent feature management
+  TreeStateValidator,  // New export for tree state validation
   
-  // Schema v2.0.0
+  // Schema
   StateV2_0_0,
+  StateV2_1_0,         // New export for tree structure schema
   WorkflowStatus,
   PhaseHistory,
   validateState,

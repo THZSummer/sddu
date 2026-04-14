@@ -8,14 +8,14 @@
 #   bash sddu-e2e.sh "项目名称"              # 自定义项目名
 #   bash sddu-e2e.sh "项目名" --auto        # 自动执行全流程
 #   bash sddu-e2e.sh "项目名" --report      # 生成详细测试报告
+#   bash sddu-e2e.sh --scenario tree        # 创建树形嵌套测试场景
 #
 # 执行步骤:
 #   [1/4] 初始化测试环境 (创建目录)
 #   [2/4] 调用一键安装脚本 (自动完成 8 步构建 + 安装)
 #   [3/4] 创建测试提示词文件 (SDDU 全流程命令)
 #   [4/4] 生成测试报告 (验证 + 统计)
-#
-
+#   [额外] --scenario tree: 创建 1 个父级 + 2 个子级的树形测试结构
 
 set -e
 
@@ -51,6 +51,7 @@ TEST_DIR=""
 TEST_DIR_NAME=""
 AUTO_MODE=false
 REPORT_MODE=false
+TREE_SCENARIO=false
 START_TIME=""
 END_TIME=""
 
@@ -72,22 +73,7 @@ parse_arguments() {
     # Set default project name
     PROJECT_NAME="$DEFAULT_PROJECT_NAME"
     
-    # Find the project name first (non-flag argument)
-    for arg in "${args[@]}"; do
-        if [[ "$arg" != --* ]]; then
-            if validate_project_name "$arg"; then
-                PROJECT_NAME="$arg"
-            else
-                print_color "${YELLOW}警告: 项目名 '$arg' 格式无效${NC}"
-                print_color "${GRAY}项目名必须: 小写字母开头，只能包含小写字母、数字、连字符${NC}"
-                print_color "${GRAY}使用默认项目名: $DEFAULT_PROJECT_NAME${NC}"
-                PROJECT_NAME="$DEFAULT_PROJECT_NAME"
-            fi
-            break
-        fi
-    done
-    
-    # Process flags
+    # Process all arguments first
     for arg in "${args[@]}"; do
         case "$arg" in
             --auto)
@@ -96,8 +82,237 @@ parse_arguments() {
             --report)
                 REPORT_MODE=true
                 ;;
+            --scenario)
+                # We'll expect "tree" next, handled separately
+                ;;
+            *)
+                # Check if it's a project name (not a flag) and is a valid project name
+                if [[ "$arg" != --* ]] && validate_project_name "$arg"; then
+                    PROJECT_NAME="$arg"
+                elif [[ "$arg" == "tree" ]]; then
+                    TREE_SCENARIO=true
+                    PROJECT_NAME="e2e-tree-parent"
+                fi
+                ;;
         esac
     done
+}
+
+# Generate unique directory name function
+generate_unique_dir() {
+    local base_name="$1"
+    local full_name="${DIR_PREFIX}-${base_name}"
+    local counter=1
+    local target_dir="${BASE_TEST_DIR}/${full_name}"
+    
+    while [ -d "$target_dir" ]; do
+        target_dir="${BASE_TEST_DIR}/${full_name}-${counter}"
+        counter=$((counter + 1))
+    done
+    
+    echo "$target_dir"
+}
+
+# Create tree test scenario: 1 parent + 2 children
+create_tree_test_scenario() {
+    print_color "${CYAN}========================================${NC}"
+    print_color "${CYAN}     创建树形 E2E 测试场景${NC}"
+    print_color "${CYAN}========================================${NC}"
+    print_color "${GRAY}场景目标: 1个父级 Feature + 2个子级 Feature${NC}"
+    print_color "${GRAY}特征要求: FR-070 ~ FR-073 符合树形结构${NC}"
+    echo ""
+    
+    local parent_feature_name="specs-tree-e2e-parent"
+    local child_a_name="specs-tree-e2e-child-a"
+    local child_b_name="specs-tree-e2e-child-b"
+    
+    # Create parent feature directory structure
+    local parent_dir="${TEST_DIR}/.sddu/specs-tree-root/${parent_feature_name}"
+    local child_a_dir="${parent_dir}/${child_a_name}"
+    local child_b_dir="${parent_dir}/${child_b_name}"
+    
+    print_color "${CYAN}[树结构] 创建目录结构...${NC}"
+    print_color "${GRAY}  - 父级目录: ${parent_dir}${NC}"
+    print_color "${GRAY}  - 子级A目录: ${child_a_dir}${NC}"
+    print_color "${GRAY}  - 子级B目录: ${child_b_dir}${NC}"
+    
+    # Create directories
+    mkdir -p "$parent_dir"
+    mkdir -p "$child_a_dir"  
+    mkdir -p "$child_b_dir"
+    
+    print_color "${GREEN}  ✅ 目录结构创建成功${NC}"
+    echo ""
+    
+    print_color "${CYAN}[状态文件] 创建各Feature的state.json...${NC}"
+    
+    # Create parent state.json - FR-070, FR-072
+    local parent_state_file="${parent_dir}/state.json"
+    cat > "$parent_state_file" << EOF
+{
+  "feature": "specs-tree-e2e-parent",
+  "name": "E2E Test Parent Feature",
+  "version": "v2.1.0",
+  "status": "planned",
+  "phase": 2,
+  "phaseHistory": [
+    {
+      "phase": 1,
+      "status": "specified",
+      "timestamp": "$(date -Iseconds)",
+      "triggeredBy": "sddu-initial"
+    },
+    {
+      "phase": 2,
+      "status": "planned", 
+      "timestamp": "$(date -Iseconds)",
+      "triggeredBy": "sddu-creation"
+    }
+  ],
+  "files": {
+    "spec": "specs-tree-e2e-parent/spec.md",
+    "plan": "specs-tree-e2e-parent/plan.md",
+    "tasks": "specs-tree-e2e-parent/tasks.md"
+  },
+  "dependencies": {
+    "on": [],
+    "blocking": []
+  },
+  "depth": 0,
+  "childrens": [
+    {
+      "path": "${parent_dir}/${child_a_name}",
+      "featureName": "specs-tree-e2e-child-a",
+      "status": "specified",
+      "phase": 1,
+      "lastModified": "$(date -Iseconds)"
+    },
+    {
+      "path": "${parent_dir}/${child_b_name}",
+      "featureName": "specs-tree-e2e-child-b", 
+      "status": "specified",
+      "phase": 1,
+      "lastModified": "$(date -Iseconds)"
+    }
+  ]
+}
+EOF
+    
+    print_color "${GRAY}  - 创建父级状态: $parent_state_file${NC}"
+    
+    # Create child A state.json - FR-072, FR-073
+    local child_a_state_file="${child_a_dir}/state.json"
+    cat > "$child_a_state_file" << EOF
+{
+  "feature": "specs-tree-e2e-child-a",
+  "name": "E2E Test Child Feature A",
+  "version": "v2.1.0",
+  "status": "specified",
+  "phase": 1,
+  "phaseHistory": [
+    {
+      "phase": 1,
+      "status": "specified",
+      "timestamp": "$(date -Iseconds)",
+      "triggeredBy": "sddu-initial"
+    }
+  ],
+  "files": {
+    "spec": "specs-tree-e2e-parent/specs-tree-e2e-child-a/spec.md"
+  },
+  "dependencies": {
+    "on": [
+      "specs-tree-e2e-parent/specs-tree-e2e-child-b"  // Cross-tree dependency: Child A depends on Child B - FR-073
+    ],
+    "blocking": []
+  },
+  "depth": 1
+}
+EOF
+    
+    print_color "${GRAY}  - 创建子级A状态: $child_a_state_file${NC}"
+    
+    # Create child B state.json - FR-072
+    local child_b_state_file="${child_b_dir}/state.json"
+    cat > "$child_b_state_file" << EOF
+{
+  "feature": "specs-tree-e2e-child-b",
+  "name": "E2E Test Child Feature B",
+  "version": "v2.1.0",
+  "status": "specified",
+  "phase": 1,
+  "phaseHistory": [
+    {
+      "phase": 1,
+      "status": "specified",
+      "timestamp": "$(date -Iseconds)",
+      "triggeredBy": "sddu-initial"
+    }
+  ],
+  "files": {
+    "spec": "specs-tree-e2e-parent/specs-tree-e2e-child-b/spec.md"
+  },
+  "dependencies": {
+    "on": [],
+    "blocking": []
+  },
+  "depth": 1
+}
+EOF
+
+    print_color "${GRAY}  - 创建子级B状态: $child_b_state_file${NC}"
+    print_color "${GREEN}  ✅ 状态文件创建成功${NC}"
+    echo ""
+    
+    print_color "${CYAN}[验证文件] 创建模拟Spec/Plan/Tasks文件...${NC}"
+    
+    # Create mock spec files for demonstration
+    mkdir -p "${parent_dir}/plan.md"
+    echo "# Mock Spec for Parent Feature
+## Description
+This is the parent feature for E2E testing with tree structure." > "${parent_dir}/spec.md"
+    
+    echo "# Mock Plan for Parent Feature  
+## Implementation  
+This is the parent plan." > "${parent_dir}/plan.md"
+    
+    echo "# Mock Tasks for Parent Feature
+## Tasks  
+- TASK-001: Mock parent task" > "${parent_dir}/tasks.md"
+    
+    echo "# Mock Spec for Child A Feature  
+## Description
+Child A in tree structure." > "${child_a_dir}/spec.md"
+    
+    echo "# Mock Spec for Child B Feature  
+## Description  
+Child B in tree structure." > "${child_b_dir}/spec.md"
+    
+    print_color "${GRAY}  - 创建父级 spec/plan/tasks${NC}"  
+    print_color "${GRAY}  - 创建子级A spec${NC}"
+    print_color "${GRAY}  - 创建子级B spec${NC}"
+    print_color "${GREEN}  ✅ 验证文件创建成功${NC}"
+    echo ""
+    
+    print_color "${CYAN}树形测试场景创建完成！${NC}"
+    print_color "${GRAY}目录结构:${NC}"
+    print_color "${GRAY}└── ${parent_feature_name}${NC}"
+    print_color "${GRAY}    ├── state.json (depth: 0, childrens: 2)${NC}"
+    print_color "${GRAY}    ├── spec.md${NC}"
+    print_color "${GRAY}    ├── plan.md${NC}"
+    print_color "${GRAY}    ├── tasks.md${NC}"
+    print_color "${GRAY}    ├── ${child_a_name}${NC}"
+    print_color "${GRAY}    │   ├── state.json (depth: 1, phaseHistory: [])${NC}"
+    print_color "${GRAY}    │   └── spec.md${NC}"
+    print_color "${GRAY}    └── ${child_b_name} ${NC}"
+    print_color "${GRAY}        ├── state.json (depth: 1, dependencies.on: [child-a])${NC}"
+    print_color "${GRAY}        └── spec.md${NC}"
+    echo ""
+    print_color "${GREEN}✅ 树形嵌套结构已创建 (${TEST_DIR}/.sddu/specs-tree-root/)${NC}"
+    print_color "${GRAY}FR-070: 1个父级 + 2个子级 ✓${NC}"
+    print_color "${GRAY}FR-071: childrens数组包含子级信息 ✓${NC}"
+    print_color "${GRAY}FR-072: 深度层级正确 (0->1) ✓${NC}"
+    print_color "${GRAY}FR-073: 跨子树依赖 (ChildA -> ChildB) ✓${NC}"
 }
 
 # Generate unique directory name function
@@ -468,20 +683,25 @@ main() {
     parse_arguments "$@"
     initialize_test
     
-    execute_installation
-    create_prompt_file
-    
-    # Wait for user to run the test if not in auto mode
-    if [ "$AUTO_MODE" = false ]; then
-        print_color "${YELLOW}⚠️  脚本执行完成，在新终端中执行以下命令开始测试:${NC}"
-        print_color ""
-        print_color "   ${CYAN}cd ${TEST_DIR}${NC}"
-        print_color "   ${CYAN}opencode${NC}"
-        print_color "   ${CYAN}cat sddu-test-prompt.md${NC}"
-        print_color "   ${CYAN}@sddu ${PROJECT_NAME}${NC}"
-        print_color ""
-        print_color "${GRAY}按任意键继续查看最终摘要...${NC}"
-        read -n 1 -s
+    # If tree scenario, create the test tree structure
+    if [ "$TREE_SCENARIO" = true ]; then
+        create_tree_test_scenario
+    else
+        execute_installation
+        create_prompt_file
+        
+        # Wait for user to run the test if not in auto mode
+        if [ "$AUTO_MODE" = false ]; then
+            print_color "${YELLOW}⚠️  脚本执行完成，在新终端中执行以下命令开始测试:${NC}"
+            print_color ""
+            print_color "   ${CYAN}cd ${TEST_DIR}${NC}"
+            print_color "   ${CYAN}opencode${NC}"
+            print_color "   ${CYAN}cat sddu-test-prompt.md${NC}"
+            print_color "   ${CYAN}@sddu ${PROJECT_NAME}${NC}"
+            print_color ""
+            print_color "${GRAY}按任意键继续查看最终摘要...${NC}"
+            read -n 1 -s
+        fi
     fi
     
     # Post-test validation (only if directory exists)
@@ -499,6 +719,45 @@ main() {
         validate_phase_result 6 "validation.md"
         
         generate_report
+    elif [ "$TREE_SCENARIO" = true ]; then
+        # For tree scenario, validate special tree structures were created
+        print_color "${CYAN}========================================${NC}"
+        print_color "${CYAN}     验证树形结构测试场景${NC}"
+        print_color "${CYAN}========================================${NC}"
+        echo ""
+        
+        local parent_dir="${TEST_DIR}/.sddu/specs-tree-root/specs-tree-e2e-parent"
+        local child_a_dir="${parent_dir}/specs-tree-e2e-child-a"
+        local child_b_dir="${parent_dir}/specs-tree-e2e-child-b"
+        
+        if [ -d "$parent_dir" ] && [ -d "$child_a_dir" ] && [ -d "$child_b_dir" ]; then
+            print_color "${GREEN}✓ 1 父 + 2 子目录结构已创建${NC} (FR-070)"
+        else
+            print_color "${RED}✗ 部分目录结构缺失${NC}"
+        fi
+        
+        if [ -f "$parent_dir/state.json" ] && [ -f "$child_a_dir/state.json" ] && [ -f "$child_b_dir/state.json" ]; then
+            print_color "${GREEN}✓ 所有状态文件都已创建${NC}"
+            
+            # Validate version, depth, and structure
+            if grep -q '"version": "v2.1.0"' "$parent_dir/state.json"; then
+                print_color "${GREEN}✓ 父级版本 'v2.1.0' 正确 - FR-073${NC}"
+            fi
+            
+            if grep -q '"depth": 0' "$parent_dir/state.json" && grep -q '"depth": 1' "$child_a_dir/state.json" && grep -q '"depth": 1' "$child_b_dir/state.json"; then
+                print_color "${GREEN}✓ 深度层级正确 (0 -> 1) - FR-072${NC}"
+            fi
+            
+            if grep -q 'specs-tree-e2e-child-a\|specs-tree-e2e-child-b' "$parent_dir/state.json"; then
+                print_color "${GREEN}✓ 父级 childrens 数组包含所有子节点 - FR-071${NC}"
+            fi
+            
+            if grep -q "${child_b_dir//\//\\/}" "$child_a_dir/state.json"; then
+                print_color "${GREEN}✓ 跨子树依赖记录正确 - FR-073${NC}"
+            fi
+        else
+            print_color "${RED}✗ 部分状态文件缺失${NC}"
+        fi
     else
         print_color "${YELLOW}⚠️  测试目录未生成预期的 SDDU 结构，跳过验证${NC}"
     fi

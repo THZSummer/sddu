@@ -4,7 +4,8 @@
  */
 
 import { StateMachine } from '../state/machine';
-import * as fs from 'fs/promises';
+import * as fsPromises from 'fs/promises';
+import { existsSync } from 'fs';
 import * as path from 'path';
 import { FeatureState } from '../state/machine';
 
@@ -24,7 +25,7 @@ export class DiscoveryStateValidator {
    * - discovery.md 内容基本结构是否完整
    */
   async canTransitionToDiscovered(featureId: string): Promise<DiscoveryTransitionResult> {
-    const featureStateObj = this.stateMachine.getState(featureId);
+    const featureStateObj = await this.stateMachine.getState(featureId);
     if (!featureStateObj) {
       return {
         canTransition: false,
@@ -33,8 +34,10 @@ export class DiscoveryStateValidator {
       };
     }
 
-    // 检查当前状态是否可以过渡到 discovered
-    if (featureStateObj.state !== 'drafting') {
+    // Check the status to determine if it's in 'drafting' equivalent
+    const currentStateEnum = this.mapWorkflowStatusToStateEnum(featureStateObj.status);
+
+    if (currentStateEnum !== 'drafting') {
       return {
         canTransition: false,
         reason: '只有 drafting 状态可以转移到 discovered 状态',
@@ -44,14 +47,90 @@ export class DiscoveryStateValidator {
 
     // 检查 discovery.md 文件是否存在
     const featureDir = path.join(this.stateMachine['specsDir'], featureId); 
-    
+    const discoveryPath = path.join(featureDir, 'discovery.md');
+    if (existsSync(discoveryPath)) {
+      try {
+        // 读取并验证 discovery.md 的基本结构
+        const content = await fsPromises.readFile(discoveryPath, 'utf8');
+        
+        // 检查是否包含必要章节
+        if (content.includes('问题空间探索') || content.includes('用户画像') || content.includes('需' + '求')) {
+          // 检查了基本内容的存在性
+          return {
+            canTransition: true,
+            reason: '',
+            discoveryExists: true
+          };
+        } else {
+          // discovery 文件存在但内容不完整
+          return {
+            canTransition: false,
+            reason: 'discovery.md 文件存在但内容不完整，请完善内容后再切换',
+            warning: '文件内容不充分',
+            discoveryExists: true
+          };
+        }
+      } catch (error) {
+        console.error(`读取 discovery.md 时出错: ${error}`);
+        return {
+          canTransition: false,
+          reason: '无法读取 discovery.md',
+          discoveryExists: false
+        };
+      }
+    } else {
+      return {
+        canTransition: false,
+        reason: 'discovery.md 不存在',
+        discoveryExists: false
+      };
+    }
+  }
+
+  // 将 WorkflowStatus 映射到 FeatureStateEnum
+  private mapWorkflowStatusToStateEnum(status: string): 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed' {
+    switch(status) {
+      case 'specified': return 'specified';
+      case 'planned': return 'planned';
+      case 'tasked': return 'tasked';
+      case 'building': return 'implementing'; // building maps to implementing
+      case 'reviewed': return 'reviewed';
+      case 'validated': return 'validated';
+      default: return 'drafting'; // default to drafting
+    }
+  }
+
+  /**
+   * 检查是否可以从 discovered 转移到 specified 状态
+   * 这是为了确保 discovery 阶段已经完成后再进行 spec 预写
+   */
+  async canTransitionFromDiscoveredToSpecified(featureId: string): Promise<{ canTransition: boolean; reason: string; discovered: boolean }> {
+    const featureStateObj = await this.stateMachine.getState(featureId);
+    if (!featureStateObj) {
+      return {
+        canTransition: false,
+        reason: 'Feature 不存在',
+        discovered: false
+      };
+    }
+
+    const currentStateEnum = this.mapWorkflowStatusToStateEnum(featureStateObj.status);
+    if (currentStateEnum !== 'discovered') {
+      return {
+        canTransition: false,
+        reason: '必须从 discovered 状态才能过渡到 specified',
+        discovered: false
+      };
+    }
+
+    // 检查 discovery.md 文件是否存在
+    const featureDir = path.join(this.stateMachine['specsDir'], featureId);
     try {
-      // 检查 discovery.md 是否存在
       const discoveryPath = path.join(featureDir, 'discovery.md');
-      await fs.access(discoveryPath);
+      await fsPromises.access(discoveryPath);
       
       // 检查文件是否有内容
-      const content = await fs.readFile(discoveryPath, 'utf-8');
+      const content = await fsPromises.readFile(discoveryPath, 'utf-8');
       const hasContent = content && content.trim().length > 0;
       
       // 检查是否包含基本的发现内容标记
@@ -63,69 +142,27 @@ export class DiscoveryStateValidator {
       return {
         canTransition: true,
         reason: 'discovery.md 已存在且包含内容',
-        discoveryExists: hasContent && hasBasicStructure
+        discovered: hasContent && hasBasicStructure
       };
     } catch (error) {
       // 文件不存在，返回警告但仍可能允许跳过
       return {
         canTransition: true, // 允许转移，但在UI中显示警告
         reason: 'discovery.md 不存在',
-        warning: '发现阶段未完成，建议执行 @sddu discovery [feature] 完善需求挖掘',
-        discoveryExists: false
-      };
-    }
-  }
-
-  /**
-   * 检查是否可以从 discovered 转移到 specified 状态
-   * 这是为了确保 discovery 阶段已经完成后再进行 spec 预写
-   */
-  async canTransitionFromDiscoveredToSpecified(featureId: string): Promise<{ canTransition: boolean; reason: string; discovered: boolean }> {
-    const featureStateObj = this.stateMachine.getState(featureId);
-    if (!featureStateObj) {
-      return {
-        canTransition: false,
-        reason: 'Feature 不存在',
-        discovered: false
-      };
-    }
-
-    if (featureStateObj.state !== 'discovered') {
-      return {
-        canTransition: false,
-        reason: '必须从 discovered 状态才能过渡到 specified',
-        discovered: false
-      };
-    }
-
-    // 检查 discovery.md 文件是否存在于对应目录中
-    const featureDir = path.join(this.stateMachine['specsDir'], featureId);
-    try {
-      const discoveryPath = path.join(featureDir, 'discovery.md');
-      await fs.access(discoveryPath);
-      const content = await fs.readFile(discoveryPath, 'utf-8');
-      
-      return {
-        canTransition: true,
-        reason: 'discovery 文件已存在',
-        discovered: content && content.trim().length > 0
-      };
-    } catch (error) {
-      return {
-        canTransition: false,
-        reason: 'discovery.md 文件缺失',
         discovered: false
       };
     }
   }
 
   /**
-   * 验证从 drafting 直接到 specified 的情况
+   * 检查用户是否在当前会话中跳过了 discovery 阶段
    * 这是一种跳过 discovery 的情况，应发出警告
    */
   async checkSkippedDiscovery(featureId: string): Promise<boolean> {
-    const featureStateObj = this.stateMachine.getState(featureId);
-    if (!featureStateObj || featureStateObj.state !== 'drafting') {
+    const featureStateObj = await this.stateMachine.getState(featureId);
+    const currentStateEnum = this.mapWorkflowStatusToStateEnum((featureStateObj as any).status || '');
+
+    if (!featureStateObj || currentStateEnum !== 'drafting') {
       return false; // 不在 drafting 状态，不能检查跳过情况
     }
 
@@ -133,7 +170,7 @@ export class DiscoveryStateValidator {
     const featureDir = path.join(this.stateMachine['specsDir'], featureId);
     try {
       const discoveryPath = path.join(featureDir, 'discovery.md');
-      await fs.access(discoveryPath);
+      await fsPromises.access(discoveryPath);
       // 如果 discovery.md 存在，则说明没有跳过
       return false;
     } catch (error) {

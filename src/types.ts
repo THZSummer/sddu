@@ -2,7 +2,7 @@
 // 整合所有分散的类型定义，提供统一导入接口
 // 实现 FR-001~005: 统一工具函数管理
 
-// 从 state 模块重新导出类型
+// Import from state machine
 import { 
   WorkflowStatus,
   PhaseHistory,
@@ -16,17 +16,48 @@ import {
   FeatureWithFullHistory,
 } from './state/machine';
 
+import { StateV2_1_0 } from './state/schema-v2.0.0';
+
+// Import tree scanner types
+import {
+  FeatureTreeNode,
+  ScanResult,
+} from './state/tree-scanner';
+
+// Import the ChildFeatureInfo and tree validator types 
+import { ChildFeatureInfo } from './state/schema-v2.0.0';
+
+// Import tree state validator types
+import {
+  TreeValidationResult, 
+  TreeValidationError, 
+  TreeValidationWarning
+} from './state/tree-state-validator';
+export type {
+  TreeValidationResult, 
+  TreeValidationError, 
+  TreeValidationWarning 
+} from './state/tree-state-validator';
+
+// Additional import for the actual class
+import { TreeStateValidator } from './state/tree-state-validator';
+export { TreeStateValidator } from './state/tree-state-validator';
+
 export type {
   WorkflowStatus,
   PhaseHistory,
   StateV2_0_0,
+  StateV2_1_0,            // New for tree structure
+  ChildFeatureInfo,       // New for tree structure (moved from correct import)
+  FeatureTreeNode,        // New for tree structure
+  ScanResult,             // New for tree structure
   FeatureStateEnum,
   FeatureState,
   TransitionResult,
   AgentTransitionHook,
   AutoUpdaterIntegration,
   FeatureWithFullHistory,
-} from './state/machine';
+};
 
 export {
   validateState  
@@ -103,9 +134,14 @@ export interface SdduConfig {
   logLevel?: 'debug' | 'info' | 'warn' | 'error';  // 日志级别
   defaultTimeout?: number;    // 默认超时时间
   maxRetries?: number;        // 最大重试次数
+  
+  // Tree structure configurations
+  enableTreeStructure?: boolean;  // Whether to enable tree structure optimization
+  maxTreeDepth?: number;          // Maximum allowed tree depth (default: 5)
 }
 
-// 重新导出 HistoryEntry
+// There may be two HistoryEntry types from different modules, I'll make sure only one is exported
+// 重新导出 HistoryEntry (only once)
 export type { HistoryEntry } from './state/machine';
 
 export default {};

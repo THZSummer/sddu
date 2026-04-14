@@ -236,6 +236,13 @@ export class DiscoveryWorkflowEngine {
         }
       }
       
+      // 在 discovery 完成后，分析并建议是否切分功能
+      const splitSuggestions = this.suggestSplit(context);
+      if (splitSuggestions.length > 0) {
+        context.splitSuggestions = splitSuggestions;
+        console.log(`🔍 检测到 "${context.featureName}" 可能需要切分，建议：`, splitSuggestions);
+      }
+      
       console.log(`🎉 Discovery 工作流执行完成: ${context.featureName}`);
       
       // 通知状态变化 - running -> completed
@@ -340,6 +347,112 @@ export class DiscoveryWorkflowEngine {
     
     // 继续执行剩余流程
     return await this.execute(context);
+  }
+
+  /**
+   * 分析上下文并根据需求复杂性提出切分建议
+   * 在Discovery完成后，分析是否应该将大型feature分割为多个子feature
+   */
+  suggestSplit(context: DiscoveryContext): string[] {
+    const suggestions: string[] = [];
+    
+    // 提取关键信息用于分析
+    const problemScope = context.data.problemSpaceExploration?.output?.answer || '';
+    const requirements = context.data.requirementClassification?.output?.answer || '';
+    const userScenarios = context.data.userPersonaAndScenarios?.output?.answer || '';
+    
+    // 根据不同的因素判断是否建议切分
+    
+    // 1. 识别多个不同领域的功能（如 "用户管理和订单管理功能" ）
+    const multiDomainRegex = /(和|&)?.*?(模块|功能|系统|服务)/gi;
+    const multiDomainMatches = (requirements + problemScope + userScenarios).match(multiDomainRegex) || [];
+    if (multiDomainMatches.length > 2) {
+      suggestions.push(`多领域功能发现 - 建议按领域将 "${context.featureName}" 分割为多个子feature，例如：${this.extractDomains(problemScope, requirements)}`);
+    }
+    
+    // 2. 检查是否存在独立的CRUD操作集
+    const crudOperations = this.identifyCRUDOperations(requirements);
+    if (crudOperations.length > 3) {
+      suggestions.push(`复杂数据操作发现 - 建议将 "${context.featureName}" 按CRUD操作的实体分为多个小功能，例如：${crudOperations.join(', ')} 功能可分别实现`);
+    }
+    
+    // 3. 检查是否存在多种用户角色需要不同的访问权限
+    const userRoles = this.extractUserRoles(userScenarios);
+    if (userRoles.length > 2) {
+      suggestions.push(`多角色交互发现 - 建议按用户角色将 "${context.featureName}" 分割为针对不同角色的功能`);
+    }
+    
+    // 4. 如果需求文本长度过长，可能表示复杂特性，适合拆分
+    const totalTextLength = (problemScope + requirements + userScenarios).length;
+    if (totalTextLength > 2000) {
+      suggestions.push(`复杂feature识别 - "${context.featureName}" 需求复杂度较高，建议根据功能维度拆分为多个子feature以降低开发复杂度`);
+    }
+    
+    // 5. 检查是否存在明显不同的用户场景路径
+    const userJourneys = this.extractUserJourneys(userScenarios);
+    if (userJourneys.length > 2) {
+      suggestions.push(`多路径用户体验识别 - 建议按用户旅程将 "${context.featureName}" 拆分为不同路径的小功能，提高专注度`);
+    }
+    
+    return suggestions;
+  }
+
+  /**
+   * 辅助方法：从文本中提取可能的领域/子功能
+   */
+  private extractDomains(problemScope: string, requirements: string): string {
+    // 使用通用正则表达式来提取可能的不同领域名词
+    const domainRegex = /(\b\w+管理\b|\b\w+功能\b|\b\w+系统\b)/gi;
+    const domains: string[] = Array.from(new Set([
+      ...problemScope.match(domainRegex) || [],
+      ...requirements.match(domainRegex) || []
+    ].map(d => d.replace(/(功能|管理|系统)$/, '').trim())));
+    
+    return domains.splice(0, 3).map(domain => domain + '-feature').join(', '); // Limit to 3 suggestions
+  }
+
+  /**
+   * 辅助方法：识别数据操作（CRUD）
+   */
+  private identifyCRUDOperations(requirements: string): string[] {
+    const entities: string[] = [];
+    const entityPatterns = [
+      /(\b\w+)信息.*(?:新建|添加|创建)/gi,
+      /(?:查看|查询|显示|读取).*(\b\w+信息?\b)/gi,
+      /(?:编辑|修改|更新|变更).*(\b\w+)/gi,
+      /(?:删除|移除).*(\b\w+)/gi
+    ];
+    
+    for (const pattern of entityPatterns) {
+      const matches = requirements.match(pattern) || [];
+      for (const match of matches) {
+        const extracted = match.replace(/(?:新建|添加|创建|查看|查询|显示|读取|编辑|修改|更新|变更|删除|移除|\s+)/gi, '').trim();
+        if (extracted && !entities.includes(extracted)) {
+          entities.push(extracted);
+        }
+      }
+    }
+    
+    return entities;
+  }
+
+  /**
+   * 辅助方法：提取用户角色
+   */
+  private extractUserRoles(userScenario: string): string[] {
+    const rolePattern = /\b(管理员|用户|访客|会员|VIP用户|游客|员工|经理|超级管理员|客服|普通用户)\b/gi;
+    const roles = Array.from(new Set(userScenario.match(rolePattern) || []));
+    return roles;
+  }
+
+  /**
+   * 辅助方法：提取用户旅程路径数
+   */
+  private extractUserJourneys(userScenario: string): string[] {
+    const journeyPattern = /(?:当.*时|当.*后|在.*过程中|流程.*|步骤.*|首先|然后|最后)/g;
+    const matches = userScenario.match(journeyPattern) || [];
+    // Count unique types of journey indicators
+    return Array.from(new Set(matches)).slice(0, 5);
   }
 
   /**

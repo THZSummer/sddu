@@ -19,7 +19,16 @@ export interface PhaseHistory {
   comment?: string;        // Optional comment
 }
 
-// State Schema v2.0.0
+// Information about child features in tree structure
+export interface ChildFeatureInfo {
+  path: string;            // Full path to child feature
+  featureName: string;     // Name of child feature
+  status: WorkflowStatus;  // Current status of child feature
+  phase: number;          // Current phase of child feature
+  lastModified: string;    // Last modified timestamp
+}
+
+// State Schema v2.0.0 - keeping the original schema as foundation
 export interface StateV2_0_0 {
   // Basic information
   feature: string;         // Feature ID (required)
@@ -66,7 +75,29 @@ export interface StateV2_0_0 {
   }>;
 }
 
-// Validation function
+// Extended State Schema v2.1.0 supporting tree structure
+export interface StateV2_1_0 extends Omit<StateV2_0_0, 'version'> {
+  version: 'v2.1.0';         // Updated schema version with 'v' prefix - FIX for EC-013
+  depth?: number;             // Depth in the tree (0 for root, 1 for first level, etc.)
+  childrens?: ChildFeatureInfo[];    // Direct child features
+  
+  // Adding the required fields (fix for EC-012)
+  phaseHistory: PhaseHistory[];      // Required field
+  files: {
+    spec: string;
+    plan?: string;
+    tasks?: string;
+    readme?: string;
+    review?: string;
+    validation?: string;
+  };
+  dependencies: {
+    on: string[];       // Features this depends on
+    blocking: string[]; // Features blocked by this feature
+  };
+}
+
+// Validation function for v2.0.0
 export function validateState(state: any): state is StateV2_0_0 {
   // Required fields validation
   if (!state || typeof state !== 'object') {
@@ -167,4 +198,73 @@ export function validateState(state: any): state is StateV2_0_0 {
   }
 
   return true;
-} 
+}
+
+
+// Extended validation function for v2.1.0 schema
+export function validateStateV2_1_0(state: any): state is StateV2_1_0 {
+  // First validate using the v2.0.0 validation
+  if (!validateState(state)) {
+    return false;
+  }
+
+  // Validate version field specific to v2.1.0 - fix: check against v2.1.0 specifically
+  if (state.version !== 'v2.1.0') {
+    console.error('Version must be "v2.1.0" for StateV2_1_0');
+    return false;
+  }
+
+  // For v2.1.0, we can validate fields that are available in StateV2_1_0 vs StateV2_0_0
+  // Since we extend from StateV2_0_0, the base validation happens in validateState
+  
+  // Special v2.1.0 validations:
+  // Only validate depth and childrens if they exist in the object (they're optional)
+  if ('depth' in state && state.depth !== undefined) {
+    if (typeof state.depth !== 'number' || state.depth < 0) {
+      console.error('depth must be a non-negative number when present');
+      return false;
+    }
+  }
+
+  if ('childrens' in state && state.childrens !== undefined) {
+    if (!Array.isArray(state.childrens)) {
+      console.error('childrens must be an array when present');
+      return false;
+    }
+
+    for (const child of state.childrens) {
+      if (!child || typeof child !== 'object') {
+        console.error('Each child in childrens must be an object');
+        return false;
+      }
+
+      if (typeof child.path !== 'string') {
+        console.error('Each child must have a path string');
+        return false;
+      }
+
+      if (typeof child.featureName !== 'string') {
+        console.error('Each child must have a featureName string');
+        return false;
+      }
+
+      const validStatuses: WorkflowStatus[] = ['specified', 'planned', 'tasked', 'building', 'reviewed', 'validated'];
+      if (!validStatuses.includes(child.status as WorkflowStatus)) {
+        console.error('Each child status must be one of the valid workflow statuses');
+        return false;
+      }
+
+      if (typeof child.phase !== 'number' || child.phase < 1 || child.phase > 6) {
+        console.error('Each child phase must be a number between 1 and 6');
+        return false;
+      }
+
+      if (typeof child.lastModified !== 'string') {
+        console.error('Each child must have a lastModified timestamp string');
+        return false;
+      }
+    }
+  }
+
+  return true;
+}

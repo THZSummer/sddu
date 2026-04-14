@@ -2,6 +2,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { StateMachine } from './machine';
 import { FeatureStateEnum } from './machine';
+import { scanTreeStructure } from './tree-scanner';
 
 /**
  * 自动状态更新器
@@ -53,7 +54,7 @@ export class AutoUpdater {
   }
 
   /**
-   * 扫描并自动更新相关的 Feature 状态
+   * 扫描并自动更新相关的 Feature 状态 - 支持嵌套路径
    */
   async scanAndAutoUpdate(targetPath?: string): Promise<void> {
     if (!this.enabled) {
@@ -65,26 +66,40 @@ export class AutoUpdater {
       let featuresToCheck: string[] = [];
 
       if (targetPath) {
-        // 从文件路径提取对应的 Feature ID
-        const relativePath = path.relative(this.specsDir, targetPath);
-        if (relativePath.startsWith('specs-tree-root/')) {
-          const parts = relativePath.split(path.sep);
-          if (parts.length > 1) {
-            const featureId = parts[1]; // feature 目录名是第二个部分
-            featuresToCheck = [featureId];
+        // Extract feature path correctly for nested structures
+        const pathParts = targetPath.split(/[\/\\]specs-tree-/) // Split on directory separator followed by specs-tree-
+        if (pathParts.length > 1) {
+          // Extract the feature path including nesting levels
+          const fullRelativePath = pathParts.slice(1).join('specs-tree-'); // Get the part after the first occurrence
+          
+         // Find the actual feature path in the tree structure
+         if (targetPath.includes('specs-tree-')) {
+           const treeStructure = await scanTreeStructure(this.specsDir);
+           // Try to locate the feature path that contains the targetFile
+           const potentialPaths = Array.from(treeStructure.flatMap.keys()).sort((a, b) => {
+             // Sort by length descending to match most specific path first
+             return b.length - a.length;
+           });
+           
+           for (const featurePath of potentialPaths) {
+             if (targetPath.startsWith(featurePath)) {
+               featuresToCheck = [featurePath];
+               break;
+             }
+           }
           }
         } else {
-          // 如果不在预期目录下，尝试查找所有特征
+          // Fallback to the old method if the path pattern doesn't match
           featuresToCheck = await this.getAllFeatureIds();
         }
       } else {
-        // 扫描所有 Features
+        // Scan all Features using TreeScanner for nested paths
         featuresToCheck = await this.getAllFeatureIds();
       }
 
-      // 针对每个需要检查的 Feature 进行状态推断和更新
-      for (const featureId of featuresToCheck) {
-        await this.updateFeatureStatusForFileChanges(featureId);
+      // Check each feature that needs to be checked for state updates
+      for (const featurePath of featuresToCheck) {
+        await this.updateFeatureStatusForFileChanges(featurePath);
       }
 
     } catch (error) {
@@ -93,17 +108,14 @@ export class AutoUpdater {
   }
 
   /**
-   * 从目录中获取所有 Feature ID
+   * 使用 TreeScanner 来获取所有 Feature 路径列表 - 支持嵌套结构
    */
-  private async getAllFeatureIds(): Promise<string[]> {
+  async getAllFeatureIds(): Promise<string[]> {
     try {
-      const specsDirPath = path.join(this.specsDir);
-      const items = await fs.readdir(specsDirPath, { withFileTypes: true });
-      const dirs = items
-        .filter(item => item.isDirectory())
-        .map(item => item.name);
-      
-      return dirs;
+      const treeResult = await scanTreeStructure(this.specsDir);
+      const featurePaths = Array.from(treeResult.flatMap.keys());
+      console.log(`Found features: ${featurePaths.join(', ')}`);
+      return featurePaths;
     } catch (error) {
       console.error('获取 Features 列表失败:', error);
       return [];
@@ -113,11 +125,10 @@ export class AutoUpdater {
   /**
    * 推断给定 Feature 目录中的最新状态
    */
-  async inferCurrentStateFromFiles(featureId: string): Promise<FeatureStateEnum | null> {
-    const featureDir = path.join(this.specsDir, featureId);
+  async inferCurrentStateFromFiles(featurePath: string): Promise<FeatureStateEnum | null> {
     
     try {
-      const dirContents = await fs.readdir(featureDir);
+      const dirContents = await fs.readdir(featurePath);
       
       // 从最高级别的状态开始尝试匹配
       const stateOrder: FeatureStateEnum[] = [
@@ -127,7 +138,7 @@ export class AutoUpdater {
       
       for (const state of stateOrder) {
         const requiredFiles = this.keyFiles[state] || [];
-        const missingFiles = await this.checkMissingFiles(featureDir, requiredFiles);
+        const missingFiles = await this.checkMissingFiles(featurePath, requiredFiles);
         
         if (missingFiles.length === 0 && state !== 'implementing' && state !== 'reviewed') {
           return state;
@@ -137,7 +148,7 @@ export class AutoUpdater {
         if (state === 'implementing' || state === 'reviewed') {
           // 检查这些状态依赖的基础文件是否存在
           const basicRequiredFiles = this.keyFiles['tasked'] || [];
-          const basicMissing = await this.checkMissingFiles(featureDir, basicRequiredFiles);
+          const basicMissing = await this.checkMissingFiles(featurePath, basicRequiredFiles);
           if (basicMissing.length === 0) {
             // 基础文件存在，我们可以确定当前处于进行中状态
             return state === 'implementing' ? 'implementing' : 'reviewed';
@@ -157,7 +168,7 @@ export class AutoUpdater {
       }
       
       // 默认为 drafting 状态（如果目录存在但没有特征文件）
-      if (await this.isFeatureDirectory(featureDir)) {
+      if (await this.isFeatureDirectory(featurePath)) {
         return 'drafting';
       }
       
@@ -165,10 +176,10 @@ export class AutoUpdater {
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         // Feature 目录不存在
-        console.log(`Feature 目录不存在: ${featureDir}`);
+        console.log(`Feature 目录不存在: ${featurePath}`);
         return null;
       }
-      console.error(`无法推断 Feature ${featureId} 的状态:`, error);
+      console.error(`无法推断 Feature ${featurePath} 的状态:`, error);
       return null;
     }
   }
@@ -210,39 +221,76 @@ export class AutoUpdater {
   /**
    * 为文件变化更新单个 Feature 的状态
    */
-  private async updateFeatureStatusForFileChanges(featureId: string): Promise<void> {
+  private async updateFeatureStatusForFileChanges(featurePath: string): Promise<void> {
     try {
+      // Extract feature ID from the path
+      const pathComponents = featurePath.split(/[\/\\]/);
+      const featureId = pathComponents[pathComponents.length - 1]; // Last component could be feature id
+      
+      // From actual feature path in nested structure  
+      const actualFeatureName = featurePath.split(/[\/\\]specs-tree-/).pop()?.split(/[\/\\]/)[0] || featurePath;
+      
       // 从文件系统推理当前状态
-      const inferredState = await this.inferCurrentStateFromFiles(featureId);
+      const inferredState = await this.inferCurrentStateFromFiles(featurePath);
       
       if (inferredState === null) {
-        console.log(`无法为 ${featureId} 推断新的状态，跳过更新`);
+        console.log(`无法为路径 ${featurePath} 推断新的状态，跳过更新`);
         return;
       }
 
-      // 从状态机获取当前状态
-      const currentStateObj = this.stateMachine.getState(featureId);
-      const currentState = currentStateObj ? currentStateObj.state : 'drafting';
+      // 从状态机获取当前状态 - now with full feature path instead of just id
+      const currentStateObj = await this.stateMachine.getState(featurePath);
+      const currentState = currentStateObj ? this.mapStatusToState(currentStateObj.status as any) : 'drafting';
 
       // 检查状态是否真的发生了改变
       if (currentState === inferredState) {
-        console.log(`Feature ${featureId} 状态未发生改变 (${currentState})，跳过更新`);
+        console.log(`Feature ${actualFeatureName} 状态未发生改变 (${currentState})，跳过更新`);
         return;
       }
 
-      // 仅当推测状态在状态流转序列中位于当前状态之后时，才进行更新
-      if (this.shouldUpdateState(currentState as FeatureStateEnum, inferredState)) {
-        console.log(`AutoUpdater: 更新 Feature ${featureId} 从 ${currentState} 到 ${inferredState}`);
+      // 检查是否是父级特征，如果是，可能只需要有限的状态更新
+      const isParent = await this.stateMachine.isParentFeature(featurePath);
+      
+      if (isParent && this.stateRequiresAdvancedHandling(inferredState)) {
+        console.log(`跳过高级状态更新 ${inferredState} 对于父级 feature ${actualFeatureName}，仅允许规格/规划级状态`);
+        return;
+      }
+      
+      // 检查状态转换是否合理
+      if (this.shouldUpdateState(currentState, inferredState)) {
+        console.log(`AutoUpdater: 更新 Feature ${actualFeatureName} 从 ${currentState} 到 ${inferredState} (路径: ${featurePath})`);
         
         // 更新状态到状态机，跳过常规验证，因为我们是从文件状态推导的
-        await this.stateMachine.updateState(featureId, inferredState, {}, 'auto-updater', 
-          `自动检测到状态从 ${currentState} 到 ${inferredState}`, true); // 跳过验证
+        await this.stateMachine.updateState(featurePath, inferredState, {}, 'auto-updater', 
+          `自动检测到状态从 ${currentState} 到 ${inferredState}`, true, isParent); // 跳过验证
       } else {
-        console.log(`状态变化无效，跳过更新: ${featureId} 从 ${currentState} 到 ${inferredState}`);
+        console.log(`状态变化无效，跳过更新: ${actualFeatureName} 从 ${currentState} 到 ${inferredState}`);
       }
     } catch (error) {
-      console.error(`自动更新 Feature ${featureId} 状态失败:`, error);
+      console.error(`自动更新 Feature 路径 ${featurePath} 状态失败:`, error);
     }
+  }
+  
+  /**
+   * Maps the Status to State for comparison purposes
+   */
+  private mapStatusToState(status: string): FeatureStateEnum {
+    switch(status) {
+      case 'specified': return 'specified';
+      case 'planned': return 'planned';
+      case 'tasked': return 'tasked';
+      case 'building': return 'implementing';
+      case 'reviewed': return 'reviewed';
+      case 'validated': return 'validated';
+      default: return 'drafting';
+    }
+  }
+  
+  /**
+   * Checks if state requires advanced handling (not allowed for parent features)
+   */
+  private stateRequiresAdvancedHandling(state: FeatureStateEnum): boolean {
+    return ['implementing', 'reviewed', 'validated', 'completed'].includes(state);
   }
 
   /**
