@@ -2,7 +2,8 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { constants as fsConstants } from 'fs';
 import { scanTreeStructure } from './tree-scanner';
-import { StateV2_1_0 } from './schema-v2.0.0';
+import { TreeStateValidator } from './tree-state-validator';  // Static import
+import { StateV2_1_0, PhaseHistory, WorkflowStatus } from './schema-v2.0.0';
 
 interface CachedState {
   state: StateV2_1_0;
@@ -311,18 +312,27 @@ export class StateLoader {
 
    /**
     * Creates a new state for a given feature if it doesn't already exist
-    * - Ensures version is set to 'v2.1.0' (fix for EC-013)
-    * - Ensures all required fields are present (fix for EC-012)
+    * - Automatically calculates depth based on featurePath (FR-101)
+    * - Initializes phaseHistory with consistent strategy (FR-101)
+    * - Sets createdAt and updatedAt timestamps (FR-101)
+    * - Calls TreeStateValidator for final validation and auto-fixing (FR-103)
     */
    public async create(featurePath: string, initialState: Partial<StateV2_1_0>): Promise<boolean> {
+     const now = new Date().toISOString();
+     
+     // FR-101: Compute depth automatically based on featurePath
+     const computedDepth = this.computeDepth(featurePath);
+     
      // Create complete state object with defaults
      const completeInitialState: StateV2_1_0 = {
        // Required fields - providing default fallbacks if not in initialState
        feature: initialState.feature || path.basename(featurePath),
-       version: 'v2.1.0',  // Force v2.1.0 format (fix for EC-013)
-       status: initialState.status || 'specified',
-       phase: initialState.phase || 1,
-       phaseHistory: initialState.phaseHistory || [],  // Default to empty array
+       name: initialState.name,  // Preserve name if provided
+       version: 'v2.1.0',  // Force v2.1.0 format (FR-101)
+       status: initialState.status || 'specified',  // FR: Use 'specified' as the first valid status in v2.1.0 schema
+       phase: initialState.phase ?? 0, // Starting at 0 as an initial discovery phase value
+       depth: initialState.depth ?? computedDepth,  // FR-101: Auto-calculate depth
+       phaseHistory: this.initPhaseHistory(initialState, now),  // FR-101: Consistent initialization
        files: {
          spec: initialState.files?.spec || `${path.basename(featurePath)}/spec.md`,
          plan: initialState.files?.plan,
@@ -335,26 +345,25 @@ export class StateLoader {
          on: initialState.dependencies?.on || [],  // Default to empty array - fix for EC-012
          blocking: initialState.dependencies?.blocking || []  // Default to empty array - fix for EC-012
        },
-       // Optional fields - preserve from provided initialState
-       name: initialState.name,
-       depth: initialState.depth ?? 0,  // Default to 0
        childrens: initialState.childrens || [],
        metadata: initialState.metadata,
        history: initialState.history
+       // createdAt and updatedAt are handled by StateMachine or TreeStateValidator if needed
      };
+
+      // FR-103: Use TreeStateValidator to do final validation and auto-fixing
+      const validator = new TreeStateValidator(this);
+     const validationResult = validator.validateNewState(completeInitialState, featurePath);
      
-     // Add initial phase history if phase > 0 but history is empty
-     if (completeInitialState.phase > 0 && completeInitialState.phaseHistory.length === 0) {
-       completeInitialState.phaseHistory = [{
-         phase: completeInitialState.phase,
-         status: completeInitialState.status,
-         timestamp: new Date().toISOString(),
-         triggeredBy: 'StateLoader.create'
-       }];
+     // Merge repair results
+     const finalState = validationResult.repairedState;
+     
+     if (validationResult.warnings.length > 0) {
+       console.warn(`StateLoader.create() warnings for ${featurePath}:`, validationResult.warnings);
      }
 
-     if (!this.validateState(completeInitialState)) {
-       console.error(`Invalid initial state provided for ${featurePath}, but proceeding with corrected defaults`);
+     if (!this.validateState(finalState)) {
+       console.error(`Invalid initial state for ${featurePath}, but proceeding with validated/repairs`); 
      }
 
       const stateFilePath = path.join(this.specRootDir, featurePath, 'state.json');
@@ -383,12 +392,12 @@ export class StateLoader {
      }
 
      try {
-       // Write the new state to file
-       await fs.writeFile(stateFilePath, JSON.stringify(completeInitialState, null, 2));
+       // Write the final validated state to file
+       await fs.writeFile(stateFilePath, JSON.stringify(finalState, null, 2));
        
        // Update cache
        this.cache.set(featurePath, {
-         state: completeInitialState,
+         state: finalState,
          timestamp: Date.now()
        });
 
@@ -397,6 +406,35 @@ export class StateLoader {
        console.error(`Error creating state at ${stateFilePath}: ${error.message}`);
        return false;
      }
+   }
+
+   /**
+    * FR-101: Calculate depth automatically based on featurePath
+    * Computes the nesting level by counting 'specs-tree-' occurrences in the path
+    */
+   private computeDepth(featurePath: string): number {
+     const matches = featurePath.match(/specs-tree-/g);
+     return matches ? matches.length - 1 : 0;  // Subtract 1 because "specs-tree-root" doesn't count as a level
+   }
+
+   /**
+    * FR-101: Initialize phaseHistory consistently
+    * Either uses the provided history or creates a standard initial entry
+    */
+   private initPhaseHistory(initialState: Partial<StateV2_1_0>, now: string): PhaseHistory[] {
+     if (initialState.phaseHistory && initialState.phaseHistory.length > 0) {
+       return [...initialState.phaseHistory];
+     }
+     
+     const phase = initialState.phase ?? 1;
+     const status = (initialState.status as WorkflowStatus) || 'specified'; // Use 'specified' as the first valid state
+   
+     return [{
+       phase,
+       status,
+       timestamp: now,
+       triggeredBy: 'StateLoader.create'
+     }];
    }
 
   /**

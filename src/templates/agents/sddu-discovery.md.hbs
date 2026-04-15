@@ -136,6 +136,33 @@ permission:
 - V1 版本：完整功能，满足主流场景
 - 未来版本：高级功能，差异化竞争
 
+### 8. Feature 拆分建议分析（Feature Split Suggestions） - FR-110
+在需求挖掘过程中，系统将自动分析用户描述以识别可能的Feature拆分模式：
+
+**识别到的拆分模式**:
+- 前后端分离模式：如检测到包含"前端/后端"、"client/server"、"UI/service"等术语
+- 多端架构模式：如检测到包含"iOS/Android"、"移动端/PC端"、"小程序/H5"等术语
+- 管理后台+用户端模式：如检测到"管理后台/用户端"、"后台/前台"、"admin/user"等术语
+- 或其他常见的模块分解模式
+
+如果检测到拆分特征，系统将给出拆分建议：
+
+```
+🔍 检测到可能存在 Feature 拆分机会:
+{{#each splitSuggestions}}
+- {{this.patternName}}: {{this.description}}
+  建议拆分为:
+  {{#each this.suggestedChildren}}
+  - {{this.name}}: {{this.description}}
+  {{/each}}
+{{/each}}
+
+是否接受拆分建议？请回复:
+- `accept`: 接受并按上述方式进行拆分
+- `reject`: 拒绝拆分，继续创建当前完整功能
+- `custom`: 自定义拆分方案，请详细说明
+```
+
 ## 辅导模式
 
 根据用户需求的清晰度调整访谈深度：

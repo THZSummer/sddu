@@ -1,0 +1,71 @@
+{
+  "feature": "specs-tree-tree-structure-optimization-v2",
+  "name": "树形结构优化 v2 - 问题修复",
+  "version": "v2.1.0",
+  "status": "validated",
+  "phase": 6,
+  "depth": 1,
+  "phaseHistory": [
+    {
+      "phase": 0,
+      "status": "discovered",
+      "timestamp": "2026-04-15T00:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent"
+    },
+    {
+      "phase": 1,
+      "status": "specified",
+      "timestamp": "2026-04-15T06:30:00.000Z",
+      "triggeredBy": "sddu-spec-agent"
+    },
+    {
+      "phase": 2,
+      "status": "planned",
+      "timestamp": "2026-04-15T07:00:00.000Z",
+      "triggeredBy": "sddu-plan-agent"
+    },
+    {
+      "phase": 3,
+      "status": "tasked",
+      "timestamp": "2026-04-15T08:00:00.000Z",
+      "triggeredBy": "sddu-tasks-agent"
+    },
+    {
+      "phase": 4,
+      "status": "building",
+      "timestamp": "2026-04-15T10:00:00.000Z",
+      "triggeredBy": "sddu-build-agent"
+    },
+    {
+      "phase": 5,
+      "status": "reviewed",
+      "timestamp": "2026-04-15T12:00:00.000Z",
+      "triggeredBy": "sddu-review-agent"
+    },
+    {
+      "phase": 6,
+      "status": "validated",
+      "timestamp": "2026-04-15T12:30:00.000Z",
+      "triggeredBy": "sddu-validate-agent"
+    }
+  ],
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md",
+    "specJson": "spec.json",
+    "plan": "plan.md",
+    "tasks": "tasks.md",
+    "tasksJson": "tasks.json",
+    "build": "build.md",
+    "review": "review.md",
+    "validation": "validation-report.md"
+  },
+  "dependencies": {
+    "on": [
+      "specs-tree-tree-structure-optimization"
+    ],
+    "blocking": []
+  },
+  "createdAt": "2026-04-15T00:00:00.000Z",
+  "updatedAt": "2026-04-15T12:30:00.000Z"
+}

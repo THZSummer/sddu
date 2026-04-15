@@ -153,47 +153,36 @@ export class StateMachine {
 
   async createFeature(name: string, featurePath: string): Promise<FeatureWithFullHistory> {
     const id = name.toLowerCase().replace(/\s+/g, '-').slice(0, 50);
-    const now = new Date().toISOString();
     
-    // Create and save distributed state
-    const state: DistributedFeatureState = {
-      id,  // Added for compatibility
-      feature: id, // Required field
-      name,
-      version: 'v2.1.0', // v2.1.0 schema with tree support
-      status: 'specified', // Default status for a new feature
-      phase: 1,           // Start at phase 1 (spec phase)
-      phaseHistory: [{
-        phase: 1,
-        status: 'specified',
-        timestamp: now,
-        triggeredBy: 'system',
-        comment: 'Feature created'
-      }],
+    // Create minimal initial state - let StateLoader auto-fill the rest (FR-103)
+    const initialState: Partial<StateV2_1_0> = {
+      feature: featurePath,
+      name: name,
+      status: 'specified', // Base status on which phase is initially set
+      phase: 1, // Initial phase set to 1 (spec phase)
       files: {
-        spec: path.join(featurePath, 'spec.md')
-      },
-      dependencies: {
-        on: [],
-        blocking: []
-      },
-      history: [{
-        timestamp: now,
-        from: 'drafting',
-        to: 'specified',
-        triggeredBy: 'system',
-        comment: 'Initial feature setup'
-      }]
+        spec: `${path.basename(featurePath)}/spec.md` // Minimal required file info
+      }
     };
     
-    // Save via StateLoader
-    const success = await this.stateLoader.create(featurePath, state as StateV2_1_0);
+    // Save via StateLoader - auto-fill all missing properties (FR-101, FR-103)
+    const success = await this.stateLoader.create(featurePath, initialState);
     if (!success) {
       throw new Error('Failed to create distributed state for feature: ' + id);
     }
     
+    // Get the fully hydrated state after auto-fill
+    const finalState = await this.stateLoader.get(featurePath) as StateV2_1_0;
+    if (!finalState) {
+      throw new Error('Created feature state could not be loaded immediately after creation: ' + id);
+    }
+    
     // Return a FeatureWithFullHistory shape with expanded fields
-    return {...state, id, name, tasks: []} as FeatureWithFullHistory;
+    return { 
+      ...finalState, 
+      id, 
+      tasks: [] // Legacy field for backward compatibility
+    } as FeatureWithFullHistory;
   }
 
   async getState(featurePath: string): Promise<FeatureWithFullHistory | undefined> {

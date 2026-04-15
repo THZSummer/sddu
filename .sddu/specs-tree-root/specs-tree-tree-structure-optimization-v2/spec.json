@@ -1,0 +1,261 @@
+{
+  "featureId": "TSO-V2-001",
+  "featureName": "树形结构优化 v2 - 问题修复",
+  "version": "2.1.0",
+  "priority": "P0",
+  "status": "specified",
+  "createdAt": "2026-04-15T00:00:00.000Z",
+  "updatedAt": "2026-04-15T06:30:00.000Z",
+  "parentFeature": "specs-tree-root",
+  "dependencyFeature": "specs-tree-tree-structure-optimization",
+  "featureType": "leaf",
+  "stakeholders": ["插件开发团队", "架构师", "开发工程师", "测试工程师"],
+  "goals": [
+    {
+      "id": "G-001",
+      "description": "修复 State Schema 缺失字段问题",
+      "acceptanceCriteria": "新 Feature 创建时 state.json 包含所有必填字段，Schema 验证通过率 100%"
+    },
+    {
+      "id": "G-002",
+      "description": "增强 Schema 验证器，支持自动修复缺失字段",
+      "acceptanceCriteria": "缺失字段自动填充并记录警告日志"
+    },
+    {
+      "id": "G-003",
+      "description": "扩展 Discovery 拆分识别规则",
+      "acceptanceCriteria": "能识别前后端分离、多端架构等模式并输出拆分建议"
+    },
+    {
+      "id": "G-004",
+      "description": "创建树形嵌套 E2E 测试场景",
+      "acceptanceCriteria": "多层嵌套测试项目创建并通过所有验证"
+    },
+    {
+      "id": "G-005",
+      "description": "补充分拆原则文档和树形示例项目",
+      "acceptanceCriteria": "文档完整度评分 ≥ 4/5"
+    },
+    {
+      "id": "G-006",
+      "description": "验证跨子树依赖解析能力",
+      "acceptanceCriteria": "跨子树依赖解析正确率 100%"
+    }
+  ],
+  "nonGoals": [
+    { "id": "NG-001", "description": "修改 v2.4.0 已实现的树形核心能力", "reason": "已通过验证，无需改动" },
+    { "id": "NG-002", "description": "修改现有 11 个 Feature 的目录结构", "reason": "历史产物保持不变" },
+    { "id": "NG-003", "description": "状态自动实时汇聚", "reason": "手动扫描即可满足，后续版本" },
+    { "id": "NG-004", "description": "跨子树依赖自动冲突检测", "reason": "手动管理即可，后续版本" },
+    { "id": "NG-005", "description": "树形结构可视化", "reason": "非核心能力，后续版本" }
+  ],
+  "userStories": [
+    { "id": "US-001", "role": "开发工程师", "story": "新 Feature 创建时 state.json 包含所有必填字段，不被 Schema 验证阻断", "value": "减少因字段缺失导致的开发中断" },
+    { "id": "US-002", "role": "架构师", "story": "Discovery 阶段能自动识别前后端分离模式并给出拆分建议", "value": "自动化拆分决策，降低架构设计成本" },
+    { "id": "US-003", "role": "测试工程师", "story": "树形嵌套场景有完整的 E2E 测试覆盖", "value": "确保核心能力可靠运行" },
+    { "id": "US-004", "role": "新用户", "story": "有拆分原则文档和示例项目参考，快速上手树形结构", "value": "降低学习成本" },
+    { "id": "US-005", "role": "开发工程师", "story": "跨子树依赖解析能力被充分验证，使用时有信心", "value": "提高依赖管理的可靠性" }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-101",
+      "title": "State Schema 修复（必填字段强制填充）",
+      "category": "state-schema-fix",
+      "description": "State Machine 初始化时强制填充所有必填字段，确保新创建的 state.json 满足 v2.1.0 Schema 要求",
+      "input": "Feature 基本信息：feature（路径）、name（名称）、depth（层级深度）",
+      "processing": "设置 version='v2.1.0', 计算 depth, 初始化 phaseHistory, dependencies, childrens, files",
+      "output": "完整的 state.json 对象，包含所有必填字段",
+      "errorHandling": "输入缺少必需信息时抛出 InvalidStateInputError",
+      "testable": "调用 StateMachine.create() 后检查所有必填字段存在且值正确"
+    },
+    {
+      "id": "FR-102",
+      "title": "Schema 验证器增强（创建时验证 v2.1.0 合规性）",
+      "category": "state-schema-fix",
+      "description": "增强 TreeStateValidator，在写入 state.json 前校验必填字段完整性，缺失时自动修复并记录警告",
+      "input": "待验证的 state 对象",
+      "processing": "检查并自动修复 version, depth, phaseHistory, dependencies, files 字段",
+      "output": "验证结果对象：{ valid, warnings, autoFixed }",
+      "errorHandling": "可修复则自动修正，不可修复则返回 valid=false 并包含错误详情",
+      "testable": "传入缺失字段的 state 对象，验证自动修复并返回正确的 warnings 和 autoFixed 数组"
+    },
+    {
+      "id": "FR-103",
+      "title": "StateLoader.create() 修复（自动填充缺失字段）",
+      "category": "state-schema-fix",
+      "description": "修复 StateLoader.create() 方法，在创建 state.json 文件前自动填充所有缺失的必填字段",
+      "input": "featurePath: Feature 目录路径, initialState: 初始状态对象",
+      "processing": "校验并自动修复 initialState，生成完整 state.json 内容并写入文件",
+      "output": "写入的 state.json 文件路径",
+      "errorHandling": "目录不存在则创建；文件已存在则抛出 StateAlreadyExistsError；写入失败则抛出 StateWriteError",
+      "testable": "创建部分字段的 initialState，调用 create() 后读取文件验证所有必填字段存在"
+    },
+    {
+      "id": "FR-110",
+      "title": "Discovery Agent 拆分建议（识别前后端分离/多模块场景）",
+      "category": "agent-intelligence",
+      "description": "Discovery 阶段识别前后端分离、多端架构等常见拆分模式，输出拆分建议并等待用户确认",
+      "input": "用户需求描述文本",
+      "processing": "关键词匹配和语义分析，识别前后端分离、多端架构、多模块模式，生成拆分建议",
+      "output": "拆分建议对象或空数组",
+      "errorHandling": "关键词匹配存在歧义时输出所有候选模式供用户选择",
+      "testable": "输入包含特定关键词的描述，验证是否输出拆分建议"
+    },
+    {
+      "id": "FR-111",
+      "title": "Spec Agent 拆分确认（用户确认/拒绝拆分）",
+      "category": "agent-intelligence",
+      "description": "Spec Agent 处理用户对 Discovery 拆分建议的确认或拒绝，并根据选择生成对应的 Feature 结构",
+      "input": "用户选择：accept（接受）、reject（拒绝）、custom（自定义）",
+      "processing": "根据选择生成父级+子Feature目录或单个Feature目录",
+      "output": "生成的 Feature 目录结构",
+      "errorHandling": "用户自定义拆分方案不合法时返回错误提示",
+      "testable": "分别测试 accept/reject/custom 三种选择，验证生成的目录结构"
+    },
+    {
+      "id": "FR-120",
+      "title": "树形嵌套 E2E 测试场景创建（1 父 + 2 子）",
+      "category": "e2e-testing",
+      "description": "创建多层嵌套测试项目结构，用于验证树形嵌套核心能力",
+      "input": "无（测试 fixture 自动生成）",
+      "processing": "创建 1 父 + 2 子 + 1 独立 Feature 的测试项目目录结构",
+      "output": "完整的测试项目目录结构",
+      "errorHandling": "测试目录已存在时先清理旧数据",
+      "testable": "检查测试项目目录结构是否存在且符合预期"
+    },
+    {
+      "id": "FR-121",
+      "title": "childrens 数组验证",
+      "category": "e2e-testing",
+      "description": "验证父级 state.json 的 childrens 数组正确填充",
+      "input": "父级 state.json 文件路径",
+      "processing": "验证 childrens 字段存在且为数组，包含子级信息",
+      "output": "验证结果：通过/失败 + 失败详情",
+      "errorHandling": "数组长度不匹配或条目字段缺失时返回详细错误",
+      "testable": "运行验证函数，检查返回值是否为通过"
+    },
+    {
+      "id": "FR-122",
+      "title": "depth 字段验证",
+      "category": "e2e-testing",
+      "description": "验证各层级 state.json 的 depth 字段正确计算",
+      "input": "测试项目中各层级 state.json 文件路径",
+      "processing": "验证 root=0, parent=1, child=2, standalone=1",
+      "output": "验证结果：通过/失败 + 每个节点的 depth 值",
+      "errorHandling": "depth 值与预期不符时返回预期和实际值对比",
+      "testable": "运行验证函数，检查所有节点 depth 值是否符合预期"
+    },
+    {
+      "id": "FR-123",
+      "title": "跨子树依赖验证",
+      "category": "e2e-testing",
+      "description": "创建跨子树依赖场景，验证依赖解析器能正确处理跨子树的依赖引用",
+      "input": "测试项目目录路径",
+      "processing": "创建跨子树依赖场景，验证路径解析和循环依赖检测",
+      "output": "依赖解析结果和循环依赖检测结果",
+      "errorHandling": "依赖目标不存在时标记为未满足并返回警告",
+      "testable": "运行依赖检查验证路径解析，创建循环依赖场景验证检测"
+    },
+    {
+      "id": "FR-130",
+      "title": "拆分原则文档",
+      "category": "documentation",
+      "description": "创建拆分原则文档，指导用户何时拆分、如何拆分、拆分到什么粒度",
+      "input": "无（文档编写）",
+      "processing": "创建 docs/split-principles.md，包含拆分时机、粒度、父子关系、常见模式、示例",
+      "output": "docs/split-principles.md 文件",
+      "errorHandling": "无",
+      "testable": "检查文件是否存在，检查是否包含所有章节"
+    },
+    {
+      "id": "FR-131",
+      "title": "树形示例项目",
+      "category": "documentation",
+      "description": "创建树形示例项目，展示 3 层嵌套、轻量化父级 + 完整叶子的完整示例",
+      "input": "无（示例项目创建）",
+      "processing": "创建 examples/tree-structure-demo/ 目录，构建 3 层嵌套示例结构",
+      "output": "examples/tree-structure-demo/ 目录结构",
+      "errorHandling": "无",
+      "testable": "检查示例项目目录结构，验证每个 state.json 的 depth 和 childrens"
+    }
+  ],
+  "acceptanceCriteria": [
+    { "id": "AC-001", "description": "新 Feature 创建时 state.json 包含所有必填字段", "method": "创建新 Feature 并检查 state.json", "passCriteria": "version='v2.1.0', depth≥0, phaseHistory.length≥1, dependencies.on 和 blocking 均为数组" },
+    { "id": "AC-002", "description": "Schema 验证器能检测并自动修复缺失字段", "method": "传入缺失字段的 state 对象", "passCriteria": "返回 valid=true，autoFixed 数组包含修复的字段名" },
+    { "id": "AC-003", "description": "StateLoader.create() 自动填充缺失字段后写入文件", "method": "调用 create() 后读取文件", "passCriteria": "文件中所有必填字段存在且值正确" },
+    { "id": "AC-004", "description": "Discovery 能识别前后端分离模式并输出拆分建议", "method": "输入包含'前端/后端'的描述", "passCriteria": "输出包含子 Feature 命名建议和职责描述" },
+    { "id": "AC-005", "description": "Discovery 能识别多端架构模式并输出拆分建议", "method": "输入包含'iOS/Android'的描述", "passCriteria": "输出拆分建议" },
+    { "id": "AC-006", "description": "Spec Agent 处理用户接受拆分选择", "method": "用户选择 accept", "passCriteria": "生成父级 + 子 Feature 目录结构" },
+    { "id": "AC-007", "description": "Spec Agent 处理用户拒绝拆分选择", "method": "用户选择 reject", "passCriteria": "生成单个 Feature 目录（完整叶子）" },
+    { "id": "AC-008", "description": "树形嵌套 E2E 测试项目结构正确", "method": "检查测试项目目录和 state.json", "passCriteria": "1 父 + 2 子结构存在，depth 和 childrens 正确" },
+    { "id": "AC-009", "description": "拆分原则文档包含所有章节", "method": "检查文档内容", "passCriteria": "包含拆分时机、粒度、父子关系、常见模式、示例" },
+    { "id": "AC-010", "description": "树形示例项目包含 3 层嵌套", "method": "检查示例项目目录结构", "passCriteria": "3 层嵌套存在，每个 state.json 的 depth 和 childrens 正确" },
+    { "id": "AC-011", "description": "跨子树依赖解析正确，能读取目标 Feature 状态", "method": "运行跨子树依赖测试", "passCriteria": "child-a 能正确解析对 child-b 的依赖路径，依赖检查器能读取 target state.json" },
+    { "id": "AC-012", "description": "所有必填字段自动填充成功率为 100%", "method": "创建 100 个 Feature 并验证", "passCriteria": "所有 state.json 包含 version/depth/phaseHistory/dependencies 字段" }
+  ],
+  "nonFunctionalRequirements": [
+    { "id": "NFR-001", "type": "兼容性", "requirement": "不破坏现有 11 个 Feature 的正常运行", "acceptanceCriteria": "现有 Feature 目录结构保持不变，功能正常" },
+    { "id": "NFR-002", "type": "类型安全", "requirement": "完整 TypeScript 类型定义", "acceptanceCriteria": "无 any 类型，严格模式编译通过" },
+    { "id": "NFR-003", "type": "性能", "requirement": "自动修复不显著影响创建性能", "acceptanceCriteria": "100 次 state.json 创建耗时 < 500ms" },
+    { "id": "NFR-004", "type": "可维护性", "requirement": "代码组织清晰，关键逻辑有注释", "acceptanceCriteria": "新增/修改文件有清晰注释" },
+    { "id": "NFR-005", "type": "文档", "requirement": "公共 API 有 JSDoc 注释", "acceptanceCriteria": "所有导出函数和接口有完整注释" },
+    { "id": "NFR-006", "type": "测试", "requirement": "关键功能有测试覆盖", "acceptanceCriteria": "State Schema 修复、Schema 验证、拆分识别有单元测试" },
+    { "id": "NFR-007", "type": "日志", "requirement": "自动修复操作有日志记录", "acceptanceCriteria": "WARNING 级别日志包含修复的字段名和默认值" }
+  ],
+  "edgeCases": [
+    { "id": "EC-101", "scenario": "State Machine 创建时未提供 depth", "handling": "根据 feature 路径中的 specs-tree- 出现次数自动计算 depth" },
+    { "id": "EC-102", "scenario": "version 格式错误（如 '2.1.0' 缺少 'v'）", "handling": "自动修正为 'v2.1.0'，记录 WARNING 日志" },
+    { "id": "EC-103", "scenario": "phaseHistory 为空数组但 phase > 0", "handling": "自动填充历史阶段记录，根据 phase 推断 status" },
+    { "id": "EC-104", "scenario": "dependencies.on 中包含不存在的路径", "handling": "依赖检查时标记为未满足，返回警告但不阻断" },
+    { "id": "EC-105", "scenario": "拆分建议关键词匹配存在歧义", "handling": "输出所有候选模式供用户选择" },
+    { "id": "EC-106", "scenario": "用户自定义拆分方案名称冲突", "handling": "返回错误提示，要求重新输入" },
+    { "id": "EC-107", "scenario": "测试项目目录已存在", "handling": "先清理旧数据再创建" },
+    { "id": "EC-108", "scenario": "跨子树循环依赖", "handling": "检测并阻止状态变更，返回循环路径" },
+    { "id": "EC-109", "scenario": "childrens 数组条目对应的子 Feature 已被手动删除", "handling": "标记为 unreadable，不自动移除" },
+    { "id": "EC-110", "scenario": "state.json 文件写入权限不足", "handling": "返回 StateWriteError，包含详细错误信息" }
+  ],
+  "openQuestions": [
+    { "id": "OP-001", "question": "Discovery 拆分识别规则的精确匹配策略", "impact": "Agent 拆分建议可能不准确或过度拆分", "recommendation": "提供用户手动指定能力兜底（FR-111）" },
+    { "id": "OP-002", "question": "拆分建议触发阈值如何设定", "impact": "阈值过低导致过度拆分，过高导致漏拆", "recommendation": "初始保守策略，后续基于用户反馈调优" },
+    { "id": "OP-003", "question": "示例项目是否需要包含完整 6 阶段文档", "impact": "增加示例体积但提升参考价值", "recommendation": "父级仅包含 discovery/spec/README，叶子包含完整 6 阶段" }
+  ],
+  "dataModel": {
+    "schemaVersion": "v2.1.0",
+    "requiredFields": ["feature", "version", "status", "phase", "phaseHistory", "files", "dependencies", "depth"],
+    "conditionalRequiredFields": ["childrens (父级必填)"],
+    "optionalFields": ["name", "createdAt", "updatedAt", "metadata", "history"],
+    "jsonSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SDDU State v2.1.0",
+      "type": "object",
+      "required": ["feature", "version", "status", "phase", "phaseHistory", "files", "dependencies", "depth"],
+      "properties": {
+        "feature": { "type": "string" },
+        "name": { "type": "string" },
+        "version": { "type": "string", "const": "v2.1.0" },
+        "status": { "type": "string", "enum": ["discovered", "specified", "planned", "tasked", "building", "reviewed", "validated"] },
+        "phase": { "type": "integer", "minimum": 0, "maximum": 6 },
+        "depth": { "type": "integer", "minimum": 0 },
+        "phaseHistory": { "type": "array", "minItems": 1 },
+        "files": { "type": "object", "required": ["spec"] },
+        "dependencies": { "type": "object", "required": ["on", "blocking"] },
+        "childrens": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "relatedFiles": [
+    { "path": "src/state/machine.ts", "action": "修改", "description": "State Machine 初始化强制填充必填字段" },
+    { "path": "src/state/tree-state-validator.ts", "action": "修改", "description": "Schema 验证器增强" },
+    { "path": "src/state/loader.ts", "action": "修改", "description": "StateLoader.create() 自动修复" },
+    { "path": "src/discovery/workflow-engine.ts", "action": "修改", "description": "拆分识别规则扩展" },
+    { "path": "src/templates/agents/discovery.md", "action": "修改", "description": "拆分建议输出模板" },
+    { "path": "src/templates/agents/spec.md", "action": "修改", "description": "拆分确认处理模板" },
+    { "path": "tests/e2e/fixtures/tree-nested/", "action": "新建", "description": "树形嵌套测试项目" },
+    { "path": "tests/e2e/tree-state-validation.spec.ts", "action": "新建", "description": "树形状态验证 E2E 测试" },
+    { "path": "docs/split-principles.md", "action": "新建", "description": "拆分原则文档" },
+    { "path": "examples/tree-structure-demo/", "action": "新建", "description": "树形示例项目" }
+  ]
+}

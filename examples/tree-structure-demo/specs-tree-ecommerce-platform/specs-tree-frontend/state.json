@@ -1,0 +1,52 @@
+{
+  "feature": "examples/tree-structure-demo/specs-tree-ecommerce-platform/specs-tree-frontend",
+  "name": "前端应用",
+  "version": "v2.1.0",
+  "status": "tasked",
+  "phase": 3,
+  "depth": 1,
+  "childrens": [],
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md",
+    "plan": "plan.md", 
+    "tasks": "tasks.md",
+    "build": "build.md",
+    "review": "review.md",
+    "validate": "validate.md"
+  },
+  "dependencies": {
+    "on": [
+      "examples/tree-structure-demo/specs-tree-ecommerce-platform/specs-tree-backend/specs-tree-api"
+    ],
+    "blocking": []
+  },
+  "phaseHistory": [
+    {
+      "phase": 0,
+      "status": "discovered",
+      "timestamp": "2026-04-15T10:00:00.000Z",
+      "triggeredBy": "system"
+    },
+    {
+      "phase": 1,
+      "status": "specified", 
+      "timestamp": "2026-04-15T10:30:00.000Z",
+      "triggeredBy": "system"
+    },
+    {
+      "phase": 2,
+      "status": "planned",
+      "timestamp": "2026-04-15T11:00:00.000Z", 
+      "triggeredBy": "system"
+    },
+    {
+      "phase": 3,
+      "status": "tasked",
+      "timestamp": "2026-04-15T11:30:00.000Z",
+      "triggeredBy": "system"
+    }
+  ],
+  "createdAt": "2026-04-15T10:00:00.000Z", 
+  "updatedAt": "2026-04-15T11:30:00.000Z"
+}

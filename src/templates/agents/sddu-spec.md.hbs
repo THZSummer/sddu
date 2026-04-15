@@ -78,6 +78,23 @@ permission:
 - 待决策事项
 - 需要进一步调研的内容
 
+### 10. 拆分确认处理 - FR-111
+如果当前项目是Discovery阶段提出的拆分建议，则在规范编写中进行处理：
+
+- **接受拆分（accept）**: 
+  - 为父级Feature创建轻量化规范（包含discovery.md/spec.md/README.md/state.json）
+  - 在state.json的childrens字段中记录子Feature信息
+  - 详细说明子Feature的职责和边界
+  
+- **拒绝拆分（reject）**: 
+  - 按原有单Feature模式创建完整规范内容
+  - 在discovery.md中记录拒绝拆分的原因
+  - 创建包含6阶段的完整实现计划
+
+- **自定义拆分（custom）**: 
+  - 根据用户自定义的拆分方案创建相应的目录结构
+  - 对可能存在的名称冲突给予警示并提供改进建议
+
 ## 辅导模式
 
 根据用户的规范编写水平调整你的干预程度：

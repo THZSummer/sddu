@@ -1,0 +1,472 @@
+{
+  "featureId": "TSO-V2-001",
+  "featureName": "树形结构优化 v2 - 问题修复",
+  "specVersion": "2.1.0",
+  "generatedAt": "2026-04-15T08:00:00.000Z",
+  "totalTasks": 20,
+  "complexityDistribution": {
+    "S": 11,
+    "M": 6,
+    "L": 3
+  },
+  "totalWaves": 4,
+  "tasks": [
+    {
+      "id": "T001",
+      "name": "StateLoader.create() 增强",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "sprint": 1,
+      "sprintName": "State Schema 修复",
+      "description": "增强 StateLoader.create() 方法：自动计算 depth、统一初始化 phaseHistory、设置时间戳、调用 TreeStateValidator.validate()",
+      "files": [
+        { "action": "MODIFY", "path": "src/state/state-loader.ts" }
+      ],
+      "acceptanceCriteria": [
+        "create() 自动计算 depth（EC-101）",
+        "create() 强制设置 version='v2.1.0'",
+        "create() 统一初始化 phaseHistory（EC-103）",
+        "create() 设置 createdAt 和 updatedAt 时间戳",
+        "create() 在写入前调用 TreeStateValidator.validate()",
+        "保持 create() 签名不变（向后兼容）",
+        "自动修复操作记录 WARNING 级别日志"
+      ],
+      "verificationCommand": "npx tsc --noEmit"
+    },
+    {
+      "id": "T002",
+      "name": "TreeStateValidator.validate() 标准化接口",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "sprint": 1,
+      "sprintName": "State Schema 修复",
+      "description": "新增标准化的 validate() 接口，返回 ValidationResult 格式，支持自动修复缺失字段",
+      "files": [
+        { "action": "MODIFY", "path": "src/state/tree-state-validator.ts" }
+      ],
+      "acceptanceCriteria": [
+        "新增 validate() 方法，返回 ValidationResult 类型",
+        "能检测并自动修复缺失的 version 字段（EC-102）",
+        "能检测并自动修复缺失的 depth 字段（EC-101）",
+        "能检测并自动修复缺失的 phaseHistory（EC-103）",
+        "能检测并自动修复缺失的 dependencies 结构",
+        "能检测并自动修复缺失的 files 结构",
+        "严格区分可修复和不可修复场景",
+        "所有自动修复操作记录到 warnings 数组",
+        "保留现有 validateNewState() 方法"
+      ],
+      "verificationCommand": "npx tsc --noEmit"
+    },
+    {
+      "id": "T003",
+      "name": "StateMachine.createFeature() 集成增强",
+      "complexity": "S",
+      "dependencies": ["T001", "T002"],
+      "wave": 1,
+      "sprint": 1,
+      "sprintName": "State Schema 修复",
+      "description": "修改 StateMachine.createFeature() 方法，使其调用增强后的 StateLoader.create()",
+      "files": [
+        { "action": "MODIFY", "path": "src/state/machine.ts" }
+      ],
+      "acceptanceCriteria": [
+        "createFeature() 构建 Partial<StateV2_1_0> 只包含必要字段",
+        "不再手动设置 version、depth、phaseHistory",
+        "调用 stateLoader.create(featurePath, initialState) 创建状态",
+        "返回的 StateV2_1_0 包含所有必填字段",
+        "保持 createFeature() 对外接口不变"
+      ],
+      "verificationCommand": "npx tsc --noEmit"
+    },
+    {
+      "id": "T004",
+      "name": "StateLoader 单元测试",
+      "complexity": "M",
+      "dependencies": ["T001"],
+      "wave": 2,
+      "sprint": 1,
+      "sprintName": "State Schema 修复",
+      "description": "为 StateLoader.create() 编写完整的单元测试",
+      "files": [
+        { "action": "NEW", "path": "src/state/state-loader.test.ts" }
+      ],
+      "acceptanceCriteria": [
+        "测试 computeDepth() 在多种路径下的正确性",
+        "测试 create() 自动填充 version='v2.1.0'",
+        "测试 create() 自动计算 depth",
+        "测试 create() 初始化 phaseHistory 包含当前阶段",
+        "测试 create() 设置 createdAt 和 updatedAt",
+        "测试 create() 在传入完整 state 时不覆盖已有值",
+        "测试 create() 调用 TreeStateValidator.validate()",
+        "测试边界情况：特殊路径名、空路径名",
+        "测试覆盖率 > 85%"
+      ],
+      "verificationCommand": "npx jest src/state/state-loader.test.ts --coverage"
+    },
+    {
+      "id": "T005",
+      "name": "TreeStateValidator 单元测试",
+      "complexity": "M",
+      "dependencies": ["T002"],
+      "wave": 2,
+      "sprint": 1,
+      "sprintName": "State Schema 修复",
+      "description": "为 TreeStateValidator.validate() 编写完整的单元测试",
+      "files": [
+        { "action": "NEW", "path": "src/state/tree-state-validator.test.ts" }
+      ],
+      "acceptanceCriteria": [
+        "测试缺失 version 时自动设置为 'v2.1.0'",
+        "测试 version='2.1.0' 时自动修正（EC-102）",
+        "测试缺失 depth 时根据 feature 路径自动计算",
+        "测试缺失 phaseHistory 时初始化为当前阶段记录",
+        "测试缺失 dependencies 时初始化",
+        "测试缺失 files 时初始化",
+        "测试 valid=false 场景",
+        "测试 autoFixed 数组正确记录修复字段",
+        "测试 warnings 数组正确记录警告信息",
+        "测试覆盖率 > 90%"
+      ],
+      "verificationCommand": "npx jest src/state/tree-state-validator.test.ts --coverage"
+    },
+    {
+      "id": "T006",
+      "name": "StateMachine 单元测试",
+      "complexity": "S",
+      "dependencies": ["T003"],
+      "wave": 2,
+      "sprint": 1,
+      "sprintName": "State Schema 修复",
+      "description": "为 StateMachine.createFeature() 编写集成测试",
+      "files": [
+        { "action": "NEW", "path": "src/state/machine.test.ts" }
+      ],
+      "acceptanceCriteria": [
+        "测试 createFeature() 返回的 state 包含 version='v2.1.0'",
+        "测试 createFeature() 返回的 state 包含正确的 depth",
+        "测试 createFeature() 返回的 state 包含 phaseHistory.length >= 1",
+        "测试 createFeature() 返回的 state 包含 dependencies 对象",
+        "测试 createFeature() 返回的 state 包含 createdAt 和 updatedAt",
+        "测试覆盖率 > 80%"
+      ],
+      "verificationCommand": "npx jest src/state/machine.test.ts --coverage"
+    },
+    {
+      "id": "T010",
+      "name": "Discovery Workflow 拆分识别规则",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "sprint": 2,
+      "sprintName": "Agent 智能增强",
+      "description": "新增 analyzeSplitSuggestion() 方法，基于关键词匹配识别常见拆分模式",
+      "files": [
+        { "action": "MODIFY", "path": "src/discovery/workflow-engine.ts" }
+      ],
+      "acceptanceCriteria": [
+        "实现 analyzeSplitSuggestion() 方法",
+        "能识别前后端分离模式",
+        "能识别多端架构模式",
+        "能识别管理后台+用户端模式",
+        "未识别到拆分模式时返回 null",
+        "同时匹配多个模式时设置 ambiguous=true",
+        "生成 suggestedChildren 建议列表",
+        "公共 API 有 JSDoc 注释"
+      ],
+      "verificationCommand": "npx tsc --noEmit"
+    },
+    {
+      "id": "T011",
+      "name": "Discovery Agent 模板修改",
+      "complexity": "S",
+      "dependencies": ["T010"],
+      "wave": 1,
+      "sprint": 2,
+      "sprintName": "Agent 智能增强",
+      "description": "修改 sddu-discovery.md.hbs 模板，增加拆分建议输出指引",
+      "files": [
+        { "action": "MODIFY", "path": "src/templates/agents/sddu-discovery.md.hbs" }
+      ],
+      "acceptanceCriteria": [
+        "模板中包含拆分建议输出指引",
+        "指引说明何时会触发拆分建议",
+        "指引说明用户如何回应拆分建议",
+        "模板渲染结果格式正确"
+      ],
+      "verificationCommand": "node -e \"const hbs = require('handlebars'); const tmpl = require('fs').readFileSync('src/templates/agents/sddu-discovery.md.hbs', 'utf8'); hbs.compile(tmpl);\""
+    },
+    {
+      "id": "T012",
+      "name": "Spec Agent 拆分确认逻辑",
+      "complexity": "S",
+      "dependencies": ["T010"],
+      "wave": 1,
+      "sprint": 2,
+      "sprintName": "Agent 智能增强",
+      "description": "在 Spec Agent 工作流中增加拆分确认处理逻辑",
+      "files": [
+        { "action": "MODIFY", "path": "src/spec/" }
+      ],
+      "acceptanceCriteria": [
+        "接受拆分：生成父级 Feature 目录（轻量化），父级 state.json 记录 childrens",
+        "拒绝拆分：生成单个 Feature 完整叶子目录，记录拒绝原因",
+        "自定义拆分：使用用户指定的子 Feature 名称和数量",
+        "名称冲突或格式错误时返回错误提示"
+      ],
+      "verificationCommand": "npx tsc --noEmit"
+    },
+    {
+      "id": "T013",
+      "name": "Spec Agent 模板修改",
+      "complexity": "S",
+      "dependencies": ["T012"],
+      "wave": 1,
+      "sprint": 2,
+      "sprintName": "Agent 智能增强",
+      "description": "修改 sddu-spec.md.hbs 模板，增加拆分确认处理指引",
+      "files": [
+        { "action": "MODIFY", "path": "src/templates/agents/sddu-spec.md.hbs" }
+      ],
+      "acceptanceCriteria": [
+        "模板中包含拆分确认处理指引",
+        "指引覆盖 accept/reject/custom 三种选择",
+        "每种选择对应的操作步骤清晰",
+        "模板渲染结果格式正确"
+      ],
+      "verificationCommand": "node -e \"const hbs = require('handlebars'); const tmpl = require('fs').readFileSync('src/templates/agents/sddu-spec.md.hbs', 'utf8'); hbs.compile(tmpl);\""
+    },
+    {
+      "id": "T014",
+      "name": "analyzeSplitSuggestion 单元测试",
+      "complexity": "S",
+      "dependencies": ["T010"],
+      "wave": 2,
+      "sprint": 2,
+      "sprintName": "Agent 智能增强",
+      "description": "为 analyzeSplitSuggestion() 编写单元测试",
+      "files": [
+        { "action": "NEW", "path": "src/discovery/workflow-engine.test.ts" }
+      ],
+      "acceptanceCriteria": [
+        "测试前端/后端描述输出拆分建议",
+        "测试 iOS/Android 描述输出拆分建议",
+        "测试无拆分特征描述返回 null",
+        "测试同时匹配多个模式时 ambiguous=true",
+        "测试大小写不敏感匹配",
+        "测试覆盖率 > 80%"
+      ],
+      "verificationCommand": "npx jest src/discovery/workflow-engine.test.ts --coverage"
+    },
+    {
+      "id": "T020",
+      "name": "E2E 测试场景初始化脚本",
+      "complexity": "S",
+      "dependencies": ["T001", "T002", "T003"],
+      "wave": 2,
+      "sprint": 3,
+      "sprintName": "树形 E2E 测试",
+      "description": "创建 setup.sh 脚本，生成标准的树形嵌套测试项目结构",
+      "files": [
+        { "action": "NEW", "path": "scripts/e2e/tree-scenario/setup.sh" }
+      ],
+      "acceptanceCriteria": [
+        "清理旧测试数据",
+        "创建父级 Feature（depth=1）",
+        "创建子级 A（depth=2）",
+        "创建子级 B（depth=2）",
+        "创建独立 Feature（depth=1）",
+        "每个 state.json 包含所有必填字段",
+        "父级 childrens 数组包含 2 个子级信息",
+        "子级 A dependencies.on 引用 specs-tree-e2e-standalone",
+        "脚本执行成功返回 0"
+      ],
+      "verificationCommand": "bash scripts/e2e/tree-scenario/setup.sh && echo '✅ setup 成功'"
+    },
+    {
+      "id": "T021",
+      "name": "childrens 数组验证脚本",
+      "complexity": "S",
+      "dependencies": ["T020"],
+      "wave": 3,
+      "sprint": 3,
+      "sprintName": "树形 E2E 测试",
+      "description": "创建 verify-childrens.sh 脚本，验证父级 state.json 的 childrens 数组",
+      "files": [
+        { "action": "NEW", "path": "scripts/e2e/tree-scenario/verify-childrens.sh" }
+      ],
+      "acceptanceCriteria": [
+        "验证 childrens 字段存在且为数组",
+        "验证数组长度等于直接子 Feature 数量",
+        "验证每个子级条目包含 name、status 字段",
+        "验证 name 字段与子目录名称匹配",
+        "验证 status 字段为有效工作流状态值",
+        "验证失败时输出详细错误信息",
+        "纯 bash 实现"
+      ],
+      "verificationCommand": "bash scripts/e2e/tree-scenario/setup.sh && bash scripts/e2e/tree-scenario/verify-childrens.sh"
+    },
+    {
+      "id": "T022",
+      "name": "depth 字段验证脚本",
+      "complexity": "S",
+      "dependencies": ["T020"],
+      "wave": 3,
+      "sprint": 3,
+      "sprintName": "树形 E2E 测试",
+      "description": "创建 verify-depth.sh 脚本，验证各层级 depth 字段正确计算",
+      "files": [
+        { "action": "NEW", "path": "scripts/e2e/tree-scenario/verify-depth.sh" }
+      ],
+      "acceptanceCriteria": [
+        "验证父级 depth = 1",
+        "验证子级 A depth = 2",
+        "验证子级 B depth = 2",
+        "验证独立 Feature depth = 1",
+        "验证失败时输出预期值和实际值对比",
+        "纯 bash 实现"
+      ],
+      "verificationCommand": "bash scripts/e2e/tree-scenario/setup.sh && bash scripts/e2e/tree-scenario/verify-depth.sh"
+    },
+    {
+      "id": "T023",
+      "name": "跨子树依赖验证脚本",
+      "complexity": "M",
+      "dependencies": ["T020"],
+      "wave": 3,
+      "sprint": 3,
+      "sprintName": "树形 E2E 测试",
+      "description": "创建 verify-cross-tree-deps.sh 脚本，验证跨子树依赖解析和循环依赖检测",
+      "files": [
+        { "action": "NEW", "path": "scripts/e2e/tree-scenario/verify-cross-tree-deps.sh" }
+      ],
+      "acceptanceCriteria": [
+        "验证子级 A 能正确解析跨子树依赖",
+        "验证能找到目标 Feature 的 state.json",
+        "验证能读取目标 Feature 的状态",
+        "验证循环依赖检测",
+        "验证依赖目标不存在时标记为未满足",
+        "纯 bash 实现"
+      ],
+      "verificationCommand": "bash scripts/e2e/tree-scenario/setup.sh && bash scripts/e2e/tree-scenario/verify-cross-tree-deps.sh"
+    },
+    {
+      "id": "T024",
+      "name": "E2E 测试总入口脚本",
+      "complexity": "S",
+      "dependencies": ["T021", "T022", "T023"],
+      "wave": 3,
+      "sprint": 3,
+      "sprintName": "树形 E2E 测试",
+      "description": "创建 validate.sh 脚本，作为所有树形 E2E 测试的统一入口",
+      "files": [
+        { "action": "NEW", "path": "scripts/e2e/tree-scenario/validate.sh" }
+      ],
+      "acceptanceCriteria": [
+        "先运行 setup.sh 创建测试项目",
+        "依次运行各验证脚本",
+        "输出每个测试的通过/失败状态",
+        "输出汇总结果",
+        "全部通过时返回 0，有失败时返回 1",
+        "输出格式清晰，便于 CI/CD 集成"
+      ],
+      "verificationCommand": "bash scripts/e2e/tree-scenario/validate.sh"
+    },
+    {
+      "id": "T030",
+      "name": "拆分原则文档",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "sprint": 4,
+      "sprintName": "文档和示例",
+      "description": "创建 docs/split-principles.md 文档",
+      "files": [
+        { "action": "NEW", "path": "docs/split-principles.md" }
+      ],
+      "acceptanceCriteria": [
+        "包含拆分时机判断规则章节",
+        "包含拆分粒度建议章节",
+        "包含父子关系定义规则章节",
+        "包含常见拆分模式章节（至少 4 种）",
+        "包含至少 2 个完整的拆分示例",
+        "文档格式符合项目 Markdown 规范"
+      ],
+      "verificationCommand": "test -f docs/split-principles.md && grep -q '拆分时机' docs/split-principles.md && echo '✅ 文档完整'"
+    },
+    {
+      "id": "T031",
+      "name": "树形示例项目",
+      "complexity": "L",
+      "dependencies": [],
+      "wave": 1,
+      "sprint": 4,
+      "sprintName": "文档和示例",
+      "description": "创建 examples/tree-structure-demo/ 目录，展示 3 层嵌套完整示例",
+      "files": [
+        { "action": "NEW", "path": "examples/tree-structure-demo/" },
+        { "action": "NEW", "path": "examples/tree-structure-demo/README.md" }
+      ],
+      "acceptanceCriteria": [
+        "3 层嵌套结构完整",
+        "父级 ecommerce-platform 为轻量化",
+        "frontend 为完整叶子（6 阶段）",
+        "backend 也是父级",
+        "api 和 database 为完整叶子",
+        "每个 state.json 包含正确的 depth 和 childrens",
+        "演示跨子树依赖：frontend 依赖 api",
+        "示例项目 README 说明整体结构和使用方式",
+        "所有 state.json 通过 TreeStateValidator.validate() 校验"
+      ],
+      "verificationCommand": "test -d examples/tree-structure-demo && test -f examples/tree-structure-demo/README.md && echo '✅ 示例项目结构完整'"
+    },
+    {
+      "id": "T040",
+      "name": "完整流程集成测试",
+      "complexity": "L",
+      "dependencies": ["T004", "T005", "T006", "T014", "T024"],
+      "wave": 4,
+      "sprint": 5,
+      "sprintName": "集成测试",
+      "description": "编写完整的集成测试，覆盖从 Discovery 到 Validate 的全流程",
+      "files": [
+        { "action": "NEW", "path": "tests/integration/tree-workflow.test.ts" }
+      ],
+      "acceptanceCriteria": [
+        "测试完整工作流：discovery → spec → plan → tasks → build → review → validate",
+        "测试父级 Feature 在 tasks/build/review/validate 阶段被正确拦截",
+        "测试叶子 Feature 能走完整 6 阶段",
+        "测试跨子树依赖解析",
+        "测试 childrens 数组自动更新",
+        "测试 depth 自动计算",
+        "测试 E2E 场景验证脚本集成",
+        "所有单元测试通过"
+      ],
+      "verificationCommand": "npx jest tests/integration/tree-workflow.test.ts --coverage"
+    },
+    {
+      "id": "T041",
+      "name": "回归测试",
+      "complexity": "L",
+      "dependencies": ["T001", "T002", "T003", "T010", "T024", "T030", "T031"],
+      "wave": 4,
+      "sprint": 5,
+      "sprintName": "集成测试",
+      "description": "确保本次 v2 修改不破坏现有功能，验证现有 11 个 Feature 的正常运行",
+      "files": [
+        { "action": "NEW", "path": "tests/regression/existing-features.test.ts" }
+      ],
+      "acceptanceCriteria": [
+        "现有 11 个 Feature 的 state.json 仍能被正确读取",
+        "现有 Feature 的目录结构保持不变",
+        "历史 state.json 缺失字段能被自动修复",
+        "自动修复操作记录 WARNING 级别日志",
+        "现有 E2E 测试脚本仍能通过",
+        "TypeScript 严格模式编译通过",
+        "100 次 state.json 创建耗时 < 500ms"
+      ],
+      "verificationCommand": "npx jest tests/regression/ --coverage && npx tsc --noEmit"
+    }
+  ]
+}
