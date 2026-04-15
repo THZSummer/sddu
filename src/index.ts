@@ -2,6 +2,7 @@
 // Specification: https://opencode.ai/docs/plugins/
 
 // 统一导入使用新的类型定义系统
+import { tool } from '@opencode-ai/plugin';
 import { 
   // Discovery 相关类型和类
   DiscoveryWorkflowEngine,
@@ -100,7 +101,70 @@ export const SDDUPlugin = async ({ project, client, $, directory, worktree }) =>
     }
   });
 
+  // Map agent-friendly status names to schema-valid status names
+  const statusAliasMap: Record<string, string> = {
+    'discovered': 'specified',
+    'implementing': 'building',
+    'building': 'building',
+    'completed': 'validated',
+    'specified': 'specified',
+    'planned': 'planned',
+    'tasked': 'tasked',
+    'reviewed': 'reviewed',
+    'validated': 'validated',
+  };
+
+  const statusToTransitionTarget: Record<string, string> = {
+    'specified': 'specified',
+    'planned': 'planned',
+    'tasked': 'tasked',
+    'building': 'implementing',
+    'reviewed': 'reviewed',
+    'validated': 'validated',
+    'discovered': 'specified',
+    'completed': 'validated',
+  };
+
   return {
+    tool: {
+      sddu_update_state: tool({
+        description: 'Update the state of a SDDU feature.',
+        args: {
+          feature: tool.schema.string().describe('Feature path'),
+          status: tool.schema.string().describe('Target status'),
+          comment: tool.schema.string().optional(),
+          data: tool.schema.object({}).passthrough().optional(),
+        },
+        async execute(args, context) {
+          const { feature, status: rawStatus, comment, data } = args;
+          const inputStatus = rawStatus.toLowerCase().trim();
+          const mappedStatus = statusAliasMap[inputStatus];
+
+          if (!mappedStatus) {
+            return JSON.stringify({ success: false, error: 'Invalid status' });
+          }
+
+          try {
+            const transitionTarget = statusToTransitionTarget[mappedStatus] as FeatureStateEnum;
+            const result = await stateMachine.updateState(
+              feature,
+              transitionTarget,
+              data || {},
+              context.agent || 'sddu_update_state',
+              comment || `Updated to ${mappedStatus}`
+            );
+            return JSON.stringify({
+              success: true,
+              feature: result.feature,
+              status: result.status,
+              message: `Updated to ${mappedStatus}`
+            });
+          } catch (error: any) {
+            return JSON.stringify({ success: false, error: error.message });
+          }
+        }
+      }),
+    },
     // Listen for session creation
     "session.created": async (input) => {
       await client.app.log({
