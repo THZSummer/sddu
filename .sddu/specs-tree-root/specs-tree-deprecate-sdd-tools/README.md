@@ -17,6 +17,7 @@ deprecate-sdd-tools/
 ├── spec.json          # 规范元数据
 ├── plan.md            # 技术规划
 ├── tasks.md           # 任务分解（8 个任务）
+├── tasks.json         # 任务元数据 (JSON)
 ├── review.md          # 代码审查报告
 ├── validate.md        # 验证报告
 └── state.json         # 状态文件
@@ -32,6 +33,7 @@ deprecate-sdd-tools/
 | spec.json | 规范元数据（FR-DEP-001, P0 优先级） | ✅ 已完成 |
 | plan.md | 技术规划 - 代码结构分析、删除方案、影响评估 | ✅ planned |
 | tasks.md | 任务分解 - 8 个任务，4 个执行波次，预计 2.2 小时 | ✅ tasked |
+| tasks.json | 任务元数据 - JSON 格式任务清单 | ✅ 存在 |
 | review.md | 代码审查报告 - 审查删除工作的完整性和正确性 | ✅ reviewed |
 | validate.md | 验证报告 - 验收标准逐项验证通过 | ✅ validated |
 | state.json | 状态文件（validated, 2026-04-01） | ✅ validated |
