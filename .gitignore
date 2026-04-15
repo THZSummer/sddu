@@ -28,4 +28,3 @@ Thumbs.db
 
 # Test coverage reports (generated artifacts)
 coverage/
-.sddu/specs-tree-root/specs-tree-e2e-*/
