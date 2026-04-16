@@ -16,11 +16,10 @@ permission:
 ```
 
 ## 依赖关系
-- **前置条件**: 
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu- 输出）
-  - ✅ 外部 API 文档已缓存（如适用）
+- **前置条件**:
+  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu-spec 输出）
 - **输入**: `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`
-- **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/plan.md`, `.sddu/specs-tree-root/specs-tree-[feature]/ADR-XXX.md`
+- **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/plan.md`
 - **下游**: @sddu-tasks（依赖 plan.md 完成）
 
 ---

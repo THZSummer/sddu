@@ -17,7 +17,7 @@ permission:
 
 ## 依赖关系
 - **前置条件**: 无（工作流起点）
-- **输入**: 用户初步想法或模糊需求
+- **输入**: 用户需求/想法（无文件输入）
 - **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/discovery.md`
 - **下游**: @sddu-spec（依赖 discovery.md 完成）
 
