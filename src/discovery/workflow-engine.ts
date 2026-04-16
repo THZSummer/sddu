@@ -468,6 +468,122 @@ export class DiscoveryWorkflowEngine {
   getCurrentProgress(context: DiscoveryContext): number {
     return Math.min(100, Math.round((context.currentStepIndex / this.getTotalSteps()) * 100));
   }
+  
+  /**
+   * FR-110: Analyzes user input to identify common split patterns like frontend/backend separation, etc.
+   */
+  public analyzeSplitSuggestion(userDescription: string): SplitSuggestion | null {
+    const suggestions: SplitSuggestion = {
+      patterns: [],
+      ambiguous: false,
+      suggestions: []
+    };
+    
+    // Define split patterns
+    const SPLIT_PATTERNS: SplitPattern[] = [
+      {
+        id: 'frontend-backend',
+        name: '前后端分离',
+        keywords: ['前端', '后端', 'frontend', 'backend', 'client', 'server', 'web', 'api', 'ui', 'service'],
+        description: '识别到前端/后端分离架构，建议拆分为独立的前端和后端功能'
+      },
+      {
+        id: 'multi-platform',
+        name: '多端架构',
+        keywords: ['ios', 'android', '移动端', 'pc端', '小程序', 'h5', 'app', 'web'],
+        description: '识别到多端架构，建议按端拆分'
+      },
+      {
+        id: 'admin-user',
+        name: '管理后台+用户端',
+        keywords: ['管理后台', '用户端', '后台', '前台', 'admin', 'user'],
+        description: '识别到管理后台与用户端分离模式'
+      }
+    ];
+
+    const lowerDesc = userDescription.toLowerCase();
+    const matchedPatterns: SplitPattern[] = [];
+
+    for (const pattern of SPLIT_PATTERNS) {
+      const hasMatch = pattern.keywords.some(kw => lowerDesc.includes(kw.toLowerCase()));
+      if (hasMatch) {
+        matchedPatterns.push(pattern);
+      }
+    }
+
+    if (matchedPatterns.length === 0) {
+      return null;  // 未识别到拆分模式
+    }
+
+    // 如果同时匹配多个模式，标记为ambiguous
+    suggestions.patterns = matchedPatterns;
+    suggestions.ambiguous = matchedPatterns.length > 1;
+
+    // Generate specific suggestions based on the matched patterns
+    for (const pattern of matchedPatterns) {
+      const suggItems: SplitSuggestionItem[] = [];
+      
+      if (pattern.id === 'frontend-backend') {
+        suggItems.push({
+          patternId: pattern.id,
+          patternName: pattern.name,
+          description: pattern.description,
+          suggestedChildren: [
+            { id: 'frontend', name: '前端应用', description: '负责用户界面和交互的部分' },
+            { id: 'backend', name: '后端服务', description: '负责业务逻辑和数据存储的部分' }
+          ]
+        });
+      } else if (pattern.id === 'multi-platform') {
+        suggItems.push({
+          patternId: pattern.id,
+          patternName: pattern.name,
+          description: pattern.description,
+          suggestedChildren: [
+            { id: 'mobile', name: '移动应用', description: '支持iOS和Android的移动端应用' },
+            { id: 'web', name: 'Web应用', description: '基于浏览器的应用' }
+          ]
+        });
+      } else if (pattern.id === 'admin-user') {
+        suggItems.push({
+          patternId: pattern.id,
+          patternName: pattern.name,
+          description: pattern.description,
+          suggestedChildren: [
+            { id: 'admin', name: '管理后台', description: '提供管理功能' },
+            { id: 'user', name: '用户端', description: '面向用户的前端应用' }
+          ]
+        });
+      }
+      
+      suggestions.suggestions.push(...suggItems);
+    }
+
+    return suggestions;
+  }
+}
+
+interface SplitPattern {
+  id: string;
+  name: string;
+  keywords: string[];
+  description: string;
+}
+
+interface SplitSuggestionItem {
+  patternId: string;
+  patternName: string;
+  description: string;
+  suggestedChildren: {
+    id: string;
+    name: string;
+    description: string;
+  }[];
+}
+
+interface SplitSuggestion {
+  patterns: SplitPattern[];
+  ambiguous: boolean;
+  suggestions: SplitSuggestionItem[];
 }
 
 // 只导出那些从其他模块导入的类型和类，而不包括此文件中定义的

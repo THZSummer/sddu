@@ -67,9 +67,11 @@
 | [specs-tree-tree-structure-optimization/](./specs-tree-tree-structure-optimization/README.md) | v2.4.0 树形结构优化（P0） | ✅ validated |
 | [architecture/](./architecture/README.md) | 架构决策记录目录 | ✅ active |
 
-### 进行中 Feature 目录（0 个）
+### 进行中 Feature 目录（1 个）
 
-_当前无进行中的 Feature_
+| 目录 | 说明 | 状态 |
+|------|------|------|
+| [specs-tree-tree-structure-optimization-v2/](./specs-tree-tree-structure-optimization-v2/README.md) | 树形结构优化 v2 - 问题修复 | 🔄 tasked (phase 3/6) |
 
 ## 规范文件说明
 

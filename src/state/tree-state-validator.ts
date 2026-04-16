@@ -9,6 +9,15 @@ import { StateV2_1_0, validateStateV2_1_0, WorkflowStatus, PhaseHistory } from '
 import { TreeStructureError, ErrorCode } from '../errors';
 import * as path from 'path';
 
+// Enhanced ValidationResult interface according to spec
+export interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  autoFixed: string[];
+  state: StateV2_1_0;
+}
+
 export interface TreeValidationResult {
   valid: boolean;
   errors: TreeValidationError[];
@@ -179,6 +188,178 @@ export class TreeStateValidator {
       repairedState,
       warnings
     };
+  }
+
+  /**
+   * FR-102: Standardized validate method with ValidationResult format
+   * This method follows the spec-defined ValidationResult interface to support
+   * uniform schema validation and auto-fixing
+   */
+  public validate(state: Partial<StateV2_1_0>): ValidationResult {
+    const warnings: string[] = [];
+    const autoFixed: string[] = [];
+    const errors: string[] = [];
+    
+    let repairedState: StateV2_1_0 = { ...state } as StateV2_1_0;
+    
+    // 1. Check version field
+    if (!repairedState.version || repairedState.version !== 'v2.1.0') {
+      const currentVersion = repairedState.version as (string | undefined);
+      if (currentVersion && typeof currentVersion === 'string') {
+        // Possibly fixable cases
+        if (currentVersion === 'v2.1.0' || currentVersion === '2.1.0') {
+          // Missing 'v' prefix case
+          repairedState.version = 'v2.1.0';
+          autoFixed.push('version');
+          warnings.push(`Fixed version from '${currentVersion}' to 'v2.1.0' (added 'v' prefix or already correct)`);
+        } else if (currentVersion.match(/^\d+\.\d+\.\d+$/)) {
+          // Just a number format like '1.0.0', fix to required version
+          repairedState.version = 'v2.1.0';
+          autoFixed.push('version');
+          warnings.push(`Fixed version format to required 'v2.1.0' (was '${currentVersion}')`);
+        } else if (currentVersion.match(/^v\d+\.\d+\.\d+$/)) {
+          // Some other v-prefixed format, set to required
+          repairedState.version = 'v2.1.0';
+          autoFixed.push('version');
+          warnings.push(`Fixed to required 'v2.1.0' (was '${currentVersion}')`);
+        } else {
+          // Some other invalid format, set to required
+          repairedState.version = 'v2.1.0';
+          autoFixed.push('version');
+          warnings.push(`Set invalid version to required 'v2.1.0'`);
+        }
+      } else {
+        // No version field - add it
+        repairedState.version = 'v2.1.0';
+        autoFixed.push('version');
+        warnings.push(`Added missing version as 'v2.1.0'`);
+      }
+    }
+    
+    // 2. Check depth field
+    if (repairedState.depth === undefined || typeof repairedState.depth !== 'number') {
+      if (repairedState.feature) {
+        // Derive depth from feature path
+        const computedDepth = this.computeDepthFromFeature(repairedState.feature);
+        repairedState.depth = computedDepth;
+        autoFixed.push('depth');
+        warnings.push(`Computed and set depth to ${computedDepth} from feature path '${repairedState.feature}'`);
+      } else {
+        // Default to 0 if no feature is available yet
+        repairedState.depth = 0;
+        autoFixed.push('depth');
+        warnings.push(`Set default depth to 0 (no feature path available)`);
+      }
+    }
+    
+    // 3. Check phaseHistory
+    if (!Array.isArray(repairedState.phaseHistory) || repairedState.phaseHistory.length === 0) {
+      const phase = repairedState.phase ?? 0;
+      if (phase > 0) {
+        // If phase indicates non-zero phase but no history exists, add one
+        const status = (repairedState.status as WorkflowStatus) || 'specified';
+        repairedState.phaseHistory = [{
+          phase,
+          status,
+          timestamp: new Date().toISOString(),
+          triggeredBy: 'TreeStateValidator.validate'
+        }];
+        autoFixed.push('phaseHistory');
+        warnings.push(`Added initial phaseHistory entry for phase ${phase}`);
+      } else {
+        // Initialize with an empty array to comply with schema
+        repairedState.phaseHistory = [{
+          phase: 0,
+          status: (repairedState.status as WorkflowStatus) || 'specified',
+          timestamp: new Date().toISOString(),
+          triggeredBy: 'TreeStateValidator.validate'
+        }];
+        autoFixed.push('phaseHistory');
+        warnings.push(`Added default phaseHistory entry`);
+      }
+    }
+    
+    // 4. Check dependencies
+    if (!repairedState.dependencies || typeof repairedState.dependencies !== 'object') {
+      repairedState.dependencies = { 
+        on: [],
+        blocking: [] 
+      };
+      autoFixed.push('dependencies');
+      warnings.push(`Added default dependencies object with empty arrays`);
+    } else {
+      if (!Array.isArray(repairedState.dependencies.on)) {
+        repairedState.dependencies.on = [];
+        autoFixed.push('dependencies.on');
+        warnings.push(`Initialized on-dependencies as empty array`);
+      }
+      if (!Array.isArray(repairedState.dependencies.blocking)) {
+        repairedState.dependencies.blocking = [];
+        autoFixed.push('dependencies.blocking');
+        warnings.push(`Initialized blocking-dependencies as empty array`);
+      }
+    }
+    
+    // 5. Check files
+    if (!repairedState.files || typeof repairedState.files !== 'object') {
+      // Use feature name if available, otherwise default
+      const filename = repairedState.feature ? path.basename(repairedState.feature) : 'unamed-feature';
+      repairedState.files = { spec: `${filename}/spec.md` };
+      autoFixed.push('files');
+      warnings.push(`Added default minimal files with spec reference`);
+    } else if (!repairedState.files.spec) {
+      const filename = repairedState.feature ? path.basename(repairedState.feature) : 'unamed-feature';
+      repairedState.files.spec = `${filename}/spec.md`;
+      autoFixed.push('files.spec');
+      warnings.push(`Added default spec file reference`);
+    }
+    
+    // 6. Check required fields for schema compliance
+    if (!repairedState.feature) {
+      // Use feature from featurePath if it's available in the params to constructor
+      // For this general validation method we'll use generic name
+      repairedState.feature = 'generated-feature-id';
+      autoFixed.push('feature');
+      errors.push(`No feature ID defined. Added placeholder - must set correct path. This is critical and might break functionality.`);
+    }
+    
+    // 7. Ensure status is valid
+    if (!repairedState.status || !['specified', 'planned', 'tasked', 'building', 'reviewed', 'validated'].includes(repairedState.status)) {
+      const defaultValue = 'specified';
+      repairedState.status = (repairedState.status as WorkflowStatus) || defaultValue;
+      if (!['specified', 'planned', 'tasked', 'building', 'reviewed', 'validated'].includes(repairedState.status)) {
+        repairedState.status = defaultValue;
+        warnings.push(`Fixed invalid status to default '${defaultValue}'`);
+        autoFixed.push('status');
+      }
+    }
+    
+    const valid = errors.length === 0 && validateStateV2_1_0(repairedState);
+    
+    if (!valid) {
+      // If schema validation fails and no other errors were detected, it means something is fundamentally wrong
+      if (errors.length === 0) {
+        errors.push('Final schema validation failed after all auto-repairs');
+      }
+    }
+    
+    return { 
+      valid, 
+      errors, 
+      warnings, 
+      autoFixed, 
+      state: repairedState 
+    };
+  }
+  
+
+  /**
+   * Helper method to compute depth from feature path
+   * Used by validate() to derive depth when missing
+   */
+  private computeDepthFromFeature(featurePath: string): number {
+    const matches = featurePath.match(/specs-tree-/g);
+    return matches ? matches.length - 1 : 0;  // Subtract 1 to exclude root if 'specs-tree-root' is the first occurrence
   }
 
   /**

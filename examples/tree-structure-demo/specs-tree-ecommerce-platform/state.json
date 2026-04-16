@@ -1,0 +1,55 @@
+{
+  "feature": "examples/tree-structure-demo/specs-tree-ecommerce-platform",
+  "name": "电商平台",
+  "version": "v2.1.0",
+  "status": "planned",
+  "phase": 2,
+  "depth": 0,
+  "childrens": [
+    {
+      "path": "specs-tree-frontend",
+      "featureName": "前端", 
+      "status": "specified",
+      "phase": 1,
+      "lastModified": "2026-04-15T09:00:00.000Z"
+    },
+    {
+      "path": "specs-tree-backend",
+      "featureName": "后端",
+      "status": "discovered", 
+      "phase": 0,
+      "lastModified": "2026-04-15T09:00:00.000Z"
+    }
+  ],
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md", 
+    "readme": "README.md"
+  },
+  "dependencies": {
+    "on": [],
+    "blocking": []
+  },
+  "phaseHistory": [
+    {
+      "phase": 0,
+      "status": "discovered",
+      "timestamp": "2026-04-15T08:00:00.000Z",
+      "triggeredBy": "system"
+    },
+    {
+      "phase": 1, 
+      "status": "specified",
+      "timestamp": "2026-04-15T08:30:00.000Z",
+      "triggeredBy": "system"
+    }, 
+    {
+      "phase": 2,
+      "status": "planned", 
+      "timestamp": "2026-04-15T09:00:00.000Z",
+      "triggeredBy": "system"
+    }
+  ],
+  "createdAt": "2026-04-15T08:00:00.000Z",
+  "updatedAt": "2026-04-15T09:00:00.000Z"
+}

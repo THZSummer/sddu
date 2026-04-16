@@ -8,16 +8,20 @@
 ├── TREE.md                           # 目录结构定义（新版本规范）
 ├── ROADMAP.md                        # 版本路线图
 ├── COMPLETION_CERTIFICATE.json       # 完成证书
+├── review-report-plugin-rename-sddu.json  # 插件改名审查报告
 ├── docs/                             # 工具文档目录
-├── docs/migration-guide.md           # SDD 到 SDDU 迁移指南
-├── docs/faq.md                       # 常见问题解答
-├── docs/containerization-faq.md      # 容器化 FAQ
-├── config.json                       # SDDU 配置（可选）
+│   ├── README.md                     # docs 目录导航
+│   ├── faq.md                        # 常见问题解答
+│   ├── migration-guide.md            # SDD 到 SDDU 迁移指南
+│   ├── containerization-faq.md       # 容器化 FAQ
+│   └── migration-*.md                # 迁移状态系列文档 (30 个)
 └── specs-tree-root/                  # 规范文件目录
     ├── README.md                     # 目录说明
     ├── state.json                    # 全局状态文件
+    ├── architecture/                 # 架构决策记录目录
+    │   └── adr/                      # ADR 文档集合 (ADR-001 ~ ADR-017)
     └── specs-tree-[feature]/         # 标准化 Feature 目录 (SDDU 推荐规范结构)
-        ├── discovery.md              # 需求挖掘 (SDDU 新增阶段 0)  
+        ├── discovery.md              # 需求挖掘 (SDDU 新增阶段 0)
         ├── spec.md                   # 规范编写
         ├── plan.md                   # 技术规划
         ├── tasks.md                  # 任务分解

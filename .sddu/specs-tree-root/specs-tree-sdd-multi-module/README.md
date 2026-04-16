@@ -2,9 +2,9 @@
 
 > **Feature ID**: sdd-multi-module  
 > **版本**: v1.2.11  
-> **状态**: implementing  
+> **状态**: validated ✅  
 > **创建日期**: 2026-03-31  
-> **最后更新**: 2026-04-01
+> **最后更新**: 2026-04-05
 
 ---
 
@@ -78,10 +78,11 @@ sdd-multi-module/               # 即 .sdd/.specs/sdd-multi-module/
 ## 🔄 状态流转
 
 ```
-tasked → implementing → reviewed
+specified → planned → tasked → implementing → reviewed → validated
+    ✅         ✅        ✅        ✅            ✅          ✅
 ```
 
-**当前阶段**: [4/6] - build
+**当前阶段**: [6/6] - validated ✅
 
 ---
 
