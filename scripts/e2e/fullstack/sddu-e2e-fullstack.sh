@@ -9,7 +9,7 @@
 #   bash sddu-e2e-fullstack.sh "项目名" --report      # 生成详细测试报告
 #
 # 技术栈:
-#   后端：SpringBoot 3.x + H2 Database + Docker
+#   后端：SpringBoot 3.4.6 (Spring 6.2.12) + MyBatis 3.0.4 + MySQL 5.7 + Redis 6.0 + Docker
 #   前端：React 18 + TypeScript + Vite + Docker
 #   部署：Docker Compose
 #
@@ -237,9 +237,11 @@ create_prompt_file() {
 **前后端分离架构**：
 
 ### 后端技术栈
-- ✅ **语言**: Java 17+
-- ✅ **框架**: SpringBoot 3.x
-- ✅ **数据库**: H2 Database (内存数据库，开发环境)
+- ✅ **语言**: Java 21
+- ✅ **框架**: SpringBoot 3.4.6 (Spring 6.2.12)
+- ✅ **ORM**: MyBatis (mybatis-spring-boot-starter 3.0.4)
+- ✅ **数据库**: MySQL 5.7
+- ✅ **缓存**: Redis 6.0
 - ✅ **构建工具**: Maven
 - ✅ **API 风格**: RESTful API
 - ✅ **容器化**: Docker + Dockerfile
@@ -364,7 +366,8 @@ ${PROJECT_NAME}/
 - [ ] SpringBoot 3.x 项目结构正确
 - [ ] Maven 构建成功（mvn clean package）
 - [ ] RESTful API 可访问
-- [ ] H2 数据库配置正确
+- [ ] MySQL 5.7 数据库连接配置正确
+- [ ] Redis 6.0 缓存连接配置正确
 - [ ] 单元测试通过率 >= 80%
 - [ ] Docker 镜像构建成功
 
