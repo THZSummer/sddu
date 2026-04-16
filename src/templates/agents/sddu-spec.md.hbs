@@ -16,8 +16,9 @@ permission:
 ```
 
 ## 依赖关系
-- **前置条件**: 无（工作流起点）
-- **输入**: 用户需求描述
+- **前置条件**:
+  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/discovery.md`（@sddu-discovery 输出）
+- **输入**: `.sddu/specs-tree-root/specs-tree-[feature]/discovery.md`
 - **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`, `.sddu/specs-tree-root/specs-tree-[feature]/spec.json`
 - **下游**: @sddu-plan（依赖 spec.md 完成）
 

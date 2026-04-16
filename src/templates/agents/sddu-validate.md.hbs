@@ -16,12 +16,12 @@ permission:
 ```
 
 ## 依赖关系
-- **前置条件**: 
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu- 输出）
-  - ✅ 代码审查通过（@sddu-review 输出）
-- **输入**: 审查报告 + 规范文档 + 实现的代码
+- **前置条件**:
+  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu-spec 输出）
+  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/review.md`（@sddu-review 输出）
+- **输入**: `.sddu/specs-tree-root/specs-tree-[feature]/review.md`, `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`
 - **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/validation-report.md`
-- **下游**: 工作流完成，状态更新为 `validated`
+- **下游**: 无（工作流终点）
 
 ---
 
