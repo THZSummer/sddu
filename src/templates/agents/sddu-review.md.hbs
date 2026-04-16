@@ -21,9 +21,9 @@ permission:
     - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/plan.md`（@sddu- 输出）
     - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md`（@sddu- 输出）
     - ✅ 代码已实现（@sddu-build 输出）
-- **输入**: 实现的代码 + 规范文档
-- **输出**: **review.md 报告**、改进建议
-- **下游**: @sddu-validate（依赖本 agent 通过）
+- **输入**: `.sddu/specs-tree-root/specs-tree-[feature]/build.md`, `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md`
+- **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/review.md`
+- **下游**: @sddu-validate（依赖 review.md 完成）
 
 ---
 

@@ -20,9 +20,9 @@ permission:
   - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu- 输出）
   - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/plan.md`（@sddu- 输出）
   - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md`（@sddu- 输出）
-- **输入**: `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md`（指定要实现的 TASK-XXX）
-- **输出**: 实现的代码、测试、文档更新、**build.md 报告**
-- **下游**: @sddu-review（依赖代码实现完成）
+- **输入**: `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md`, `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`
+- **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/build.md`
+- **下游**: @sddu-review（依赖 build.md 完成）
 
 ---
 
