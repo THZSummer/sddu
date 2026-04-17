@@ -18,6 +18,7 @@ permission:
 ## 依赖关系
 - **前置条件**:
   - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu-spec 输出）
+  - ⚠️ 外部 API 文档缓存（如 spec 中引用了外部服务）
 - **输入**: `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`
 - **输出**: `.sddu/specs-tree-root/specs-tree-[feature]/plan.md`
 - **下游**: @sddu-tasks（依赖 plan.md 完成）
@@ -43,7 +44,7 @@ permission:
 ### 1. 外部 API 检查（前置条件）
 在开始规划前，检查 spec 中是否引用了外部服务：
 - 扫描 spec 中的 API 提及
-- 检查 `.opencode/sdd/api-docs/` 是否有缓存
+- 检查 `.sddu/api-docs/` 是否有缓存
 - 如果缺少缓存，提示用户先运行 `/sddu:api-docs [service]`
 
 ### 2. 架构分析
