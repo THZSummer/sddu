@@ -1,0 +1,18 @@
+{
+  "featureName": "Solo Team Flow",
+  "featureId": "FR-SOLO-TEAM-FLOW-001",
+  "featureNameZh": "专家树协作架构",
+  "state": "discovered",
+  "createdDate": "2026-04-18",
+  "priority": "P0",
+  "isParent": true,
+  "children": [
+    "FR-EXPERT-REGISTRY-001",
+    "FR-TASK-DISPATCHER-001",
+    "FR-EXPERT-WORKBENCH-001"
+  ],
+  "estimatedEffort": "Large",
+  "targetUsers": ["Solo开发者", "小型团队", "中型团队"],
+  "coreScenario": "AI执行树 + 人类看护树，专业的事交给专业的AI/人去做",
+  "version": "2.0.0"
+}

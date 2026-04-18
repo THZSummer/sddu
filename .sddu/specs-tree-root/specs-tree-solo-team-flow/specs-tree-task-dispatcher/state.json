@@ -1,0 +1,18 @@
+{
+  "featureName": "Task Dispatcher",
+  "featureId": "FR-TASK-DISPATCHER-001",
+  "featureNameZh": "任务分配器",
+  "state": "drafting",
+  "createdDate": "2026-04-18",
+  "priority": "P0",
+  "isParent": false,
+  "parentId": "FR-SOLO-TEAM-FLOW-001",
+  "estimatedEffort": "Medium",
+  "description": "实现先找专家，找不到才自己做的递归分配逻辑",
+  "keyCapabilities": [
+    "任务解析与专家匹配",
+    "递归向下分配",
+    "结果向上汇聚",
+    "支持 AI 执行树 + 人类看护树双树"
+  ]
+}

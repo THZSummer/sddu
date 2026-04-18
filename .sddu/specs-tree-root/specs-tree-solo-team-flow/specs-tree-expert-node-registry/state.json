@@ -1,0 +1,18 @@
+{
+  "featureName": "Expert Node Registry",
+  "featureId": "FR-EXPERT-REGISTRY-001",
+  "featureNameZh": "专家节点注册",
+  "state": "drafting",
+  "createdDate": "2026-04-18",
+  "priority": "P0",
+  "isParent": false,
+  "parentId": "FR-SOLO-TEAM-FLOW-001",
+  "estimatedEffort": "Medium",
+  "description": "管理专家节点的注册、发现、匹配",
+  "keyCapabilities": [
+    "专家节点注册（AI Agent / 人类角色）",
+    "按生命周期 × 技术栈 × 细分领域匹配专家",
+    "专家节点层级管理（L0/L1/L2/L3）",
+    "专家能力声明与认证"
+  ]
+}
