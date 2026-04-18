@@ -1,0 +1,30 @@
+{
+  "productName": "ETD",
+  "productFullName": "Expert Tree Design",
+  "productTagline": "AI执行 × 人类看护",
+  "featureId": "ETD-001",
+  "state": "discovered",
+  "createdDate": "2026-04-18",
+  "priority": "P0",
+  "isParent": true,
+  "children": [
+    "ETD-FR-REGISTRY-001",
+    "ETD-FR-DISPATCHER-001",
+    "ETD-FR-WORKBENCH-001"
+  ],
+  "estimatedEffort": "Large",
+  "targetUsers": ["Solo开发者", "小型团队", "中型团队"],
+  "coreScenario": "树形递归分配架构，AI执行 + 人类看护，设计先行",
+  "corePrinciples": [
+    "专业分工：专业的事交给专业的AI/人去做",
+    "设计先行：所有实施必须先有设计，设计未完成不允许进入实施",
+    "双树并行：AI执行树 + 人类看护树，节点一一对应"
+  ],
+  "namingMeaning": {
+    "E": "Expert - 专家分工",
+    "T": "Tree - 树形递归",
+    "D": "Design - 设计先行"
+  },
+  "version": "2.2.0",
+  "repository": "独立仓库（待创建）"
+}

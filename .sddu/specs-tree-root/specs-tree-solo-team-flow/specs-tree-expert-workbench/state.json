@@ -1,0 +1,18 @@
+{
+  "featureName": "Expert Workbench",
+  "featureId": "ETD-FR-WORKBENCH-001",
+  "featureNameZh": "专家工作台",
+  "state": "drafting",
+  "createdDate": "2026-04-18",
+  "priority": "P1",
+  "isParent": false,
+  "parentId": "ETD-001",
+  "estimatedEffort": "Medium",
+  "description": "每个专家节点的工作界面",
+  "keyCapabilities": [
+    "接收分配的任务",
+    "继续向下找专家 / 自己处理",
+    "提交结果",
+    "CLI + Web 界面"
+  ]
+}
