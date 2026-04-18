@@ -13,6 +13,11 @@
   ],
   "estimatedEffort": "Large",
   "targetUsers": ["Solo开发者", "小型团队", "中型团队"],
-  "coreScenario": "AI执行树 + 人类看护树，专业的事交给专业的AI/人去做",
-  "version": "2.0.0"
+  "coreScenario": "AI执行树 + 人类看护树，专业的事交给专业的AI/人去做，设计先行",
+  "corePrinciples": [
+    "专业分工：专业的事交给专业的AI/人去做",
+    "设计先行：所有实施必须先有设计，设计未完成不允许进入实施",
+    "双树并行：AI执行树 + 人类看护树，节点一一对应"
+  ],
+  "version": "2.1.0"
 }
