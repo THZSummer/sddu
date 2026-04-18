@@ -1,11 +1,13 @@
-# 需求挖掘报告：专家树协作架构 (Solo Team Flow)
+# 需求挖掘报告：ETD (Expert Tree Design)
 
-**Feature**: Solo Team Flow  
-**版本**: 2.1.0  
+**Product**: ETD (Expert Tree Design)  
+**版本**: 2.2.0  
 **创建日期**: 2026-04-18  
 **状态**: discovered  
 **优先级**: P0  
-**Feature 类型**: 父 Feature（含 3 个子 Feature）
+**Feature 类型**: 独立产品  
+**产品定位**: AI执行 × 人类看护  
+**代码仓**: 独立维护
 
 ---
 
@@ -36,6 +38,31 @@ AI 能力让一人独立完成产品全生命周期成为可能，SDDU 流程服
 - **效率提升**：专业的事交给专业的人/AI，避免一人全包
 - **平滑扩展**：从 Solo 到 Team，只需引入专家节点，无需模式切换
 - **质量可控**：AI 执行 + 人类审视 + 设计先行，三重保障
+
+### 与 SDDU 的关系
+
+| | SDDU | ETD |
+|---|------|-----|
+| **定位** | Solo 开发者工具 | 团队协作平台 |
+| **架构** | 线性 6 阶段 | 树形递归分配 |
+| **核心** | 一人全流程 | 专家分工看护 |
+| **用户** | 独立开发者、个人项目 | 3-5人小团队、创业团队 |
+| **价值** | 高效交付 | 专业分工 + 质量保障 |
+| **关系** | Solo 开发者可升级到 ETD | 向下兼容 Solo 模式 |
+
+```mermaid
+flowchart LR
+    subgraph 产品生态
+        SDDU[SDDU<br>Solo开发工具]
+        ETD[ETD<br>团队协作平台]
+    end
+    
+    SDDU -.->|Solo开发者可升级| ETD
+    ETD -.->|向下兼容Solo模式| SDDU
+    
+    style SDDU fill:#e0ffe0
+    style ETD fill:#ffe0e0
+```
 
 ### 不做的成本
 
@@ -314,7 +341,7 @@ flowchart TD
 
 ### 子 Feature 1: expert-node-registry（专家节点注册）
 
-**Feature ID**: FR-EXPERT-REGISTRY-001  
+**Feature ID**: ETD-FR-REGISTRY-001  
 **职责**: 管理专家节点的注册、发现、匹配  
 
 **关键能力**:
@@ -326,7 +353,7 @@ flowchart TD
 
 ### 子 Feature 2: task-dispatcher（任务分配器）
 
-**Feature ID**: FR-TASK-DISPATCHER-001  
+**Feature ID**: ETD-FR-DISPATCHER-001  
 **职责**: 实现"先找专家，找不到才自己做"的递归分配逻辑  
 
 **关键能力**:
@@ -338,7 +365,7 @@ flowchart TD
 
 ### 子 Feature 3: expert-workbench（专家工作台）
 
-**Feature ID**: FR-EXPERT-WORKBENCH-001  
+**Feature ID**: ETD-FR-WORKBENCH-001  
 **职责**: 每个专家节点的工作界面  
 
 **关键能力**:
@@ -398,9 +425,10 @@ flowchart TD
 ### 推荐流程
 
 1. ✅ 需求挖掘完成（当前阶段）
-2. 👉 运行 `@sddu spec solo-team-flow` 为父 Feature 编写规范
-3. 👉 逐个为子 Feature 编写规范（优先 expert-node-registry）
-4. 👉 制定技术规划和任务分解
+2. 👉 创建 ETD 独立代码仓库
+3. 👉 将本 discovery 文档迁移至新仓库
+4. 👉 为 ETD 编写产品规范（spec）
+5. 👉 制定技术规划和任务分解
 
 ### 规范编写重点关注
 
@@ -408,9 +436,26 @@ flowchart TD
 - 递归分配算法设计
 - AI 执行树与人类看护树的同步机制
 - 专家工作台 CLI + Web 界面设计
+- 与 SDDU 的互操作机制
+
+---
+
+## 11. 产品命名说明
+
+**ETD = Expert Tree Design**
+
+| 字母 | 含义 | 核心特点 |
+|------|------|---------|
+| **E**xpert | 专家分工 | 专业的事交给专业的 AI/人去做 |
+| **T**ree | 树形递归 | 树形递归分配架构 |
+| **D**esign | 设计先行 | 所有实施必须先有设计 |
+
+**产品副标题**: AI执行 × 人类看护
+
+**产品定位**: ETD 是独立于 SDDU 的团队协作平台，基于树形递归分配架构，实现专家分工看护和设计先行约束。
 
 ---
 
 **需求挖掘完成时间**: 2026-04-18  
 **需求挖掘状态**: discovered  
-**下一步**: 运行 `@sddu spec solo-team-flow` 开始规范编写
+**下一步**: 创建 ETD 独立代码仓库

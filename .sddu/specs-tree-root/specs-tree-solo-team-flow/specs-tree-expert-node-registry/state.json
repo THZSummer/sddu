@@ -1,12 +1,12 @@
 {
   "featureName": "Expert Node Registry",
-  "featureId": "FR-EXPERT-REGISTRY-001",
+  "featureId": "ETD-FR-REGISTRY-001",
   "featureNameZh": "专家节点注册",
   "state": "drafting",
   "createdDate": "2026-04-18",
   "priority": "P0",
   "isParent": false,
-  "parentId": "FR-SOLO-TEAM-FLOW-001",
+  "parentId": "ETD-001",
   "estimatedEffort": "Medium",
   "description": "管理专家节点的注册、发现、匹配",
   "keyCapabilities": [

@@ -1,12 +1,12 @@
 {
   "featureName": "Expert Workbench",
-  "featureId": "FR-EXPERT-WORKBENCH-001",
+  "featureId": "ETD-FR-WORKBENCH-001",
   "featureNameZh": "专家工作台",
   "state": "drafting",
   "createdDate": "2026-04-18",
   "priority": "P1",
   "isParent": false,
-  "parentId": "FR-SOLO-TEAM-FLOW-001",
+  "parentId": "ETD-001",
   "estimatedEffort": "Medium",
   "description": "每个专家节点的工作界面",
   "keyCapabilities": [

@@ -1,12 +1,12 @@
 {
   "featureName": "Task Dispatcher",
-  "featureId": "FR-TASK-DISPATCHER-001",
+  "featureId": "ETD-FR-DISPATCHER-001",
   "featureNameZh": "任务分配器",
   "state": "drafting",
   "createdDate": "2026-04-18",
   "priority": "P0",
   "isParent": false,
-  "parentId": "FR-SOLO-TEAM-FLOW-001",
+  "parentId": "ETD-001",
   "estimatedEffort": "Medium",
   "description": "实现先找专家，找不到才自己做的递归分配逻辑",
   "keyCapabilities": [
