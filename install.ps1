@@ -231,6 +231,21 @@ if (Test-Path (Join-Path $DistSdduDir "agents")) {
 $AgentCount = (Get-ChildItem -Path (Join-Path $TargetDir ".opencode\agents") -File | Measure-Object).Count
 Write-Host "[OK] Total agents copied: $AgentCount" -ForegroundColor Green
 
+# Copy output templates from dist/sddu/templates/output/
+$OutputTemplateSource = Join-Path $ScriptDir "dist\sddu\templates\output"
+if (Test-Path $OutputTemplateSource) {
+    Write-Host "  Copying output templates..." -ForegroundColor Gray
+    $OutputTarget = Join-Path $TargetDir ".opencode\plugins\sddu\templates\output"
+    New-Item -ItemType Directory -Force -Path $OutputTarget | Out-Null
+    Get-ChildItem "$OutputTemplateSource\*.hbs" | ForEach-Object {
+        Copy-Item $_.FullName -Destination $OutputTarget -Force
+    }
+    Write-Host "[OK] Output templates copied" -ForegroundColor Green
+}
+else {
+    Write-Host "[WARN] Output templates source not found: $OutputTemplateSource" -ForegroundColor Yellow
+}
+
 # Step 6: Version Detection
 Write-Host "[6/${TOTAL_STEPS}] Version Detection..." -ForegroundColor Cyan
 
@@ -340,6 +355,7 @@ Write-Host ""
 Write-Host "Files:" -ForegroundColor White
 Write-Host "  - .opencode/plugins/sddu/ ($SdduFileCount files from SDDU dist/)" -ForegroundColor White
 Write-Host "  - .opencode/agents/ ($AgentCount agents total)" -ForegroundColor White
+Write-Host "  - .opencode/plugins/sddu/templates/output/ (output templates)" -ForegroundColor White
 Write-Host "  - opencode.json (plugin configuration - SDDU standard)" -ForegroundColor White
 Write-Host "  - .sddu/ (workspace container)" -ForegroundColor White
 Write-Host ""

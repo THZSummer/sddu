@@ -1,6 +1,6 @@
 # OpenCode SDDU Plugin
 
-[![Version](https://img.shields.io/badge/version-1.2.0-blue)](https://github.com/THZSummer/sddu/releases)
+[![Version](https://img.shields.io/badge/version-1.3.0-blue)](https://github.com/THZSummer/sddu/releases)
 [![Phase](https://img.shields.io/badge/Phase-3-complete)](https://github.com/THZSummer/sddu)
 [![Status](https://img.shields.io/badge/status-stable-green)](https://github.com/THZSummer/sddu)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/THZSummer/sddu/blob/main/LICENSE)
@@ -177,6 +177,7 @@ graph LR
 - ✅ 打包脚本优化 (`scripts/package.cjs`)
 - ✅ Discovery 可选状态联动
 - ✅ 安装脚本适配 `dist/sddu/` 结构
+- ✅ Agent 输出模板化系统 — 内置 7 个输出模板，支持用户自定义覆盖
 
 ### Agent 列表
 
@@ -368,7 +369,7 @@ opencode
 @sddu-build "实现 TASK-001"
 ```
 
-## ✅ 已完成 Feature (12 个)
+## ✅ 已完成 Feature (13 个)
 
 ```mermaid
 gantt
@@ -390,6 +391,9 @@ gantt
     状态管理优化          :done, state_opt, 2026-04-06, 1d
     多模块支持            :done, multi_module, 2026-04-06, 1d
     
+    section 输出模板化
+    Agent 输出模板化      :done, template, 2026-05-25, 1d
+    
     section 规划与治理
     Roadmap 规划          :done, roadmap, 2026-04-06, 1d
     废弃旧工具            :done, deprecate, 2026-04-06, 1d
@@ -398,6 +402,7 @@ gantt
 
 ### SDDU 专业版 (v1.2.0)
 - specs-tree-mode-all-dual-mode/ - mode: all 双模式支持
+- specs-tree-agent-output-templating/ - Agent 输出模板化系统（内置模板 + 用户自定义）
 - specs-tree-plugin-rename-sddu-v2/ - 插件改名 SDDU V2（代码清理）
 - specs-tree-plugin-rename-sddu/ - 插件改名 SDDU V1（历史记录）
 - specs-tree-sdd-discovery-feature/ - Discovery 需求挖掘功能
@@ -497,6 +502,7 @@ V2 版本提供了自动化检查工具，用于验证代码中是否还有 SDD 
 
 | 版本 | 日期 | 说明 |
 |------|------|------|
+| v1.3.0 | 2026-05-25 | 🎨 Agent 输出模板化 — 7 个 Agent 输出固化为可自定义模板，用户自定义覆盖机制 |
 | v1.2.0 | 2026-04-12 | 🔄 mode: all 双模式支持 + 移除序号别名简化配置 |
 | v1.1.0 | 2026-04-06 | ⚡ SDDU 专业版 - 全新命令行界面 + 优化工作流 |
 | v1.0.0 | 2026-04-05 | ✅ SDD 工具系统基础版 - 统一导出层 + Agent 注册表 + 打包优化 |
@@ -532,7 +538,7 @@ flowchart TD
     
     subgraph Spec[规范文档]
         S1[specs-tree-root]
-        S2[12 个 Feature 文档]
+        S2[13 个 Feature 文档]
         S3[架构决策 ADR]
     end
     

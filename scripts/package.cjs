@@ -123,6 +123,15 @@ async function packageSingleVersion(distDir, version, packageName) {
     console.log(`🔄 复制 ${version} agent 模板到 ${path.basename(distDir)}/agents/ ...`);
   }
   
+  // 复制输出模板到插件包（纯逐字复制，不经过 SDD→SDDU 名称替换）
+  const outputTemplatesDir = path.join(srcDir, 'templates', 'output');
+  if (await fs.pathExists(outputTemplatesDir)) {
+    const targetOutputDir = path.join(distDir, 'templates', 'output');
+    await fs.ensureDir(targetOutputDir);
+    await fs.copy(outputTemplatesDir, targetOutputDir);
+    console.log(`🔄 复制 output 模板到 ${path.basename(distDir)}/templates/output/ ...`);
+  }
+  
   // 2. 生成插件包特定的 package.json
   const originalPkg = require('../package.json');
   const pluginPkg = {
