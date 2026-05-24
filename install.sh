@@ -251,6 +251,14 @@ if [ -d "${SCRIPT_DIR}/dist/sddu/agents" ]; then
     cp "${SCRIPT_DIR}/dist/sddu/agents/"* "${TARGET_DIR}/.opencode/agents/" 2>/dev/null || print_color "${GRAY}  SDDU agents not found, continuing...${NC}"
 fi
 
+# Copy output templates to plugins/sddu/templates/output/
+if [ -d "${SCRIPT_DIR}/dist/sddu/templates/output" ]; then
+    print_color "${GRAY}  Copying output templates...${NC}"
+    mkdir -p "${TARGET_DIR}/.opencode/plugins/sddu/templates/output"
+    cp "${SCRIPT_DIR}/dist/sddu/templates/output/"*.hbs "${TARGET_DIR}/.opencode/plugins/sddu/templates/output/" 2>/dev/null || print_color "${YELLOW}  [WARN] No output templates found${NC}"
+    print_color "${GREEN}[OK] Output templates copied${NC}"
+fi
+
 # Count agents copied
 AGENT_COUNT=$(find "${TARGET_DIR}/.opencode/agents" -type f | wc -l)
 print_color "${GREEN}[OK] Total agents copied: $AGENT_COUNT${NC}"

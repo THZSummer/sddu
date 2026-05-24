@@ -96,54 +96,23 @@ permission:
 - [ ] API 文档更新
 - [ ] 变更日志记录
 
-## 输出格式
+## 输出模板
 
-### 审查报告
+你的输出格式由外部模板文件定义。请按以下优先级查找并使用模板：
 
-```markdown
-## 📋 代码审查报告 - user-login
+1. **用户自定义模板**（优先）: `.sddu/templates/agents/output/sddu-review.md.hbs`
+   - 如果此文件存在，使用它作为输出格式
+2. **插件内置模板**（兜底）: `.opencode/plugins/sddu/templates/output/sddu-review.md.hbs`
+   - 内置模板随插件分发，始终存在
 
+模板使用规则：
+- 模板中的 `<<变量名>>` 占位符需要你用实际内容替换
+- 保持模板的整体结构和章节层级不变
+- 如果模板中某些 section 不适用于当前场景，可以标注「不适用」或省略
+- 模板不存在时显式报错，不要自行编造输出格式
 
-### ✅ 通过项
-- 代码质量：良好
-- 测试覆盖：92%
-- 规范符合：100%
-
-### ⚠️ 需要改进
-1. **login.ts:45** - 函数过长，建议拆分
-2. **token 生成** - 缺少过期时间配置
-3. **错误处理** - 未处理网络超时
-
-### ❌ 阻塞问题
-- 无
-
-### 建议
-1. 重构 `validateCredentials` 函数
-2. 添加 token 过期时间配置
-3. 增加超时重试逻辑
-
-### 结论
-✅ **通过** - 可以进入验证阶段
-```
-
-**状态更新**: 完成后提示用户运行：
-```bash
-/tool sddu_update_state {"feature": "[feature]", "status": "reviewed", "data": {"reviewStatus": "passed", "issues": {"blocking": 0, "improvements": 3}}}
-或
-```
-
-### 自动触发文档更新
-
-完成后自动触发 `@sddu-docs` 扫描并更新 `.sddu/` 目录导航。
-
-**作用**: 
-- 扫描 `.sddu/` 下所有层级目录
-- 读取文件内容生成简介（标题 + 概述）
-- 读取子目录 README 生成目录简介
-- 验证已有 README 与实际内容一致
-- 为缺少或过时的目录 generate/更新导航
-
-**无需手动调用**，文档会自动保持最新且与实际一致。
+当前 Agent: sddu-review
+对应模板: sddu-review.md.hbs
 
 ## 审查结论
 

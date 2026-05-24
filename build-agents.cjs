@@ -42,6 +42,13 @@ if (fs.existsSync(AGENT_OUT_DIR)) {
 function readSdduTemplate(name) {
   const sdduName = name.replace(/^sdd(-|$)/, 'sddu$1');
   const filePath = path.join(AGENT_SRC_DIR, `${sdduName}.hbs`);
+  
+  // 安全守卫：显式拒绝 output/ 子目录中的文件（输出模板不是 Agent 定义，不应参与构建）
+  const resolved = path.resolve(filePath);
+  if (resolved.includes(path.sep + 'output' + path.sep)) {
+    throw new Error(`Agent template not allowed in output/ subdirectory: ${sdduName}`);
+  }
+  
   if (!fs.existsSync(filePath)) {
     throw new Error(`SDDU Template not found: ${sdduName}`);
   }
@@ -111,6 +118,29 @@ function build() {
     }
   }
   
+  // ========== 复制输出模板（不经过 Handlebars 处理，保持 <<变量名>> 原样） ==========
+  console.log('\n📄 Copying output templates (raw copy, no Handlebars processing)...');
+  const OUTPUT_SRC_DIR = path.join(AGENT_SRC_DIR, 'output');
+  const OUTPUT_DIST_DIR = path.join(__dirname, 'dist', 'templates', 'output');
+
+  if (fs.existsSync(OUTPUT_SRC_DIR)) {
+    if (!fs.existsSync(OUTPUT_DIST_DIR)) {
+      fs.mkdirSync(OUTPUT_DIST_DIR, { recursive: true });
+    }
+    const outputFiles = fs.readdirSync(OUTPUT_SRC_DIR);
+    outputFiles.forEach(file => {
+      if (file.endsWith('.hbs')) {
+        const srcPath = path.join(OUTPUT_SRC_DIR, file);
+        const destPath = path.join(OUTPUT_DIST_DIR, file);
+        fs.copyFileSync(srcPath, destPath);
+        console.log('  ✅ dist/templates/output/' + file);
+      }
+    });
+    console.log('\n✅ Output templates copied (' + outputFiles.filter(f => f.endsWith('.hbs')).length + ' files)');
+  } else {
+    console.log('  🚸 Output template directory not found, skipping...');
+  }
+
   console.log('\n✅ Build complete - Exclusive SDDU version (no SDD backward compatibility)!');
   console.log('\n📦 Output structure:');
   console.log('   dist/');

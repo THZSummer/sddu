@@ -1,0 +1,48 @@
+{
+  "feature": "specs-tree-agent-output-templating",
+  "name": "Agent 输出模板化系统",
+  "nameEn": "Agent Output Templating System",
+  "featureId": "FR-TEMPLATE-001",
+  "state": "specified",
+  "phase": 1,
+  "createdDate": "2026-05-24",
+  "priority": "P1",
+  "isParent": false,
+  "depth": 1,
+  "description": "将每个 SDDU Agent 的输出固化为标准化模板，支持用户自定义模板覆盖内置默认模板",
+  "goals": [
+    "6 个主流程 Agent 的输出模板化（内置默认模板）",
+    "模板文件与 Agent Prompt 分离（src/templates/agents/output/ 独立子目录）",
+    "用户自定义模板覆盖机制（.sddu/templates/agents/output/）",
+    "AI 自主解析 <<变量名>> 占位符（模板变量无需预定义）",
+    "安装阶段将内置模板复制到 .opencode/plugins/sddu/ 对应目录",
+    "模板语法错误显式报错",
+    "与现有 6 阶段工作流无缝集成"
+  ],
+  "files": {
+    "spec": ".sddu/specs-tree-root/specs-tree-agent-output-templating/spec.md",
+    "specJson": ".sddu/specs-tree-root/specs-tree-agent-output-templating/spec.json",
+    "discovery": ".sddu/specs-tree-root/specs-tree-agent-output-templating/discovery.md",
+    "state": ".sddu/specs-tree-root/specs-tree-agent-output-templating/state.json"
+  },
+  "dependencies": {
+    "on": ["specs-tree-sdd-workflow-state-optimization"],
+    "blocking": []
+  },
+  "spec": {
+    "totalFR": 16,
+    "totalNFR": 6,
+    "totalEC": 8,
+    "totalUS": 5,
+    "frIds": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-010", "FR-011", "FR-012", "FR-013", "FR-014", "FR-015", "FR-016"],
+    "nfIds": ["NFR-001", "NFR-002", "NFR-003", "NFR-004", "NFR-005", "NFR-006"],
+    "ecIds": ["EC-001", "EC-002", "EC-003", "EC-004", "EC-005", "EC-006", "EC-007", "EC-008"],
+    "usIds": ["US-001", "US-002", "US-003", "US-004", "US-005"],
+    "mvpFR": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-010", "FR-011", "FR-012"]
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "author": "SDDU Team",
+    "lastUpdated": "2026-05-24"
+  }
+}

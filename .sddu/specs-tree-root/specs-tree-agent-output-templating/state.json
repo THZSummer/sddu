@@ -1,0 +1,58 @@
+{
+  "feature": "specs-tree-agent-output-templating",
+  "name": "Agent 输出模板化系统",
+  "nameEn": "Agent Output Templating System",
+  "featureId": "FR-TEMPLATE-001",
+  "state": "validated",
+  "reviewStatus": "passed",
+  "blockingIssues": 0,
+  "improvements": 0,
+  "phase": 6,
+  "progress": {
+    "TASK-001": "completed",
+    "TASK-002": "completed",
+    "TASK-003": "completed",
+    "TASK-004": "completed",
+    "TASK-005": "completed",
+    "TASK-006": "completed",
+    "TASK-007": "completed",
+    "TASK-008": "completed"
+  },
+  "validationResult": "passed",
+  "validationDate": "2026-05-25",
+  "coverage": {
+    "fr": "100% (13/13)",
+    "nfr": "100% (6/6)",
+    "ec": "100% (8/8)"
+  },
+  "createdDate": "2026-05-24",
+  "plannedDate": "2026-05-25",
+  "priority": "P1",
+  "isParent": false,
+  "depth": 1,
+  "description": "将每个 SDDU Agent（discovery/spec/plan/tasks/build/review/validate）的输出固化为标准化模板，支持用户自定义模板覆盖内置默认模板",
+  "goals": [
+    "每个 SDDU Agent 的输出固化为模板文件",
+    "内置默认模板（spec模板、plan模板、tasks模板、review模板等）",
+    "支持用户自定义模板（自定义模板优先于内置模板）",
+    "模板变量替换（feature名称、日期、路径等动态内容）",
+    "模板发现机制（内置模板 + 用户模板目录扫描）",
+    "与现有 6 阶段工作流无缝集成"
+  ],
+  "files": {
+    "plan": ".sddu/specs-tree-root/specs-tree-agent-output-templating/plan.md",
+    "adr001": ".sddu/specs-tree-root/specs-tree-agent-output-templating/decisions/ADR-018.md",
+    "adr002": ".sddu/specs-tree-root/specs-tree-agent-output-templating/decisions/ADR-019.md",
+    "validationReport": ".sddu/specs-tree-root/specs-tree-agent-output-templating/validation-report.md"
+  },
+  "dependencies": {
+    "on": ["specs-tree-sdd-workflow-state-optimization"],
+    "blocking": []
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "author": "SDDU Team",
+    "totalWorkload": "13 units (9×S + 4×M)",
+    "adrsTotal": 2
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "feature": "specs-tree-agent-output-templating",
+  "name": "Agent 输出模板化系统",
+  "featureId": "FR-TEMPLATE-001",
+  "status": "tasked",
+  "taskedDate": "2026-05-25",
+  "totalTasks": 8,
+  "waves": 5,
+  "complexityDistribution": {
+    "S": 4,
+    "M": 4,
+    "L": 0
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "创建所有 7 个内置输出模板文件",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "files": {
+        "new": [
+          "src/templates/agents/output/sddu-discovery.md.hbs",
+          "src/templates/agents/output/sddu-spec.md.hbs",
+          "src/templates/agents/output/sddu-plan.md.hbs",
+          "src/templates/agents/output/sddu-tasks.md.hbs",
+          "src/templates/agents/output/sddu-build.md.hbs",
+          "src/templates/agents/output/sddu-review.md.hbs",
+          "src/templates/agents/output/sddu-validate.md.hbs"
+        ],
+        "modify": [],
+        "delete": []
+      },
+      "verificationCommands": [
+        "ls -la src/templates/agents/output/",
+        "grep -r '{{' src/templates/agents/output/ && echo 'NO_HBS_SYNTAX' || echo 'CLEAN'"
+      ]
+    },
+    {
+      "id": "TASK-002",
+      "name": "修改 discovery/spec/plan 三个 Agent Prompt 源模板",
+      "complexity": "M",
+      "wave": 2,
+      "dependencies": ["TASK-001"],
+      "files": {
+        "new": [],
+        "modify": [
+          "src/templates/agents/sddu-discovery.md.hbs",
+          "src/templates/agents/sddu-spec.md.hbs",
+          "src/templates/agents/sddu-plan.md.hbs"
+        ],
+        "delete": []
+      },
+      "verificationCommands": [
+        "grep -n '## 输出格式' src/templates/agents/sddu-discovery.md.hbs src/templates/agents/sddu-spec.md.hbs src/templates/agents/sddu-plan.md.hbs",
+        "grep -n '## 输出模板' src/templates/agents/sddu-discovery.md.hbs src/templates/agents/sddu-spec.md.hbs src/templates/agents/sddu-plan.md.hbs"
+      ]
+    },
+    {
+      "id": "TASK-003",
+      "name": "修改 tasks/build/review/validate 四个 Agent Prompt 源模板",
+      "complexity": "M",
+      "wave": 2,
+      "dependencies": ["TASK-001"],
+      "files": {
+        "new": [],
+        "modify": [
+          "src/templates/agents/sddu-tasks.md.hbs",
+          "src/templates/agents/sddu-build.md.hbs",
+          "src/templates/agents/sddu-review.md.hbs",
+          "src/templates/agents/sddu-validate.md.hbs"
+        ],
+        "delete": []
+      },
+      "verificationCommands": [
+        "grep -n '## 输出格式' src/templates/agents/sddu-tasks.md.hbs src/templates/agents/sddu-build.md.hbs src/templates/agents/sddu-review.md.hbs src/templates/agents/sddu-validate.md.hbs",
+        "grep -n '## 输出模板' src/templates/agents/sddu-tasks.md.hbs src/templates/agents/sddu-build.md.hbs src/templates/agents/sddu-review.md.hbs src/templates/agents/sddu-validate.md.hbs"
+      ]
+    },
+    {
+      "id": "TASK-004",
+      "name": "适配 build-agents.cjs — 排除 output/ 目录并复制到 dist",
+      "complexity": "S",
+      "wave": 1,
+      "dependencies": [],
+      "files": {
+        "new": [],
+        "modify": [
+          "build-agents.cjs"
+        ],
+        "delete": []
+      },
+      "verificationCommands": [
+        "node build-agents.cjs",
+        "ls dist/templates/output/",
+        "diff <(cat src/templates/agents/output/sddu-discovery.md.hbs) <(cat dist/templates/output/sddu-discovery.md.hbs)"
+      ]
+    },
+    {
+      "id": "TASK-005",
+      "name": "适配 scripts/package.cjs — 包含 output 模板到插件包",
+      "complexity": "S",
+      "wave": 3,
+      "dependencies": ["TASK-004"],
+      "files": {
+        "new": [],
+        "modify": [
+          "scripts/package.cjs"
+        ],
+        "delete": []
+      },
+      "verificationCommands": [
+        "node build-agents.cjs && node scripts/package.cjs",
+        "ls dist/sddu/templates/output/",
+        "ls dist/sddu/templates/output/*.hbs | wc -l"
+      ]
+    },
+    {
+      "id": "TASK-006",
+      "name": "适配 install.sh — 安装时复制 output 模板",
+      "complexity": "S",
+      "wave": 4,
+      "dependencies": ["TASK-005"],
+      "files": {
+        "new": [],
+        "modify": [
+          "install.sh"
+        ],
+        "delete": []
+      },
+      "verificationCommands": [
+        "ls .opencode/plugins/sddu/templates/output/ 2>/dev/null"
+      ]
+    },
+    {
+      "id": "TASK-007",
+      "name": "适配 install.ps1 — 安装时复制 output 模板",
+      "complexity": "S",
+      "wave": 4,
+      "dependencies": ["TASK-005"],
+      "files": {
+        "new": [],
+        "modify": [
+          "install.ps1"
+        ],
+        "delete": []
+      },
+      "verificationCommands": [
+        "Test-Path '.opencode/plugins/sddu/templates/output/'"
+      ]
+    },
+    {
+      "id": "TASK-008",
+      "name": "集成测试 — 验证完整构建→打包→安装链路",
+      "complexity": "M",
+      "wave": 5,
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007"],
+      "files": {
+        "new": [],
+        "modify": [],
+        "delete": []
+      },
+      "verificationCommands": [
+        "ls .opencode/plugins/sddu/templates/output/ 2>/dev/null && echo 'CURRENT_PROJECT_AFFECTED' || echo 'CURRENT_PROJECT_UNCHANGED'"
+      ]
+    }
+  ],
+  "fileImpactSummary": {
+    "newFiles": 7,
+    "modifiedFiles": 11,
+    "deletedFiles": 0
+  },
+  "executionOrder": [
+    {
+      "wave": 1,
+      "tasks": ["TASK-001", "TASK-004"],
+      "parallel": true
+    },
+    {
+      "wave": 2,
+      "tasks": ["TASK-002", "TASK-003"],
+      "parallel": true
+    },
+    {
+      "wave": 3,
+      "tasks": ["TASK-005"],
+      "parallel": false
+    },
+    {
+      "wave": 4,
+      "tasks": ["TASK-006", "TASK-007"],
+      "parallel": true
+    },
+    {
+      "wave": 5,
+      "tasks": ["TASK-008"],
+      "parallel": false
+    }
+  ]
+}
