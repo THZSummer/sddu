@@ -13,8 +13,8 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "@opencode-ai/plugin": ["./.opencode/node_modules/@opencode-ai/plugin/dist/index.js"],
-      "@opencode-ai/plugin/*": ["./.opencode/node_modules/@opencode-ai/plugin/dist/*"]
+      "@opencode-ai/plugin": ["./node_modules/@opencode-ai/plugin/dist/index.js"],
+      "@opencode-ai/plugin/*": ["./node_modules/@opencode-ai/plugin/dist/*"]
     }
   },
   "include": ["src/**/*"],
