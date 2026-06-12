@@ -1,4 +1,4 @@
-# Directory: .sdd/docs/
+# Directory: .sddu/docs/
 
 ## 目录简介
 SDDU 文档资源目录，包含迁移指南、常见问题解答、容器化 FAQ 等技术文档。

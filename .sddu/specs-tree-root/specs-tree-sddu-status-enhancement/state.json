@@ -1,8 +1,8 @@
 {
   "featureId": "FR-STATUS-ENHANCE-001",
   "name": "SDDU 特性状态增强",
-  "phase": "builded",
-  "status": "tracked",
+  "phase": "validated",
+  "status": "completed",
   "priority": "P1",
   "createdDate": "2026-06-12",
   "updatedDate": "2026-06-13T21:00:00.000Z",

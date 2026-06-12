@@ -1,4 +1,4 @@
-# Directory: .sdd/specs-tree-root/specs-tree-sdd-discovery-feature/
+# Directory: .sddu/specs-tree-root/specs-tree-sdd-discovery-feature/
 
 ## 目录简介
 SDD Discovery 需求挖掘功能增强 Feature 规范目录，记录新增 Stage 0 Discovery (需求挖掘) 阶段的完整规范。

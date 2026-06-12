@@ -1,4 +1,4 @@
-# Directory: .sdd/specs-tree-root/architecture/
+# Directory: .sddu/specs-tree-root/architecture/
 
 ## 目录简介
 SDDU 架构决策记录目录，存放系统架构相关的技术决策文档 (ADR - Architecture Decision Record)。

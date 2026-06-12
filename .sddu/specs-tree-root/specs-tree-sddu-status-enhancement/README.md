@@ -11,45 +11,52 @@
 
 | 属性 | 值 |
 |------|-----|
-| **phase** | `specified` |
-| **status** | `tracked` |
+| **phase** | `validated` |
+| **status** | `completed` |
 | **优先级** | P1 |
 | **Feature ID** | FR-STATUS-ENHANCE-001 |
 | **创建日期** | 2026-06-12 |
-| **更新日期** | 2026-06-12 |
+| **更新日期** | 2026-06-13 |
 
 ## 目录结构
 
 ```
 specs-tree-sddu-status-enhancement/
-├── README.md              # 本文件 - 目录导航
-├── discovery.md           # 需求挖掘报告 v5.0.0（最终模型）
-├── spec.md                # Feature 规范（本阶段产出）
-├── spec.json              # 结构化规范数据
-└── state.json             # 状态文件 (phase: specified, status: tracked)
+├── README.md               # 本文件 - 目录导航
+├── discovery.md            # 需求挖掘报告 v5.0.0（最终模型）
+├── spec.md                 # Feature 规范 (15 FR + 6 NFR + 12 EC)
+├── spec.json               # 结构化规范数据
+├── plan.md                 # 技术规划 (方案 B — 干净切换)
+├── tasks.md                # 任务分解 (14 个任务, 6 波次)
+├── tasks.json              # 任务元数据
+├── build.md                # 构建报告 (14/14 任务完成, 396/400 测试通过)
+├── review.md               # 代码审查报告 (✅ 通过)
+├── validation-report.md    # 验证报告 (100% 覆盖率: 15 FR/6 NFR/12 EC)
+├── ADR-020.md              # 架构决策: 两字段隔离模型
+└── state.json              # 状态文件 (phase: validated, status: completed)
 ```
 
 ## 需求全景
 
-### MVP — Must Have（R1-R5）
-- [ ] **FR-001**: 两字段模型落地 — state.json 使用 phase + status 替代混用字段
-- [ ] **FR-002**: Phase 自动推进 — 单向不可逆，系统自动
-- [ ] **FR-003**: Status 过滤 — 非 tracked 特性不在建议区列出
-- [ ] **FR-004**: 子随父归 — 非 tracked 父特性下的子特性归入父节点
-- [ ] **FR-005**: Schema 联合验证 — phase（8 值）+ status（5 值）
-- [ ] **FR-006**: 自动完成 — phase 到达 validated 时自动设 status 为 completed
-- [ ] **FR-007**: 一致性检测 — 版本升级后首次 `@sddu 状态` 自动触发
-- [ ] **FR-008**: 非 tracked 保护 — 修复时不覆盖用户设定的非 tracked status
+### MVP — Must Have（R1-R5）✅ 全部完成
+- [x] **FR-001**: 两字段模型落地 — state.json 使用 phase + status 替代混用字段
+- [x] **FR-002**: Phase 自动推进 — 单向不可逆，系统自动
+- [x] **FR-003**: Status 过滤 — 非 tracked 特性不在建议区列出
+- [x] **FR-004**: 子随父归 — 非 tracked 父特性下的子特性归入父节点
+- [x] **FR-005**: Schema 联合验证 — phase（8 值）+ status（5 值）
+- [x] **FR-006**: 自动完成 — phase 到达 validated 时自动设 status 为 completed
+- [x] **FR-007**: 一致性检测 — 版本升级后首次 `@sddu 状态` 自动触发
+- [x] **FR-008**: 非 tracked 保护 — 修复时不覆盖用户设定的非 tracked status
 
-### V1 — Should Have（R6-R9）
-- [ ] **FR-009**: `@sddu 标记` 命令 — suspended/terminated/merged/tracked
-- [ ] **FR-010**: 分类仪表盘 — 🟢进行中/✅已完成/🟡搁置/🔴终止/🔵迁出/⚠️异常
-- [ ] **FR-011**: 父特性聚合 — 根据子特性进度聚合展示
-- [ ] **FR-012**: Suspended 到期提醒 — 被动检测，仅提醒不自动变更
+### V1 — Should Have（R6-R9）✅ 全部完成
+- [x] **FR-009**: `@sddu 标记` 命令 — suspended/terminated/merged/tracked
+- [x] **FR-010**: 分类仪表盘 — 🟢进行中/✅已完成/🟡搁置/🔴终止/🔵迁出/⚠️异常
+- [x] **FR-011**: 父特性聚合 — 根据子特性进度聚合展示
+- [x] **FR-012**: Suspended 到期提醒 — 被动检测，仅提醒不自动变更
 
-### V2 — Nice to Have（R10-R11）
-- [ ] **FR-013**: 长期停滞检测
-- [ ] **FR-014**: Merged 特性跳转追溯
+### V2 — Nice to Have（R10-R11）✅ 全部完成
+- [x] **FR-013**: 长期停滞检测
+- [x] **FR-014**: Merged 特性跳转追溯
 
 ## 核心模型（不可变更）
 
@@ -61,34 +68,51 @@ specs-tree-sddu-status-enhancement/
 | **推荐规则** | 仅 `status === "tracked" && phase !== "validated"` 时推荐继续 |
 | **不可逆状态** | completed, terminated, merged |
 
+## 构建成果
+
+| 指标 | 值 |
+|------|-----|
+| 任务完成 | 14/14 (100%) |
+| 新建文件 | 7 |
+| 修改文件 | ~75 |
+| 变更行数 | +12,200 / -3,700 |
+| 核心测试 | 122/122 (100%) |
+| 全量测试 | 396/400 (99%) |
+| 编译状态 | ✅ 0 errors |
+
+## 验证结果
+
+| 需求类型 | 总数 | 已覆盖 | 覆盖率 |
+|----------|------|--------|--------|
+| 功能需求 (FR) | 15 | 15 | **100%** |
+| 非功能需求 (NFR) | 6 | 6 | **100%** |
+| 边界情况 (EC) | 12 | 12 | **100%** |
+
+**结论**: ✅ 通过 — 代码实现与规范完全一致，无阻塞问题，无严重漂移。
+
 ## 受影响模块
 
 | 模块 | 文件 | 改动等级 |
 |------|------|----------|
-| Schema | `src/state/schema.ts` | 🔴 重大（phase + status 联合） |
-| StateMachine | `src/state/machine.ts` | 🔴 重大（getNextStep 联合推导） |
-| StateLoader | `src/state/state-loader.ts` | 🟡 中等（识别新模型） |
+| Schema | `src/state/schema-v3.0.0.ts` | 🔴 重大（新建，278 行） |
+| StateMachine | `src/state/machine.ts` | 🔴 重大（删除双宇宙映射，672 行） |
+| StateLoader | `src/state/state-loader.ts` | 🟡 中等（适配 v3.0.0） |
 | TreeScanner | `src/state/tree-scanner.ts` | 🟡 中等（子随父归） |
-| ConsistencyChecker | `src/state/consistency-checker.ts` | 🆕 新建（R5） |
+| ConsistencyChecker | `src/state/consistency-checker.ts` | 🆕 新建（927 行，7 项检测） |
 | AutoUpdater | `src/state/auto-updater.ts` | 🟡 中等（跳过非 tracked） |
-| Agent | `agents/sddu.md` | 🔴 重大（过滤+分类+标记） |
-| Agent | `agents/sddu-docs.md` | 🟡 中等（status 标注） |
+| Agent 模板 | `src/templates/agents/sddu.md.hbs` | 🔴 重大（6 区仪表盘 + 标记命令） |
 
-## 成功指标
+## 架构决策
 
-| 指标 | 当前 | 目标 |
-|------|------|------|
-| 建议区非 tracked 特性 | 有 | 0 |
-| 非 tracked 子特性独立计数 | 有 | 0（归入父节点） |
-| 标记操作步骤 | 3 步 | 1 条命令 |
-| Phase 值 | 混用不完整 | 8 个（统一 -ed） |
-| Status 值 | 混用不完整 | 5 个 |
-| 自动完成标记 | 无 | 自动设 completed |
-| 结构异常检测 | 无 | 实时报告 |
+| ADR ID | 标题 | 状态 |
+|--------|------|------|
+| ADR-020 | 两字段隔离模型 — Phase + Status 完全独立 | PROPOSED |
 
-## 下一步
+## Feature 工作流已完成
 
-👉 运行 `@sddu-plan specs-tree-sddu-status-enhancement` 进入技术规划阶段
+```
+discovery → spec → plan → tasks → build → review → validate ✅ 全部完成
+```
 
 ## 上级目录
 
@@ -97,4 +121,4 @@ specs-tree-sddu-status-enhancement/
 
 ---
 
-*创建日期：2026-06-12 | phase：specified | status：tracked | discovery v5.0.0*
+*创建日期：2026-06-12 | phase：validated | status：completed | 验证日期：2026-06-13*

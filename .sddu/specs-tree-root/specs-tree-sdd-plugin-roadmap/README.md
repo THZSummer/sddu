@@ -80,7 +80,7 @@ specified → planned → tasked → implementing → reviewed → validated
 @sdd-roadmap "基于现有 spec 规划下一步"
 ```
 
-**输出**: `.sdd/ROADMAP.md`
+**输出**: `.sddu/ROADMAP.md`
 
 ---
 

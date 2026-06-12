@@ -1,4 +1,4 @@
-# Directory: .sdd/specs-tree-root/architecture/adr/
+# Directory: .sddu/specs-tree-root/architecture/adr/
 
 ## 目录简介
 架构决策记录 (ADR - Architecture Decision Record) 集合，记录 SDDU 系统的关键架构决策及其背景、影响。
