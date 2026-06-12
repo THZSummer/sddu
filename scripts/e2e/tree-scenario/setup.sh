@@ -172,7 +172,7 @@ cat > "$SPEC_ROOT/specs-tree-e2e-parent/specs-tree-e2e-child-b/state.json" << EO
     "spec": "spec.md" 
   },
   "dependencies": { 
-    "on": ["specs-tree-e2e-parent/specs-tree-e2e-child-a"],  // Cross-tree reference - to demonstrate circular dependency detection
+    "on": ["specs-tree-e2e-parent/specs-tree-e2e-child-a"],
     "blocking": [] 
   },
   "phaseHistory": [
