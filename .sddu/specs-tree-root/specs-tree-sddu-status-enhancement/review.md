@@ -55,27 +55,27 @@
 
 ### ⚠️ 需要改进
 
-1. **`src/state/machine.ts:53` — `FeatureStateEnum` 仍作为 deprecated 类型导出**
+1. **`src/state/machine.ts:53` — `FeatureStateEnum` 仍作为 deprecated 类型导出** `[延后 v3.1.0]`
    - **问题**: Spec 和 plan 明确要求删除 FeatureStateEnum，当前保留为 `@deprecated` 类型别名向后兼容。虽标注了 deprecated 且注释清晰，但增加了维护负担。
    - **建议**: 在后续版本（v3.1.0）中彻底移除，当前可接受。
 
-2. **`src/state/machine.ts:221,227` — `as any` 类型断言绕过 TypeScript 检查**
-   - **问题**: `(this.stateLoader as any).create()` 和 `(this.stateLoader as any).get()` 使用 `any` 绕过类型系统，注释称 "TASK-005 will migrate StateLoader to v3.0.0" 但此注释放置已久。
-   - **建议**: TASK-005 已完成，应移除 `as any` 并直接使用 `StateLoader` 的公开接口类型。
+2. **`src/state/machine.ts:221,227` — `as any` 类型断言绕过 TypeScript 检查** `[✅ 已修复]`
+   - **问题**: ~~`(this.stateLoader as any).create()` 和 `(this.stateLoader as any).get()` 使用 `any` 绕过类型系统，注释称 "TASK-005 will migrate StateLoader to v3.0.0" 但此注释放置已久。~~
+   - **修复**: 已移除 machine.ts 中所有不必要的 `as any` 类型断言（StateLoader/DependencyChecker 类型已就绪）。
 
-3. **`src/state/schema-v3.0.0.ts:191-236` — `validateStateV3()` 使用 `console.error` 而非结构化错误返回**
-   - **问题**: 校验失败时通过 `console.error` 输出诊断，但不向调用者返回结构化错误信息（如哪个字段违规、合法值集合）。调用者只能得到 `true/false`。
-   - **建议**: 增加 `validateStateV3Detailed()` 返回 `{ valid: boolean; errors: string[] }` 格式，便于调用者展示用户友好的错误信息。
+3. **`src/state/schema-v3.0.0.ts:191-236` — `validateStateV3()` 使用 `console.error` 而非结构化错误返回** `[✅ 已修复]`
+   - **问题**: ~~校验失败时通过 `console.error` 输出诊断，但不向调用者返回结构化错误信息（如哪个字段违规、合法值集合）。调用者只能得到 `true/false`。~~
+   - **修复**: 已新增 `validateStateV3Detailed()` 返回 `{ valid: boolean; errors: string[] }` 格式，并导出 `ValidationResult` 类型。
 
-4. **`src/state/state-loader.ts:124-130` — `applyReparation()` 自动修复可能绕过 R5 确认流程**
+4. **`src/state/state-loader.ts:124-130` — `applyReparation()` 自动修复可能绕过 R5 确认流程** `[延后]`
    - **问题**: `get()` 方法在读取时自动调用 `applyReparation()` 修复常见 schema 问题（如缺失 version、phase、depth 等），未经过用户确认。虽然修复操作保守（仅补全默认值），但与 spec 中"修复前需用户确认"的原则不完全一致。
    - **建议**: 将"读取时自动修复"作为轻量兼容策略（可接受），但在 `@sddu 状态` 场景中应优先触发 R5 标准检测流程。当前实现的风险可控。
 
-5. **`src/templates/agents/output/sddu-plan.md.hbs:24` — `sddu_update_state` 工具示例仍使用旧字段名**
-   - **问题**: 示例命令中 `"status": "planned"` 使用的是旧字段格式，应更新为 `"phase": "planned"` 以匹配 v3.0.0 模型。
-   - **建议**: 同步更新 7 个输出模板中的 `sddu_update_state` 示例。
+5. **`src/templates/agents/output/sddu-plan.md.hbs:24` — `sddu_update_state` 工具示例仍使用旧字段名** `[✅ 已修复]`
+   - **问题**: ~~示例命令中 `"status": "planned"` 使用的是旧字段格式，应更新为 `"phase": "planned"` 以匹配 v3.0.0 模型。~~
+   - **修复**: 已同步更新 7 个输出模板 + `sddu_update_state` 工具，统一使用 `"phase"` 字段名（`"status"` 保留兼容）。
 
-6. **模板到代码的差距（设计特性，非缺陷）**
+6. **模板到代码的差距（设计特性，非缺陷）** `[延后]`
    - `sddu.md.hbs` 中的仪表盘输出逻辑以自然语言指令的形式描述给 AI Agent，实际输出效果依赖 AI 对指令的理解。建议在后续版本中考虑将仪表盘渲染逻辑从模板迁移到 `src/` 下的 TypeScript 工具函数，减少对 AI 理解的依赖。
 
 ---
@@ -88,9 +88,9 @@
 
 ### 建议
 
-1. **建议在 v3.1.0 中执行清理**: 移除 `FeatureStateEnum` deprecated 类型别名、移除 machine.ts 中的 `as any` 类型断言、将 `validateStateV3` 升级为结构化错误返回。
+1. **建议在 v3.1.0 中执行清理**: 移除 `FeatureStateEnum` deprecated 类型别名（`as any` 已清理、`validateStateV3Detailed` 已实现）。
 2. **建议将仪表盘渲染逻辑 TypeScript 化**: 将 `sddu.md.hbs` 中的分类、排序、过滤逻辑迁入 `src/state/dashboard-renderer.ts`（或类似模块），使模板仅负责格式化输出，核心逻辑可单元测试。
-3. **建议统一 `sddu_update_state` 工具参数**: 将所有模板中的工具调用示例统一为 `"phase"` 字段名（而非旧的 `"status"`），避免混淆。
+3. ~~**建议统一 `sddu_update_state` 工具参数**~~ `[✅ 已完成]` — 7 个输出模板 + 工具已统一使用 `"phase"` 字段名。
 4. **建议增加 `consistency-checker` 的集成测试**: 当前仅有单元测试（28 用例通过），建议补充一个包含真实 `.sddu/` 目录结构的集成测试，验证完整的检测→报告→修复→再检测流程。
 5. **建议验证 `@sddu 状态` 的实际 AI Agent 行为**: 模板中的仪表盘指令是 prompt 层面的，建议在实际 opencode 环境中执行 `@sddu 状态` 并对比预期效果与模板描述是否一致。
 
