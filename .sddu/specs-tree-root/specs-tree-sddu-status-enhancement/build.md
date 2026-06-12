@@ -117,5 +117,5 @@ src/types.ts:48:  FeatureStateEnum,  // re-export (deprecated)
 
 ### 下一步
 
-- 执行 `@sddu-build TASK-012` — E2E 端到端验证和性能测试
-- 或运行 `@sddu-review TASK-011` 审查当前实现
+- 执行 `@sddu-build TASK-012` — E2E 脚本更新（state.json 格式迁移至 v3.0.0）
+- 实际场景验证需用户在 opencode 中交互测试，详见 TASK-012

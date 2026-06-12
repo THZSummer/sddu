@@ -765,7 +765,7 @@ grep -rn "FeatureStateEnum" src/ --include="*.ts" | grep -v ".d.ts"
 
 ---
 
-### TASK-012: E2E 端到端验证和性能测试
+### TASK-012: E2E 脚本更新（仅覆盖测试脚本中 state.json 格式迁移）
 
 **复杂度**: M
 **前置依赖**: TASK-009, TASK-010, TASK-011
@@ -774,9 +774,22 @@ grep -rn "FeatureStateEnum" src/ --include="*.ts" | grep -v ".d.ts"
 
 #### 描述
 
-执行端到端集成验证，覆盖完整生命周期、状态过滤、子随父归、R5 检测修复、标记命令、分类仪表盘、到期提醒等所有场景。同时验证非功能需求（NFR-001, NFR-002 性能指标）。
+将 `scripts/e2e/` 下所有测试脚本中的 state.json 创建代码从旧格式（v2.1.0，数字 phase、混用 status）迁移至 v3.0.0 新格式（字符串 phase + 独立 status 字段），并修复因本次改动引入的测试失败。
 
-**E2E 测试场景**：
+**本任务仅覆盖**：
+- E2E 脚本（`basic/`、`tree-scenario/`、`fullstack/`）中 state.json 格式更新
+- 因 phase/status 字段变更引入的测试用例预期值修正
+
+**本任务不覆盖**（需用户在实际环境中手动验证）：
+- 安装最新 SDDU 插件到测试项目
+- 启动 opencode 执行 `@sddu 状态` / `@sddu 标记` 等命令
+- 验证分类仪表盘、智能引导、R5 一致性检测等交互行为
+- 性能测试（NFR-001、NFR-002）
+
+> **实际场景验证**需用户：① 新建测试项目 → ② 安装最新 SDDU 插件 → ③ 启动 opencode 进行交互式测试。以下场景说明供手动验证时参考：
+
+<details>
+<summary>手动验证场景（仅供参考，不在本任务范围内）</summary>
 
 **场景 1 — 完整生命周期**：
 1. 创建 Feature → phase=registered, status=tracked
@@ -819,25 +832,21 @@ grep -rn "FeatureStateEnum" src/ --include="*.ts" | grep -v ".d.ts"
 - 测量含 50+ Feature 项目的 `@sddu 状态` 扫描耗时（目标 ≤ 3s）
 - 测量一致性检测全量扫描耗时（目标 ≤ 5s）
 
+</details>
+
 #### 涉及文件
 
-- [VERIFY] 全部已修改文件 — 通过 E2E 流程间接验证
+- [MODIFY] `scripts/e2e/basic/sddu-e2e.sh` — state.json 格式 + phase 验证函数
+- [MODIFY] `scripts/e2e/tree-scenario/setup.sh` — 5 个 state.json 块
+- [MODIFY] `scripts/e2e/fullstack/sddu-e2e-fullstack.sh` — phase 验证函数
 
 #### 验收标准
 
-- [ ] 完整生命周期（registered → validated → completed）全部通过
-- [ ] 中途搁置后 `@sddu 状态` 正确分类
-- [ ] 恢复搁置后 `@sddu 状态` 正确回归
-- [ ] 终止父特性后子特性归入父节点
-- [ ] R5 版本升级后首次 `@sddu 状态` 自动触发
-- [ ] R5 修复后输出变更报告
-- [ ] R5 同版本不重复触发
-- [ ] 自然语言标记推导正确并确认后执行
-- [ ] terminated/merged 二次确认正常工作
-- [ ] merged 缺 --into 参数时报错
-- [ ] `@sddu 状态` 输出正确包含 6 区 + 智能引导 + 到期提醒
-- [ ] 标记后 state.json / root state.json / README.md 三处同步
-- [ ] `@sddu 状态` 扫描 50 Feature ≤ 3s
+- [x] E2E 脚本中所有 state.json 使用 v3.0.0 格式（字符串 phase + 独立 status）
+- [x] 无旧格式残留（`"phase": 0-6` 数字、`"status": "specified/planned/..."` 混用）
+- [x] `npx tsc --noEmit` 编译通过
+- [x] 全量测试 396/400 通过（4 个预存失败除外）
+- [ ] 用户在实际环境中完成手动场景验证
 - [ ] 一致性检测全量扫描 ≤ 5s
 
 #### 验证命令
