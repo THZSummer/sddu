@@ -838,3 +838,90 @@ export class ConsistencyChecker {
     throw new Error(`No state file found (tried state.json and .state.json)`);
   }
 }
+
+// ============================================================================
+// FR-013: 长期停滞检测
+// ============================================================================
+
+export interface StaleFeature {
+  featurePath: string;
+  featureName: string;
+  phase: string;
+  lastUpdated: string;
+  staleDays: number;
+}
+
+/**
+ * 检测长期停滞的 Feature。
+ *
+ * 扫描所有 `status === 'tracked' && phase !== 'validated'` 的特性，
+ * 检查 `updatedAt`（或 `updatedDate`）距今是否超过阈值。
+ *
+ * @param specsRootDir - specs-tree-root 目录路径
+ * @param staleDaysThreshold - 停滞阈值（天），默认 30
+ * @returns 停滞特性列表
+ */
+export async function detectStaleFeatures(
+  specsRootDir: string,
+  staleDaysThreshold: number = 30,
+): Promise<StaleFeature[]> {
+  const staleFeatures: StaleFeature[] = [];
+  const now = Date.now();
+  const thresholdMs = staleDaysThreshold * 24 * 60 * 60 * 1000;
+
+  let entries: Array<{ name: string; isDirectory: () => boolean }>;
+  try {
+    entries = await fs.readdir(specsRootDir, { withFileTypes: true }) as any;
+  } catch {
+    return staleFeatures; // directory doesn't exist
+  }
+
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !entry.name.startsWith('specs-tree-')) continue;
+
+    const featureDir = path.join(specsRootDir, entry.name);
+    const stateFilePath = path.join(featureDir, 'state.json');
+
+    let stateRaw: string;
+    try {
+      stateRaw = await fs.readFile(stateFilePath, 'utf-8');
+    } catch {
+      continue; // no state.json, skip
+    }
+
+    let state: any;
+    try {
+      state = JSON.parse(stateRaw);
+    } catch {
+      continue;
+    }
+
+    // Only check tracked + non-validated features
+    const status = state.status || state.state;
+    const phase = state.phase;
+    if (status !== 'tracked' || phase === 'validated') continue;
+
+    // Check last update time
+    const updatedAt = state.updatedAt || state.updatedDate || state.metadata?.updatedAt;
+    if (!updatedAt) continue;
+
+    const updatedTime = new Date(updatedAt).getTime();
+    if (isNaN(updatedTime)) continue;
+
+    const staleMs = now - updatedTime;
+    if (staleMs < thresholdMs) continue;
+
+    staleFeatures.push({
+      featurePath: entry.name,
+      featureName: entry.name.substring('specs-tree-'.length),
+      phase,
+      lastUpdated: updatedAt,
+      staleDays: Math.floor(staleMs / (24 * 60 * 60 * 1000)),
+    });
+  }
+
+  // Sort by most stale first
+  staleFeatures.sort((a, b) => b.staleDays - a.staleDays);
+
+  return staleFeatures;
+}

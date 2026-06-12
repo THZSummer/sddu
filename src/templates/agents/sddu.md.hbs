@@ -109,6 +109,13 @@ discovery → spec → plan → tasks → build → review → validate
 | 1 | `feature-a` | specified | @sddu plan feature-a |
 | 2 | `feature-b` | registered | @sddu discovery feature-b |
 
+<!-- FR-013: 长期停滞检测 — 对进行中特性检测 updatedAt 距今超过阈值 -->
+<!-- 停滞阈值: 默认 30 天，可通过 .sddu/config.json staleDaysThreshold 配置 -->
+<!-- 如果存在停滞特性，在下方展示警告表 -->
+| ⚠️ 停滞提醒 | 特性 | 当前阶段 | 停滞天数 | 上次更新 | 建议操作 |
+|-------------|------|---------|---------|---------|---------|
+| | `feature-b` | registered | 45 天 | 2026-04-01 | `@sddu 标记 feature-b suspended` 或继续推动 |
+
 <!-- 如无进行中特性，显示: 暂无进行中的特性 -->
 
 ### ✅ 已完成 (<N> 个)
@@ -138,10 +145,16 @@ discovery → spec → plan → tasks → build → review → validate
 
 ### 🔵 迁出 (<N> 个)
 <!-- 筛选: status === "merged" -->
+<!-- FR-014: 为每个 merged 特性提供目标跳转追溯 -->
 
-| # | 特性 | 最后阶段 | 迁入目标 | 迁出时间 |
-|---|------|---------|---------|---------|
-| 1 | `feature-g` | specified | specs-tree-other | 2026-04-20 |
+| # | 特性 | 最后阶段 | 迁入目标 | 目标状态 | 迁出时间 |
+|---|------|---------|---------|---------|---------|
+| 1 | `feature-g` | specified | 🔵 迁出 → `specs-tree-other` | ✅ 存在 | 2026-04-20 |
+| 2 | `feature-h` | planned | 🔵 迁出 → `specs-tree-gone` | ⚠️ 目标不存在 | 2026-05-01 |
+
+- **目标存在时**: 提供完整路径用于导航（`specs-tree-other`）
+- **目标不存在时**: 标注 `⚠️ 目标不存在` 警告
+- **显示迁出时间**: 从 `mergedAt` 字段读取，若无则显示 `merged` 字段的最后修改时间
 
 ### ⚠️ 异常 (<N> 个)
 <!-- 列出所有结构异常 -->
