@@ -1,0 +1,278 @@
+// State Schema v3.0.0
+// Two-field model: phase (8 stages) + status (5 flow states), completely independent
+//
+// This is the canonical state format for SDDU features starting from v3.0.0.
+// It replaces the old single-field model (v2.x) where a single `status` field
+// conflated stage semantics and flow semantics.
+
+// ============================================================================
+// Phase (8 stages, all -ed form)
+// ============================================================================
+
+export type Phase =
+  | 'registered'   // Feature registered, awaiting discovery
+  | 'discovered'   // Discovery completed
+  | 'specified'    // Specification completed
+  | 'planned'      // Planning completed
+  | 'tasked'       // Task breakdown completed
+  | 'builded'      // Build/implementation completed
+  | 'reviewed'     // Review completed
+  | 'validated';   // Validation completed
+
+// ============================================================================
+// FeatureStatus (5 flow states)
+// ============================================================================
+
+export type FeatureStatus =
+  | 'tracked'      // Normal tracking, in flow (default for new features)
+  | 'completed'    // Completed (auto-set when phase reaches validated)
+  | 'suspended'    // Suspended, may resume (user-marked)
+  | 'terminated'   // Permanently terminated, irreversible (user-marked)
+  | 'merged';      // Merged into another feature, irreversible (user-marked)
+
+// ============================================================================
+// Sub-types
+// ============================================================================
+
+/** Phase history record */
+export interface PhaseHistoryEntry {
+  phase: Phase;
+  timestamp: string;       // ISO timestamp
+  triggeredBy: string;     // Triggering Agent or 'user'
+  comment?: string;        // Optional comment
+}
+
+/** Suspended optional fields */
+export interface SuspendedInfo {
+  suspendedUntil?: string;  // ISO date string for expiry reminder
+  suspendedNote?: string;   // Reason for suspension
+}
+
+/** Merged required fields */
+export interface MergedInfo {
+  mergedInto: string;       // Target feature name (required)
+  mergedAt: string;         // ISO timestamp of merge
+}
+
+/** Child feature info in tree structure */
+export interface ChildFeatureInfoV3 {
+  path: string;
+  featureName: string;
+  phase: Phase;
+  status: FeatureStatus;
+  lastModified: string;
+}
+
+// ============================================================================
+// StateV3_0_0: the canonical state format
+// ============================================================================
+
+export interface StateV3_0_0 {
+  // Identity
+  feature: string;          // Feature ID (required)
+  name?: string;            // Human-readable name (optional)
+  version: 'v3.0.0';       // Schema version (required)
+
+  // Two-field model
+  phase: Phase;             // SDDU stage (required, 1 of 8 values)
+  status: FeatureStatus;    // Flow state (required, 1 of 5 values)
+
+  // Suspended/Merged metadata
+  suspended?: SuspendedInfo;  // Only when status === 'suspended'
+  merged?: MergedInfo;        // Only when status === 'merged'
+
+  // Tree structure
+  depth: number;            // Tree depth (0 for root-level features in specs-tree-root)
+  childrens?: ChildFeatureInfoV3[];  // Direct children
+
+  // Phase history
+  phaseHistory: PhaseHistoryEntry[];
+
+  // Dependencies
+  dependencies: {
+    on: string[];           // Features this depends on
+    blocking: string[];     // Features blocked by this feature
+  };
+
+  // File references
+  files: {
+    discovery?: string;
+    spec: string;
+    plan?: string;
+    tasks?: string;
+    readme?: string;
+    review?: string;
+    validation?: string;
+  };
+
+  // Metadata
+  metadata?: {
+    priority?: string;      // P0/P1/P2
+    featureId?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  };
+
+  // General history
+  history?: Array<{
+    timestamp: string;
+    from?: string;
+    to?: string;
+    triggeredBy?: string;
+    comment?: string;
+  }>;
+}
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** Valid phase values in order */
+export const VALID_PHASES: Phase[] = [
+  'registered', 'discovered', 'specified', 'planned',
+  'tasked', 'builded', 'reviewed', 'validated'
+];
+
+/** Valid status values */
+export const VALID_STATUSES: FeatureStatus[] = [
+  'tracked', 'completed', 'suspended', 'terminated', 'merged'
+];
+
+/** Phase ordering (for monotonic validation). 0 = registered, 7 = validated */
+export const PHASE_ORDER: Record<Phase, number> = {
+  'registered': 0,
+  'discovered': 1,
+  'specified': 2,
+  'planned': 3,
+  'tasked': 4,
+  'builded': 5,
+  'reviewed': 6,
+  'validated': 7
+};
+
+/** Next phase mapping. validated has no next phase. */
+export const NEXT_PHASE: Partial<Record<Phase, Phase>> = {
+  'registered': 'discovered',
+  'discovered': 'specified',
+  'specified': 'planned',
+  'planned': 'tasked',
+  'tasked': 'builded',
+  'builded': 'reviewed',
+  'reviewed': 'validated'
+};
+
+/** Statuses that cannot be reversed (completed, terminated, merged) */
+export const IRREVERSIBLE_STATUSES: FeatureStatus[] = [
+  'completed', 'terminated', 'merged'
+];
+
+/**
+ * The phase flow — each entry represents one step forward in the SDDU pipeline.
+ * Used by machine.ts for phase progression validation.
+ */
+export const phaseFlow: ReadonlyArray<{ from: Phase; to: Phase }> = [
+  { from: 'registered', to: 'discovered' },
+  { from: 'discovered', to: 'specified' },
+  { from: 'specified', to: 'planned' },
+  { from: 'planned', to: 'tasked' },
+  { from: 'tasked', to: 'builded' },
+  { from: 'builded', to: 'reviewed' },
+  { from: 'reviewed', to: 'validated' },
+];
+
+// ============================================================================
+// Validation
+// ============================================================================
+
+/**
+ * Validate a state object against the v3.0.0 schema.
+ * Returns a type guard — if true, `state` is `StateV3_0_0`.
+ */
+export function validateStateV3(state: unknown): state is StateV3_0_0 {
+  if (!state || typeof state !== 'object') return false;
+
+  const s = state as Record<string, unknown>;
+
+  // Identity checks
+  if (s.version !== 'v3.0.0') return false;
+  if (typeof s.feature !== 'string' || !s.feature) return false;
+
+  // Phase validation (must be one of 8 valid values)
+  if (!VALID_PHASES.includes(s.phase as Phase)) return false;
+
+  // Status validation (must be one of 5 valid values)
+  if (!VALID_STATUSES.includes(s.status as FeatureStatus)) return false;
+
+  // Combined constraints
+  if (s.status === 'completed' && s.phase !== 'validated') {
+    // status='completed' is only legal when phase='validated'
+    return false;
+  }
+  if (s.status === 'merged') {
+    const merged = s.merged as MergedInfo | undefined;
+    if (!merged || typeof merged.mergedInto !== 'string' || !merged.mergedInto) {
+      // status='merged' requires merged.mergedInto field
+      return false;
+    }
+  }
+
+  // Structural field validations
+  if (typeof s.depth !== 'number' || s.depth < 0) return false;
+  if (!Array.isArray(s.phaseHistory)) return false;
+
+  // files.spec is required
+  const files = s.files as Record<string, unknown> | undefined;
+  if (!files || typeof files !== 'object' || typeof files.spec !== 'string') return false;
+
+  // dependencies.on and dependencies.blocking must be arrays
+  const deps = s.dependencies as Record<string, unknown> | undefined;
+  if (!deps || typeof deps !== 'object' ||
+      !Array.isArray(deps.on) ||
+      !Array.isArray(deps.blocking)) {
+    return false;
+  }
+
+  return true;
+}
+
+// ============================================================================
+// Derivation functions
+// ============================================================================
+
+/**
+ * Based on current phase and status, determine whether the user should
+ * be recommended to continue to the next phase.
+ *
+ * Only recommends continue when status is 'tracked' and phase is not yet 'validated'.
+ */
+export function shouldRecommendContinue(phase: Phase, status: FeatureStatus): boolean {
+  return status === 'tracked' && phase !== 'validated';
+}
+
+/**
+ * Get the next recommended phase given the current phase and status.
+ * Returns null if the feature should not continue (e.g. suspended, completed, etc.).
+ */
+export function getNextRecommendedPhase(phase: Phase, status: FeatureStatus): Phase | null {
+  if (!shouldRecommendContinue(phase, status)) return null;
+  return NEXT_PHASE[phase] || null;
+}
+
+/**
+ * Determine whether a status transition from `currentStatus` to `targetStatus` is reversible.
+ *
+ * Reversible transitions (true):
+ *   - 'suspended' → 'tracked' (user resumes a suspended feature)
+ *
+ * Irreversible transitions (false):
+ *   - 'completed' → anything (completed is permanent)
+ *   - 'terminated' → anything (terminated is permanent)
+ *   - 'merged' → anything (merged is permanent)
+ *   - 'tracked' → 'tracked' (no-op, not a real transition)
+ */
+export function isStatusReversible(currentStatus: FeatureStatus, targetStatus: FeatureStatus): boolean {
+  // If current is irreversible, cannot transition away
+  if (IRREVERSIBLE_STATUSES.includes(currentStatus as FeatureStatus)) return false;
+  // Only suspended → tracked is explicitly reversible
+  return currentStatus === 'suspended' && targetStatus === 'tracked';
+}

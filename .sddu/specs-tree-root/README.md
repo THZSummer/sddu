@@ -73,7 +73,13 @@
 
 | 目录 | 说明 | 状态 |
 |------|------|------|
-| [specs-tree-solo-team-flow/](./specs-tree-solo-team-flow/README.md) | 一人产品 & 全员协作 (Solo Team Flow) | 🔍 discovered (phase 0/6) |
+| [specs-tree-sddu-status-enhancement/](./specs-tree-sddu-status-enhancement/README.md) | SDDU 特性状态增强 — 状态系统四维全面升级（完整性/可见性/一致性/操作与决策） | 🔍 discovered (phase 0/7) |
+
+### 已终止 Feature 目录（1 个）
+
+| 目录 | 说明 | 状态 |
+|------|------|------|
+| [specs-tree-solo-team-flow/](./specs-tree-solo-team-flow/README.md) | ETD (Expert Tree Design) — 迁移至独立仓库 | 🚫 terminated (2026-06-12) |
 
 ## 规范文件说明
 

@@ -1,6 +1,6 @@
 // 简化版 StateMachine 与 Agent 工作流集成测试
 import assert from 'assert';
-import { StateMachine } from '../../dist/state/machine.js';
+import { StateMachine } from '../../src/state/machine';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -45,24 +45,24 @@ async function runSimpleTest() {
     );
 
     console.log('📊 检查更新结果...');
-    console.log(`  - 最新状态: ${updatedFeature.state}`);
+    console.log(`  - 最新阶段: ${updatedFeature.phase}`);
     console.log(`  - Phase History 长度: ${updatedFeature.phaseHistory.length}`);
     console.log(`  - History 长度: ${updatedFeature.history.length}`);
 
-    // 验证结果
-    assert.equal(updatedFeature.state, 'specified', '状态应更新为 specified');
+    // 验证结果 — v3.0.0: 顶层使用 .phase 而非 .state
+    assert.equal(updatedFeature.phase, 'specified', 'phase 应更新为 specified');
     assert.ok(updatedFeature.phaseHistory.length >= 1, '应有至少一个 phase history');
     assert.ok(updatedFeature.history.length >= 1, '应有至少一个 history 记录');
 
-    // 检查最新的 phase history
+    // 检查最新的 phase history — v3.0.0: phaseHistory 条目使用 .phase 字段，无 .status
     const latestPhaseHistory = updatedFeature.phaseHistory[updatedFeature.phaseHistory.length - 1];
-    assert.equal(latestPhaseHistory.status, 'specified', 'Phase history 的状态应为 specified');
+    assert.equal(latestPhaseHistory.phase, 'specified', 'Phase history 的 phase 应为 specified');
     assert.ok(latestPhaseHistory.timestamp, 'Phase history 应有时间戳');
     assert.equal(latestPhaseHistory.triggeredBy, '@sdd-spec', '应有正确的触发来源');
 
     // 检查最新的 history
     const latestHistory = updatedFeature.history[updatedFeature.history.length - 1];
-    assert.equal(latestHistory.to, 'specified', 'History 的目标状态应为 specified');
+    assert.equal(latestHistory.to, 'specified', 'History 的目标 phase 应为 specified');
     assert.equal(latestHistory.triggeredBy, '@sdd-spec', 'History 应有正确的触发来源');
     assert.ok(latestHistory.comment, 'History 应有注释');
 

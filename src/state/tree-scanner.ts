@@ -2,6 +2,14 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { constants as fsConstants } from 'fs';
 
+// Inline types to avoid circular dependency:
+//   tree-scanner → schema-v3.0.0 → types.ts → tree-scanner
+// We only need the `status` field from StateV3_0_0 for resolveDisplayContext().
+type FeatureStatus = string;
+interface MinimalFeatureState {
+  status: FeatureStatus;
+}
+
 // Result type for tree scanning
 export interface ScanResult {
   nodes: FeatureTreeNode[];
@@ -16,6 +24,14 @@ export interface FeatureTreeNode {
   level: number;                 // Nesting level (0 for top-level, 1+ for nested)
   children: FeatureTreeNode[];   // Direct child nodes
   parent?: string;              // Parent path if applicable
+}
+
+/** Display context — determines where a feature should be shown in the dashboard */
+export interface DisplayContext {
+  /** The ancestor feature that this feature should be displayed under, or null if independent */
+  effectiveParent: string | null;
+  /** Whether this feature appears independently (true) or grouped under a non-tracked ancestor (false) */
+  isIndependent: boolean;
 }
 
 /**
@@ -109,4 +125,81 @@ function collectNodes(node: FeatureTreeNode, nodes: FeatureTreeNode[], flatMap: 
  */
 export function isParentFeature(node: FeatureTreeNode): boolean {
   return node.children.length > 0;
+}
+
+// ============================================================================
+// FR-004: 子随父归 (child-belongs-to-parent) display context resolution
+// ============================================================================
+
+/**
+ * Find the first non-tracked ancestor of a feature by walking up the parent chain.
+ *
+ * "Non-tracked" means status is suspended / terminated / merged / completed.
+ * Tracked ancestors are skipped (they don't "own" their children visually).
+ *
+ * Returns the path of the first non-tracked ancestor, or null if all ancestors
+ * are tracked (or there are no ancestors).
+ *
+ * @param featurePath - The feature whose ancestry should be inspected.
+ * @param allStates  - A map from featurePath → loaded StateV3_0_0 (must contain status).
+ * @param treeNodes  - The flatMap from scanTreeStructure (provides parent chain).
+ */
+export function findFirstNonTrackedAncestor(
+  featurePath: string,
+  allStates: Map<string, MinimalFeatureState>,
+  treeNodes: Map<string, FeatureTreeNode>,
+): string | null {
+  const visited = new Set<string>();
+  let current: string | undefined = featurePath;
+
+  while (current) {
+    if (visited.has(current)) break; // safety guard against cycles
+    visited.add(current);
+
+    const node = treeNodes.get(current);
+    if (!node || !node.parent) break;
+
+    const parentPath = path.relative(process.cwd(), node.parent);
+    const parentState = allStates.get(parentPath);
+
+    if (parentState && parentState.status !== 'tracked') {
+      return parentPath;
+    }
+
+    // Continue walking up — tracked parents don't stop the walk
+    current = parentPath;
+  }
+
+  return null;
+}
+
+/**
+ * Resolve the display context for a feature under FR-004 (子随父归).
+ *
+ * Algorithm:
+ *  1. Walk up the ancestor chain from `featurePath`.
+ *  2. Find the first ancestor whose status is NOT 'tracked'.
+ *  3. If found → the feature belongs to that ancestor (isIndependent = false).
+ *  4. If not found → the feature is independent (isIndependent = true).
+ *
+ * Recursion: descendants of a non-tracked ancestor all point to the *topmost*
+ * non-tracked ancestor, not just their direct parent.
+ *
+ * @param featurePath - The feature whose display context to resolve.
+ * @param allStates  - A map from featurePath → loaded StateV3_0_0.
+ * @param treeNodes  - The flatMap from scanTreeStructure.
+ * @returns A DisplayContext describing where this feature should appear.
+ */
+export function resolveDisplayContext(
+  featurePath: string,
+  allStates: Map<string, MinimalFeatureState>,
+  treeNodes: Map<string, FeatureTreeNode>,
+): DisplayContext {
+  const effectiveParent = findFirstNonTrackedAncestor(featurePath, allStates, treeNodes);
+
+  if (effectiveParent) {
+    return { effectiveParent, isIndependent: false };
+  }
+
+  return { effectiveParent: null, isIndependent: true };
 }

@@ -47,9 +47,9 @@ cat > "$SPEC_ROOT/specs-tree-e2e-parent/state.json" << EOF
 {
   "feature": "specs-tree-e2e-parent",
   "name": "E2E 测试父级",
-  "version": "v2.1.0",
-  "status": "planned",
-  "phase": 2,
+  "version": "v3.0.0",
+  "phase": "planned",
+  "status": "tracked",
   "depth": 1,
   "childrens": [],
   "files": { 
@@ -63,14 +63,14 @@ cat > "$SPEC_ROOT/specs-tree-e2e-parent/state.json" << EOF
   },
   "phaseHistory": [
     { 
-      "phase": 1, 
-      "status": "specified", 
+      "phase": "specified", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     },
     { 
-      "phase": 2, 
-      "status": "planned", 
+      "phase": "planned", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     }
@@ -102,9 +102,9 @@ cat > "$SPEC_ROOT/specs-tree-e2e-parent/specs-tree-e2e-child-a/state.json" << EO
 {
   "feature": "specs-tree-e2e-parent/specs-tree-e2e-child-a",
   "name": "子级 A",
-  "version": "v2.1.0",
-  "status": "tasked",
-  "phase": 3,
+  "version": "v3.0.0",
+  "phase": "tasked",
+  "status": "tracked",
   "depth": 2,
   "childrens": [],
   "files": { 
@@ -117,20 +117,20 @@ cat > "$SPEC_ROOT/specs-tree-e2e-parent/specs-tree-e2e-child-a/state.json" << EO
   },
   "phaseHistory": [
     { 
-      "phase": 1, 
-      "status": "specified", 
+      "phase": "specified", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     },
     { 
-      "phase": 2, 
-      "status": "planned", 
+      "phase": "planned", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     },
     { 
-      "phase": 3, 
-      "status": "tasked", 
+      "phase": "tasked", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     }
@@ -162,9 +162,9 @@ cat > "$SPEC_ROOT/specs-tree-e2e-parent/specs-tree-e2e-child-b/state.json" << EO
 {
   "feature": "specs-tree-e2e-parent/specs-tree-e2e-child-b",
   "name": "子级 B",
-  "version": "v2.1.0",
-  "status": "specified",
-  "phase": 1,
+  "version": "v3.0.0",
+  "phase": "specified",
+  "status": "tracked",
   "depth": 2,
   "childrens": [],
   "files": { 
@@ -177,8 +177,8 @@ cat > "$SPEC_ROOT/specs-tree-e2e-parent/specs-tree-e2e-child-b/state.json" << EO
   },
   "phaseHistory": [
     { 
-      "phase": 1, 
-      "status": "specified", 
+      "phase": "specified", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     }
@@ -210,9 +210,9 @@ cat > "$SPEC_ROOT/specs-tree-e2e-standalone/state.json" << EOF
 {
   "feature": "specs-tree-e2e-standalone",
   "name": "独立 Feature",
-  "version": "v2.1.0",
-  "status": "validated",
-  "phase": 6,
+  "version": "v3.0.0",
+  "phase": "validated",
+  "status": "completed",
   "depth": 1,
   "childrens": [],
   "files": { 
@@ -225,38 +225,38 @@ cat > "$SPEC_ROOT/specs-tree-e2e-standalone/state.json" << EOF
   },
   "phaseHistory": [
     { 
-      "phase": 1, 
-      "status": "specified", 
+      "phase": "specified", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     },
     { 
-      "phase": 2, 
-      "status": "planned", 
+      "phase": "planned", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     },
     { 
-      "phase": 3, 
-      "status": "tasked", 
+      "phase": "tasked", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     },
     { 
-      "phase": 4, 
-      "status": "building", 
+      "phase": "builded", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     },
     { 
-      "phase": 5, 
-      "status": "reviewed", 
+      "phase": "reviewed", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     },
     { 
-      "phase": 6, 
-      "status": "validated", 
+      "phase": "validated", 
+      "status": "completed", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     }
@@ -304,23 +304,23 @@ cat > "$SPEC_ROOT/specs-tree-e2e-parent/state.json" << EOF
 {
   "feature": "specs-tree-e2e-parent",
   "name": "E2E 测试父级",
-  "version": "v2.1.0",
-  "status": "planned",
-  "phase": 2,
+  "version": "v3.0.0",
+  "phase": "planned",
+  "status": "tracked",
   "depth": 1,
   "childrens": [
     {
       "path": "specs-tree-e2e-parent/specs-tree-e2e-child-a",
       "featureName": "子级 A",
-      "status": "tasked",
-      "phase": 3,
+      "phase": "tasked",
+      "status": "tracked",
       "lastModified": "$NOW"
     },
     {
       "path": "specs-tree-e2e-parent/specs-tree-e2e-child-b",
-      "featureName": "子级 B", 
-      "status": "specified",
-      "phase": 1,
+      "featureName": "子级 B",
+      "phase": "specified",
+      "status": "tracked",
       "lastModified": "$NOW"
     }
   ],
@@ -335,14 +335,14 @@ cat > "$SPEC_ROOT/specs-tree-e2e-parent/state.json" << EOF
   },
   "phaseHistory": [
     { 
-      "phase": 1, 
-      "status": "specified", 
+      "phase": "specified", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     },
     { 
-      "phase": 2, 
-      "status": "planned", 
+      "phase": "planned", 
+      "status": "tracked", 
       "timestamp": "$NOW", 
       "triggeredBy": "setup.sh" 
     }

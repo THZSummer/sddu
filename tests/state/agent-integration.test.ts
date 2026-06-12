@@ -1,7 +1,7 @@
 // 测试 StateMachine 与 Agent 工作流的集成
 import { describe, it, beforeEach } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { StateMachine } from '../../dist/state/machine.js';  // 添加 .js 后缀
+import { StateMachine } from '../../src/state/machine';  // v3.0.0 source
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -20,7 +20,8 @@ describe('StateMachine与Agent工作流集成测试', () => {
 
   it('应该在 Agent 完成后自动添加到 phaseHistory', async () => {
     // 创建测试 feature
-    const feature = await stateMachine.createFeature('Test Feature Agent');
+    const featurePath = 'test-feature-agent';
+    const feature = await stateMachine.createFeature('Test Feature Agent', featurePath);
     const featureId = feature.id; // 使用实际创建的 ID
     assert.ok(feature);
     
@@ -36,11 +37,11 @@ describe('StateMachine与Agent工作流集成测试', () => {
     
     // 检查 phaseHistory 记录
     assert.ok(newState.phaseHistory);
-    assert.equal(newState.phaseHistory.length, 1);
-    assert.equal(newState.phaseHistory[0].phase, 1); // spec phase映射为1
-    assert.equal(newState.phaseHistory[0].status, 'specified');
-    assert.equal(newState.phaseHistory[0].triggeredBy, '@sdd-spec');
-    assert.equal(newState.phaseHistory[0].comment, 'Agent executed specification');
+    assert.ok(newState.phaseHistory.length >= 2);
+    assert.equal(newState.phaseHistory[0].phase, 'registered'); // createFeature 初始 phase
+    assert.equal(newState.phaseHistory[1].phase, 'specified');  // updateState 记录的 phase (v3.0.0: phaseHistory 使用 .phase 字段)
+    assert.equal(newState.phaseHistory[1].triggeredBy, '@sdd-spec');
+    assert.equal(newState.phaseHistory[1].comment, 'Agent executed specification');
     
     console.log('✅ Agent 集成测试: phaseHistory 正确记录');
   });
@@ -51,20 +52,20 @@ describe('StateMachine与Agent工作流集成测试', () => {
     const featureId = feature.id; // 使用实际创建的 ID
     assert.ok(feature);
     
-    // 测试多个状态迁移
+    // 测试多个状态迁移 — v3.0.0 Phase 字符串 (8 values), 移除了旧 status 字段
     const stateTests = [
-      { state: 'specified', phase: 1, status: 'specified', agent: '@sdd-spec' },
-      { state: 'planned', phase: 2, status: 'planned', agent: '@sdd-plan' },
-      { state: 'tasked', phase: 3, status: 'tasked', agent: '@sdd-tasks' },
-      { state: 'implementing', phase: 4, status: 'building', agent: '@sdd-build' },
-      { state: 'reviewed', phase: 5, status: 'reviewed', agent: '@sdd-review' },
-      { state: 'validated', phase: 6, status: 'validated', agent: '@sdd-validate' }
+      { phase: 'specified', agent: '@sdd-spec' },
+      { phase: 'planned',   agent: '@sdd-plan' },
+      { phase: 'tasked',    agent: '@sdd-tasks' },
+      { phase: 'builded',   agent: '@sdd-build' },
+      { phase: 'reviewed',  agent: '@sdd-review' },
+      { phase: 'validated', agent: '@sdd-validate' }
     ];
     
     for (const test of stateTests) {
       const newState = await stateMachine.updateState(
         featureId,
-        test.state as any,
+        test.phase as any,
         {},
         test.agent,
         `Running ${test.agent}`,
@@ -72,12 +73,11 @@ describe('StateMachine与Agent工作流集成测试', () => {
       );
       
       const lastHistory = newState.phaseHistory[newState.phaseHistory.length - 1];
-      assert.ok(lastHistory, `History item exists for ${test.state}`);
-      assert.equal(lastHistory.phase, test.phase, `Phase correctly mapped for ${test.state}`);
-      assert.equal(lastHistory.status, test.status, `Status correctly mapped for ${test.state}`);
-      assert.equal(lastHistory.triggeredBy, test.agent, `Agent correctly recorded for ${test.state}`);
+      assert.ok(lastHistory, `History item exists for ${test.phase}`);
+      assert.equal(lastHistory.phase, test.phase, `Phase correctly mapped for ${test.phase}`);
+      assert.equal(lastHistory.triggeredBy, test.agent, `Agent correctly recorded for ${test.phase}`);
       
-      console.log(`✅ 状态 ${test.state} 的相位和状态映射正确`);
+      console.log(`✅ 状态 ${test.phase} 的相位和状态映射正确`);
     }
   });
 
@@ -100,8 +100,8 @@ describe('StateMachine与Agent工作流集成测试', () => {
     assert.equal(newState.history.length, 1);
     
     const historyRecord = newState.history[0];
-    assert.equal(historyRecord.from, 'drafting'); // 前一个状态
-    assert.equal(historyRecord.to, 'planned'); // 新状态
+    assert.equal(historyRecord.from, 'registered'); // v3.0.0 默认初始 phase 为 'registered'
+    assert.equal(historyRecord.to, 'planned');       // 新 phase
     assert.equal(historyRecord.triggeredBy, '@sdd-plan');
     assert.equal(historyRecord.comment, 'Planned the feature');
     

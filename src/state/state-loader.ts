@@ -3,10 +3,13 @@ import * as path from 'path';
 import { constants as fsConstants } from 'fs';
 import { scanTreeStructure } from './tree-scanner';
 import { TreeStateValidator } from './tree-state-validator';  // Static import
-import { StateV2_1_0, PhaseHistory, WorkflowStatus } from './schema-v2.0.0';
+import {
+  StateV3_0_0, Phase, FeatureStatus, PhaseHistoryEntry,
+  validateStateV3, VALID_STATUSES,
+} from './schema-v3.0.0';
 
 interface CachedState {
-  state: StateV2_1_0;
+  state: StateV3_0_0 | null;
   timestamp: number;  // Unix timestamp in milliseconds
 }
 
@@ -23,8 +26,8 @@ export class StateLoader {
    * Loads all distributed states using the tree scanner
    * Returns a Map where keys are feature paths and values are their states
    */
-  public async loadAll(): Promise<Map<string, StateV2_1_0>> {
-    const result = new Map<string, StateV2_1_0>();
+  public async loadAll(): Promise<Map<string, StateV3_0_0>> {
+    const result = new Map<string, StateV3_0_0>();
     const scanResult = await scanTreeStructure(this.specRootDir);
     const flatMap = scanResult.flatMap;
 
@@ -45,8 +48,8 @@ export class StateLoader {
           const stateDataContent = await fs.readFile(stateFilePath, 'utf8');
           const stateData = JSON.parse(stateDataContent);
           
-          // Verify the state against our schema
-          if (this.validateState(stateData)) {
+          // Verify the state against our v3.0.0 schema
+          if (validateStateV3(stateData)) {
             result.set(featurePath, stateData);
             
             // Update cache
@@ -56,23 +59,23 @@ export class StateLoader {
             });
           } else {
             console.warn(`Invalid state found at ${stateFilePath}, skipping`);
-            // Still add to cache but with an error state to avoid repeated validations
+            // Still add to cache but with null to avoid repeated validations
             this.cache.set(featurePath, {
-              state: null,  // Mark as invalid/missing
+              state: null,
               timestamp: Date.now()
             });
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error(`Error loading state from ${stateFilePath}: ${error.message}`);
           this.cache.set(featurePath, {
-            state: null,  // Mark as invalid/missing
+            state: null,
             timestamp: Date.now()
           });
         }
       } else {
         // State file doesn't exist, cache this info as well
         this.cache.set(featurePath, {
-          state: null,  // Mark as missing
+          state: null,
           timestamp: Date.now()
         });
       }
@@ -84,16 +87,14 @@ export class StateLoader {
   /**
    * Gets the state for a specific feature
    * Uses cache with 3-second expiry
-   * - Applies automatic fixes for common schema issues (EC-012, EC-013, EC-014)  
+   * - Reads v3.0.0 format; provides basic compatibility reads for legacy formats
+   * - Applies automatic fixes for common schema issues
    */
-  public async get(featurePath: string): Promise<StateV2_1_0 | null> {
+  public async get(featurePath: string): Promise<StateV3_0_0 | null> {
     // Check cache first
     const cached = this.cache.get(featurePath);
     if (cached && Date.now() - cached.timestamp < this.cacheExpiryMs) {
-      // If we have a validated state in cache, return it
-      if (cached.state !== null) {
-        return cached.state;
-      }
+      return cached.state;
     }
 
     // Cache expired or not available, load fresh
@@ -115,170 +116,190 @@ export class StateLoader {
       return null;
     }
 
-     try {
-       const stateDataContent = await fs.readFile(stateFilePath, 'utf8');
-       let stateData = JSON.parse(stateDataContent);
-       
-       // Apply validation and fix common issues if the state contains known issues
-       if (this.stateHasIssues(stateData, featurePath)) {
-         const repairedResult = await this.applyReparation(stateData, featurePath);
-         stateData = repairedResult.state;
-         if (repairedResult.fixedSomeIssues) {
-           // Optionally write back the fixed state, but for safety during load, just use in memory
-           console.warn(`WARNING: Automatic repair(s) applied to state in ${featurePath}:`, repairedResult.messages);
-         }
-       }
-       
-       if (this.validateState(stateData)) {
-         this.cache.set(featurePath, {
-           state: stateData,
-           timestamp: Date.now()
-         });
-         return stateData;
-       } else {
-         // Still add to cache but try to validate with repair function as a backup
-         console.warn(`State found at ${stateFilePath} doesn't fully validate, returning anyway for recovery`);
-         this.cache.set(featurePath, {
-           state: stateData,
-           timestamp: Date.now()
-         });
-         return stateData;
-       }
-     } catch (error) {
-       console.error(`Error loading state from ${stateFilePath}: ${error.message}`);
-       this.cache.set(featurePath, {
-         state: null,
-         timestamp: Date.now()
-       });
-       return null;
-     }
-   }
+    try {
+      const stateDataContent = await fs.readFile(stateFilePath, 'utf8');
+      let stateData = JSON.parse(stateDataContent);
+      
+      // Apply validation and fix common issues if the state contains known issues
+      if (this.stateHasIssues(stateData, featurePath)) {
+        const repairedResult = await this.applyReparation(stateData, featurePath);
+        stateData = repairedResult.state;
+        if (repairedResult.fixedSomeIssues) {
+          console.warn(`WARNING: Automatic repair(s) applied to state in ${featurePath}:`, repairedResult.messages);
+        }
+      }
+      
+      if (validateStateV3(stateData)) {
+        this.cache.set(featurePath, {
+          state: stateData,
+          timestamp: Date.now()
+        });
+        return stateData;
+      } else {
+        // Still add to cache but return anyway for recovery
+        console.warn(`State found at ${stateFilePath} doesn't fully validate v3.0.0, returning anyway for recovery`);
+        this.cache.set(featurePath, {
+          state: stateData,
+          timestamp: Date.now()
+        });
+        return stateData;
+      }
+    } catch (error: any) {
+      console.error(`Error loading state from ${stateFilePath}: ${error.message}`);
+      this.cache.set(featurePath, {
+        state: null,
+        timestamp: Date.now()
+      });
+      return null;
+    }
+  }
 
-   private stateHasIssues(state: any, featurePath?: string): boolean {
-     // Check for the most critical common issues described in EC-012, EC-013, and EC-014
-     return (
-       // EC-013: Version issues - if it's '2.1.0' instead of 'v2.1.0' OR if it's not starting with 'v'
-       (state.version && typeof state.version === 'string' && (state.version === '2.1.0' || (!state.version.startsWith && state.version.match(/^\d+\.\d+\.\d+$/)) || (typeof state.version.startsWith === 'function' && !state.version.startsWith('v')) )) ||
-       // EC-012: Critical missing fields
-       !state.version ||
-       !state.feature || 
-       !state.status || 
-       typeof state.phase !== 'number' || 
-       !state.phaseHistory || 
-       !Array.isArray(state.phaseHistory) ||
-       !state.files || 
-       !state.dependencies ||
-       // EC-014: Phase history missing for phase > 0
-       (typeof state.phase === 'number' && state.phase > 0 && Array.isArray(state.phaseHistory) && state.phaseHistory.length === 0)
+  private stateHasIssues(state: any, featurePath?: string): boolean {
+    // Check for the most critical common issues
+    return (
+      // Version issues - not v3.0.0
+      (state.version && typeof state.version === 'string' && state.version !== 'v3.0.0') ||
+      // Critical missing fields
+      !state.version ||
+      !state.feature || 
+      !state.phase ||
+      !state.status ||
+      typeof state.depth !== 'number' ||
+      !state.phaseHistory || 
+      !Array.isArray(state.phaseHistory) ||
+      !state.files || 
+      !state.dependencies ||
+      // Phase history missing when phase is beyond registered
+      (typeof state.phase === 'string' && state.phase !== 'registered' && Array.isArray(state.phaseHistory) && state.phaseHistory.length === 0)
     );
   }
 
-  private async applyReparation(state: any, featurePath?: string): Promise<{ state: StateV2_1_0, fixedSomeIssues: boolean, messages: string[] }> {
+  private async applyReparation(state: any, featurePath?: string): Promise<{ state: StateV3_0_0, fixedSomeIssues: boolean, messages: string[] }> {
     const repairs: string[] = [];
       
     // Create a copy of the state for modification
     let repairedState: any = { ...state };
-     
-    // Fix version - check for issue EC-013
-    if (repairedState.version) {
-      if (repairedState.version !== 'v2.1.0') {
-        if (typeof repairedState.version === 'string' && repairedState.version === '2.1.0') {
-          repairedState.version = 'v2.1.0';
-          repairs.push(`Fixed version from '${state.version}' to 'v2.1.0'`);
-        } else if (typeof repairedState.version === 'string' && !repairedState.version.startsWith('v')) {
-          repairedState.version = `v${repairedState.version}`;
-          if (repairedState.version === 'v2.1.0') {
-            repairs.push(`Added 'v' prefix to version, resulting in correct 'v2.1.0': '${repairedState.version}'`);
-          } else {
-            // If it became a different version (like 'v1.0.0'), change to required v2.1.0
-            repairedState.version = 'v2.1.0';
-            repairs.push(`Fixed to correct 'v2.1.0' - was '${state.version}', got intermediate: 'v${state.version}'`);
-          }
-        } else {
-          // Some other format, set to correct v2.1.0
-          repairedState.version = 'v2.1.0';
-          repairs.push(`Set version to required 'v2.1.0' from invalid '${state.version}'`);
-        }
-      }
-    } else {
-      repairedState.version = 'v2.1.0';
-      repairs.push(`Added missing 'version' as 'v2.1.0'`);
+      
+    // Fix version - ensure v3.0.0
+    if (repairedState.version && repairedState.version !== 'v3.0.0') {
+      repairedState.version = 'v3.0.0';
+      repairs.push(`Fixed version from '${state.version}' to 'v3.0.0'`);
+    } else if (!repairedState.version) {
+      repairedState.version = 'v3.0.0';
+      repairs.push(`Added missing 'version' as 'v3.0.0'`);
     }
-     
-    // EC-012 checks and fixes
+      
+    // Fix missing feature field
     if (!repairedState.feature) {
       repairedState.feature = featurePath ? path.basename(featurePath) : 'unknown';
       repairs.push(`Added missing feature field from path`);
     }
-     
-    if (typeof repairedState.status !== 'string' || !repairedState.status) {
-      repairedState.status = state.status || 'specified';
-      if (!repairedState.status) {
-        repairedState.status = 'specified';
-        repairs.push(`Added default empty status as 'specified'`);
+      
+    // Fix phase — default to 'registered' if missing or invalid
+    if (typeof repairedState.phase !== 'string' || !repairedState.phase) {
+      // Try to infer from old 'state' field if present
+      if (state.state && typeof state.state === 'string') {
+        repairedState.phase = this.inferPhaseFromOldState(state.state);
+        repairs.push(`Inferred phase '${repairedState.phase}' from old 'state' field: '${state.state}'`);
       } else {
-        repairs.push(`Used provided status '${repairedState.status}'`);
+        repairedState.phase = 'registered';
+        repairs.push(`Added default phase 'registered'`);
       }
     }
-     
-    if (typeof repairedState.phase !== 'number') {
-      repairedState.phase = typeof state.phase === 'number' ? state.phase : 1;
-      repairs.push(`Added default phase 1`);
+      
+    // FR-008: Fix status — only set default 'tracked' if status is missing or invalid
+    // Do NOT overwrite existing non-tracked statuses (suspended/terminated/merged/completed)
+    if (typeof repairedState.status !== 'string' || !repairedState.status) {
+      repairedState.status = 'tracked';
+      repairs.push(`Added default status 'tracked'`);
+    } else if (!VALID_STATUSES.includes(repairedState.status)) {
+      // If status is invalid, only then set to tracked
+      repairs.push(`Status '${repairedState.status}' is invalid, defaulting to 'tracked'`);
+      repairedState.status = 'tracked';
     }
-     
+    // NOTE: If status is already suspended/terminated/merged/completed, we preserve it (FR-008)
+      
+    // Fix depth
+    if (typeof repairedState.depth !== 'number') {
+      repairedState.depth = this.computeDepth(featurePath || '');
+      repairs.push(`Added computed depth ${repairedState.depth}`);
+    }
+      
+    // Fix phaseHistory
     if (!Array.isArray(repairedState.phaseHistory)) {
-      repairedState.phaseHistory = Array.isArray(state.phaseHistory) ? [...state.phaseHistory] : [];
+      repairedState.phaseHistory = [];
       repairs.push(`Initialized phaseHistory array`);
     }
-     
+      
+    // Fix files
     if (!repairedState.files || typeof repairedState.files !== 'object') {
       const basename = featurePath ? path.basename(featurePath) : 'unknown';
-      repairedState.files = state.files || { spec: `${basename}/spec.md` };
+      repairedState.files = { spec: `${basename}/spec.md` };
       repairs.push(`Added default minimal files definition`);
     }
-     
+      
+    // Fix dependencies
     if (!repairedState.dependencies || typeof repairedState.dependencies !== 'object') {
-      repairedState.dependencies = state.dependencies || { 
+      repairedState.dependencies = { 
         on: (state.dependencies && Array.isArray(state.dependencies.on)) ? [...state.dependencies.on] : [], 
         blocking: (state.dependencies && Array.isArray(state.dependencies.blocking)) ? [...state.dependencies.blocking] : [], 
       };
       repairs.push(`Added default dependencies object`);
     } else {
       if (!Array.isArray(repairedState.dependencies.on)) {
-        repairedState.dependencies.on = (state.dependencies && Array.isArray(state.dependencies.on)) ? [...state.dependencies.on] : [];
+        repairedState.dependencies.on = [];
         repairs.push(`Fixed dependencies.on to be empty array`);
       }
       if (!Array.isArray(repairedState.dependencies.blocking)) {
-        repairedState.dependencies.blocking = (state.dependencies && Array.isArray(state.dependencies.blocking)) ? [...state.dependencies.blocking] : [];
+        repairedState.dependencies.blocking = [];
         repairs.push(`Fixed dependencies.blocking to be empty array`);
       }
     }
-     
-    // EC-014: Fill phaseHistory if phase > 0 but history empty
-    if (repairedState.phase > 0 && Array.isArray(repairedState.phaseHistory) && repairedState.phaseHistory.length === 0) {
+      
+    // Fill phaseHistory if phase is beyond registered but history is empty
+    if (repairedState.phase !== 'registered' && Array.isArray(repairedState.phaseHistory) && repairedState.phaseHistory.length === 0) {
       repairedState.phaseHistory.push({
         phase: repairedState.phase,
-        status: repairedState.status,
         timestamp: new Date().toISOString(),
         triggeredBy: 'StateLoader.fixMissingPhaseHistory'
       });
       repairs.push(`Added initial phase history entry for phase ${repairedState.phase} as required`);
     }
-     
+      
     return {
-      state: repairedState as StateV2_1_0,
+      state: repairedState as StateV3_0_0,
       fixedSomeIssues: repairs.length > 0,
       messages: repairs
     };
   }
 
   /**
+   * Infer a Phase value from an old-style 'state' field string.
+   * Maps legacy status strings to the closest Phase equivalent.
+   */
+  private inferPhaseFromOldState(oldState: string): Phase {
+    const mapping: Record<string, Phase> = {
+      'drafting': 'registered',
+      'discovered': 'discovered',
+      'specified': 'specified',
+      'planned': 'planned',
+      'tasked': 'tasked',
+      'building': 'builded',
+      'implementing': 'builded',
+      'reviewed': 'reviewed',
+      'validated': 'validated',
+      'completed': 'validated',
+    };
+    return mapping[oldState] || 'registered';
+  }
+
+  /**
    * Sets the state for a specific feature
    * Updates cache and writes to the distributed file
    */
-  public async set(featurePath: string, state: StateV2_1_0): Promise<boolean> {
-    if (!this.validateState(state)) {
-      console.error(`Invalid state provided for ${featurePath}`);
+  public async set(featurePath: string, state: StateV3_0_0): Promise<boolean> {
+    if (!validateStateV3(state)) {
+      console.error(`Invalid state provided for ${featurePath} — does not pass validateStateV3`);
       return false;
     }
 
@@ -288,7 +309,7 @@ export class StateLoader {
     
     try {
       await fs.mkdir(dirPath, { recursive: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error creating directory ${dirPath}: ${error.message}`);
       return false;
     }
@@ -304,150 +325,140 @@ export class StateLoader {
       });
 
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error writing state to ${stateFilePath}: ${error.message}`);
       return false;
     }
   }
 
-   /**
-    * Creates a new state for a given feature if it doesn't already exist
-    * - Automatically calculates depth based on featurePath (FR-101)
-    * - Initializes phaseHistory with consistent strategy (FR-101)
-    * - Sets createdAt and updatedAt timestamps (FR-101)
-    * - Calls TreeStateValidator for final validation and auto-fixing (FR-103)
-    */
-   public async create(featurePath: string, initialState: Partial<StateV2_1_0>): Promise<boolean> {
-     const now = new Date().toISOString();
-     
-     // FR-101: Compute depth automatically based on featurePath
-     const computedDepth = this.computeDepth(featurePath);
-     
-     // Create complete state object with defaults
-     const completeInitialState: StateV2_1_0 = {
-       // Required fields - providing default fallbacks if not in initialState
-       feature: initialState.feature || path.basename(featurePath),
-       name: initialState.name,  // Preserve name if provided
-       version: 'v2.1.0',  // Force v2.1.0 format (FR-101)
-       status: initialState.status || 'specified',  // FR: Use 'specified' as the first valid status in v2.1.0 schema
-       phase: initialState.phase ?? 0, // Starting at 0 as an initial discovery phase value
-       depth: initialState.depth ?? computedDepth,  // FR-101: Auto-calculate depth
-       phaseHistory: this.initPhaseHistory(initialState, now),  // FR-101: Consistent initialization
-       files: {
-         spec: initialState.files?.spec || `${path.basename(featurePath)}/spec.md`,
-         plan: initialState.files?.plan,
-         tasks: initialState.files?.tasks,
-         readme: initialState.files?.readme,
-         review: initialState.files?.review,
-         validation: initialState.files?.validation
-       },
-       dependencies: {
-         on: initialState.dependencies?.on || [],  // Default to empty array - fix for EC-012
-         blocking: initialState.dependencies?.blocking || []  // Default to empty array - fix for EC-012
-       },
-       childrens: initialState.childrens || [],
-       metadata: initialState.metadata,
-       history: initialState.history
-       // createdAt and updatedAt are handled by StateMachine or TreeStateValidator if needed
-     };
+  /**
+   * Creates a new state for a given feature if it doesn't already exist
+   * - phase defaults to 'registered', status defaults to 'tracked'
+   * - Automatically calculates depth based on featurePath
+   * - Initializes phaseHistory with consistent strategy
+   * - Calls validateStateV3 before writing
+   */
+  public async create(featurePath: string, initialState: Partial<StateV3_0_0>): Promise<boolean> {
+    const now = new Date().toISOString();
+    
+    // Compute depth automatically based on featurePath
+    const computedDepth = this.computeDepth(featurePath);
+    
+    // Create complete state object with v3.0.0 defaults
+    const completeInitialState: StateV3_0_0 = {
+      // Required fields — providing default fallbacks if not in initialState
+      feature: initialState.feature || path.basename(featurePath),
+      name: initialState.name,
+      version: 'v3.0.0',                                          // 🆕 v3.0.0
+      phase: (initialState.phase as Phase) || 'registered',        // 🆕 default: registered
+      status: (initialState.status as FeatureStatus) || 'tracked', // 🆕 default: tracked
+      depth: initialState.depth ?? computedDepth,
+      phaseHistory: this.initPhaseHistory(initialState, now),
+      files: {
+        spec: initialState.files?.spec || `${path.basename(featurePath)}/spec.md`,
+        plan: initialState.files?.plan,
+        tasks: initialState.files?.tasks,
+        readme: initialState.files?.readme,
+        review: initialState.files?.review,
+        validation: initialState.files?.validation,
+        discovery: initialState.files?.discovery,
+      },
+      dependencies: {
+        on: initialState.dependencies?.on || [],
+        blocking: initialState.dependencies?.blocking || []
+      },
+      childrens: initialState.childrens || [],
+      metadata: initialState.metadata,
+      history: initialState.history
+    };
 
-      // FR-103: Use TreeStateValidator to do final validation and auto-fixing
-      const validator = new TreeStateValidator(this);
-     const validationResult = validator.validateNewState(completeInitialState, featurePath);
-     
-     // Merge repair results
-     const finalState = validationResult.repairedState;
-     
-     if (validationResult.warnings.length > 0) {
-       console.warn(`StateLoader.create() warnings for ${featurePath}:`, validationResult.warnings);
-     }
+    // Validate before writing
+    if (!validateStateV3(completeInitialState)) {
+      throw new Error(`Created state for ${featurePath} fails validateStateV3()`);
+    }
 
-     if (!this.validateState(finalState)) {
-       console.error(`Invalid initial state for ${featurePath}, but proceeding with validated/repairs`); 
-     }
+    const stateFilePath = path.join(this.specRootDir, featurePath, 'state.json');
 
-      const stateFilePath = path.join(this.specRootDir, featurePath, 'state.json');
+    // Check if a state file already exists
+    let fileExists = false;
+    try {
+      await fs.access(stateFilePath, fsConstants.F_OK);
+      fileExists = true;
+    } catch {
+      // File doesn't exist, that's fine for create operation
+    }
 
-      // Check if a state file already exists
-      let fileExists = false;
-      try {
-        await fs.access(stateFilePath, fsConstants.F_OK);
-        fileExists = true;
-      } catch {
-        // File doesn't exist, that's fine for create operation
-      }
+    if (fileExists) {
+      console.error(`State file already exists at ${stateFilePath}`);
+      return false;
+    }
 
-      if (fileExists) {
-        console.error(`State file already exists at ${stateFilePath}`);
-        return false;
-      }
+    // Ensure the directory exists
+    const dirPath = path.dirname(stateFilePath);
+    try {
+      await fs.mkdir(dirPath, { recursive: true });
+    } catch (error: any) {
+      console.error(`Error creating directory ${dirPath}: ${error.message}`);
+      return false;
+    }
 
-      // Ensure the directory exists
-      const dirPath = path.dirname(stateFilePath);
-     try {
-       await fs.mkdir(dirPath, { recursive: true });
-     } catch (error) {
-       console.error(`Error creating directory ${dirPath}: ${error.message}`);
-       return false;
-     }
+    try {
+      // Write the final validated state to file
+      await fs.writeFile(stateFilePath, JSON.stringify(completeInitialState, null, 2));
+      
+      // Update cache
+      this.cache.set(featurePath, {
+        state: completeInitialState,
+        timestamp: Date.now()
+      });
 
-     try {
-       // Write the final validated state to file
-       await fs.writeFile(stateFilePath, JSON.stringify(finalState, null, 2));
-       
-       // Update cache
-       this.cache.set(featurePath, {
-         state: finalState,
-         timestamp: Date.now()
-       });
-
-       return true;
-     } catch (error) {
-       console.error(`Error creating state at ${stateFilePath}: ${error.message}`);
-       return false;
-     }
-   }
-
-   /**
-    * FR-101: Calculate depth automatically based on featurePath
-    * Computes the nesting level by counting 'specs-tree-' occurrences in the path
-    */
-   private computeDepth(featurePath: string): number {
-     const matches = featurePath.match(/specs-tree-/g);
-     return matches ? matches.length - 1 : 0;  // Subtract 1 because "specs-tree-root" doesn't count as a level
-   }
-
-   /**
-    * FR-101: Initialize phaseHistory consistently
-    * Either uses the provided history or creates a standard initial entry
-    */
-   private initPhaseHistory(initialState: Partial<StateV2_1_0>, now: string): PhaseHistory[] {
-     if (initialState.phaseHistory && initialState.phaseHistory.length > 0) {
-       return [...initialState.phaseHistory];
-     }
-     
-     const phase = initialState.phase ?? 1;
-     const status = (initialState.status as WorkflowStatus) || 'specified'; // Use 'specified' as the first valid state
-   
-     return [{
-       phase,
-       status,
-       timestamp: now,
-       triggeredBy: 'StateLoader.create'
-     }];
-   }
+      return true;
+    } catch (error: any) {
+      console.error(`Error creating state at ${stateFilePath}: ${error.message}`);
+      return false;
+    }
+  }
 
   /**
-   * Validates state against expected schema
+   * Update an existing state for a given feature path
+   * Writes the state to the distributed file and updates cache
    */
-  private validateState(state: any): state is StateV2_1_0 {
-    // Basic check for required fields
-    return (
-      state &&
-      typeof state === 'object' &&
-      typeof state.feature === 'string' &&
-      state.version === 'v2.1.0' // Assuming we want v2.1.0 format for tree structure
-    );
+  public async update(featurePath: string, state: StateV3_0_0): Promise<boolean> {
+    return this.set(featurePath, state);
+  }
+
+  /**
+   * Calculate depth automatically based on featurePath
+   * Computes the nesting level by counting 'specs-tree-' occurrences in the path
+   */
+  private computeDepth(featurePath: string): number {
+    const matches = featurePath.match(/specs-tree-/g);
+    return matches ? matches.length - 1 : 0;  // Subtract 1 because "specs-tree-root" doesn't count as a level
+  }
+
+  /**
+   * Initialize phaseHistory consistently
+   * Either uses the provided history or creates a standard initial entry
+   */
+  private initPhaseHistory(initialState: Partial<StateV3_0_0>, now: string): PhaseHistoryEntry[] {
+    if (initialState.phaseHistory && initialState.phaseHistory.length > 0) {
+      return [...initialState.phaseHistory];
+    }
+    
+    const phase: Phase = (initialState.phase as Phase) || 'registered';
+    
+    return [{
+      phase,
+      timestamp: now,
+      triggeredBy: 'StateLoader.create'
+    }];
+  }
+
+  /**
+   * Validates state against v3.0.0 schema using validateStateV3
+   */
+  private validateState(state: any): state is StateV3_0_0 {
+    return validateStateV3(state);
   }
 
   /**
@@ -458,7 +469,7 @@ export class StateLoader {
   }
 
   /**
-   * Gets the scan tree structure for the root director
+   * Gets the scan tree structure for the root directory
    */
   public async getTreeStructure(): Promise<ReturnType<typeof scanTreeStructure>> {
     return await scanTreeStructure(this.specRootDir);

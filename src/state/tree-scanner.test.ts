@@ -1,17 +1,30 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import { scanTreeStructure, FeatureTreeNode, isParentFeature } from './tree-scanner';
 
-// Mock the file system for testing
-jest.mock('fs', () => ({
-  ...jest.requireActual('fs'),
-  readdirSync: jest.fn(),
-  statSync: jest.fn(),
-  existsSync: jest.fn(),
+// Mock fs/promises - MUST be before other imports to be hoisted by jest
+jest.mock('fs/promises', () => ({
+  readdir: jest.fn().mockResolvedValue([]),
+  stat: jest.fn().mockResolvedValue({ isDirectory: () => true }),
+  access: jest.fn().mockResolvedValue(undefined),
+  readFile: jest.fn(),
+  writeFile: jest.fn(),
+  mkdir: jest.fn(),
+  rm: jest.fn(),
+  constants: {},
 }));
 
+// Mock the constants import from 'fs'
+jest.mock('fs', () => ({
+  constants: { F_OK: 0 },
+}));
+
+// Import after mocks are set up - jest.mock is hoisted so mocks activate first
+import * as fsPromises from 'fs/promises';
+
 describe('TreeScanner', () => {
-  const fsMock = jest.mocked(fs);
+  const mockReadDir = fsPromises.readdir as jest.Mock;
+  const mockStat = fsPromises.stat as jest.Mock;
+  const mockAccess = fsPromises.access as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -19,7 +32,7 @@ describe('TreeScanner', () => {
 
   describe('scanTreeStructure', () => {
     it('should return empty result when directory does not exist', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(false);
+      mockAccess.mockRejectedValue(new Error('ENOENT'));
 
       const result = await scanTreeStructure('/non-existent-dir');
       
@@ -28,13 +41,13 @@ describe('TreeScanner', () => {
     });
 
     it('should find top level specs-tree features', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readdirSync as jest.Mock).mockReturnValue(['specs-tree-auth', 'specs-tree-user']);
-      (fs.statSync as jest.Mock).mockImplementation((pathStr: string) => {
+      mockAccess.mockResolvedValue(undefined);
+      mockReadDir.mockResolvedValue(['specs-tree-auth', 'specs-tree-user']);
+      mockStat.mockImplementation((pathStr: string) => {
         if (pathStr.includes('auth') || pathStr.includes('user')) {
-          return { isDirectory: () => true } as fs.Stats;
+          return Promise.resolve({ isDirectory: () => true });
         }
-        throw new Error('path not found');
+        return Promise.reject(new Error('path not found'));
       });
 
       const result = await scanTreeStructure('/test-project');
@@ -46,26 +59,25 @@ describe('TreeScanner', () => {
     });
 
     it('should find nested specs-tree features', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      // First call for root directory - returns parent with child feature
-      (fs.readdirSync as jest.Mock).mockImplementation((dirPath: string) => {
+      mockAccess.mockResolvedValue(undefined);
+      mockReadDir.mockImplementation((dirPath: string) => {
         if (dirPath === '/test-project') {
-          return ['specs-tree-parent'];
+          return Promise.resolve(['specs-tree-parent']);
         } else if (dirPath.includes('specs-tree-parent')) {
-          return ['specs-tree-subfeature', 'other-file.txt'];
+          return Promise.resolve(['specs-tree-subfeature', 'other-file.txt']);
         }
-        return [];
+        return Promise.resolve([]);
       });
-      (fs.statSync as jest.Mock).mockImplementation((pathStr: string) => {
+      mockStat.mockImplementation((pathStr: string) => {
         if (pathStr.includes('parent') || pathStr.includes('subfeature')) {
-          return { isDirectory: () => true } as fs.Stats;
+          return Promise.resolve({ isDirectory: () => true });
         }
-        return { isDirectory: () => false } as fs.Stats;
+        return Promise.resolve({ isDirectory: () => false });
       });
 
       const result = await scanTreeStructure('/test-project');
 
-      expect(result.nodes.length).toBe(2); // parent + subfeature
+      expect(result.nodes.length).toBe(2);
       expect(result.flatMap.size).toBe(2);
       const parent = result.nodes.find(node => node.featureName === 'parent');
       expect(parent).toBeDefined();
@@ -74,9 +86,9 @@ describe('TreeScanner', () => {
     });
 
     it('should create flatMap with correct path lookups', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readdirSync as jest.Mock).mockReturnValue(['specs-tree-test']);
-      (fs.statSync as jest.Mock).mockImplementation((_) => ({ isDirectory: () => true } as fs.Stats));
+      mockAccess.mockResolvedValue(undefined);
+      mockReadDir.mockResolvedValue(['specs-tree-test']);
+      mockStat.mockResolvedValue({ isDirectory: () => true });
 
       const result = await scanTreeStructure('/test-project');
 
@@ -87,35 +99,39 @@ describe('TreeScanner', () => {
     });
 
     it('should ignore .sddu and hidden directories', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readdirSync as jest.Mock).mockReturnValue([
+      mockAccess.mockResolvedValue(undefined);
+      mockReadDir.mockResolvedValue([
         'specs-tree-valid',
         '.sddu-metadata',
         '.hidden-folder',
         'specs-tree-hidden'
       ]);
-      (fs.statSync as jest.Mock).mockImplementation((_) => ({ isDirectory: () => true } as fs.Stats));
+      mockStat.mockResolvedValue({ isDirectory: () => true });
 
       const result = await scanTreeStructure('/test-project');
 
       expect(result.nodes.length).toBe(2);
       expect(result.nodes.some(node => node.featureName === 'valid')).toBe(true);
       expect(result.nodes.some(node => node.featureName === 'hidden')).toBe(true);
-      // There should be no .sddu or .whatever in the results
     });
 
     it('should handle mixed directory structures appropriately', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readdirSync as jest.Mock).mockReturnValue([
+      mockAccess.mockResolvedValue(undefined);
+      mockReadDir.mockResolvedValue([
         'specs-tree-regular',
         'package.json',
         'node_modules'
       ]);
-      (fs.statSync as jest.Mock).mockImplementation((_) => ({ isDirectory: () => true } as fs.Stats));
+      mockStat.mockImplementation((pathStr: string) => {
+        if (pathStr.includes('specs-tree-regular')) {
+          return Promise.resolve({ isDirectory: () => true });
+        }
+        return Promise.resolve({ isDirectory: () => false });
+      });
 
       const result = await scanTreeStructure('/test-project');
 
-      expect(result.nodes.length).toBe(1); // Only the specs-tree-regular should be processed
+      expect(result.nodes.length).toBe(1);
       expect(result.nodes[0].featureName).toBe('regular');
     });
   });

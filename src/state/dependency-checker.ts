@@ -1,11 +1,15 @@
 // 依赖状态检查器
 // 基于 MultiFeatureManager 的依赖图实现状态级别的依赖检查
+//
+// v3.0.0: Uses Phase directly instead of the deprecated FeatureStateEnum.
+// Removes the dual-universe mapping (FeatureStateEnum ↔ WorkflowStatus).
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { StateMachine, FeatureStateEnum } from './machine';
+import { StateMachine } from './machine';
+import { Phase, PHASE_ORDER } from './schema-v3.0.0';
 import { scanTreeStructure } from './tree-scanner';
-import { StateV2_1_0 } from './schema-v2.0.0';
+import { StateV3_0_0 } from './schema-v3.0.0';
 import { ErrorCode, TreeStructureError } from '../errors';
 
 /**
@@ -17,21 +21,22 @@ export interface DependencyCheckResult {
   blockingFeatures?: Array<{
     featureId: string;
     featureName: string;
-    currentState: FeatureStateEnum;
-    requiredState: FeatureStateEnum;
+    currentPhase: Phase;
+    requiredPhase: Phase;
   }>;
   warnings?: string[];
 }
 
 /**
- * Feature 状态信息
+ * Feature 状态信息 (v3.0.0)
  */
 export interface FeatureStateInfo {
   featureId: string;
   featureName: string;
-  featurePath: string;  // Path in the tree structure
-  state: FeatureStateEnum;
-  dependencies: string[]; // Paths to other features this feature depends on
+  featurePath: string;     // Path in the tree structure
+  phase: Phase;            // 🆕 v3.0.0: Phase instead of FeatureStateEnum
+  status: string;          // Feature status (tracked/suspended/etc.)
+  dependencies: string[];  // Paths to other features this feature depends on
 }
 
 /**
@@ -40,7 +45,7 @@ export interface FeatureStateInfo {
  * 支持跨子树依赖解析，处理嵌套特征的依赖关系
  * 
  * 检查规则:
- * - 状态前进时：检查所有依赖 Feature 的状态 ≥ 当前状态
+ * - 状态前进时：检查所有依赖 Feature 的 phase ≥ 当前 phase
  * - 状态回退时：警告检查被依赖 Feature 的状态
  */
 export class DependencyChecker {
@@ -88,23 +93,21 @@ export class DependencyChecker {
           
           // Extract feature id from the path
           const pathComponents = featurePath.split(/[\/\\]/);
-          const featureId = pathComponents[pathComponents.length - 1]; // Last component is feature name/directory
+          const featureId = pathComponents[pathComponents.length - 1];
           
           // Read the state file
           const stateContent = await fs.readFile(stateFile, 'utf-8');
-          const state: StateV2_1_0 = JSON.parse(stateContent);
-
-          // Map the workflow status to feature state enum
-          const featureStateEnum = this.mapStatusToState(state.status);
+          const state: StateV3_0_0 = JSON.parse(stateContent);
 
           features.set(featurePath, {
             featureId,
             featureName: state.name || state.feature || featureId,
-            featurePath,  // Store the full path in tree structure
-            state: featureStateEnum,
-            dependencies: state.dependencies?.on || []  // May contain paths to other features
+            featurePath,
+            phase: state.phase || 'registered',      // 🆕 v3.0.0: direct phase, no mapping needed
+            status: state.status || 'tracked',
+            dependencies: state.dependencies?.on || []
           });
-        } catch (error) {
+        } catch (error: any) {
           // state.json 不存在或格式错误，跳过
           console.warn(`无法读取 Feature 路径 ${featurePath} 的状态文件:`, error.message);
         }
@@ -114,7 +117,7 @@ export class DependencyChecker {
       this.cache = features;
       this.lastCacheUpdate = now;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('扫描嵌套 Features 失败:', error);
       if (error instanceof TreeStructureError) {
         throw error;
@@ -132,11 +135,11 @@ export class DependencyChecker {
   /**
    * 检查 Feature 状态前进的依赖 - 支持跨子树依赖
    * 
-   * 规则: 所有依赖 Feature 的状态必须 ≥ 当前状态
+   * 规则: 所有依赖 Feature 的 phase 必须 ≥ 目标 phase
    */
   async checkDependenciesForStateChange(
     featurePath: string,  // Full path to the feature in the tree
-    targetState: FeatureStateEnum
+    targetPhase: Phase    // 🆕 v3.0.0: Phase instead of FeatureStateEnum
   ): Promise<DependencyCheckResult> {
     const features = await this.scanAllFeatures();
     const feature = features.get(featurePath);
@@ -151,19 +154,18 @@ export class DependencyChecker {
     const blockingFeatures: Array<{
       featureId: string;
       featureName: string;
-      currentState: FeatureStateEnum;
-      requiredState: FeatureStateEnum;
+      currentPhase: Phase;
+      requiredPhase: Phase;
     }> = [];
 
     const warnings: string[] = [];
 
     // 检查所有依赖 Feature
     for (const dependencyPath of feature.dependencies) {
-      const depFeature = features.get(dependencyPath);  // Use exact path from resolved dependencies
+      const depFeature = features.get(dependencyPath);
       
       // If dependency isn't found at the given path, try to resolve from the map
       if (!depFeature) {
-        // Look for the dependency in the map (could be a name or partial path that needs resolution)
         const resolvedDep = this.resolveDependencyPath(features, dependencyPath, featurePath);
         if (!resolvedDep) {
           warnings.push(`依赖的 Feature ${dependencyPath} 不存在`);
@@ -178,13 +180,13 @@ export class DependencyChecker {
         continue;
       }
 
-      // Check if the dependency meets status requirements for the target state
-      if (!this.isStateReady(resolvedDep.state, targetState)) {
+      // Check if the dependency meets phase requirements for the target phase
+      if (!this.isPhaseReady(resolvedDep.phase, targetPhase)) {
         blockingFeatures.push({
           featureId: resolvedDep.featureId,
           featureName: resolvedDep.featureName,
-          currentState: resolvedDep.state,
-          requiredState: targetState
+          currentPhase: resolvedDep.phase,
+          requiredPhase: targetPhase
         });
       }
     }
@@ -211,18 +213,16 @@ export class DependencyChecker {
    */
   private tryMatchDepInTree(features: Map<string, FeatureStateInfo>, depIdentifier: string, currentFeaturePath: string): FeatureStateInfo | undefined {
     // First, try perfect match in the path
-    for (const [path, info] of features) {
-      if (path.includes(depIdentifier) || info.featureId.includes(depIdentifier) || info.featureName.includes(depIdentifier)) {
+    for (const [featPath, info] of features) {
+      if (featPath.includes(depIdentifier) || info.featureId.includes(depIdentifier) || info.featureName.includes(depIdentifier)) {
         return info;
       }
       
       // Try to match by comparing paths in a hierarchical way
       const currentPathParts = currentFeaturePath.split(/[\/\\]/);
-      const candidatePathParts = path.split(/[\/\\]/);
+      const candidatePathParts = featPath.split(/[\/\\]/);
       
-      // If same directory level, compare names, otherwise match by path
-      if (path !== currentFeaturePath) {
-        // Try matching in the same subfolder first
+      if (featPath !== currentFeaturePath) {
         if (this.isSameParentDirectory(currentPathParts, candidatePathParts)) {
           if (info.featureId === depIdentifier || info.featureName === depIdentifier) {
             return info;
@@ -231,17 +231,15 @@ export class DependencyChecker {
       }
     }
     
-    return undefined; // Not found
+    return undefined;
   }
   
   /**
    * Check if two paths share same parent directory
    */
   private isSameParentDirectory(pathA: string[], pathB: string[]): boolean {
-    // Exclude the feature folder itself, only compare the parent directories
     if (pathA.length < 2 || pathB.length < 2) return false;
     
-    // Compare from beginning until penultimate - last elements are feature names
     const parentPathA = pathA.slice(0, pathA.length - 1).join('/');
     const parentPathB = pathB.slice(0, pathB.length - 1).join('/');
     
@@ -257,8 +255,8 @@ export class DependencyChecker {
     if (directMatch) return directMatch;
     
     // Try to find the feature by featureId in paths
-    for (const [path, featureInfo] of features.entries()) {
-      if (path.includes(depId) || featureInfo.featureId === depId || featureInfo.featureName === depId) {
+    for (const [featPath, featureInfo] of features.entries()) {
+      if (featPath.includes(depId) || featureInfo.featureId === depId || featureInfo.featureName === depId) {
         return featureInfo;
       }
     }
@@ -271,8 +269,8 @@ export class DependencyChecker {
    */
   async checkStateRollbackWarnings(
     featurePath: string,
-    fromState: FeatureStateEnum,
-    toState: FeatureStateEnum
+    fromPhase: Phase,
+    toPhase: Phase
   ): Promise<string[]> {
     const features = await this.scanAllFeatures();
     const warnings: string[] = [];
@@ -287,11 +285,11 @@ export class DependencyChecker {
       );
       
       if (dependsOnCurrent) {
-        // 检查依赖者的状态是否高于目标状态
-        if (this.isStateHigher(otherFeature.state, toState)) {
+        // 检查依赖者的 phase 是否高于目标 phase
+        if (this.isPhaseHigher(otherFeature.phase, toPhase)) {
           warnings.push(
             `Feature 路径 ${otherPath} 依赖此 Feature，` +
-            `且当前状态为 ${otherFeature.state}，回退状态 ${toState} 可能影响依赖项`
+            `且当前 phase 为 ${otherFeature.phase}，回退 phase ${toPhase} 可能影响依赖项`
           );
         }
       }
@@ -309,11 +307,11 @@ export class DependencyChecker {
     const visited = new Set<string>();
     const recursionStack = new Set<string>();
 
-    const dfs = (featurePath: string, path: string[]): void => {
+    const dfs = (featurePath: string, pathStack: string[]): void => {
       if (recursionStack.has(featurePath)) {
         // 发现循环
-        const cycleStart = path.indexOf(featurePath);
-        const cycle = path.slice(cycleStart);
+        const cycleStart = pathStack.indexOf(featurePath);
+        const cycle = pathStack.slice(cycleStart);
         cycle.push(featurePath);
         cycles.push(cycle);
         return;
@@ -323,18 +321,16 @@ export class DependencyChecker {
 
       visited.add(featurePath);
       recursionStack.add(featurePath);
-      path.push(featurePath);
+      pathStack.push(featurePath);
 
       const feature = features.get(featurePath);
       if (feature) {
         for (const depPath of feature.dependencies) {
-          // Try to locate the true dependency path
           let resolvedDepPath = features.get(depPath)?.featurePath || depPath;
           if (!features.has(resolvedDepPath) && depPath !== resolvedDepPath) {
-            // Try alternative resolution methods
             resolvedDepPath = depPath;
           }
-          dfs(resolvedDepPath, [...path]);
+          dfs(resolvedDepPath, [...pathStack]);
         }
       }
 
@@ -354,14 +350,14 @@ export class DependencyChecker {
   async getBlockingFeatures(featurePath: string): Promise<Array<{
     featureId: string;
     featureName: string;
-    state: FeatureStateEnum;
+    phase: Phase;
   }>> {
     const features = await this.scanAllFeatures();
     const feature = features.get(featurePath);
     const blocking: Array<{
       featureId: string;
       featureName: string;
-      state: FeatureStateEnum;
+      phase: Phase;
     }> = [];
 
     if (!feature) return blocking;
@@ -372,7 +368,7 @@ export class DependencyChecker {
         blocking.push({
           featureId: resolvedDep.featureId,
           featureName: resolvedDep.featureName,
-          state: resolvedDep.state
+          phase: resolvedDep.phase
         });
       }
     }
@@ -386,19 +382,18 @@ export class DependencyChecker {
   async getBlockedByFeatures(featurePath: string): Promise<Array<{
     featureId: string;
     featureName: string;
-    state: FeatureStateEnum;
+    phase: Phase;
   }>> {
     const features = await this.scanAllFeatures();
     const blocked: Array<{
       featureId: string;
       featureName: string;
-      state: FeatureStateEnum;
+      phase: Phase;
     }> = [];
 
     for (const [otherPath, otherFeature] of features) {
       if (otherPath === featurePath) continue;
       
-      // Check if other feature is blocked because current feature is in their dep list
       const isCurrentlyDependent = otherFeature.dependencies.some(dep => 
         dep === featurePath || dep.includes(featurePath.split('/').pop() || '')
       );
@@ -407,7 +402,7 @@ export class DependencyChecker {
         blocked.push({
           featureId: otherFeature.featureId,
           featureName: otherFeature.featureName,
-          state: otherFeature.state
+          phase: otherFeature.phase
         });
       }
     }
@@ -416,60 +411,23 @@ export class DependencyChecker {
   }
 
   /**
-   * Map feature status to enum
+   * 辅助函数：检查依赖 phase 是否就绪（≥ 目标 phase）
+   * Uses PHASE_ORDER from schema-v3.0.0 for comparison.
    */
-  private mapStatusToState(status: string): FeatureStateEnum {
-    switch(status) {
-      case 'planned': return 'planned';
-      case 'tasked': return 'tasked';
-      case 'building': return 'implementing';
-      case 'reviewed': return 'reviewed';
-      case 'validated': return 'validated';
-      case 'specified': return 'specified';
-      default: return 'specified'; // Default to specified
-    }
-  }
-
-  /**
-   * 辅助函数：检查状态是否就绪（≥ 目标状态）
-   */
-  private isStateReady(currentState: FeatureStateEnum, targetState: FeatureStateEnum): boolean {
-    const stateOrder: Record<FeatureStateEnum, number> = {
-      'drafting': 0,
-      'discovered': 1,
-      'specified': 2,
-      'planned': 3,
-      'tasked': 4,
-      'implementing': 5,
-      'reviewed': 6,
-      'validated': 7,
-      'completed': 8
-    };
-
-    const currentOrder = stateOrder[currentState] ?? 0;
-    const targetOrder = stateOrder[targetState] ?? 0;
+  private isPhaseReady(currentPhase: Phase, targetPhase: Phase): boolean {
+    const currentOrder = PHASE_ORDER[currentPhase] ?? 0;
+    const targetOrder = PHASE_ORDER[targetPhase] ?? 0;
 
     return currentOrder >= targetOrder;
   }
 
   /**
-   * 辅助函数：检查状态是否更高
+   * 辅助函数：检查 phase 是否更高
+   * Uses PHASE_ORDER from schema-v3.0.0 for comparison.
    */
-  private isStateHigher(state1: FeatureStateEnum, state2: FeatureStateEnum): boolean {
-    const stateOrder: Record<FeatureStateEnum, number> = {
-      'drafting': 0,
-      'discovered': 1,
-      'specified': 2,
-      'planned': 3,
-      'tasked': 4,
-      'implementing': 5,
-      'reviewed': 6,
-      'validated': 7,
-      'completed': 8
-    };
-
-    const order1 = stateOrder[state1] ?? 0;
-    const order2 = stateOrder[state2] ?? 0;
+  private isPhaseHigher(phase1: Phase, phase2: Phase): boolean {
+    const order1 = PHASE_ORDER[phase1] ?? 0;
+    const order2 = PHASE_ORDER[phase2] ?? 0;
 
     return order1 > order2;
   }
@@ -478,29 +436,27 @@ export class DependencyChecker {
    * 获取依赖关系可视化数据
    */
   async getDependencyVisualization(): Promise<{
-    nodes: Array<{ id: string; label: string; state: FeatureStateEnum }>;
+    nodes: Array<{ id: string; label: string; phase: Phase }>;
     edges: Array<{ from: string; to: string }>;
   }> {
     const features = await this.scanAllFeatures();
-    const nodes: Array<{ id: string; label: string; state: FeatureStateEnum }> = [];
+    const nodes: Array<{ id: string; label: string; phase: Phase }> = [];
     const edges: Array<{ from: string; to: string }> = [];
 
     for (const [featurePath, feature] of features) {
       nodes.push({
         id: featurePath,
         label: `${feature.featureName} (${featurePath.split('/').pop()})`,
-        state: feature.state
+        phase: feature.phase
       });
 
       for (const depPath of feature.dependencies) {
-        // Try to resolve the dependency path properly
         let resolvedDepPath = depPath;
         const depMatch = this.tryMatchDepInTree(features, depPath, featurePath);
         if (depMatch) {
           resolvedDepPath = depMatch.featurePath;
         }
         
-        // Add edge to dependency (from feature to its dependency)
         edges.push({
           from: featurePath,
           to: resolvedDepPath

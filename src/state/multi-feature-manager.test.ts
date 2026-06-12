@@ -1,52 +1,59 @@
-import { 
-  aggregateFeatureState, 
-  buildDependencyGraph, 
-  detectCircularDependency, 
-  isDependencyReady, 
+import {
+  aggregateFeatureState,
+  buildDependencyGraph,
+  detectCircularDependency,
+  isDependencyReady,
   getReadySubFeatures,
   SubFeatureState,
-  DependencyGraph
+  DependencyGraph,
 } from './multi-feature-manager';
+import { Phase, FeatureStatus } from './schema-v3.0.0';
 
-describe('MultiFeatureManager Tests', () => {
+// Helper: create a SubFeatureState with defaults
+function makeSF(
+  id: string,
+  phase: Phase,
+  status: FeatureStatus = 'tracked',
+): SubFeatureState {
+  return { id, phase, status };
+}
+
+describe('MultiFeatureManager Tests (v3.0.0)', () => {
   describe('aggregateFeatureState', () => {
-    test('should return specified when no sub-features', () => {
-      expect(aggregateFeatureState([])).toBe('specified');
+    test('should return registered when no sub-features', () => {
+      expect(aggregateFeatureState([])).toBe('registered');
     });
 
-    test('should return slowest status among sub-features', () => {
+    test('should return slowest phase among sub-features', () => {
       const subFeatures: SubFeatureState[] = [
-        { id: 'sf1', status: 'completed', phase: 1 },
-        { id: 'sf2', status: 'tasked', phase: 1 }, // slowest
-        { id: 'sf3', status: 'validated', phase: 1 }
+        makeSF('sf1', 'validated', 'completed'),  // order 7 — fastest
+        makeSF('sf2', 'tasked'),                    // order 4 — slowest
+        makeSF('sf3', 'builded'),                   // order 5
       ];
       expect(aggregateFeatureState(subFeatures)).toBe('tasked');
     });
 
-    test('should work correctly when all same status', () => {
+    test('should work correctly when all same phase', () => {
       const subFeatures: SubFeatureState[] = [
-        { id: 'sf1', status: 'planned', phase: 1 },
-        { id: 'sf2', status: 'planned', phase: 1 },
-        { id: 'sf3', status: 'planned', phase: 1 }
+        makeSF('sf1', 'planned'),
+        makeSF('sf2', 'planned'),
+        makeSF('sf3', 'planned'),
       ];
       expect(aggregateFeatureState(subFeatures)).toBe('planned');
     });
 
-    test('should correctly rank from slowest to fastest', () => {
-      // Order: specified, planned, tasked, implementing, reviewed, validated, completed
-      const allStatuses: ('specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed')[] = [
-        'specified', 'planned', 'tasked', 'implementing', 'reviewed', 'validated', 'completed'
+    test('should correctly find slowest (lowest PHASE_ORDER) in mixed set', () => {
+      // PHASE_ORDER: registered=0 … validated=7 — lower = slower
+      const phases: Phase[] = [
+        'registered', 'discovered', 'specified', 'planned',
+        'tasked', 'builded', 'reviewed', 'validated',
       ];
-      
-      for (let i = 0; i < allStatuses.length; i++) {
-        const slowest = allStatuses[i];
-        const fasterStatuses = allStatuses.slice(i + 1).map((status, idx) => ({
-          id: `sf${idx}`,
-          status,
-          phase: 1
-        }));
-        
-        const mixed = [{ id: 'slow', status: slowest, phase: 1 }, ...fasterStatuses];
+
+      for (let i = 0; i < phases.length; i++) {
+        const slowest = phases[i];
+        const fasterPhases = phases.slice(i + 1).map((p, idx) => makeSF(`sf${idx}`, p));
+
+        const mixed: SubFeatureState[] = [makeSF('slow', slowest), ...fasterPhases];
         expect(aggregateFeatureState(mixed)).toBe(slowest);
       }
     });
@@ -55,14 +62,14 @@ describe('MultiFeatureManager Tests', () => {
   describe('buildDependencyGraph', () => {
     test('should build dependency and blockedBy relations', () => {
       const subFeatures: SubFeatureState[] = [
-        { id: 'a', status: 'specified', phase: 1 },
-        { id: 'b', status: 'specified', phase: 1 },
-        { id: 'c', status: 'specified', phase: 1 }
+        makeSF('a', 'specified'),
+        makeSF('b', 'specified'),
+        makeSF('c', 'specified'),
       ];
-      
+
       const dependencies = {
         'b': ['a'], // b depends on a
-        'c': ['b'] // c depends on b
+        'c': ['b'], // c depends on b
       };
 
       const graph = buildDependencyGraph(subFeatures, dependencies);
@@ -80,36 +87,36 @@ describe('MultiFeatureManager Tests', () => {
 
     test('should handle empty dependencies', () => {
       const subFeatures: SubFeatureState[] = [
-        { id: 'a', status: 'specified', phase: 1 },
-        { id: 'b', status: 'specified', phase: 1 }
+        makeSF('a', 'specified'),
+        makeSF('b', 'specified'),
       ];
-      
+
       const dependencies = {};
 
       const graph = buildDependencyGraph(subFeatures, dependencies);
 
       expect(graph.dependencies).toEqual({
         'a': [],
-        'b': []
+        'b': [],
       });
-      
+
       expect(graph.blockedBy).toEqual({
         'a': [],
-        'b': []
+        'b': [],
       });
     });
 
     test('should handle multiple dependencies', () => {
       const subFeatures: SubFeatureState[] = [
-        { id: 'a', status: 'specified', phase: 1 },
-        { id: 'b', status: 'specified', phase: 1 },
-        { id: 'c', status: 'specified', phase: 1 },
-        { id: 'd', status: 'specified', phase: 1 }
+        makeSF('a', 'specified'),
+        makeSF('b', 'specified'),
+        makeSF('c', 'specified'),
+        makeSF('d', 'specified'),
       ];
-      
+
       const dependencies = {
         'c': ['a', 'b'], // c depends on both a and b
-        'd': ['b']      // d depends only on b
+        'd': ['b'],      // d depends only on b
       };
 
       const graph = buildDependencyGraph(subFeatures, dependencies);
@@ -118,14 +125,14 @@ describe('MultiFeatureManager Tests', () => {
         'a': [],
         'b': [],
         'c': ['a', 'b'],
-        'd': ['b']
+        'd': ['b'],
       });
 
       expect(graph.blockedBy).toEqual({
         'a': ['c'],       // a blocks c
         'b': ['c', 'd'],  // b blocks both c and d
         'c': [],
-        'd': []
+        'd': [],
       });
     });
   });
@@ -135,7 +142,7 @@ describe('MultiFeatureManager Tests', () => {
       const dependencies = {
         'b': ['a'],
         'c': ['b'],
-        'd': ['c']
+        'd': ['c'],
       };
 
       expect(detectCircularDependency('a', dependencies)).toBeNull();
@@ -146,7 +153,7 @@ describe('MultiFeatureManager Tests', () => {
     test('should detect simple circular dependency', () => {
       const dependencies = {
         'a': ['b'],
-        'b': ['a']
+        'b': ['a'],
       };
 
       const cycle = detectCircularDependency('a', dependencies);
@@ -157,7 +164,7 @@ describe('MultiFeatureManager Tests', () => {
       const dependencies = {
         'a': ['b'],
         'b': ['c'],
-        'c': ['a']  // Forms a -> b -> c -> a loop
+        'c': ['a'],  // Forms a -> b -> c -> a loop
       };
 
       const cycle = detectCircularDependency('a', dependencies);
@@ -169,7 +176,7 @@ describe('MultiFeatureManager Tests', () => {
         'a': ['d'],
         'b': ['a'],
         'c': ['b'],
-        'd': ['c']  // Completes a loop: d -> c -> b -> a -> d
+        'd': ['c'],  // Completes a loop: d -> c -> b -> a -> d
       };
 
       const cycle = detectCircularDependency('d', dependencies);
@@ -181,7 +188,7 @@ describe('MultiFeatureManager Tests', () => {
         'a': [],      // independent
         'b': ['a'],   // depends on a
         'c': ['a', 'b'],  // depends on both a and b
-        'd': ['c']    // depends only on c
+        'd': ['c'],   // depends only on c
       };
 
       expect(detectCircularDependency('d', dependencies)).toBeNull();
@@ -189,7 +196,7 @@ describe('MultiFeatureManager Tests', () => {
 
     test('should handle case where node doesn\'t exist in dependency map', () => {
       const dependencies = {
-        'a': ['b']
+        'a': ['b'],
       };
 
       expect(detectCircularDependency('nonexistent', dependencies)).toBeNull();
@@ -200,37 +207,37 @@ describe('MultiFeatureManager Tests', () => {
     test('should return true when no dependencies', () => {
       const graph: DependencyGraph = {
         dependencies: { 'b': [] },
-        blockedBy: {}
+        blockedBy: {},
       };
-      
+
       const statesMap = new Map<string, SubFeatureState>();
-      statesMap.set('b', { id: 'b', status: 'specified', phase: 1 });
+      statesMap.set('b', makeSF('b', 'specified'));
 
       expect(isDependencyReady('b', graph, statesMap)).toBe(true);
     });
 
-    test('should return true when all dependencies are planned', () => {
+    test('should return true when all dependencies are at least planned', () => {
       const graph: DependencyGraph = {
         dependencies: { 'b': ['a'] },
-        blockedBy: {}
+        blockedBy: {},
       };
-      
+
       const statesMap = new Map<string, SubFeatureState>();
-      statesMap.set('a', { id: 'a', status: 'planned', phase: 1 });
-      statesMap.set('b', { id: 'b', status: 'specified', phase: 1 });
+      statesMap.set('a', makeSF('a', 'planned'));            // order 3 ≥ 3 → ready
+      statesMap.set('b', makeSF('b', 'specified'));           // hasn't started yet
 
       expect(isDependencyReady('b', graph, statesMap)).toBe(true);
     });
 
-    test('should return false when dependencies are not ready', () => {
+    test('should return false when dependencies are not ready (phase < planned)', () => {
       const graph: DependencyGraph = {
         dependencies: { 'b': ['a'] },
-        blockedBy: {}
+        blockedBy: {},
       };
-      
+
       const statesMap = new Map<string, SubFeatureState>();
-      statesMap.set('a', { id: 'a', status: 'specified', phase: 1 }); // Not ready yet (not planned)
-      statesMap.set('b', { id: 'b', status: 'specified', phase: 1 });
+      statesMap.set('a', makeSF('a', 'specified'));   // order 2 < 3 → not ready
+      statesMap.set('b', makeSF('b', 'specified'));
 
       expect(isDependencyReady('b', graph, statesMap)).toBe(false);
     });
@@ -238,31 +245,32 @@ describe('MultiFeatureManager Tests', () => {
     test('should return false when any dependency is not ready', () => {
       const graph: DependencyGraph = {
         dependencies: { 'c': ['a', 'b'] },
-        blockedBy: {}
+        blockedBy: {},
       };
-      
+
       const statesMap = new Map<string, SubFeatureState>();
-      statesMap.set('a', { id: 'a', status: 'planned', phase: 1 });     // Ready
-      statesMap.set('b', { id: 'b', status: 'specified', phase: 1 });   // Not ready
-      statesMap.set('c', { id: 'c', status: 'specified', phase: 1 });
+      statesMap.set('a', makeSF('a', 'planned'));      // ready (order 3)
+      statesMap.set('b', makeSF('b', 'registered'));   // not ready (order 0)
+      statesMap.set('c', makeSF('c', 'specified'));
 
       expect(isDependencyReady('c', graph, statesMap)).toBe(false);
     });
 
-    test('should return true when all dependencies meet minimum readiness', () => {
-      const statusesAtleastPlanned: ('planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed')[] = [
-        'planned', 'tasked', 'implementing', 'reviewed', 'validated', 'completed'
+    test('should return true when all dependencies meet minimum readiness (phase ≥ planned)', () => {
+      // Phases with PHASE_ORDER ≥ 3 (= planned)
+      const phasesAtLeastPlanned: Phase[] = [
+        'planned', 'tasked', 'builded', 'reviewed', 'validated',
       ];
 
-      for (const status of statusesAtleastPlanned) {
+      for (const phase of phasesAtLeastPlanned) {
         const graph: DependencyGraph = {
           dependencies: { 'b': ['a'] },
-          blockedBy: {}
+          blockedBy: {},
         };
-        
+
         const statesMap = new Map<string, SubFeatureState>();
-        statesMap.set('a', { id: 'a', status, phase: 1 });
-        statesMap.set('b', { id: 'b', status: 'specified', phase: 1 });
+        statesMap.set('a', makeSF('a', phase));
+        statesMap.set('b', makeSF('b', 'specified'));
 
         expect(isDependencyReady('b', graph, statesMap)).toBe(true);
       }
@@ -272,46 +280,46 @@ describe('MultiFeatureManager Tests', () => {
   describe('getReadySubFeatures', () => {
     test('should return sub-features with no dependencies and unplanned blockers', () => {
       const graph: DependencyGraph = {
-        dependencies: { 
-          'b': ['a'] 
+        dependencies: {
+          'b': ['a'],
         },
-        blockedBy: { 
-          'c': ['d']  // c is blocked by d that is not yet planned
-        }
+        blockedBy: {
+          'c': ['d'],  // c is blocked by d that is not yet planned
+        },
       };
-      
+
       const statesMap = new Map<string, SubFeatureState>();
-      statesMap.set('a', { id: 'a', status: 'planned', phase: 1 });
-      statesMap.set('b', { id: 'b', status: 'specified', phase: 1 });
-      statesMap.set('c', { id: 'c', status: 'specified', phase: 1 });
-      statesMap.set('d', { id: 'd', status: 'specified', phase: 1 }); // Not planned, so blocks c
+      statesMap.set('a', makeSF('a', 'planned'));      // ready (order 3)
+      statesMap.set('b', makeSF('b', 'specified'));     // dep 'a' ready
+      statesMap.set('c', makeSF('c', 'registered'));    // blocked by d
+      statesMap.set('d', makeSF('d', 'registered'));    // not planned → blocks c
 
       const ready = getReadySubFeatures(graph, statesMap);
       // b: dep 'a' is ready, doesn't block others → ready
       // c: blocked by 'd' which isn't planned → not ready
       // a: no deps → ready
-      // d: no deps but might be blocked → needs checking
-      
+      // d: no deps, not blocked → ready
+
       expect(ready).toContain('a');
-      expect(ready).toContain('b'); // Should be available because a is planned
-      expect(ready).not.toContain('c'); // Blocked by d which is not in planned state
+      expect(ready).toContain('b');
+      expect(ready).not.toContain('c');
       expect(ready).toContain('d');
     });
 
     test('should return empty when all sub-features blocked', () => {
       const graph: DependencyGraph = {
-        dependencies: { 
-          'b': ['a'] 
+        dependencies: {
+          'b': ['a'],
         },
-        blockedBy: { 
-          'a': ['c']  // Both 'a' and 'b' are blocked: 'a' by 'c', 'b' because its dep 'a' isn't ready
-        }
+        blockedBy: {
+          'a': ['c'],  // Both 'a' and 'b' are blocked
+        },
       };
-      
+
       const statesMap = new Map<string, SubFeatureState>();
-      statesMap.set('a', { id: 'a', status: 'specified', phase: 1 });
-      statesMap.set('b', { id: 'b', status: 'specified', phase: 1 });
-      statesMap.set('c', { id: 'c', status: 'specified', phase: 1 });
+      statesMap.set('a', makeSF('a', 'registered'));
+      statesMap.set('b', makeSF('b', 'registered'));
+      statesMap.set('c', makeSF('c', 'registered'));
 
       const ready = getReadySubFeatures(graph, statesMap);
       expect(ready).toContain('c');
@@ -320,51 +328,51 @@ describe('MultiFeatureManager Tests', () => {
 
     test('should return sub-features when dependencies ready and no one blocks them', () => {
       const graph: DependencyGraph = {
-        dependencies: { 
-          'b': ['a'] 
+        dependencies: {
+          'b': ['a'],
         },
-        blockedBy: { 
-          'a': [], 
-          'b': [] 
-        }
+        blockedBy: {
+          'a': [],
+          'b': [],
+        },
       };
-      
+
       const statesMap = new Map<string, SubFeatureState>();
-      statesMap.set('a', { id: 'a', status: 'planned', phase: 1 }); // Ready
-      statesMap.set('b', { id: 'b', status: 'specified', phase: 1 });
+      statesMap.set('a', makeSF('a', 'planned')); // Ready
+      statesMap.set('b', makeSF('b', 'specified'));
 
       const ready = getReadySubFeatures(graph, statesMap);
-      expect(ready).toEqual(expect.arrayContaining(['a', 'b'])); // Both should be available
+      expect(ready).toEqual(expect.arrayContaining(['a', 'b']));
     });
 
     test('should handle complex dependency and blocking scenario', () => {
       const graph: DependencyGraph = {
-        dependencies: { 
+        dependencies: {
           'b': ['a'],
           'c': ['a'],
-          'd': ['b', 'c']
+          'd': ['b', 'c'],
         },
-        blockedBy: { 
+        blockedBy: {
           'a': [],
           'b': ['e'],  // 'b' is blocked by 'e'
-          'c': [], 
+          'c': [],
           'd': [],
-          'e': []
-        }
+          'e': [],
+        },
       };
-      
+
       const statesMap = new Map<string, SubFeatureState>();
-      statesMap.set('a', { id: 'a', status: 'planned', phase: 1 }); // Ready
-      statesMap.set('b', { id: 'b', status: 'specified', phase: 1 });    // Dep ready, but blocked by 'e'
-      statesMap.set('c', { id: 'c', status: 'specified', phase: 1 });    // Ready: dep 'a' is ready
-      statesMap.set('d', { id: 'd', status: 'specified', phase: 1 });    // Not ready: 'b' and 'c' deps not satisfied properly
-      statesMap.set('e', { id: 'e', status: 'specified', phase: 1 });    // Blocks 'b'
+      statesMap.set('a', makeSF('a', 'planned'));    // Ready (order 3)
+      statesMap.set('b', makeSF('b', 'registered'));  // Dep ready, but blocked by 'e'
+      statesMap.set('c', makeSF('c', 'registered'));   // Ready-ish: dep 'a' is ready
+      statesMap.set('d', makeSF('d', 'registered'));   // Not ready: deps not satisfied
+      statesMap.set('e', makeSF('e', 'registered'));   // Blocks 'b'
 
       const ready = getReadySubFeatures(graph, statesMap);
       expect(ready).toContain('a');
       expect(ready).toContain('c');
       expect(ready).toContain('e');
-      expect(ready).not.toContain('b'); // Blocked by e which hasn't reached planned state
+      expect(ready).not.toContain('b'); // Blocked by e which hasn't reached planned
       expect(ready).not.toContain('d'); // Dependencies not ready
     });
   });

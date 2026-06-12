@@ -1,0 +1,70 @@
+{
+  "feature": "specs-tree-sddu-status-enhancement",
+  "name": "SDDU 特性状态增强",
+  "nameEn": "SDDU Feature Status Enhancement",
+  "featureId": "FR-STATUS-ENHANCE-001",
+  "phase": "planned",
+  "status": "tracked",
+  "createdDate": "2026-06-12",
+  "priority": "P1",
+  "isParent": false,
+  "depth": 1,
+  "description": "将 SDDU 状态模型从单字段混用重构为两字段隔离：phase（8 阶段，统一 -ed）+ status（5 状态：tracked/completed/suspended/terminated/merged），包含一致性检测内置升级机制、标记命令、分类仪表盘",
+  "coreModel": {
+    "design": "两字段完全独立，互不推导",
+    "phase": ["registered", "discovered", "specified", "planned", "tasked", "builded", "reviewed", "validated"],
+    "phaseFlow": "registered → discovered → specified → planned → tasked → builded → reviewed → validated（系统自动，单向不可逆）",
+    "status": {
+      "tracked": "正常追踪，流转中（新建默认）",
+      "completed": "已完成（phase 到 validated 时系统自动设置，不可逆）",
+      "suspended": "搁置，可能恢复（用户标记，可选 suspendedUntil）",
+      "terminated": "永久终止，不可逆（用户标记）",
+      "merged": "迁出到其他特性，不可逆（用户标记，必填 mergedInto）"
+    },
+    "recommendationRule": "仅 status === 'tracked' && phase !== 'validated' 时推荐继续",
+    "modificationBoundary": {
+      "directScope": "除 .opencode/*、.sddu/*、opencode.json 之外的全部源码",
+      "indirectScope": ".opencode/*、.sddu/*、opencode.json（由 R5 内置升级机制处理）"
+    }
+  },
+  "goals": [
+    "state.json 从单字段混用重构为 phase + status 两字段隔离模型",
+    "非 tracked 特性不在建议区列出，不参与活跃统计",
+    "非 tracked 父特性下的子特性归入父节点显示（子随父归）",
+    "Schema 支持 phase（8 值）+ status（5 值）联合验证",
+    "实现内置升级机制（R5）：版本升级后首次 @sddu 状态 自动触发一致性检测",
+    "提供 @sddu 标记 命令，一键标记特性状态",
+    "@sddu 状态 输出重构为分类仪表盘",
+    "父特性根据子特性进度聚合展示",
+    "suspended 到期被动提醒"
+  ],
+  "files": {
+    "spec": ".sddu/specs-tree-root/specs-tree-sddu-status-enhancement/spec.md",
+    "specJson": ".sddu/specs-tree-root/specs-tree-sddu-status-enhancement/spec.json",
+    "discovery": ".sddu/specs-tree-root/specs-tree-sddu-status-enhancement/discovery.md",
+    "state": ".sddu/specs-tree-root/specs-tree-sddu-status-enhancement/state.json"
+  },
+  "dependencies": {
+    "on": [],
+    "blocking": []
+  },
+  "spec": {
+    "totalFR": 15,
+    "totalNFR": 6,
+    "totalEC": 12,
+    "totalUS": 5,
+    "frIds": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-010", "FR-010b", "FR-011", "FR-012", "FR-013", "FR-014"],
+    "nfIds": ["NFR-001", "NFR-002", "NFR-003", "NFR-004", "NFR-005", "NFR-006"],
+    "ecIds": ["EC-001", "EC-002", "EC-003", "EC-004", "EC-005", "EC-006", "EC-007", "EC-008", "EC-009", "EC-010", "EC-011", "EC-012"],
+    "usIds": ["US-001", "US-002", "US-003", "US-004", "US-005"],
+    "mvpFR": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008"],
+    "v1FR": ["FR-009", "FR-010", "FR-010b", "FR-011", "FR-012"],
+    "v2FR": ["FR-013", "FR-014"]
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "author": "SDDU Team",
+    "lastUpdated": "2026-06-12",
+    "discoveryVersion": "v5.0.0"
+  }
+}

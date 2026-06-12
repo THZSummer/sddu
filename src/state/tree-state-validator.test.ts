@@ -2,35 +2,118 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { TreeStateValidator } from './tree-state-validator';
 import { StateLoader } from './state-loader';
-import { StateV2_1_0 } from './schema-v2.0.0';
-import { scanTreeStructure } from './tree-scanner';
+import { StateV3_0_0, Phase, FeatureStatus } from './schema-v3.0.0';
+import { scanTreeStructure, FeatureTreeNode, ScanResult, isParentFeature } from './tree-scanner';
+
+// ============================================================================
+// Mock scanTreeStructure — tests use synthetic paths that don't exist on disk.
+// ============================================================================
+jest.mock('./tree-scanner', () => {
+  const actual = jest.requireActual('./tree-scanner');
+  return {
+    ...actual,
+    scanTreeStructure: jest.fn(),
+    isParentFeature: actual.isParentFeature,
+  };
+});
+
+const mockedScanTreeStructure = scanTreeStructure as jest.MockedFunction<
+  typeof scanTreeStructure
+>;
+
+/** Build the minimal default mock tree (no parent/child to avoid side-effects). */
+function buildMockTree(): ScanResult {
+  const testNode: FeatureTreeNode = {
+    id: 'specs-tree-test',
+    path: '/path/to/specs-tree-test',
+    featureName: 'test',
+    level: 0,
+    children: [],
+  };
+
+  const nodeA: FeatureTreeNode = {
+    id: 'specs-tree-a',
+    path: '/path/to/specs-tree-a',
+    featureName: 'a',
+    level: 0,
+    children: [],
+  };
+
+  const nodeB: FeatureTreeNode = {
+    id: 'specs-tree-b',
+    path: '/path/to/specs-tree-b',
+    featureName: 'b',
+    level: 0,
+    children: [],
+  };
+
+  const nodeSingle: FeatureTreeNode = {
+    id: 'specs-tree-single',
+    path: '/path/to/specs-tree-single',
+    featureName: 'single',
+    level: 0,
+    children: [],
+  };
+
+  const nodes = [testNode, nodeA, nodeB, nodeSingle];
+  const flatMap = new Map<string, FeatureTreeNode>();
+  for (const n of nodes) flatMap.set(n.path, n);
+
+  return { nodes, flatMap };
+}
+
+/** Build a mock tree that includes parent/child for depth and parent-child relation tests. */
+function buildParentMockTree(): ScanResult {
+  const childNode: FeatureTreeNode = {
+    id: 'specs-tree-child',
+    path: '/path/to/specs-tree-parent/specs-tree-child',
+    featureName: 'child',
+    level: 1,
+    children: [],
+    parent: '/path/to/specs-tree-parent',
+  };
+
+  const parentNode: FeatureTreeNode = {
+    id: 'specs-tree-parent',
+    path: '/path/to/specs-tree-parent',
+    featureName: 'parent',
+    level: 0,
+    children: [childNode],
+  };
+
+  const nodes = [parentNode, childNode];
+  const flatMap = new Map<string, FeatureTreeNode>();
+  for (const n of nodes) flatMap.set(n.path, n);
+
+  return { nodes, flatMap };
+}
 
 // Create a mock StateLoader for testing purposes
 class MockStateLoader {
-  stateMap: Map<string, StateV2_1_0> = new Map();
+  stateMap: Map<string, StateV3_0_0> = new Map();
   // Adding required private properties
   private cache: Map<string, any> = new Map();
   private cacheExpiryMs: number = 3000;
   private specRootDir: string = '.sddu/specs-tree-root';
 
-  async loadAll(): Promise<Map<string, StateV2_1_0>> {
+  async loadAll(): Promise<Map<string, StateV3_0_0>> {
     // This would scan the tree and return all states, simplified for testing
     return this.stateMap;
   }
 
-  async get(featurePath: string): Promise<StateV2_1_0 | null> {
+  async get(featurePath: string): Promise<StateV3_0_0 | null> {
     if (this.stateMap.has(featurePath)) {
       return this.stateMap.get(featurePath) || null;
     }
     return null;
   }
 
-  async set(featurePath: string, state: StateV2_1_0): Promise<boolean> {
+  async set(featurePath: string, state: StateV3_0_0): Promise<boolean> {
     this.stateMap.set(featurePath, state);
     return true;
   }
 
-  async create(featurePath: string, initialState: StateV2_1_0): Promise<boolean> {
+  async create(featurePath: string, initialState: StateV3_0_0): Promise<boolean> {
     if (!this.stateMap.has(featurePath)) {
       this.stateMap.set(featurePath, initialState);
       return true;
@@ -46,6 +129,26 @@ class MockStateLoader {
   clearCache?(): void {}
 }
 
+// Helper: create a v3.0.0-compliant state object
+function makeV3State(overrides: Partial<StateV3_0_0> = {}): StateV3_0_0 {
+  return {
+    feature: 'test-feature',
+    version: 'v3.0.0',
+    phase: 'builded',
+    status: 'tracked',
+    depth: 0,
+    phaseHistory: [{
+      phase: 'specified',
+      timestamp: '2026-01-01T00:00:00.000Z',
+      triggeredBy: 'test-agent'
+    }],
+    files: { spec: 'spec.md' },
+    dependencies: { on: [], blocking: [] },
+    childrens: [],
+    ...overrides,
+  };
+}
+
 describe('TreeStateValidator', () => {
   let validator: TreeStateValidator;
   let mockStateLoader: MockStateLoader;
@@ -53,26 +156,14 @@ describe('TreeStateValidator', () => {
   beforeEach(() => {
     mockStateLoader = new MockStateLoader();
     validator = new TreeStateValidator(mockStateLoader as any);
+    mockedScanTreeStructure.mockResolvedValue(buildMockTree());
   });
 
   describe('validateTree', () => {
     it('should validate a correct tree structure', async () => {
-      const validState: StateV2_1_0 = {
+      const validState = makeV3State({
         feature: 'test-feature',
-        version: 'v2.1.0',
-        status: 'building',
-        phase: 4,
-        phaseHistory: [{
-          phase: 1,
-          status: 'building',
-          timestamp: '2026-01-01T00:00:00.000Z',
-          triggeredBy: 'test-agent'
-        }],
-        files: { spec: 'spec.md' },
-        dependencies: { on: [], blocking: [] },
-        depth: 0,
-        childrens: []
-      };
+      });
 
       mockStateLoader.stateMap.set('/path/to/specs-tree-test', validState);
 
@@ -88,8 +179,8 @@ describe('TreeStateValidator', () => {
       const invalidState = {
         feature: 'test-feature',
         // missing version field
-        status: 'building',
-        phase: 4,
+        phase: 'builded',
+        status: 'tracked',
         phaseHistory: [],
         files: { spec: 'spec.md' },
         dependencies: { on: [], blocking: [] }
@@ -106,16 +197,15 @@ describe('TreeStateValidator', () => {
     });
 
     it('should detect incorrect version format', async () => {
-      // This should have wrong type on purpose, but in the test, 
-      // let's temporarily disable strict typing to pass validation
+      // Invalid version that triggers v3.0.0 schema validation failure
       const invalidVersionState: any = {
         feature: 'test-feature',
-        version: '2.1.0', // Missing 'v' prefix - will fail validation check
-        status: 'building',
-        phase: 4,
+        version: '2.1.0', // Missing 'v' prefix AND wrong version — triggers schema validation
+        phase: 'builded',
+        status: 'tracked',
+        depth: 0,
         phaseHistory: [{
-          phase: 1,
-          status: 'building',
+          phase: 'specified',
           timestamp: '2026-01-01T00:00:00.000Z',
           triggeredBy: 'test-agent'
         }],
@@ -128,29 +218,19 @@ describe('TreeStateValidator', () => {
       const result = await validator.validateTree('/path');
 
       expect(result.valid).toBe(false);
+      // v3.0.0 validator reports this as an invalid schema (version must be 'v3.0.0')
       expect(result.errors).toContainEqual(expect.objectContaining({
-        code: 'TREE_INVALID_VERSION_FORMAT',
-        message: expect.stringContaining(`got '2.1.0'`)
+        code: 'TREE_INVALID_SCHEMA'
       }));
     });
 
     it('should detect invalid depth', async () => {
-      const inconsistentDepthState: StateV2_1_0 = {
+      mockedScanTreeStructure.mockResolvedValue(buildParentMockTree());
+
+      const inconsistentDepthState = makeV3State({
         feature: 'parent-feature',
-        version: 'v2.1.0',
-        status: 'building',
-        phase: 4,
-        phaseHistory: [{
-          phase: 1,
-          status: 'building',
-          timestamp: '2026-01-01T00:00:00.000Z',
-          triggeredBy: 'test-agent'
-        }],
-        files: { spec: 'spec.md' },
-        dependencies: { on: [], blocking: [] },
         depth: 5,  // Wrong depth - should be 0 based on node.level
-        childrens: []
-      };
+      });
 
       mockStateLoader.stateMap.set('/path/to/specs-tree-parent', inconsistentDepthState);
 
@@ -166,21 +246,9 @@ describe('TreeStateValidator', () => {
 
   describe('validateFeature', () => {
     it('should validate a single valid feature', async () => {
-      const validState: StateV2_1_0 = {
+      const validState = makeV3State({
         feature: 'test-feature',
-        version: 'v2.1.0',
-        status: 'building',
-        phase: 4,
-        phaseHistory: [{
-          phase: 1,
-          status: 'building',
-          timestamp: '2026-01-01T00:00:00.000Z',
-          triggeredBy: 'test-agent'
-        }],
-        files: { spec: 'spec.md' },
-        dependencies: { on: [], blocking: [] },
-        childrens: []
-      };
+      });
 
       mockStateLoader.stateMap.set('/path/to/specs-tree-test', validState);
 
@@ -202,14 +270,14 @@ describe('TreeStateValidator', () => {
     });
 
     it('should detect incorrect version format in feature', async () => {
-      const invalidVersionState: any = {  // Using 'any' to bypass strict typing for this test
+      const invalidVersionState: any = {
         feature: 'test-feature',
-        version: '2.1.0', // Missing 'v' prefix
-        status: 'building',
-        phase: 4,
+        version: '2.1.0', // Missing 'v' prefix — v3.0.0 schema rejects this
+        phase: 'builded',
+        status: 'tracked',
+        depth: 0,
         phaseHistory: [{
-          phase: 1,
-          status: 'building',
+          phase: 'specified',
           timestamp: '2026-01-01T00:00:00.000Z',
           triggeredBy: 'test-agent'
         }],
@@ -230,23 +298,14 @@ describe('TreeStateValidator', () => {
 
   describe('validateParentChildRelations', () => {
     it('should validate proper parent-child relationship', async () => {
-      const parentState: StateV2_1_0 = {
+      mockedScanTreeStructure.mockResolvedValue(buildParentMockTree());
+
+      const parentState = makeV3State({
         feature: 'parent-feature',
-        version: 'v2.1.0',
-        status: 'building',
-        phase: 4,
-        phaseHistory: [{
-          phase: 1,
-          status: 'building',
-          timestamp: '2026-01-01T00:00:00.000Z',
-          triggeredBy: 'test-agent'
-        }],
-        files: { spec: 'spec.md' },
-        dependencies: { on: [], blocking: [] },
         childrens: [
-          { path: '/path/to/specs-tree-parent/specs-tree-child', featureName: 'child', status: 'building', phase: 4, lastModified: '2026-01-01T00:00:00.000Z' }
+          { path: '/path/to/specs-tree-parent/specs-tree-child', featureName: 'child', phase: 'builded', status: 'tracked', lastModified: '2026-01-01T00:00:00.000Z' }
         ]
-      };
+      });
 
       mockStateLoader.stateMap.set('/path/to/specs-tree-parent', parentState);
 
@@ -257,21 +316,12 @@ describe('TreeStateValidator', () => {
     });
 
     it('should detect missing children in parent state', async () => {
-      const parentState: StateV2_1_0 = {
+      mockedScanTreeStructure.mockResolvedValue(buildParentMockTree());
+
+      const parentState = makeV3State({
         feature: 'parent-feature',
-        version: 'v2.1.0',
-        status: 'building',
-        phase: 4,
-        phaseHistory: [{
-          phase: 1,
-          status: 'building',
-          timestamp: '2026-01-01T00:00:00.000Z',
-          triggeredBy: 'test-agent'
-        }],
-        files: { spec: 'spec.md' },
-        dependencies: { on: [], blocking: [] },
         childrens: []  // Missing child that actually exists in directory
-      };
+      });
 
       mockStateLoader.stateMap.set('/path/to/specs-tree-parent', parentState);
 
@@ -286,36 +336,16 @@ describe('TreeStateValidator', () => {
 
   describe('detectCircularDependencies', () => {
     it('should detect simple circular dependency', async () => {
-      // Two features depending on each other
-      const featureA: StateV2_1_0 = {
-        feature: 'feature-a',
-        version: 'v2.1.0',
-        status: 'building',
-        phase: 4,
-        phaseHistory: [{
-          phase: 1,
-          status: 'building',
-          timestamp: '2026-01-01T00:00:00.000Z',
-          triggeredBy: 'test-agent'
-        }],
-        files: { spec: 'spec.md' },
-        dependencies: { on: ['feature-b'], blocking: [] }
-      };
+      // Two features depending on each other — dep IDs must be substrings of state map keys.
+      const featureA = makeV3State({
+        feature: 'specs-tree-a',
+        dependencies: { on: ['specs-tree-b'], blocking: [] }
+      });
 
-      const featureB: StateV2_1_0 = {
-        feature: 'feature-b',
-        version: 'v2.1.0',
-        status: 'building',
-        phase: 4,
-        phaseHistory: [{
-          phase: 1,
-          status: 'building',
-          timestamp: '2026-01-01T00:00:00.000Z',
-          triggeredBy: 'test-agent'
-        }],
-        files: { spec: 'spec.md' },
-        dependencies: { on: ['feature-a'], blocking: [] }  // Circular dependency: B depends on A
-      };
+      const featureB = makeV3State({
+        feature: 'specs-tree-b',
+        dependencies: { on: ['specs-tree-a'], blocking: [] }  // Circular dependency: B depends on A
+      });
 
       mockStateLoader.stateMap.set('/path/to/specs-tree-a', featureA);
       mockStateLoader.stateMap.set('/path/to/specs-tree-b', featureB);
@@ -326,20 +356,10 @@ describe('TreeStateValidator', () => {
     });
 
     it('should return empty array when no circular dependencies exist', async () => {
-      const singleFeature: StateV2_1_0 = {
+      const singleFeature = makeV3State({
         feature: 'single-feature',
-        version: 'v2.1.0',
-        status: 'building',
-        phase: 4,
-        phaseHistory: [{
-          phase: 1,
-          status: 'building',
-          timestamp: '2026-01-01T00:00:00.000Z',
-          triggeredBy: 'test-agent'
-        }],
-        files: { spec: 'spec.md' },
         dependencies: { on: [], blocking: [] }
-      };
+      });
 
       mockStateLoader.stateMap.set('/path/to/specs-tree-single', singleFeature);
 

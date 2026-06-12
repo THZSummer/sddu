@@ -1,9 +1,9 @@
-import { FeatureStatus } from './schema-v1.2.5';
+import { Phase, FeatureStatus, PHASE_ORDER } from './schema-v3.0.0';
 
 export interface SubFeatureState {
   id: string;
+  phase: Phase;
   status: FeatureStatus;
-  phase: number;
   assignee?: string;
 }
 
@@ -14,22 +14,25 @@ export interface DependencyGraph {
 
 /**
  * 聚合子 Feature 状态计算 Feature 整体状态
- * 规则：Feature 状态 = 最慢子 Feature 的状态
+ * 规则：Feature 整体 phase = 最慢子 Feature 的 phase（PHASE_ORDER 最小）
+ *
+ * Returns the slowest phase among sub-features.
+ * If no sub-features exist, returns the default starting phase.
  */
-export function aggregateFeatureState(subFeatures: SubFeatureState[]): FeatureStatus {
-  if (subFeatures.length === 0) return 'specified';
-  
-  const statusOrder: FeatureStatus[] = [
-    'specified', 'planned', 'tasked', 'implementing', 'reviewed', 'validated', 'completed'
-  ];
-  
-  let slowestStatus = subFeatures[0].status;
+export function aggregateFeatureState(subFeatures: SubFeatureState[]): Phase {
+  if (subFeatures.length === 0) return 'registered';
+
+  let slowestPhase: Phase = subFeatures[0].phase;
+  let slowestOrder = PHASE_ORDER[slowestPhase] ?? 999;
+
   for (const sf of subFeatures) {
-    if (statusOrder.indexOf(sf.status) < statusOrder.indexOf(slowestStatus)) {
-      slowestStatus = sf.status;
+    const order = PHASE_ORDER[sf.phase] ?? 999;
+    if (order < slowestOrder) {
+      slowestOrder = order;
+      slowestPhase = sf.phase;
     }
   }
-  return slowestStatus;
+  return slowestPhase;
 }
 
 /**
@@ -91,7 +94,7 @@ export function detectCircularDependency(
 }
 
 /**
- * 检查子 Feature 是否其依赖已完成（至少是 planned 状态）
+ * 检查子 Feature 是否其依赖已完成（至少是 planned phase）
  */
 export function isDependencyReady(
   subFeatureId: string,
@@ -101,19 +104,21 @@ export function isDependencyReady(
   const deps = dependencyGraph.dependencies[subFeatureId] || [];
   if (deps.length === 0) return true;
   
-  // 检查所有依赖子 Feature 是否至少是 planned 状态
+  // 检查所有依赖子 Feature 是否至少是 planned phase
   return deps.every(depId => {
     const depState = subFeatureStates.get(depId);
-    return depState && isFeatureAtLeastPlanned(depState.status);
+    return depState && isFeatureAtLeastPlanned(depState.phase);
   });
 }
 
 /**
- * 辅助函数：检查功能状态是否至少为 planned
+ * 辅助函数：检查功能 phase 是否至少为 planned
+ * Uses PHASE_ORDER to determine if the feature has reached at least the 'planned' stage.
  */
-function isFeatureAtLeastPlanned(status: FeatureStatus): boolean {
-  const plannedOrLater = ['planned', 'tasked', 'implementing', 'reviewed', 'validated', 'completed'];
-  return plannedOrLater.includes(status);
+function isFeatureAtLeastPlanned(phase: Phase): boolean {
+  const plannedOrder = PHASE_ORDER['planned'];
+  const featureOrder = PHASE_ORDER[phase] ?? -1;
+  return featureOrder >= plannedOrder;
 }
 
 /**
@@ -155,7 +160,7 @@ function isCurrentlyBlocked(
   for (const blockerId of blockers) {
     const blockerState = subFeatureStates.get(blockerId);
     // 如果阻塞者还未到达规划状态，则认为是阻塞
-    if (blockerState && !isFeatureAtLeastPlanned(blockerState.status)) {
+    if (blockerState && !isFeatureAtLeastPlanned(blockerState.phase)) {
       return true;
     }
   }

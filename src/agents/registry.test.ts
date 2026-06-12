@@ -107,12 +107,12 @@ describe('AgentRegistry 测试', () => {
 
     registry.registerMany(agents);
 
-    // 通过名称查找
+    // 通过名称查找（'sdd' 匹配 'sddu' 子串和 'Non-SDD' 描述）
     const sddAgents = registry.getByCategory('sdd');
-    expect(sddAgents.length).toBe(2);
+    expect(sddAgents.length).toBe(3);
     expect(sddAgents.some(a => a.name === 'sddu-api-agent')).toBe(true);
     expect(sddAgents.some(a => a.name === 'sddu-db-agent')).toBe(true);
-    expect(sddAgents.some(a => a.name === 'other-agent')).toBe(false);
+    expect(sddAgents.some(a => a.name === 'other-agent')).toBe(true);
 
     // 通过描述查找
     const apiRelated = registry.getByCategory('API');

@@ -152,19 +152,19 @@ create_tree_test_scenario() {
 {
   "feature": "specs-tree-e2e-parent",
   "name": "E2E Test Parent Feature",
-  "version": "v2.1.0",
-  "status": "planned",
-  "phase": 2,
+  "version": "v3.0.0",
+  "phase": "planned",
+  "status": "tracked",
   "phaseHistory": [
     {
-      "phase": 1,
-      "status": "specified",
+      "phase": "specified",
+      "status": "tracked",
       "timestamp": "$(date -Iseconds)",
       "triggeredBy": "sddu-initial"
     },
     {
-      "phase": 2,
-      "status": "planned", 
+      "phase": "planned",
+      "status": "tracked",
       "timestamp": "$(date -Iseconds)",
       "triggeredBy": "sddu-creation"
     }
@@ -183,15 +183,15 @@ create_tree_test_scenario() {
     {
       "path": "${parent_dir}/${child_a_name}",
       "featureName": "specs-tree-e2e-child-a",
-      "status": "specified",
-      "phase": 1,
+      "phase": "specified",
+      "status": "tracked",
       "lastModified": "$(date -Iseconds)"
     },
     {
       "path": "${parent_dir}/${child_b_name}",
-      "featureName": "specs-tree-e2e-child-b", 
-      "status": "specified",
-      "phase": 1,
+      "featureName": "specs-tree-e2e-child-b",
+      "phase": "specified",
+      "status": "tracked",
       "lastModified": "$(date -Iseconds)"
     }
   ]
@@ -206,13 +206,13 @@ EOF
 {
   "feature": "specs-tree-e2e-child-a",
   "name": "E2E Test Child Feature A",
-  "version": "v2.1.0",
-  "status": "specified",
-  "phase": 1,
+  "version": "v3.0.0",
+  "phase": "specified",
+  "status": "tracked",
   "phaseHistory": [
     {
-      "phase": 1,
-      "status": "specified",
+      "phase": "specified",
+      "status": "tracked",
       "timestamp": "$(date -Iseconds)",
       "triggeredBy": "sddu-initial"
     }
@@ -238,13 +238,13 @@ EOF
 {
   "feature": "specs-tree-e2e-child-b",
   "name": "E2E Test Child Feature B",
-  "version": "v2.1.0",
-  "status": "specified",
-  "phase": 1,
+  "version": "v3.0.0",
+  "phase": "specified",
+  "status": "tracked",
   "phaseHistory": [
     {
-      "phase": 1,
-      "status": "specified",
+      "phase": "specified",
+      "status": "tracked",
       "timestamp": "$(date -Iseconds)",
       "triggeredBy": "sddu-initial"
     }
@@ -710,13 +710,13 @@ main() {
         print_color "${CYAN}     验证阶段结果${NC}"
         print_color "${CYAN}========================================${NC}"
         echo ""
-        validate_phase_result 0 "discovery.md"
-        validate_phase_result 1 "spec.md"
-        validate_phase_result 2 "plan.md" "decisions/*"
-        validate_phase_result 3 "tasks.md"
-        print_color "${YELLOW}⚠️ Phase 4 验证需要执行 @sddu 命令后才会生成文件，跳过验证${NC}"
-        validate_phase_result 5 "review.md" 
-        validate_phase_result 6 "validation.md"
+        validate_phase_result "discovered" "discovery.md"
+        validate_phase_result "specified" "spec.md"
+        validate_phase_result "planned" "plan.md" "decisions/*"
+        validate_phase_result "tasked" "tasks.md"
+        print_color "${YELLOW}⚠️ builded 阶段验证需要执行 @sddu 命令后才会生成文件，跳过验证${NC}"
+        validate_phase_result "reviewed" "review.md" 
+        validate_phase_result "validated" "validation.md"
         
         generate_report
     elif [ "$TREE_SCENARIO" = true ]; then
@@ -740,8 +740,8 @@ main() {
             print_color "${GREEN}✓ 所有状态文件都已创建${NC}"
             
             # Validate version, depth, and structure
-            if grep -q '"version": "v2.1.0"' "$parent_dir/state.json"; then
-                print_color "${GREEN}✓ 父级版本 'v2.1.0' 正确 - FR-073${NC}"
+            if grep -q '"version": "v3.0.0"' "$parent_dir/state.json"; then
+                print_color "${GREEN}✓ 父级版本 'v3.0.0' 正确 - FR-073${NC}"
             fi
             
             if grep -q '"depth": 0' "$parent_dir/state.json" && grep -q '"depth": 1' "$child_a_dir/state.json" && grep -q '"depth": 1' "$child_b_dir/state.json"; then

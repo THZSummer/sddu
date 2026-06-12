@@ -612,13 +612,13 @@ main() {
         print_color "${CYAN}     验证阶段结果${NC}"
         print_color "${CYAN}========================================${NC}"
         echo ""
-        validate_phase_result 0 "discovery.md"
-        validate_phase_result 1 "spec.md"
-        validate_phase_result 2 "plan.md" "decisions/*"
-        validate_phase_result 3 "tasks.md"
-        print_color "${YELLOW}⚠️ Phase 4 验证需要执行 @sddu 命令后才会生成文件，跳过验证${NC}"
-        validate_phase_result 5 "review.md" 
-        validate_phase_result 6 "validation.md"
+        validate_phase_result "discovered" "discovery.md"
+        validate_phase_result "specified" "spec.md"
+        validate_phase_result "planned" "plan.md" "decisions/*"
+        validate_phase_result "tasked" "tasks.md"
+        print_color "${YELLOW}⚠️ builded 阶段验证需要执行 @sddu 命令后才会生成文件，跳过验证${NC}"
+        validate_phase_result "reviewed" "review.md" 
+        validate_phase_result "validated" "validation.md"
         
         generate_report
     else

@@ -23,9 +23,9 @@ export function generateMainSpec(template: FeatureTemplate): string {
   const subFeaturesTable = template.subFeatures && template.subFeatures.length > 0 
     ? `## 子 Feature 索引
 
-| 子 Feature ID | 子 Feature 名称 | 目录路径 | 状态 | 负责人 | 阻塞依赖 |
-|---------------|-----------------|----------|------|--------|----------|
-${template.subFeatures.map(sf => `| ${sf.id} | ${sf.name} | sub-features/${sf.id} | tasked | ${sf.assignee || '-'} | ${sf.dependencies?.join(', ') || '-'} |`).join('\n')}
+| 子 Feature ID | 子 Feature 名称 | 目录路径 | 阶段 | 状态 | 负责人 | 阻塞依赖 |
+|---------------|-----------------|----------|------|------|--------|----------|
+${template.subFeatures.map(sf => `| ${sf.id} | ${sf.name} | sub-features/${sf.id} | registered | tracked | ${sf.assignee || '-'} | ${sf.dependencies?.join(', ') || '-'} |`).join('\n')}
 
 ---
 `
@@ -37,7 +37,8 @@ ${template.subFeatures.map(sf => `| ${sf.id} | ${sf.name} | sub-features/${sf.id
 |--------|-----|
 | **Feature ID** | ${template.featureId} |
 | **Feature 名称** | ${template.featureName} |
-| **状态** | specified |
+| **阶段** | specified |
+| **状态** | tracked |
 | **创建日期** | \${date} |
 | **最后更新** | \${date} |
 | **负责人** | \${assignee} |
@@ -111,9 +112,9 @@ ${subFeaturesTable}
 
 ### 状态流转映射
 
-子 Feature 的状态如何影响父 Feature 状态：
-- 当所有子 Feature 都达到 'completed' -> 父 Feature 状态变为 'completed'
-- 当任一子 Feature 处于 'validated' 或以上 -> 父 Feature 状态变为 'validated'
+子 Feature 的 Phase 如何影响父 Feature 状态：
+- 当所有子 Feature 都达到 phase='validated' -> 父 Feature phase 变为 'validated', status 变为 'completed'
+- 当任一子 Feature 处于 phase='reviewed' 或以上 -> 父 Feature phase 变为 'reviewed'
 - 以此类推...
 
 ---
@@ -125,7 +126,7 @@ Feature: ${template.featureName}
 ├─ Dependencies:
 │  ├─ sub-feature-1: planned
 │  └─ sub-feature-2: specified
-└─ Status: specified
+└─ Phase: specified, Status: tracked
 \`\`\`
 `;
 }
@@ -144,7 +145,8 @@ export function generateSubFeatureSpec(template: SubFeatureTemplate): string {
 |--------|-----|
 | **子 Feature ID** | ${template.id} |
 | **子 Feature 名称** | ${template.name} |
-| **状态** | specified |
+| **阶段** | registered |
+| **状态** | tracked |
 | **创建日期** | \${date} |
 | **最后更新** | \${date} |
 | **负责人** | ${template.assignee || ''} |
@@ -275,11 +277,11 @@ ${subFeaturesNav}
 
 ## 开发进度
 
-| 状态说明 | 子 Feature | 负责人 | 说明 |
-|----------|------------|--------|------|
-| 🔴 待开始  | [子Feature名称] | [负责人] | 描述说明 |
-| 🟡 进行中  | [子Feature名称] | [负责人] | 描述说明 |
-| 🟢 已完成  | [子Feature名称] | [负责人] | 描述说明 |
+| 状态说明 | 子 Feature | 阶段 | 负责人 | 说明 |
+|----------|------------|------|--------|------|
+| 🔴 待开始  | [子Feature名称] | registered | [负责人] | 描述说明 |
+| 🟡 进行中  | [子Feature名称] | specified | [负责人] | 描述说明 |
+| 🟢 已完成  | [子Feature名称] | validated | [负责人] | 描述说明 |
 
 ---
 ${new Date().toISOString().split('T')[0]}
@@ -326,10 +328,10 @@ ${template.description || '子 Feature 详细说明...'}
 
 ## 开发进度
 
-- [ ] 设计阶段
-- [ ] 实现阶段
-- [ ] 测试阶段
-- [ ] 验收阶段
+- [ ] 设计阶段 (phase: registered → discovered)
+- [ ] 规格阶段 (phase: specified)
+- [ ] 实现阶段 (phase: tasked → builded)
+- [ ] 验收阶段 (phase: reviewed → validated)
 
 ## 负责人
 

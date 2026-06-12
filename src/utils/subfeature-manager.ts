@@ -105,16 +105,15 @@ export async function createSubFeature(
   const readmeContent = `# ${name}\n\nSub Feature: ${subFeatureId}\n\n## Quick Navigation\n\n- 📋 [Spec](spec.md) - Requirements Specification\n- 🏗️ [Plan](plan.md) - Technical Planning\n- 📝 [Tasks](tasks.md) - Task Breakdown\n\n## Current Status\n- Status: [to-do]\n- Assignee: [Unassigned]\n`;
   await fs.writeFile(path.join(subFeatureDir, 'README.md'), readmeContent);
   
-  // Initialize this as a proper feature with state
+  // Initialize this as a proper feature with v3.0.0 state
   const initialFeatureState = {
     feature: subFeatureId,
     name: name,
-    version: 'v2.1.0',
-    status: 'specified',
-    phase: 1,
+    version: 'v3.0.0',
+    phase: 'registered',
+    status: 'tracked',
     phaseHistory: [{
-      phase: 1,
-      status: 'specified',
+      phase: 'registered',
       timestamp: new Date().toISOString(),
       triggeredBy: 'system',
       comment: 'Initial sub feature creation'
@@ -126,14 +125,15 @@ export async function createSubFeature(
       on: [],
       blocking: []
     },
+    depth: 0,
     metadata: {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     },
     history: [{
       timestamp: new Date().toISOString(),
-      from: 'drafting',
-      to: 'specified', 
+      from: 'registered',
+      to: 'registered', 
       triggeredBy: 'system',
       comment: 'Created as subfeature'
     }]

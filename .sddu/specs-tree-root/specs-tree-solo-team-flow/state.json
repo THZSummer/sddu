@@ -3,7 +3,21 @@
   "productFullName": "Expert Tree Design",
   "productTagline": "AI执行 × 人类看护",
   "featureId": "ETD-001",
-  "state": "discovered",
+  "state": "terminated",
+  "terminatedDate": "2026-06-12",
+  "migration": {
+    "status": "terminated-and-migrated",
+    "targetProject": "ETD (Expert Tree Design)",
+    "targetRepo": "独立仓库（待创建）",
+    "relationship": "SDDU 与 ETD 为两个独立项目，互不依赖",
+    "reason": "ETD 需求超出 SDDU 工作流范围，作为独立产品维护更合适",
+    "terminatedArtifacts": [
+      "specs-tree-solo-team-flow/discovery.md",
+      "specs-tree-solo-team-flow/specs-tree-expert-node-registry/",
+      "specs-tree-solo-team-flow/specs-tree-expert-workbench/",
+      "specs-tree-solo-team-flow/specs-tree-task-dispatcher/"
+    ]
+  },
   "createdDate": "2026-04-18",
   "priority": "P0",
   "isParent": true,

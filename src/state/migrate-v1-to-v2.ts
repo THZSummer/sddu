@@ -104,7 +104,7 @@ export function migrateFromV1_2_11(legacyState: LegacyStateV1_2_11): StateV2_0_0
  * @returns True if object appears to be legacy state
  */
 export function isLegacyState(obj: any): boolean {
-  return (
+  return Boolean(
     obj &&
     typeof obj === 'object' &&
     'featureId' in obj && // Legacy property (not 'feature')

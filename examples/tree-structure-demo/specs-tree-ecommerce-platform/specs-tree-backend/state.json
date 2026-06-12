@@ -1,23 +1,23 @@
 {
   "feature": "examples/tree-structure-demo/specs-tree-ecommerce-platform/specs-tree-backend",
   "name": "后端服务",
-  "version": "v2.1.0",
-  "status": "specified",
-  "phase": 1,
+  "version": "v3.0.0",
+  "status": "tracked",
+  "phase": "specified",
   "depth": 1,
   "childrens": [
     {
       "path": "specs-tree-api",
       "featureName": "API网关",
-      "status": "discovered",
-      "phase": 0,
+      "phase": "discovered",
+      "status": "tracked",
       "lastModified": "2026-04-15T12:00:00.000Z"
     },
     {
-      "path": "specs-tree-database", 
+      "path": "specs-tree-database",
       "featureName": "数据库",
-      "status": "discovered",
-      "phase": 0, 
+      "phase": "discovered",
+      "status": "tracked",
       "lastModified": "2026-04-15T12:00:00.000Z"
     }
   ],
@@ -32,16 +32,14 @@
   },
   "phaseHistory": [
     {
-      "phase": 0,
-      "status": "discovered", 
+      "phase": "discovered",
       "timestamp": "2026-04-15T12:00:00.000Z",
       "triggeredBy": "system"
     },
     {
-      "phase": 1,
-      "status": "specified",
+      "phase": "specified",
       "timestamp": "2026-04-15T12:30:00.000Z",
-      "triggeredBy": "system" 
+      "triggeredBy": "system"
     }
   ],
   "createdAt": "2026-04-15T12:00:00.000Z",

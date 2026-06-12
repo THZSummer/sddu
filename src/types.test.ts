@@ -4,11 +4,16 @@
  */
 
 import { 
-  // 从 state 模块导入
+  // 从 state 模块导入 (v3.0.0)
+  StateV3_0_0,
+  Phase,
+  FeatureStatus,
+  validateStateV3,
+  
+  // 从 state 模块导入 (v2.x — deprecated)
   WorkflowStatus, 
   PhaseHistory, 
   StateV2_0_0,
-  validateState,
   FeatureStateEnum,
   FeatureState,
   TransitionResult,
@@ -53,19 +58,19 @@ import {
 } from './types';
 
 describe('类型导出测试', () => {
-  test('验证 Workflow 相关类型的导出', () => {
-    // 直接创建一个类型测试，而非使用不存在的变量
-    const state: StateV2_0_0 = {
+  test('验证 v3.0.0 状态类型的导出', () => {
+    // v3.0.0 state format test
+    const state: StateV3_0_0 = {
       feature: 'test-feature',
-      version: '2.0.0',
-      status: 'specified',  // 这是一个 ts 中的类型定义字符串字面量，不是变量
-      phase: 1,
+      version: 'v3.0.0',
+      phase: 'discovered',
+      status: 'tracked',
       phaseHistory: [{
-        phase: 1,
-        status: 'specified',
+        phase: 'registered',
         timestamp: new Date().toISOString(),
         triggeredBy: 'test'
       }],
+      depth: 0,
       files: {
         spec: 'spec.md'
       },
@@ -75,23 +80,25 @@ describe('类型导出测试', () => {
       }
     };
     
-    expect(validateState(state)).toBe(true);
+    expect(validateStateV3(state)).toBe(true);
     expect(state.feature).toBe('test-feature');
   });
 
-  test('验证 FeatureStateEnum 和相关接口', () => {
-    // 确保类型定义存在
+  test('验证 FeatureStateEnum 和相关接口 (deprecated v2.x 兼容性保留)', () => {
+    // 测试 v2.x deprecated 枚举值是否仍然存在（向后兼容）
+    // 注意: FeatureStateEnum 已弃用，新代码应使用 Phase (8 values) 和 FeatureStatus (5 values) 类型
     const enums: FeatureStateEnum[] = [
       'drafting', 'discovered', 'specified', 'planned', 'tasked', 'implementing', 'reviewed', 'validated', 'completed'
     ];
     
     expect(enums.length).toBeGreaterThan(0);
     
-    // 测试 FeatureState 接口
+    // 测试 FeatureState 接口 (v3.0.0: uses phase + status)
     const featureState: FeatureState = {
       id: 'test-id',
       name: 'Test Name',
-      state: 'drafting',
+      phase: 'registered',
+      status: 'tracked',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };

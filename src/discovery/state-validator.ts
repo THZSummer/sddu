@@ -1,13 +1,16 @@
 /**
  * Discovery 状态验证器
- * 用于验证从 drafting 到 discovered 的状态流转
+ * 用于验证从 drafting/registered 到 discovered 的状态流转
+ *
+ * v3.0.0: Adapted to use Phase + FeatureStatus two-field model.
+ * Removed old FeatureStateEnum / mapWorkflowStatusToStateEnum mapping.
  */
 
 import { StateMachine } from '../state/machine';
 import * as fsPromises from 'fs/promises';
 import { existsSync } from 'fs';
 import * as path from 'path';
-import { FeatureState } from '../state/machine';
+import { Phase } from '../state/schema-v3.0.0';
 
 interface DiscoveryTransitionResult {
   canTransition: boolean;
@@ -20,7 +23,8 @@ export class DiscoveryStateValidator {
   constructor(private stateMachine: StateMachine) {}
 
   /**
-   * 检查是否可以从 drafting 转移到 discovered 状态
+   * 检查是否可以从当前阶段转移到 discovered 状态
+   * - Feature 必须处于注册后、discovery 前阶段 (registered 或上一阶段的 drafted)
    * - discovery.md 文件是否存在
    * - discovery.md 内容基本结构是否完整
    */
@@ -34,13 +38,14 @@ export class DiscoveryStateValidator {
       };
     }
 
-    // Check the status to determine if it's in 'drafting' equivalent
-    const currentStateEnum = this.mapWorkflowStatusToStateEnum(featureStateObj.status);
+    // v3.0.0: Check phase directly — only registered features can move to discovered
+    const currentPhase = featureStateObj.phase as Phase;
 
-    if (currentStateEnum !== 'drafting') {
+    // Allow transition from 'registered' phase only (v3.0.0)
+    if (currentPhase !== 'registered') {
       return {
         canTransition: false,
-        reason: '只有 drafting 状态可以转移到 discovered 状态',
+        reason: `只有 registered 状态可以转移到 discovered 状态，当前为 ${currentPhase}`,
         discoveryExists: false
       };
     }
@@ -87,19 +92,6 @@ export class DiscoveryStateValidator {
     }
   }
 
-  // 将 WorkflowStatus 映射到 FeatureStateEnum
-  private mapWorkflowStatusToStateEnum(status: string): 'drafting' | 'discovered' | 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated' | 'completed' {
-    switch(status) {
-      case 'specified': return 'specified';
-      case 'planned': return 'planned';
-      case 'tasked': return 'tasked';
-      case 'building': return 'implementing'; // building maps to implementing
-      case 'reviewed': return 'reviewed';
-      case 'validated': return 'validated';
-      default: return 'drafting'; // default to drafting
-    }
-  }
-
   /**
    * 检查是否可以从 discovered 转移到 specified 状态
    * 这是为了确保 discovery 阶段已经完成后再进行 spec 预写
@@ -114,8 +106,8 @@ export class DiscoveryStateValidator {
       };
     }
 
-    const currentStateEnum = this.mapWorkflowStatusToStateEnum(featureStateObj.status);
-    if (currentStateEnum !== 'discovered') {
+    const currentPhase = featureStateObj.phase as Phase;
+    if (currentPhase !== 'discovered') {
       return {
         canTransition: false,
         reason: '必须从 discovered 状态才能过渡到 specified',
@@ -160,10 +152,10 @@ export class DiscoveryStateValidator {
    */
   async checkSkippedDiscovery(featureId: string): Promise<boolean> {
     const featureStateObj = await this.stateMachine.getState(featureId);
-    const currentStateEnum = this.mapWorkflowStatusToStateEnum((featureStateObj as any).status || '');
+    const currentPhase = (featureStateObj as any)?.phase || '';
 
-    if (!featureStateObj || currentStateEnum !== 'drafting') {
-      return false; // 不在 drafting 状态，不能检查跳过情况
+    if (!featureStateObj || (currentPhase !== 'registered')) {
+      return false; // 不在 registered 状态，不能检查跳过情况
     }
 
     // 检查 discovery.md 是否存在
@@ -174,7 +166,7 @@ export class DiscoveryStateValidator {
       // 如果 discovery.md 存在，则说明没有跳过
       return false;
     } catch (error) {
-      // 如果 discovery.md 不存在，说明直接从 drafting 到 specified 跳过了 discovery
+      // 如果 discovery.md 不存在，说明直接从 registered 到 specified 跳过了 discovery
       return true;
     }
   }
