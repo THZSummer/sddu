@@ -225,60 +225,59 @@ create_prompt_file() {
 > **阶段说明**: SDDU v3.0.0 使用 8 个阶段名（registered → discovered → specified → planned → tasked → builded → reviewed → validated），每个 Agent 完成后自动推进阶段。
 
 ### 第一步: 创建 Feature（注册）
-```
-@sddu 开始 ${PROJECT_NAME}
-```
-- 在当前项目下创建 Feature，阶段初始为 `registered`
+
+    @sddu 开始 ${PROJECT_NAME}
+
+- 在当前项目下创建 Feature，阶段初始为 \`registered\`
 - 完成后自动进入下一阶段
 
 ### 第二步: 需求挖掘
-```
-@sddu-discovery ${PROJECT_NAME}
-```
+
+    @sddu-discovery ${PROJECT_NAME}
+
 - 分析需求，识别核心功能，生成 discovery.md
-- 阶段推进至 `discovered`
+- 阶段推进至 \`discovered\`
 
 ### 第三步: 规范编写
-```
-@sddu-spec ${PROJECT_NAME}
-```
+
+    @sddu-spec ${PROJECT_NAME}
+
 - 定义 API 接口、数据结构、验收标准
-- 阶段推进至 `specified`
+- 阶段推进至 \`specified\`
 
 ### 第四步: 技术规划
-```
-@sddu-plan ${PROJECT_NAME}
-```
+
+    @sddu-plan ${PROJECT_NAME}
+
 - 设计架构（符合技术栈要求）、划分模块、生成技术方案
-- 阶段推进至 `planned`
+- 阶段推进至 \`planned\`
 
 ### 第五步: 任务分解
-```
-@sddu-tasks ${PROJECT_NAME}
-```
+
+    @sddu-tasks ${PROJECT_NAME}
+
 - 拆分任务、定义依赖关系
-- 阶段推进至 `tasked`
+- 阶段推进至 \`tasked\`
 
 ### 第六步: 代码实现
-```
-@sddu-build ${PROJECT_NAME}
-```
+
+    @sddu-build ${PROJECT_NAME}
+
 - 按任务实现代码、编写测试
-- 阶段推进至 `builded`
+- 阶段推进至 \`builded\`
 
 ### 第七步: 代码审查
-```
-@sddu-review ${PROJECT_NAME}
-```
+
+    @sddu-review ${PROJECT_NAME}
+
 - 代码质量检查、技术栈合规检查、发现问题自动修复
-- 阶段推进至 `reviewed`
+- 阶段推进至 \`reviewed\`
 
 ### 第八步: 验证确认
-```
-@sddu-validate ${PROJECT_NAME}
-```
+
+    @sddu-validate ${PROJECT_NAME}
 - 运行功能测试、验证启动流程、生成验证报告
-- 阶段推进至 `validated`，状态自动设为 `completed`
+- 阶段推进至 \`validated\`，状态自动设为 \`completed\`
 
 ---
 
