@@ -23,6 +23,58 @@
 
 ---
 
+## 全流程
+
+```
+                        SDDU 项目                              测试项目
+                   ┌──────────────┐                     ┌──────────────────────┐
+                   │              │                     │  ~/sddu-e2e-tests/    │
+                   │  ① 运行脚本  │                     │  sddu-test-{name}/    │
+                   │  ──────────→ │ ② 创建隔离目录      │  ├── .sddu/           │
+                   │              │ ──────────────────→ │  ├── .opencode/       │
+                   │  ③ 构建插件  │                     │  ├── opencode.json    │
+                   │              │                     │  └── prompts/         │
+                   │  ④ 安装到    │                     │      complete.prompt  │
+                   │     测试项目  │ ──────────────────→ │                      │
+                   │              │                     │                      │
+                   └──────────────┘                     └──────────┬───────────┘
+                                                                  │
+                                                 ⑤ 用户在测试项目内启动 opencode
+                                                 ⑥ SDDU Agent 读取提示词自动调度
+                                                                  │
+                                          ┌───────────────────────┘
+                                          ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                  ⑦ SDDU 7 阶段全流程自动执行                                  │
+│                                                                             │
+│  @sddu               @sddu      @sddu     @sddu     @sddu  @sddu   @sddu   │
+│  -discovery ──→ spec ──→ plan ──→ tasks ──→ build ──→ review ──→ validate  │
+│                                                                             │
+│  discovery.md  spec.md  plan.md   tasks.md  src/      review   validation   │
+│  state.json                                    tests/   .md      -report.md │
+│                                                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                  ⑧ 验收                                                      │
+│                                                                             │
+│  ✅ 全部 7 阶段完成    ✅ 代码可编译    ✅ 测试通过    ✅ 验收报告生成          │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 步骤说明
+
+| # | 角色 | 动作 |
+|---|------|------|
+| ① | 开发者 | 在 SDDU 项目根目录运行 `bash scripts/e2e/basic/sddu-e2e.sh "project-name" --auto --report` |
+| ② | 脚本 | 在 `$SDDU_TEST_DIR` 下创建独立测试项目目录 |
+| ③ | 脚本 | 调用 `install.sh` 构建最新 SDDU 插件 |
+| ④ | 脚本 | 将插件安装到测试项目的 `.opencode/plugins/`，生成 `opencode.json` |
+| ⑤ | 测试者 | 在测试项目中启动 opencode |
+| ⑥ | Agent | 读取 `prompts/complete.prompt.md`，理解业务需求 |
+| ⑦ | Agent | 自动调度全部 7 个 SDDU Agent，完整走完 discovery → validate |
+| ⑧ | 开发者 | 查阅验收报告，确认 SDDU 代码无回归 |
+
+---
+
 ## 目录结构
 
 ```
