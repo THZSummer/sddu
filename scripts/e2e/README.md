@@ -29,13 +29,13 @@
                         SDDU 项目                              测试项目
                    ┌──────────────┐                     ┌──────────────────────┐
                    │              │                     │  ~/sddu-e2e-tests/    │
-                   │  ① 运行脚本  │                     │  sddu-test-{name}/    │
-                   │  ──────────→ │ ② 创建隔离目录      │  ├── .sddu/           │
-                   │              │ ──────────────────→ │  ├── .opencode/       │
-                   │  ③ 构建插件  │                     │  ├── opencode.json    │
-                   │              │                     │  └── prompts/         │
-                   │  ④ 安装到    │                     │      complete.prompt  │
-                   │     测试项目  │ ──────────────────→ │                      │
+                    │  ① 运行脚本  │                     │  sddu-test-{name}/    │
+                    │  ──────────→ │ ② 创建隔离目录      │  ├── .sddu/           │
+                    │              │ ──────────────────→ │  ├── .opencode/       │
+                    │  ③ 构建插件  │                     │  ├── opencode.json    │
+                    │              │                     │  └── sddu-test-prompt │
+                    │  ④ 安装到    │                     │      .md              │
+                    │     测试项目  │ ──────────────────→ │                      │
                    │              │                     │                      │
                    └──────────────┘                     └──────────┬───────────┘
                                                                   │
@@ -69,7 +69,7 @@
 | ③ | 脚本 | 调用 `install.sh` 构建最新 SDDU 插件 |
 | ④ | 脚本 | 将插件安装到测试项目的 `.opencode/plugins/`，生成 `opencode.json` |
 | ⑤ | 测试者 | 在测试项目中启动 opencode |
-| ⑥ | Agent | 读取 `prompts/complete.prompt.md`，理解业务需求 |
+| ⑥ | Agent | 读取测试项目根目录下的 `sddu-test-prompt.md`，理解业务需求 |
 | ⑦ | Agent | 自动调度全部 7 个 SDDU Agent，完整走完 discovery → validate |
 | ⑧ | 开发者 | 查阅验收报告，确认 SDDU 代码无回归 |
 
