@@ -5,7 +5,7 @@
 #
 # 使用方式:
 #   bash sddu-e2e-fullstack.sh "项目名称"              # 生成前后端项目
-#   bash sddu-e2e-fullstack.sh "项目名" --auto        # 自动执行全流程
+#   bash sddu-e2e-fullstack.sh "项目名" --auto        # 跳过确认提示（非自动执行工作流）
 #   bash sddu-e2e-fullstack.sh "项目名" --report      # 生成详细测试报告
 #
 # 技术栈:
@@ -240,8 +240,8 @@ create_prompt_file() {
 - ✅ **语言**: Java 21
 - ✅ **框架**: SpringBoot 3.4.6 (Spring 6.2.12)
 - ✅ **ORM**: MyBatis (mybatis-spring-boot-starter 3.0.4)
-- ✅ **数据库**: MySQL 5.7
-- ✅ **缓存**: Redis 6.0
+- ✅ **数据库**: H2 (内存模式，测试用)
+- ✅ **缓存**: 内存缓存 (ConcurrentHashMap)
 - ✅ **构建工具**: Maven
 - ✅ **API 风格**: RESTful API
 - ✅ **容器化**: Docker + Dockerfile
@@ -288,75 +288,67 @@ ${PROJECT_NAME}/
 
 ---
 
-## 执行流程（自动执行，无需确认）
+## 执行流程
 
-### Phase 0: 需求挖掘（自动执行）
-\`\`\`
+> **阶段说明**: SDDU v3.0.0 使用 8 个阶段名（registered → discovered → specified → planned → tasked → builded → reviewed → validated），每个 Agent 完成后自动推进阶段。
+
+### 第一步: 创建 Feature（注册）
+```
+@sddu 开始 ${PROJECT_NAME}
+```
+- 在当前项目下创建 Feature，阶段初始为 `registered`
+
+### 第二步: 需求挖掘
+```
 @sddu-discovery ${PROJECT_NAME}
-\`\`\`
-- 自动分析需求
-- 自动识别核心功能  
-- 自动生成需求文档（包含前后端功能划分）
-- 完成后立即进入 Phase 1
+```
+- 分析需求，识别核心功能（包含前后端功能划分），生成 discovery.md
+- 阶段推进至 `discovered`
 
-### Phase 1: 规范编写（自动执行）
-\`\`\`
+### 第三步: 规范编写
+```
 @sddu-spec ${PROJECT_NAME}
-\`\`\`
-- 自动定义 RESTful API 接口
-- 自动设计数据库表结构（JPA Entity）
-- 自动定义前端组件结构
-- 自动设定验收标准
-- 完成后立即进入 Phase 2
+```
+- 定义 RESTful API 接口、设计数据库表结构（JPA Entity）、定义前端组件结构
+- 阶段推进至 `specified`
 
-### Phase 2: 技术规划（自动执行）
-\`\`\`
+### 第四步: 技术规划
+```
 @sddu-plan ${PROJECT_NAME}
-\`\`\`
-- 自动设计前后端分离架构
-- 自动划分后端模块（Controller/Service/Repository）
-- 自动划分前端模块（Components/Hooks/Services）
-- 自动生成技术方案文档
-- 完成后立即进入 Phase 3
+```
+- 设计前后端分离架构，划分后端模块（Controller/Service/Repository）和前端模块（Components/Hooks/Services）
+- 阶段推进至 `planned`
 
-### Phase 3: 任务分解（自动执行）
-\`\`\`
+### 第五步: 任务分解
+```
 @sddu-tasks ${PROJECT_NAME}
-\`\`\`
-- 自动拆分后端任务
-- 自动拆分前端任务
-- 自动定义任务依赖关系
-- 完成后立即进入 Phase 4
+```
+- 拆分后端和前端任务，定义任务依赖关系
+- 阶段推进至 `tasked`
 
-### Phase 4: 代码实现（自动执行）
-\`\`\`
+### 第六步: 代码实现
+```
 @sddu-build ${PROJECT_NAME}
-\`\`\`
-- 自动实现后端 API（SpringBoot）
-- 自动实现前端页面（React）
-- 自动编写单元测试（JUnit + React Testing Library）
-- 自动配置 Docker 和 Docker Compose
-- 完成后立即进入 Phase 5
+```
+- 实现后端 API（SpringBoot）、前端页面（React）
+- 编写单元测试（JUnit + React Testing Library）
+- 配置 Docker 和 Docker Compose
+- 阶段推进至 `builded`
 
-### Phase 5: 代码审查（自动执行）
-\`\`\`
+### 第七步: 代码审查
+```
 @sddu-review ${PROJECT_NAME}
-\`\`\`
-- 自动代码质量检查
-- 自动技术栈合规检查
-- 自动 Docker 配置检查
-- 发现问题自动修复
-- 完成后立即进入 Phase 6
+```
+- 代码质量检查、技术栈合规检查、Docker 配置检查
+- 阶段推进至 `reviewed`
 
-### Phase 6: 验证确认（自动执行）
-\`\`\`
+### 第八步: 验证确认
+```
 @sddu-validate ${PROJECT_NAME}
-\`\`\`
-- 自动运行后端测试（mvn test）
-- 自动运行前端测试（npm test）
-- 自动构建 Docker 镜像
-- 自动启动 Docker Compose 验证
-- 自动生成验证报告
+```
+- 运行后端测试（mvn test）、前端测试（npm test）
+- 构建 Docker 镜像，启动 Docker Compose 验证，生成验证报告
+- 阶段推进至 `validated`，状态自动设为 `completed`
 
 ---
 
@@ -366,8 +358,8 @@ ${PROJECT_NAME}/
 - [ ] SpringBoot 3.x 项目结构正确
 - [ ] Maven 构建成功（mvn clean package）
 - [ ] RESTful API 可访问
-- [ ] MySQL 5.7 数据库连接配置正确
-- [ ] Redis 6.0 缓存连接配置正确
+- [ ] H2 数据库连接配置正确
+- [ ] 内存缓存配置正确
 - [ ] 单元测试通过率 >= 80%
 - [ ] Docker 镜像构建成功
 
@@ -580,7 +572,7 @@ complete_test() {
     print_color "   ${CYAN}cat sddu-test-prompt.md${NC}  # 查看完整提示词"
     print_color "   ${CYAN}@sddu ${PROJECT_NAME}${NC}  # 一键执行全流程"
     echo ""
-    print_color "💡 提示：提示词文件已包含前后端分离架构的完整 6 阶段流程！"
+    print_color "💡 提示：提示词文件已包含前后端分离架构的 8 阶段完整流程（registered → validated）！"
     print_color "   后端：SpringBoot 3.x + H2 + Docker"
     print_color "   前端：React 18 + TypeScript + Vite + Docker"
 }
