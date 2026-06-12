@@ -179,7 +179,7 @@ export class StateMachine {
 
   async load(featurePath?: string) {
     if (featurePath) {
-      return await this.stateLoader.get(featurePath) as any;
+      return await this.stateLoader.get(featurePath);
     }
     return null;
   }
@@ -217,14 +217,14 @@ export class StateMachine {
       },
     };
 
-    // Save via StateLoader — TASK-005 will migrate StateLoader to v3.0.0
-    const success = await (this.stateLoader as any).create(featurePath, initialState);
+    // Save via StateLoader
+    const success = await this.stateLoader.create(featurePath, initialState);
     if (!success) {
       throw new Error('Failed to create distributed state for feature: ' + id);
     }
 
     // Get the fully hydrated state after creation
-    const finalState = await (this.stateLoader as any).get(featurePath) as StateV3_0_0;
+    const finalState = await this.stateLoader.get(featurePath) as StateV3_0_0;
     if (!finalState) {
       throw new Error('Created feature state could not be loaded immediately after creation: ' + id);
     }
@@ -241,14 +241,14 @@ export class StateMachine {
    * 获取 Feature 当前状态
    */
   async getState(featurePath: string): Promise<FeatureWithFullHistory | undefined> {
-    const state = await (this.stateLoader as any).get(featurePath) as StateV3_0_0;
+    const state = await this.stateLoader.get(featurePath) as StateV3_0_0;
     if (!state) return undefined;
 
     return {
       ...state,
       id: state.feature,
       name: state.name || state.feature,
-      tasks: [] as any[],
+      tasks: [] as string[],
     };
   }
 
@@ -256,7 +256,7 @@ export class StateMachine {
    * 获取所有 Feature
    */
   async getAllFeatures(): Promise<FeatureWithFullHistory[]> {
-    const allStates = await (this.stateLoader as any).loadAll() as Map<string, StateV3_0_0>;
+    const allStates = await this.stateLoader.loadAll();
     const features: FeatureWithFullHistory[] = [];
 
     // Use Array.from to avoid downlevelIteration issues
@@ -265,7 +265,7 @@ export class StateMachine {
         ...state,
         id: state.feature,
         name: state.name || state.feature,
-        tasks: [] as any[],
+        tasks: [] as string[],
       });
     }
 
@@ -276,7 +276,7 @@ export class StateMachine {
    * 判断是否为父特性（有子特性）
    */
   async isParentFeature(featurePath: string): Promise<boolean> {
-    const state = await (this.stateLoader as any).get(featurePath) as StateV3_0_0 | null;
+    const state = await this.stateLoader.get(featurePath);
 
     if (state && state.childrens && Array.isArray(state.childrens) && state.childrens.length > 0) {
       return true;
@@ -284,7 +284,7 @@ export class StateMachine {
 
     // Fallback: check tree structure
     try {
-      const treeStructure = await (this.stateLoader as any).getTreeStructure();
+      const treeStructure = await this.stateLoader.getTreeStructure();
       const node = treeStructure.flatMap.get(featurePath);
       if (node) {
         return node.children.length > 0;
@@ -523,7 +523,7 @@ export class StateMachine {
 
       // Dependency check
       if (this.dependencyChecker) {
-        const depCheck = await (this.dependencyChecker as any).checkDependenciesForStateChange(
+        const depCheck = await this.dependencyChecker.checkDependenciesForStateChange(
           featurePath,
           targetPhase,
         );
@@ -609,8 +609,8 @@ export class StateMachine {
       throw new Error(`New state for ${featurePath} failed validation against v3.0.0 schema`);
     }
 
-    // Save via StateLoader (TASK-005 will align the interface)
-    const success = await (this.stateLoader as any).set(featurePath, updatedState);
+    // Save via StateLoader
+    const success = await this.stateLoader.set(featurePath, updatedState);
     if (!success) {
       throw new Error(`Failed to save state to ${featurePath}`);
     }

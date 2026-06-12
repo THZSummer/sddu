@@ -16,10 +16,13 @@ export {
   IRREVERSIBLE_STATUSES,
   phaseFlow,
   validateStateV3,
+  validateStateV3Detailed,
   shouldRecommendContinue,
   getNextRecommendedPhase,
   isStatusReversible,
 } from './schema-v3.0.0';
+
+export type { ValidationResult } from './schema-v3.0.0';
 
 // v2.x (legacy — retained for reference and migration; not used in active flows)
 /** @deprecated Use `StateV3_0_0` instead. This schema is retained for migration reference only. */

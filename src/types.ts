@@ -23,6 +23,7 @@ export {
   IRREVERSIBLE_STATUSES,
   phaseFlow,
   validateStateV3,
+  validateStateV3Detailed,
   shouldRecommendContinue,
   getNextRecommendedPhase,
   isStatusReversible,

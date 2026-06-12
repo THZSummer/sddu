@@ -164,13 +164,14 @@ export const SDDUPlugin = async ({ project, client, $, directory, worktree }) =>
         description: 'Advance the SDDU phase of a feature (e.g. specified→planned→tasked→builded).',
         args: {
           feature: tool.schema.string().describe('Feature path (e.g. specs-tree-myfeature)'),
-          status: tool.schema.string().describe('Target phase: discovered, specified, planned, tasked, builded, reviewed, validated'),
+          phase: tool.schema.string().optional().describe('Target phase (v3.0.0): discovered, specified, planned, tasked, builded, reviewed, validated'),
+          status: tool.schema.string().optional().describe('(deprecated) Use "phase" instead. Same values.'),
           comment: tool.schema.string().optional(),
           data: tool.schema.object({}).passthrough().optional(),
         },
         async execute(args, context) {
-          const { feature, status: rawStatus, comment, data } = args;
-          const inputStatus = rawStatus.toLowerCase().trim();
+          const { feature, phase, status: rawStatus, comment, data } = args;
+          const inputStatus = (phase || rawStatus || '').toLowerCase().trim();
           const targetPhase = legacyStatusToPhase[inputStatus];
 
           if (!targetPhase) {

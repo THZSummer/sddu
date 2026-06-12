@@ -235,6 +235,78 @@ export function validateStateV3(state: unknown): state is StateV3_0_0 {
   return true;
 }
 
+/**
+ * Validation result with structured error details.
+ */
+export interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+/**
+ * Validate a state object against the v3.0.0 schema with structured error reporting.
+ * Unlike `validateStateV3()` (boolean only), this returns a detailed result
+ * listing every validation failure, making it useful for user-facing error messages.
+ */
+export function validateStateV3Detailed(state: unknown): ValidationResult {
+  const errors: string[] = [];
+
+  if (!state || typeof state !== 'object') {
+    return { valid: false, errors: ['state is not an object'] };
+  }
+
+  const s = state as Record<string, unknown>;
+
+  // Identity checks
+  if (s.version !== 'v3.0.0') {
+    errors.push(`version must be 'v3.0.0', got '${String(s.version)}'`);
+  }
+  if (typeof s.feature !== 'string' || !s.feature) {
+    errors.push('feature is required and must be a non-empty string');
+  }
+
+  // Phase validation
+  if (!VALID_PHASES.includes(s.phase as Phase)) {
+    errors.push(`phase must be one of [${VALID_PHASES.join(', ')}], got '${String(s.phase)}'`);
+  }
+
+  // Status validation
+  if (!VALID_STATUSES.includes(s.status as FeatureStatus)) {
+    errors.push(`status must be one of [${VALID_STATUSES.join(', ')}], got '${String(s.status)}'`);
+  }
+
+  // Combined constraints
+  if (s.status === 'completed' && s.phase !== 'validated') {
+    errors.push(`status='completed' is only valid when phase='validated' (current phase='${String(s.phase)}')`);
+  }
+  if (s.status === 'merged') {
+    const merged = s.merged as MergedInfo | undefined;
+    if (!merged || typeof merged.mergedInto !== 'string' || !merged.mergedInto) {
+      errors.push("status='merged' requires merged.mergedInto field");
+    }
+  }
+
+  // Structural validations
+  if (typeof s.depth !== 'number' || s.depth < 0) {
+    errors.push(`depth must be a non-negative number, got '${String(s.depth)}'`);
+  }
+  if (!Array.isArray(s.phaseHistory)) {
+    errors.push('phaseHistory must be an array');
+  }
+
+  const files = s.files as Record<string, unknown> | undefined;
+  if (!files || typeof files !== 'object' || typeof files.spec !== 'string') {
+    errors.push('files.spec is required and must be a string');
+  }
+
+  const deps = s.dependencies as Record<string, unknown> | undefined;
+  if (!deps || typeof deps !== 'object' || !Array.isArray(deps.on) || !Array.isArray(deps.blocking)) {
+    errors.push('dependencies.on and dependencies.blocking must be arrays');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 // ============================================================================
 // Derivation functions
 // ============================================================================
