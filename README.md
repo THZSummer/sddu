@@ -90,27 +90,25 @@ opencode-sddu-plugin/
 
 ### 一行安装（无需克隆仓库）
 
+> 需要: git, node, npm。脚本会自动拉取最新 SDDU 源码、构建并安装，完成后清理临时文件。
+
 **Linux/macOS:**
 ```bash
+# 直连
 curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project
+
+# 或通过镜像
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --proxy https://gh-proxy.com/
 ```
 
 **Windows (PowerShell):**
 ```powershell
+# 直连
 powershell -c "iwr https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project"
+
+# 或通过镜像
+powershell -c "iwr https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.com/"
 ```
-
-> 需要: git, node, npm。脚本会自动拉取最新 SDDU 源码、构建并安装，完成后清理临时文件。
-
-> **国内用户**: 如 GitHub 访问受限，添加 `--proxy` 参数走镜像：
-> ```bash
-> # Linux/macOS
-> curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --proxy https://gh-proxy.com/
-> ```
-> ```powershell
-> # Windows
-> powershell -c "iwr https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.com/"
-> ```
 
 ### 本地安装（已克隆仓库）
 
