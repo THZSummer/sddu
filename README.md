@@ -102,6 +102,11 @@ powershell -c "iwr https://raw.githubusercontent.com/THZSummer/sddu/main/bootstr
 
 > 需要: git, node, npm。脚本会自动拉取最新 SDDU 源码、构建并安装，完成后清理临时文件。
 
+> **国内用户**: 如 GitHub 访问受限，可通过镜像安装：
+> ```bash
+> curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | GH_PROXY=https://gh-proxy.com/ bash -s -- ./my-project
+> ```
+
 ### 本地安装（已克隆仓库）
 
 **Linux/macOS:**
