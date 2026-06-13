@@ -6,6 +6,9 @@
 # 用法:
 #   curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project
 #
+#   # 国内用户（通过镜像）:
+#   curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | GH_PROXY=https://gh-proxy.com/ bash -s -- ./my-project
+#
 #   或者先下载再执行:
 #   wget https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh
 #   bash bootstrap.sh ./my-project
@@ -23,6 +26,13 @@ NC='\033[0m'
 
 TARGET_DIR="${1:-.}"
 REPO_URL="https://github.com/THZSummer/sddu.git"
+
+# 支持 GitHub 镜像（国内用户设置环境变量 GH_PROXY 即可）
+# 例: curl ... | GH_PROXY=https://gh-proxy.com/ bash -s -- ./my-project
+if [ -n "$GH_PROXY" ]; then
+    REPO_URL="${GH_PROXY%/}/${REPO_URL}"
+    echo -e "🔗 使用镜像: ${GH_PROXY}"
+fi
 
 echo ""
 echo -e "${CYAN}╔══════════════════════════════════════════╗${NC}"

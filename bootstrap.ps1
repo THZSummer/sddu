@@ -21,6 +21,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 $RepoUrl = "https://github.com/THZSummer/sddu.git"
+# 支持 GitHub 镜像
+if ($env:GH_PROXY) {
+    $RepoUrl = "$($env:GH_PROXY.TrimEnd('/'))/$RepoUrl"
+    Write-Host "🔗 使用镜像: $env:GH_PROXY" -ForegroundColor Cyan
+}
 
 Write-Host ""
 Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Cyan
