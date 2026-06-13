@@ -104,7 +104,12 @@ powershell -c "iwr https://raw.githubusercontent.com/THZSummer/sddu/main/bootstr
 
 > **国内用户**: 如 GitHub 访问受限，添加 `--proxy` 参数走镜像：
 > ```bash
+> # Linux/macOS
 > curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --proxy https://gh-proxy.com/
+> ```
+> ```powershell
+> # Windows
+> powershell -c "iwr https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.com/"
 > ```
 
 ### 本地安装（已克隆仓库）
