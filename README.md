@@ -252,41 +252,30 @@ graph LR
 
 ```mermaid
 flowchart TD
-    subgraph SDDU[🎯 SDDU 完整规划体系]
-        direction TB
-
-        Strategic[📊 战略层 - 横向规划]
-        Tactical[📋 战术层 - 纵向开发]
-        Execution[🔨 执行层 - 实现验证]
-
-        Strategic --> Tactical
-        Tactical --> Execution
-
-        subgraph StrategicLayer[ ]
-            SR1["@sddu-roadmap\n📋 多版本路线图"]
-        end
-
-        subgraph TacticalLayer[ ]
-            TL1["@sddu-discovery\n🔍 需求挖掘 (1/8)"]
-            TL2["@sddu-spec\n📝 规范编写 (2/8)"]
-            TL3["@sddu-plan\n🛠️ 技术规划 (3/8)"]
-            TL4["@sddu-tasks\n📌 任务分解 (4/8)"]
-        end
-
-        subgraph ExecutionLayer[ ]
-            EL1["@sddu-build\n💻 任务实现 (5/8)"]
-            EL2["@sddu-review\n👁️ 代码审查 (6/8)"]
-            EL3["@sddu-validate\n✅ 功能验证 (7/8)"]
-        end
-
-        SR1 --> TL1
-        TL1 --> TL2 --> TL3 --> TL4
-        TL4 --> EL1 --> EL2 --> EL3
-
-        style Strategic fill:#e1f5ff
-        style Tactical fill:#fff4e1
-        style Execution fill:#e8f5e9
+    subgraph StrategicLayer[战略层 - 横向规划]
+        SR1["@sddu-roadmap\n📋 多版本路线图"]
     end
+
+    subgraph TacticalLayer[战术层 - 纵向开发]
+        TL1["@sddu-discovery\n🔍 需求挖掘 (1/8)"]
+        TL2["@sddu-spec\n📝 规范编写 (2/8)"]
+        TL3["@sddu-plan\n🛠️ 技术规划 (3/8)"]
+        TL4["@sddu-tasks\n📌 任务分解 (4/8)"]
+    end
+
+    subgraph ExecutionLayer[执行层 - 实现验证]
+        EL1["@sddu-build\n💻 任务实现 (5/8)"]
+        EL2["@sddu-review\n👁️ 代码审查 (6/8)"]
+        EL3["@sddu-validate\n✅ 功能验证 (7/8)"]
+    end
+
+    SR1 --> TL1
+    TL1 --> TL2 --> TL3 --> TL4
+    TL4 --> EL1 --> EL2 --> EL3
+
+    style StrategicLayer fill:#e1f5ff,stroke:#333
+    style TacticalLayer fill:#fff4e1,stroke:#333
+    style ExecutionLayer fill:#e8f5e9,stroke:#333
 ```
 
 #### 📋 Agent 对比表
