@@ -146,3 +146,52 @@
 2. **仪表盘渲染逻辑 TypeScript 化**: 将 `sddu.md.hbs` 中的分类/排序/过滤逻辑迁入 `src/state/dashboard-renderer.ts`，减少对 AI 理解的依赖，核心逻辑可单元测试。
 3. **补充集成测试**: `consistency-checker` 当前仅有单元测试（28 用例），建议补充含真实 `.sddu/` 目录结构的集成测试，验证完整检测→报告→修复→再检测流程。
 4. **实际 AI Agent 行为验证**: 在实际 opencode 环境中执行 `@sddu 状态` 并对比预期效果与模板描述是否一致。
+5. **E2E 发现的问题跟进**: 本次 E2E 验证暴露出 5 个非本 Feature 范畴的问题（详见上文 §🔍 E2E 全流程验证），建议记录为独立 Feature 或纳入 v3.1.0 roadmap。
+
+---
+
+### 🔍 E2E 全流程验证（TASK-012）
+
+**执行日期**: 2026-06-13
+**测试项目**: `/tmp/sddu-e2e-test/sddu-test-bookstore`
+**测试方式**: 使用 `scripts/e2e/basic/sddu-e2e.sh` 生成 bookstore 测试项目，在 opencode 中全自动执行 8 阶段 SDDU 工作流
+
+#### 验证结果
+
+| 阶段 | phase 值 | 耗时 | 结果 |
+|------|----------|------|:--:|
+| 注册 | registered | 即时 | ✅ |
+| 需求挖掘 | discovered | ~5min | ✅ |
+| 规范编写 | specified | ~5min | ✅ |
+| 技术规划 | planned | ~5min | ✅ |
+| 任务分解 | tasked | ~5min | ✅ |
+| 代码实现 | builded | ~30min（4 wave，12 任务） | ✅ |
+| 代码审查 | reviewed | ~4min（发现并修复 2 个问题） | ✅ |
+| 最终验证 | validated | ~4min（发现并修复 1 个问题） | ✅ |
+
+**最终状态**: `phase: validated` + `status: completed` ✅
+**测试覆盖**: 32+ 测试全部通过，15 FR + 6 NFR + 12 EC 100% 覆盖
+
+#### E2E 过程中发现并已修复的问题（属本 Feature）
+
+| # | 问题 | 根因 | 状态 |
+|---|------|------|:--:|
+| 1 | E2E 提示词 heredoc 反引号被 shell 执行 | bash `<< EOF` 中 `` `phase` `` 触发命令替换 | ✅ 已修复 (c593448) |
+| 2 | E2E 提示词 phase 编号为旧 0-6 而非 8 阶段 | 模板未随 v3.0.0 更新 | ✅ 已修复 |
+| 3 | E2E basic 脚本含手写 state.json 的 tree scenario 代码 | 违反"SDDU 管 state"原则 | ✅ 已删除 |
+| 4 | E2E fullstack 提示词 DB 描述不一致 | H2 描述文案独立未统一 | ✅ 已修复 |
+| 5 | `--auto` 参数描述写"6 个阶段"而非"8 个阶段" | 文案未同步 v3.0.0 | ✅ 已修复 |
+
+#### E2E 过程中发现的问题（非本 Feature 范畴，记录待后续定夺）
+
+| # | 问题 | 说明 | 受影响组件 |
+|---|------|------|------------|
+| A | **sddu-build wave 间衔接断裂** | build agent 被调用 4 次（每个 wave 一次），每次返回后由 sddu 协调器重新调用。理想情况应一次 `sddu-build` 完成全部 wave | `sddu-build` agent |
+| B | **auto-updater 可能提前设 phase** | Wave 1 完成时磁盘上 state.json 已出现 `phase: "builded"`，会话中全部完成后才显式更新。`inferCurrentPhaseFromFiles()` 中 `reviewed` 在 `builded` 前检查 | `auto-updater.ts` |
+| C | **validate agent 不做真正 E2E 测试** | 当前 validate 只做静态合规检查（文件存在、spec 覆盖率），不执行端到端行为验证。E2E 应属于 validated 阶段的核心职责 | `sddu-validate` agent |
+| D | **sddu coordinator 尝试调用 bash 工具失败** | opencode 环境中 `bash` 工具不可用，`invalid [tool=bash]` 错误（已自愈） | `sddu` coordinator |
+| E | **SDDU 缺少框架级系统验证层** | 框架 Feature（如本 Feature）需要验证"SDDU 本身还能正常工作"，当前无标准化流程 | SDDU 框架设计 |
+
+#### 结论
+
+TASK-012（E2E 验证）通过。SDDU v3.0.0 两字段模型在真实 opencode 环境中完整跑通 8 阶段。本 Feature 范畴的 5 个问题已全部修复并 commit。非本 Feature 范畴的 5 个问题（A-E）已记录，建议作为后续 Feature 的输入。

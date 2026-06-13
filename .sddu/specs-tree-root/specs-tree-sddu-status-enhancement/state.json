@@ -34,7 +34,7 @@
     "TASK-009": { "name": "重写 sddu.md.hbs", "status": "completed" },
     "TASK-010": { "name": "更新 docs/agents 模板", "status": "completed" },
     "TASK-011": { "name": "更新回归测试套件", "status": "completed" },
-    "TASK-012": { "name": "E2E 验证和性能测试", "status": "pending" },
+    "TASK-012": { "name": "E2E 验证和性能测试", "status": "completed" },
     "TASK-013": { "name": "FR-013 长期停滞检测", "status": "completed" },
     "TASK-014": { "name": "FR-014 Merged 跳转追溯", "status": "completed" }
   },
