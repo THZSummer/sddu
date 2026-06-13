@@ -1,0 +1,43 @@
+{
+  "feature": "specs-tree-plugin-rename-sddu",
+  "name": "Plugin Rename SDDU - 从 SDD 全面迁移至 SDDU",
+  "version": "1.0.0",
+  "status": "completed",
+  "phase": 6,
+  "priority": "P0",
+  "createdDate": "2026-04-06",
+  "updatedDate": "2026-04-09",
+  "isParent": true,
+  "depth": 1,
+  "children": ["specs-tree-plugin-rename-sddu-v2"],
+  "description": "将整个 SDD 插件生态从 @sdd-* 命令体系迁移到 @sddu-* 命令体系，包含 18 个迁移任务（T-001 ~ T-018），实现双命名空间管理和向后兼容",
+  "files": {
+    "readme": "README.md",
+    "validation": "validation-result.json"
+  },
+  "tasks": {
+    "T-001": "Plugin Rename",
+    "T-002": "Core Plugin Refactor",
+    "T-003": "Main Entry Update",
+    "T-004": "Agent Definitions and Templates Update",
+    "T-005": "Error Handling Module Update",
+    "T-006": "Documentation Update",
+    "T-007": "Plugin Configuration Update",
+    "T-008": "Backward Compatibility Layer",
+    "T-009": "Dual Namespace Management",
+    "T-010": "Migration Utilities Creation",
+    "T-011": "Documentation and User Guidance",
+    "T-012": "Build Pipeline Adoptions",
+    "T-013": "Containerization Adaptation",
+    "T-014": ".sdd Directory Updates",
+    "T-015": "ROADMAP and Milestone Updates",
+    "T-016": "Migration Guide Creation",
+    "T-017": "Legacy User Documentation",
+    "T-018": "Migration Scripts and Tools"
+  },
+  "metadata": {
+    "totalTasks": 18,
+    "completedTasks": 18,
+    "achievement": "sdd_to_sddu_transformation"
+  }
+}

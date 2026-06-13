@@ -2,7 +2,7 @@
   "project": "sddu-plugin-migration",
   "version": "1.4.1", 
   "status": "active",
-  "currentFeature": "e2e-script-cleanup",
+  "currentFeature": null,
   "features": {
     "completed": [
       "T-001: Plugin Rename",
@@ -24,20 +24,9 @@
       "T-017: Legacy User Documentation",
       "T-018: Migration Scripts and Tools"
     ],
-    "inProgress": [
-      "FR-E2E-CLEANUP-001: E2E 脚本清理和统一规范"
-    ]
+    "inProgress": []
   },
-  "activeSpecs": [
-    {
-      "name": "E2E 脚本清理和统一规范",
-      "identifier": "FR-E2E-CLEANUP-001",
-      "state": "specified",
-      "createdDate": "2026-04-08",
-      "priority": "P1",
-      "directory": "specs-tree-e2e-script-cleanup"
-    }
-  ],
+  "activeSpecs": [],
   "migratedFeatures": [
     {
       "name": "ETD (Expert Tree Design)",
