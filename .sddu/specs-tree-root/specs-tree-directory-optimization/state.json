@@ -2,7 +2,7 @@
   "feature": "specs-tree-directory-optimization",
   "name": "specs-tree-root 管理目录结构命名优化",
   "version": "1.0.0",
-  "status": "validated",
+  "status": "completed",
   "phase": 6,
   "files": {
     "spec": "spec.md",

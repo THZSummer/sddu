@@ -2,7 +2,7 @@
   "feature": "specs-tree-sdd-plugin-roadmap",
   "name": "SDD Roadmap 规划专家",
   "version": "1.0.0",
-  "status": "validated",
+  "status": "completed",
   "phase": 6,
   "files": {
     "spec": "spec.md",
@@ -55,7 +55,7 @@
     },
     {
       "version": "1.0.0",
-      "status": "validated",
+      "status": "completed",
       "validatedAt": "2026-04-06T00:00:00Z",
       "note": "最终验证通过，6 个功能需求全部满足"
     }

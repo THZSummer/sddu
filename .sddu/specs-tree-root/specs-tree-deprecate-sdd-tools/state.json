@@ -1,10 +1,41 @@
 {
   "feature": "deprecate-sdd-tools",
+  "featureId": "FR-DEP-001",
   "name": "弃用旧版 SDD 工具",
-  "state": "validated",
-  "status": "completed",
   "phase": 6,
-  "timestamp": "2026-04-01T10:36:00Z",
-  "updatedAt": "2026-04-01T10:36:00Z",
-  "validator": "@sdd-validate"
+  "status": "completed",
+  "priority": "P0",
+  "depth": 1,
+  "isParent": false,
+  "childrens": [],
+  "createdDate": "2026-04-01",
+  "updatedDate": "2026-04-01T10:36:00Z",
+  "summary": "废弃未使用的旧版 SDD Tools（4 个）和 Commands（9 个），直接删除代码简化架构，保留 16 个 Agent 作为唯一入口",
+  "phaseHistory": [
+    { "phase": 0, "phaseName": "registered", "timestamp": "2026-04-01" },
+    { "phase": 1, "phaseName": "discovered", "timestamp": "2026-04-01" },
+    { "phase": 2, "phaseName": "specified", "timestamp": "2026-04-01" },
+    { "phase": 3, "phaseName": "planned", "timestamp": "2026-04-01" },
+    { "phase": 4, "phaseName": "tasked", "timestamp": "2026-04-01" },
+    { "phase": 5, "phaseName": "builded", "timestamp": "2026-04-01" },
+    { "phase": 6, "phaseName": "reviewed", "timestamp": "2026-04-01" },
+    { "phase": 7, "phaseName": "validated", "timestamp": "2026-04-01T10:36:00Z" }
+  ],
+  "tasks": {
+    "TASK-001": { "name": "分析 Tools 和 Commands 使用情况", "status": "completed" },
+    "TASK-002": { "name": "删除 4 个 Tools 定义", "status": "completed" },
+    "TASK-003": { "name": "删除 9 个 Commands 定义", "status": "completed" },
+    "TASK-004": { "name": "清理相关导入和引用", "status": "completed" },
+    "TASK-005": { "name": "更新文档和配置", "status": "completed" },
+    "TASK-006": { "name": "代码审查", "status": "completed" },
+    "TASK-007": { "name": "运行测试验证", "status": "completed" },
+    "TASK-008": { "name": "最终验证和发布", "status": "completed" }
+  },
+  "files": {
+    "spec": ".sddu/specs-tree-root/specs-tree-deprecate-sdd-tools/spec.md",
+    "plan": ".sddu/specs-tree-root/specs-tree-deprecate-sdd-tools/plan.md",
+    "tasks": ".sddu/specs-tree-root/specs-tree-deprecate-sdd-tools/tasks.md",
+    "review": ".sddu/specs-tree-root/specs-tree-deprecate-sdd-tools/review.md",
+    "validation": ".sddu/specs-tree-root/specs-tree-deprecate-sdd-tools/validate.md"
+  }
 }

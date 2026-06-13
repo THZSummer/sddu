@@ -2,7 +2,7 @@
   "feature": "specs-tree-tree-structure-optimization",
   "name": "v2.4.0 Feature 拆分与树形结构优化",
   "version": "v2.1.0",
-  "status": "validated",
+  "status": "completed",
   "phase": 6,
   "depth": 1,
   "discoveredDate": "2026-04-12",
@@ -75,7 +75,7 @@
     },
     {
       "phase": 6,
-      "status": "validated",
+      "status": "completed",
       "timestamp": "2026-04-13T23:00:00.000Z",
       "triggeredBy": "sddu-validate-agent",
       "comment": "Final validation completed - all requirements satisfied and implementation verified"

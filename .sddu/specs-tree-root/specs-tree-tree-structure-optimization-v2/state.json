@@ -2,7 +2,7 @@
   "feature": "specs-tree-tree-structure-optimization-v2",
   "name": "树形结构优化 v2 - 问题修复",
   "version": "v2.1.0",
-  "status": "validated",
+  "status": "completed",
   "phase": 6,
   "depth": 1,
   "phaseHistory": [
@@ -44,7 +44,7 @@
     },
     {
       "phase": 6,
-      "status": "validated",
+      "status": "completed",
       "timestamp": "2026-04-15T12:30:00.000Z",
       "triggeredBy": "sddu-validate-agent"
     }

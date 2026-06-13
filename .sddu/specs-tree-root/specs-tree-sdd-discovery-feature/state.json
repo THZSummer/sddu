@@ -2,6 +2,7 @@
   "featureId": "FR-SDD-DISCOVERY-001",
   "featureName": "SDD Discovery 需求挖掘能力增强",
   "state": "validated",
+  "status": "completed",
   "phase": 6,
   "stateHistory": [
     {

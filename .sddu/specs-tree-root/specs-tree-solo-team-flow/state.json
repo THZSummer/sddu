@@ -4,6 +4,7 @@
   "productTagline": "AI执行 × 人类看护",
   "featureId": "ETD-001",
   "state": "terminated",
+  "status": "terminated",
   "terminatedDate": "2026-06-12",
   "migration": {
     "status": "terminated-and-migrated",
@@ -21,11 +22,8 @@
   "createdDate": "2026-04-18",
   "priority": "P0",
   "isParent": true,
-  "children": [
-    "ETD-FR-REGISTRY-001",
-    "ETD-FR-DISPATCHER-001",
-    "ETD-FR-WORKBENCH-001"
-  ],
+  "children": [],
+  "cleanupNote": "ETD sub-features (expert-node-registry, expert-workbench, task-dispatcher) physically removed on 2026-06-13 as ETD is an independent project",
   "estimatedEffort": "Large",
   "targetUsers": ["Solo开发者", "小型团队", "中型团队"],
   "coreScenario": "树形递归分配架构，AI执行 + 人类看护，设计先行",

@@ -4,6 +4,7 @@
   "nameEn": "Agent Output Templating System",
   "featureId": "FR-TEMPLATE-001",
   "state": "validated",
+  "status": "completed",
   "reviewStatus": "passed",
   "blockingIssues": 0,
   "improvements": 0,

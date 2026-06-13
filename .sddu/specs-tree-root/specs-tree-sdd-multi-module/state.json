@@ -2,7 +2,7 @@
   "feature": "sdd-multi-module",
   "name": "SDD 子 Feature 化并行开发支持", 
   "version": "1.2.11",
-  "status": "validated",
+  "status": "completed",
   "phase": 6,
   "files": {
     "spec": "spec.md",

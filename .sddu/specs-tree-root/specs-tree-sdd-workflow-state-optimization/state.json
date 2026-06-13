@@ -2,9 +2,9 @@
   "feature": "specs-tree-sdd-workflow-state-optimization",
   "name": "SDD 工作流状态优化",
   "version": "2.0.0",
-  "status": "validated",
+  "status": "completed",
   "phase": 6,
-  "level": 1,
+  "depth": 1,
   "parent": null,
   "files": {
     "spec": "spec.md",
@@ -149,7 +149,7 @@
       "timestamp": "2026-04-05T07:06:35.816Z",
       "phase": 6,
       "phaseName": "validated",
-      "triggerededBy": "@sdd-validate"
+      "triggeredBy": "@sdd-validate"
     }
   ],
   "createdAt": "2026-04-01T00:00:00Z",
