@@ -1,6 +1,10 @@
 {
   "feature": "deprecate-sdd-tools",
+  "name": "弃用旧版 SDD 工具",
   "state": "validated",
+  "status": "completed",
+  "phase": 6,
   "timestamp": "2026-04-01T10:36:00Z",
+  "updatedAt": "2026-04-01T10:36:00Z",
   "validator": "@sdd-validate"
 }
