@@ -50,7 +50,7 @@
 | [architecture/](./architecture/README.md) | 架构决策记录目录 |
 | [architecture/adr/](./architecture/adr/README.md) | ADR 文档集合 (ADR-001 ~ ADR-017) |
 
-### 已完成 Feature 目录（14 个）
+### 已完成 Feature 目录（15 个）
 
 | 目录 | 说明 | 状态 |
 |------|------|------|
@@ -67,13 +67,20 @@
 | [specs-tree-tree-structure-optimization/](./specs-tree-tree-structure-optimization/README.md) | v2.4.0 树形结构优化（P0） | ✅ validated |
 | [specs-tree-tree-structure-optimization-v2/](./specs-tree-tree-structure-optimization-v2/README.md) | 树形结构优化 v2 - 问题修复 | ✅ validated |
 | [specs-tree-agent-output-templating/](./specs-tree-agent-output-templating/README.md) | Agent 输出模板化系统 | ✅ validated |
+| [specs-tree-sddu-status-enhancement/](./specs-tree-sddu-status-enhancement/README.md) | SDDU 特性状态增强 — phase + status 两字段隔离重构 | ✅ validated |
 | [architecture/](./architecture/README.md) | 架构决策记录目录 | ✅ active |
 
-### 进行中 Feature 目录（1 个）
+### 进行中 Feature 目录（0 个）
 
 | 目录 | 说明 | 状态 |
 |------|------|------|
-| [specs-tree-solo-team-flow/](./specs-tree-solo-team-flow/README.md) | 一人产品 & 全员协作 (Solo Team Flow) | 🔍 discovered (phase 0/6) |
+| — | 当前无进行中的 Feature | — |
+
+### 已终止 Feature 目录（1 个）
+
+| 目录 | 说明 | 状态 |
+|------|------|------|
+| [specs-tree-solo-team-flow/](./specs-tree-solo-team-flow/README.md) | ETD (Expert Tree Design) — 迁移至独立仓库 | 🚫 terminated (2026-06-12) |
 
 ## 规范文件说明
 

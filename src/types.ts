@@ -2,24 +2,52 @@
 // 整合所有分散的类型定义，提供统一导入接口
 // 实现 FR-001~005: 统一工具函数管理
 
-// Import from state machine
+// ============================================================================
+// v3.0.0 Schema (active — current)
+// ============================================================================
+export type {
+  Phase,
+  FeatureStatus,
+  StateV3_0_0,
+  PhaseHistoryEntry,
+  SuspendedInfo,
+  MergedInfo,
+  ChildFeatureInfoV3,
+} from './state/schema-v3.0.0';
+
+export {
+  VALID_PHASES,
+  VALID_STATUSES,
+  PHASE_ORDER,
+  NEXT_PHASE,
+  IRREVERSIBLE_STATUSES,
+  phaseFlow,
+  validateStateV3,
+  validateStateV3Detailed,
+  shouldRecommendContinue,
+  getNextRecommendedPhase,
+  isStatusReversible,
+} from './state/schema-v3.0.0';
+
+// ============================================================================
+// v2.x Schema (legacy — retained for migration reference only)
+// ============================================================================
+
+// Import from state machine (v3.0.0 compatible — old names are @deprecated aliases)
 import { 
-  WorkflowStatus,
-  PhaseHistory,
-  StateV2_0_0,
-  validateState,
   FeatureStateEnum,
   FeatureState,
   TransitionResult,
   AgentTransitionHook,
   AutoUpdaterIntegration,
   FeatureWithFullHistory,
+  HistoryEntry,
 } from './state/machine';
 
-import { StateV2_1_0 } from './state/schema-v2.0.0';
+import { StateV2_0_0, StateV2_1_0 } from './state/schema-v2.0.0';
 
-// Import tree scanner types
-import {
+// Import tree scanner types (type-only to avoid circular module loading in jest)
+import type {
   FeatureTreeNode,
   ScanResult,
 } from './state/tree-scanner';
@@ -43,25 +71,38 @@ export type {
 import { TreeStateValidator } from './state/tree-state-validator';
 export { TreeStateValidator } from './state/tree-state-validator';
 
+/** @deprecated Use `Phase` from v3.0.0 instead. `WorkflowStatus` was the old 6-state schema. */
+export type WorkflowStatus = 'specified' | 'planned' | 'tasked' | 'implementing' | 'reviewed' | 'validated';
+
+/** @deprecated Use `PhaseHistoryEntry` from v3.0.0 instead. */
+export type PhaseHistory = Array<{
+  phase: string;
+  timestamp: string;
+  triggeredBy: string;
+  comment?: string;
+}>;
+
+/** @deprecated Use `validateStateV3` from v3.0.0 instead. */
+export function validateState(state: unknown): boolean {
+  // Legacy shim — delegates to v3.0.0 validator
+  const { validateStateV3 } = require('./state/schema-v3.0.0');
+  return validateStateV3(state);
+}
+
 export type {
-  WorkflowStatus,
-  PhaseHistory,
   StateV2_0_0,
-  StateV2_1_0,            // New for tree structure
-  ChildFeatureInfo,       // New for tree structure (moved from correct import)
-  FeatureTreeNode,        // New for tree structure
-  ScanResult,             // New for tree structure
+  StateV2_1_0,
+  ChildFeatureInfo,
+  FeatureTreeNode,
+  ScanResult,
   FeatureStateEnum,
   FeatureState,
   TransitionResult,
   AgentTransitionHook,
   AutoUpdaterIntegration,
   FeatureWithFullHistory,
+  // v3.0.0 types (re-exported for convenience)
 };
-
-export {
-  validateState  
-} from './state/machine';
 
 // 从 discovery 模块重新导出类型
 export type {
@@ -69,7 +110,7 @@ export type {
   DiscoveryContext,
   DiscoveryProgress,
   DiscoveryResult,
-  CoachingConfig,  // 添加缺失的CoachongConfig
+  CoachingConfig,  // 添加缺失的CoachingConfig
   StepExecutionResult,
 } from './discovery/types';
 
@@ -140,8 +181,7 @@ export interface SdduConfig {
   maxTreeDepth?: number;          // Maximum allowed tree depth (default: 5)
 }
 
-// There may be two HistoryEntry types from different modules, I'll make sure only one is exported
-// 重新导出 HistoryEntry (only once)
+/** @deprecated Use `PhaseHistoryEntry` from v3.0.0 instead */
 export type { HistoryEntry } from './state/machine';
 
 export default {};

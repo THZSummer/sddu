@@ -1,7 +1,8 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { AutoUpdater } from '../src/state/auto-updater';
-import { StateMachine } from '../src/state/machine';
+import { AutoUpdater } from '../../src/state/auto-updater';
+import { StateMachine } from '../../src/state/machine';
+import { Phase, PHASE_ORDER } from '../../src/state/schema-v3.0.0';
 
 describe('AutoUpdater Integration Tests', () => {
   const testBaseDir = 'tests-temp';
@@ -35,12 +36,13 @@ describe('AutoUpdater Integration Tests', () => {
     await fs.mkdir(featureDir, { recursive: true });
 
     // 初始创建特性
-    await stateMachine.createFeature('Test Feature Status Inference');
+    await stateMachine.createFeature('Test Feature Status Inference', featureId);
 
-    // 检查初始状态为 drafting
+    // 检查初始状态为 registered（v3.0.0 默认）
     let featureState = stateMachine.getState(featureId);
     expect(featureState).toBeDefined();
-    expect(featureState!.state).toBe('drafting');
+    expect(featureState!.phase).toBe('registered');
+    expect(featureState!.status).toBe('tracked');
 
     // 添加 spec.md 使状态变为 specified
     await fs.writeFile(path.join(featureDir, 'spec.md'), '# Spec\nContent');
@@ -52,20 +54,8 @@ describe('AutoUpdater Integration Tests', () => {
     // 验证状态按预期顺序排列
     const featureObj = stateMachine.getState(featureId);
     if (featureObj) {
-      // 更新状态但不使用 updateState 方法而是检查是否符合更新条件
-      const stateOrder: Record<string, number> = {
-        'drafting': 0,
-        'discovered': 1,
-        'specified': 2,
-        'planned': 3,
-        'tasked': 4,
-        'implementing': 5,
-        'reviewed': 6,
-        'validated': 7,
-        'completed': 8
-      };
-
-      expect(stateOrder['specified']).toBeGreaterThan(stateOrder[featureObj.state]);
+      // 使用 v3.0.0 PHASE_ORDER
+      expect(PHASE_ORDER['specified']).toBeGreaterThan(PHASE_ORDER[featureObj.phase as Phase]);
     }
   });
 
@@ -75,12 +65,13 @@ describe('AutoUpdater Integration Tests', () => {
     await fs.mkdir(featureDir, { recursive: true });
 
     // 创建初始状态
-    await stateMachine.createFeature('Test File Change Trigger');
+    await stateMachine.createFeature('Test File Change Trigger', featureId);
     
     // 检查初始状态
     let featureState = stateMachine.getState(featureId);
     expect(featureState).toBeDefined();
-    expect(featureState!.state).toBe('drafting');
+    expect(featureState!.phase).toBe('registered');
+    expect(featureState!.status).toBe('tracked');
 
     // 触发文件变更
     await fs.writeFile(path.join(featureDir, 'plan.md'), '# Plan Document\nContent');
@@ -88,16 +79,15 @@ describe('AutoUpdater Integration Tests', () => {
     // 立即进行一次扫描来模拟自动更新
     await autoUpdater.scanAndAutoUpdate(featureDir);
 
-    // 检查状态是否更新（注意：因为我们只有一个 plan.md，所以状态可能是 specified 而不是 planned）
+    // 检查状态是否更新（因为只有一个 plan.md，所以状态可能保持 registered）
     featureState = stateMachine.getState(featureId);
     if (featureState) {
-      // 要求 spec.md 存在才能到达 planned 状态，因此状态仍将是 drafting 或变为 specified
       const hasSpec = await fs.readdir(featureDir).then(files => files.includes('spec.md')).catch(() => false);
       if (hasSpec) {
-        expect(['specified', 'planned']).toContain(featureState.state);
+        expect(['specified', 'planned']).toContain(featureState.phase);
       } else {
         // 因为没有 spec.md，即使有 plan.md 也不会到 planned 状态
-        expect(['drafting']).toContain(featureState.state);
+        expect(['registered']).toContain(featureState.phase);
       }
     }
   });
@@ -108,7 +98,7 @@ describe('AutoUpdater Integration Tests', () => {
     await fs.mkdir(featureDir, { recursive: true });
 
     // 创建特性
-    await stateMachine.createFeature('Test Spec Plan Status');
+    await stateMachine.createFeature('Test Spec Plan Status', featureId);
     
     // 添加 spec.md 和 plan.md
     await fs.writeFile(path.join(featureDir, 'spec.md'), '# Spec\nContent');
@@ -138,9 +128,8 @@ describe('AutoUpdater Integration Tests', () => {
     await new Promise(resolve => setTimeout(resolve, 5500));
     
     // 如果已被正确禁用，则 scanAndAutoUpdate 不应该被调用
-    // 实际上，由于防抖延迟，我们只能验证日志中的状态检查
     expect(autoUpdater['enabled']).toBe(false);
-    expect(wasCalled).toBe(false); // 这不会被执行，因为防抖会在 disabled 检查时中断
+    expect(wasCalled).toBe(false);
     
     // 重新启用
     autoUpdater.setEnabled(true);
@@ -153,32 +142,24 @@ describe('AutoUpdater Integration Tests', () => {
     await fs.mkdir(featureDir, { recursive: true });
 
     // 创建特性
-    await stateMachine.createFeature('Test Reverse Prevention');
+    await stateMachine.createFeature('Test Reverse Prevention', featureId);
     
     // 确保状态为 specified
-    const initialFeature = await stateMachine.updateState(featureId, 'specified', {}, 'test', 'Set to specified');
-    expect(initialFeature.state).toBe('specified');
+    const initialFeature = await stateMachine.updateState(featureId, 'specified' as Phase, {}, 'test', 'Set to specified');
+    expect(initialFeature.phase).toBe('specified');
 
     // 模拟一个较低级别的更新，确保不会倒退
     const currentState = stateMachine.getState(featureId);
-    const stateOrder: Record<string, number> = {
-      'drafting': 0,
-      'discovered': 1,
-      'specified': 2,
-      'planned': 3,
-      'tasked': 4,
-      'implementing': 5,
-      'reviewed': 6,
-      'validated': 7,
-      'completed': 8
-    };
+    if (currentState) {
+      const currentPhase = currentState.phase as Phase;
 
-    // 模拟试图回到较低的 drafting 状态
-    const isReverse = stateOrder['drafting'] < stateOrder[currentState!.state];
-    expect(isReverse).toBeTruthy();
-    
-    // 我们的 shouldUpdateState 逻辑应该防止这种倒退
-    const shouldUpdate = stateOrder['drafting'] > stateOrder[currentState!.state];
-    expect(shouldUpdate).toBeFalsy();
+      // 模拟试图回到较低的 registered 状态
+      const isReverse = PHASE_ORDER['registered'] < PHASE_ORDER[currentPhase];
+      expect(isReverse).toBeTruthy();
+      
+      // shouldUpdateState 逻辑应该防止这种倒退
+      const shouldUpdate = PHASE_ORDER['registered'] > PHASE_ORDER[currentPhase];
+      expect(shouldUpdate).toBeFalsy();
+    }
   });
 });

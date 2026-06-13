@@ -110,12 +110,13 @@ describe('SDDU Plugin E2E Workflow', () => {
           '状态: approved'
         ].join('\n'));
         
-        // 创建模拟状态
+        // 创建模拟状态 (v3.0.0 format)
         const stateDir = join(TEST_PROJECT_DIR, '.opencode', 'sdd');
         mkdirSync(stateDir, { recursive: true });
         writeFileSync(join(stateDir, 'state.json'), JSON.stringify({
           feature: 'specs-tree-test-spec',
-          state: 'specified',
+          phase: 'specified',
+          status: 'tracked',
           timestamp: new Date().toISOString()
         }));
       }
@@ -260,7 +261,7 @@ describe('SDDU Plugin E2E Workflow', () => {
     });
 
     test('应该更新状态为 tasked', () => {
-      // 更新状态文件内容为 tasked（如果是首次创建）
+      // 更新状态文件内容为 tasked（如果是首次创建）- v3.0.0 format
       const stateDir = join(TEST_PROJECT_DIR, '.opencode', 'sdd');
       if (existsSync(stateDir)) {
         const statePath = join(stateDir, 'state.json');
@@ -268,22 +269,20 @@ describe('SDDU Plugin E2E Workflow', () => {
           const stateContent = readFileSync(statePath, 'utf8');
           const state = JSON.parse(stateContent);
           
-          if (state.state === 'discovered') {
-            state.state = 'tasked';
+          if (state.phase === 'discovered' || state.phase === 'specified') {
+            state.phase = 'tasked';
+            state.status = 'tracked';
             writeFileSync(statePath, JSON.stringify(state, null, 2));
-            console.log('✅ 状态从 discovered 更新为 tasked');
-          } else if (state.state === 'specified') {
-            state.state = 'tasked';
-            writeFileSync(statePath, JSON.stringify(state, null, 2));
-            console.log('✅ 状态从 specified 更新为 tasked');
+            console.log('✅ 状态更新为 tasked (phase)');
           } else {
-            console.info(`ℹ️  状态已是: ${state.state}`);
+            console.info(`ℹ️  状态已是: phase=${state.phase}, status=${state.status}`);
           }
         } else {
-          console.log('创建任务分解状态文件');
+          console.log('创建任务分解状态文件 (v3.0.0)');
           writeFileSync(statePath, JSON.stringify({
             feature: 'specs-tree-test-tasks',
-            state: 'tasked',
+            phase: 'tasked',
+            status: 'tracked',
             timestamp: new Date().toISOString()
           }));
         }
@@ -310,16 +309,17 @@ describe('SDDU Plugin E2E Workflow', () => {
     });
 
     test('应该记录执行过程', () => {
-      // 检查状态文件中是否有实现过程的记录
+      // 检查状态文件中是否有实现过程的记录 (v3.0.0 format)
       const statePath = join(TEST_PROJECT_DIR, '.opencode', 'sdd', 'state.json');
       if (existsSync(statePath)) {
         const stateContent = readFileSync(statePath, 'utf8');
         const state = JSON.parse(stateContent);
         
-        if (['implementing', 'review-required', 'validating', 'implemented'].includes(state.state)) {
-          console.log(`✓ 执行流程中，当前状态: ${state.state}`);
+        // v3.0.0: use phase field (builded/reviewed are the build-adjacent phases)
+        if (['builded', 'reviewed'].includes(state.phase)) {
+          console.log(`✓ 执行流程中，当前状态: phase=${state.phase}, status=${state.status}`);
         } else {
-          console.info(`ℹ️  当前状态: ${state.state} (等待实施阶段)`);
+          console.info(`ℹ️  当前状态: phase=${state.phase}, status=${state.status} (等待实施阶段)`);
         }
       } else {
         console.log('状态文件不存在，执行前需先初始化');
@@ -394,18 +394,19 @@ describe('SDDU Plugin E2E Workflow', () => {
       }
     });  
 
-    test('检查状态管理文件', () => {
+    test('检查状态管理文件 (v3.0.0)', () => {
       const statePath = join(TEST_PROJECT_DIR, '.opencode', 'sdd', 'state.json');
       
       if (existsSync(statePath)) {
         const stateContent = readFileSync(statePath, 'utf8');
         const stateObject = JSON.parse(stateContent);
         
-        expect(stateObject).toHaveProperty('state');
+        // v3.0.0: check phase and status instead of old 'state' field
+        expect(stateObject).toHaveProperty('phase');
         expect(stateObject).toHaveProperty('feature');
         expect(stateObject).toHaveProperty('timestamp');
         
-        console.log(`✅ 状态文件有效: ${stateObject.state}`);
+        console.log(`✅ 状态文件有效: phase=${stateObject.phase}, status=${stateObject.status || 'N/A'}`);
       } else {
         // 尝试找到任何状态相关的JSON文件
         const opencodeDir = join(TEST_PROJECT_DIR, '.opencode', 'sdd');

@@ -15,8 +15,10 @@ interface FeatureState {
   feature: string;
   name?: string;
   version?: string;
-  status: string;
-  phase?: number;
+  phase: string;        // v3.0.0: phase identifier (e.g. 'specified', 'planned', 'tasked', 'builded')
+  status?: string;      // v3.0.0: workflow status ('tracked', 'completed', 'suspended', 'terminated', 'merged')
+  // Backward compat: old numeric phase field (deprecated)
+  legacyPhase?: number;
   files?: {
     spec?: string;
     plan?: string;
@@ -88,7 +90,7 @@ async function simulateSpecCreation(featureId: string, mode: string = 'multi'): 
 **文档状态**: specified
 **状态更新命令**: 
 \`\`\`bash
-/tool sdd_update_state {"feature": "${featureId}", "state": "specified", "phase": 1}
+/tool sdd_update_state {"feature": "${featureId}", "phase": "specified", "status": "tracked"}
 \`\`\`
 `;
   writeFileSync(`${featurePath}/spec.md`, mainSpecContent);
@@ -117,7 +119,7 @@ async function simulateSpecCreation(featureId: string, mode: string = 'multi'): 
 **文档状态**: specified
 **状态更新命令**: 
 \`\`\`bash
-/tool sdd_update_state {"feature": "${sf.featureId}", "state": "specified", "parentFeature": "${featureId}"}
+/tool sdd_update_state {"feature": "${sf.featureId}", "phase": "specified", "status": "tracked", "parentFeature": "${featureId}"}
 \`\`\`
 `;
     writeFileSync(join(sfPath, 'spec.md'), subSpecContent);
@@ -126,8 +128,9 @@ async function simulateSpecCreation(featureId: string, mode: string = 'multi'): 
     const state: FeatureState = {
       feature: sf.featureId,
       name: sf.name,
-      version: '1.2.11',
-      status: 'specified',
+      version: 'v3.0.0',
+      phase: 'specified',
+      status: 'tracked',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -138,9 +141,9 @@ async function simulateSpecCreation(featureId: string, mode: string = 'multi'): 
   const mainState: FeatureState = {
     feature: featureId,
     name: `E2E Test Multi-Feature: ${featureId}`,
-    version: '1.2.11',
-    status: 'specified',
-    phase: 1,
+    version: 'v3.0.0',
+    phase: 'specified',
+    status: 'tracked',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -184,7 +187,7 @@ ${subFeatures.map((sf, index) => `### ${index + 1}. ${sf.id}: ${sf.name}`).join(
 **文档状态**: planned
 **状态更新命令**: 
 \`\`\`bash
-/tool sdd_update_state {"feature": "${featureId}", "state": "planned", "phase": 2}
+/tool sdd_update_state {"feature": "${featureId}", "phase": "planned", "status": "tracked"}
 \`\`\`
 `;
 
@@ -194,8 +197,9 @@ ${subFeatures.map((sf, index) => `### ${index + 1}. ${sf.id}: ${sf.name}`).join(
   const mainStatePath = join(featurePath, 'state.json');
   if (existsSync(mainStatePath)) {
     const stateData = JSON.parse(readFileSync(mainStatePath, 'utf-8'));
-    stateData.status = 'planned';
-    stateData.phase = 2;
+    stateData.phase = 'planned';
+    stateData.status = 'tracked';
+    stateData.updatedAt = new Date().toISOString();
     writeFileSync(mainStatePath, JSON.stringify(stateData, null, 2));
   }
 
@@ -204,7 +208,9 @@ ${subFeatures.map((sf, index) => `### ${index + 1}. ${sf.id}: ${sf.name}`).join(
     const sfPath = join(featurePath, sf.id);
     if (existsSync(sfPath) && existsSync(join(sfPath, 'state.json'))) {
       const sfState = JSON.parse(readFileSync(join(sfPath, 'state.json'), 'utf-8'));
-      sfState.status = 'planned';
+      sfState.phase = 'planned';
+      sfState.status = 'tracked';
+      sfState.updatedAt = new Date().toISOString();
       writeFileSync(join(sfPath, 'state.json'), JSON.stringify(sfState, null, 2));
     }
   }
@@ -250,7 +256,7 @@ async function simulateTasksCreation(featureId: string): Promise<any> {
 **文档状态**: tasked
 **状态更新命令**: 
 \`\`\`bash
-/tool sdd_update_state {"feature": "${featureId}", "state": "tasked", "phase": 3}
+/tool sdd_update_state {"feature": "${featureId}", "phase": "tasked", "status": "tracked"}
 \`\`\`
 `;
 
@@ -260,8 +266,9 @@ async function simulateTasksCreation(featureId: string): Promise<any> {
   const taskStatePath = join(featurePath, 'state.json');
   if (existsSync(taskStatePath)) {
     const stateData = JSON.parse(readFileSync(taskStatePath, 'utf-8'));
-    stateData.status = 'tasked';
-    stateData.phase = 3;
+    stateData.phase = 'tasked';
+    stateData.status = 'tracked';
+    stateData.updatedAt = new Date().toISOString();
     writeFileSync(taskStatePath, JSON.stringify(stateData, null, 2));
   }
 
@@ -271,7 +278,9 @@ async function simulateTasksCreation(featureId: string): Promise<any> {
     if (existsSync(sfPath) && existsSync(join(sfPath, 'state.json'))) {
       const sfState = JSON.parse(readFileSync(join(sfPath, 'state.json'), 'utf-8'));
       if (sfState.status !== 'completed') {
-        sfState.status = 'tasked';
+        sfState.phase = 'tasked';
+        sfState.status = 'tracked';
+        sfState.updatedAt = new Date().toISOString();
         writeFileSync(join(sfPath, 'state.json'), JSON.stringify(sfState, null, 2));
       }
     }
@@ -305,8 +314,9 @@ async function simulateBuildExecution(featureId: string, taskId?: string): Promi
       const sfPath = join(featurePath, sf.id);
       if (existsSync(sfPath) && existsSync(join(sfPath, 'state.json'))) {
         const sfState = JSON.parse(readFileSync(join(sfPath, 'state.json'), 'utf-8'));
-        if (sfState.status === 'tasked') {
-          sfState.status = 'implementing';
+        if (sfState.phase === 'tasked') {
+          sfState.phase = 'builded';
+          sfState.status = 'tracked';
           sfState.updatedAt = new Date().toISOString();
         }
         writeFileSync(join(sfPath, 'state.json'), JSON.stringify(sfState, null, 2));
@@ -336,8 +346,8 @@ async function simulateBuildExecution(featureId: string, taskId?: string): Promi
   const mainStatePath = join(featurePath, 'state.json');
   if (existsSync(mainStatePath)) {
     const stateData = JSON.parse(readFileSync(mainStatePath, 'utf-8'));
-    stateData.status = 'implementing';
-    stateData.phase = 4;
+    stateData.phase = 'builded';
+    stateData.status = 'tracked';
     stateData.updatedAt = new Date().toISOString();
     writeFileSync(mainStatePath, JSON.stringify(stateData, null, 2));
   }
@@ -486,20 +496,20 @@ async function runE2ETest(): Promise<boolean> {
     console.log(`   验证子 Feature 状态: ${subFeatureStates.length} 个子 Feature`);
     
     for (const sf of subFeatureStates) {
-      if (sf.status !== 'implementing' && sf.status !== 'completed') {
-        console.log(`     ⚠ ${sf.feature} 状态不是 expected implementing/completed: ${sf.status}`);
+      if (sf.phase !== 'builded' && sf.status !== 'completed') {
+        console.log(`     ⚠ ${sf.feature} 状态不是 expected builded/completed: phase=${sf.phase}`);
       } else {
-        console.log(`     ✓ ${sf.feature} 状态正常: ${sf.status}`);
+        console.log(`     ✓ ${sf.feature} 状态正常: phase=${sf.phase}`);
       }
     }
 
     // 测试步骤 5: 验证状态聚合
     console.log('\n✅ 步骤 5: 验证状态聚合');
     const state = await loadFeatureState(testFeatureId);
-    if (state && state.status) {
-      console.log(`   特征状态: ${state.status} (预期: 不为 error)`);
-      if (state.status === 'error') {
-        console.log('     ✗ 特征状态为 error');
+    if (state && state.phase) {
+      console.log(`   特征状态: ${state.phase} (预期: 不为 error)`);
+      if (state.phase === 'error' || state.status === 'terminated') {
+        console.log('     ✗ 特征状态为 error/terminated');
         return false;
       }
       console.log('     ✓ 特征状态正常');
@@ -519,7 +529,7 @@ async function runE2ETest(): Promise<boolean> {
     
     // 检查最终所有状态
     const finalStates = await loadAllSubFeatureStates(testFeatureId);
-    const hasErrors = finalStates.some(sf => sf.status === 'error');
+    const hasErrors = finalStates.some(sf => sf.phase === 'error' || sf.status === 'terminated');
     if (hasErrors) {
       console.log('     ✗ 检测到错误状态的子 Feature');
       return false;

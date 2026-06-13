@@ -6,7 +6,8 @@
 ## ✅ 任务分解完成
 
 **Feature**: <<feature_name>>  
-**状态**: tasked  
+**阶段**: tasked  
+**状态**: tracked  
 **文件**: `.sddu/specs-tree-root/specs-tree-<<feature_name>>/tasks.md`
 
 
@@ -20,9 +21,9 @@
 
 ```
 
-**状态更新**: 完成后提示用户运行：
+**状态更新**: 完成后 feature 的 phase 自动推进到 `tasked`，status 保持 `tracked`。
 ```bash
-/tool sddu_update_state {"feature": "<<feature_name>>", "status": "tasked"}
+/tool sddu_update_state {"feature": "<<feature_name>>", "phase": "tasked"}
 或
 ```
 

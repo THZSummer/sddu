@@ -1,11 +1,24 @@
 {
   "feature": "feature-a",
   "name": "User Management",
-  "version": "1.0.0",
-  "status": "in-progress",
-  "phase": 1,
-  "created_at": "2023-06-15T10:00:00Z",
-  "updated_at": "2023-06-15T11:30:00Z",
-  "last_task_completed": "TASK-001-001",
-  "assignee": "Team A"
+  "version": "v3.0.0",
+  "status": "tracked",
+  "phase": "specified",
+  "depth": 0,
+  "childrens": [],
+  "files": {},
+  "dependencies": {
+    "on": [],
+    "blocking": []
+  },
+  "phaseHistory": [
+    {
+      "phase": "specified",
+      "timestamp": "2023-06-15T11:30:00Z",
+      "triggeredBy": "system"
+    }
+  ],
+  "assignee": "Team A",
+  "createdAt": "2023-06-15T10:00:00Z",
+  "updatedAt": "2023-06-15T11:30:00Z"
 }

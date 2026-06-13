@@ -2,7 +2,10 @@ export interface SubFeatureInfo {
   id: string;
   name: string;
   dir: string;
-  status: string;
+  /** v3.0.0: SDDU phase (registered → validated) */
+  phase?: string;
+  /** v3.0.0: Feature lifecycle status (tracked/completed/suspended/terminated/merged) */
+  status?: string;
   assignee?: string;
   description?: string;
   scope?: {
@@ -20,6 +23,29 @@ export interface ReadmeTemplate {
   featureName: string;
   description?: string;
   subFeatures?: SubFeatureInfo[];
+}
+
+/**
+ * Generate status marker emoji based on FeatureStatus value (v3.0.0)
+ */
+function getStatusMarker(status?: string, phase?: string): string {
+  if (!status) return '?';
+  switch (status) {
+    case 'completed':
+      return '✅ 已完成';
+    case 'suspended':
+      return '🟡 搁置';
+    case 'terminated':
+      return '🚫 已终止';
+    case 'merged':
+      return '🔵 已迁出';
+    case 'tracked':
+      // For tracked status, show the current phase
+      if (phase) return `🔄 ${phase}`;
+      return '🔄 进行中';
+    default:
+      return `🔄 ${status}`;
+  }
 }
 
 /**
@@ -43,12 +69,14 @@ export function generateFeatureReadme(template: ReadmeTemplate): string {
   
   if (subFeatures.length > 0) {
     content += `\n## 子 Feature 列表\n\n`;
-    content += `| 子 Feature | 状态 | 负责人 |\n`;
-    content += `|------------|------|--------|\n`;
+    content += `| 子 Feature | 阶段 | 状态 | 负责人 |\n`;
+    content += `|------------|------|------|--------|\n`;
     
     subFeatures.forEach(sf => {
       const assignee = sf.assignee ? sf.assignee : '-';
-      content += `| [${sf.name}](${sf.dir}/) | ${sf.status} | ${assignee} |\n`;
+      const phase = sf.phase || 'registered';
+      const statusMarker = getStatusMarker(sf.status, sf.phase);
+      content += `| [${sf.name}](${sf.dir}/) | ${phase} | ${statusMarker} | ${assignee} |\n`;
     });
     
     content += `\n## 快速开始\n`;
@@ -69,7 +97,8 @@ export function generateSubFeatureReadme(info: SubFeatureInfo): string {
   const {
     name,
     description = '',
-    status = 'Not Started',
+    phase = 'registered',
+    status = 'tracked',
     assignee = '',
     scope = { included: [], excluded: [] },
     dependencies = { upstream: [], downstream: [] },
@@ -119,9 +148,10 @@ export function generateSubFeatureReadme(info: SubFeatureInfo): string {
     content += `\n## 接口约定\n${interfaces}\n\n`;
   }
   
-  // 状态部分
+  // 状态部分 (v3.0.0: phase + status 双字段)
   content += `\n## 状态\n`;
-  content += `- 当前状态：${status}\n`;
+  content += `- 阶段 (phase)：${phase}\n`;
+  content += `- 状态 (status)：${getStatusMarker(status, phase)}\n`;
   content += `- 负责人：${assignee || '-'}\n`;
   
   return content;

@@ -1,0 +1,308 @@
+{
+  "feature": "specs-tree-sddu-status-enhancement",
+  "featureId": "FR-STATUS-ENHANCE-001",
+  "createdAt": "2026-06-13",
+  "schemaVersion": "v3.0.0",
+  "strategy": "clean-cut",
+  "totalTasks": 14,
+  "waves": 6,
+  "complexityDistribution": {
+    "S": 2,
+    "M": 8,
+    "L": 4
+  },
+  "mfrCoverage": {
+    "FR-001": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
+    "FR-002": ["TASK-004", "TASK-010"],
+    "FR-003": ["TASK-005", "TASK-009"],
+    "FR-004": ["TASK-008", "TASK-009"],
+    "FR-005": ["TASK-001", "TASK-002", "TASK-006"],
+    "FR-006": ["TASK-001", "TASK-004"],
+    "FR-007": ["TASK-006", "TASK-007"],
+    "FR-008": ["TASK-007"],
+    "FR-009": ["TASK-009"],
+    "FR-010": ["TASK-009", "TASK-010"],
+    "FR-010b": ["TASK-009"],
+    "FR-011": ["TASK-009"],
+    "FR-012": ["TASK-009"],
+    "FR-013": ["TASK-013"],
+    "FR-014": ["TASK-014"]
+  },
+  "waves": [
+    {
+      "id": 1,
+      "name": "Schema Foundation",
+      "description": "Two-field model type system, validation, and constants",
+      "tasks": ["TASK-001", "TASK-002", "TASK-003"],
+      "parallelizable": true
+    },
+    {
+      "id": 2,
+      "name": "Engine Core",
+      "description": "Machine simplification, loader adaptation, validator/parent/migrator updates",
+      "tasks": ["TASK-004", "TASK-005", "TASK-006"],
+      "parallelizable": true,
+      "dependsOn": [1]
+    },
+    {
+      "id": 3,
+      "name": "Detection Layer",
+      "description": "R5 consistency checker and tree-scanner child-belongs-to-parent",
+      "tasks": ["TASK-007", "TASK-008"],
+      "parallelizable": true,
+      "dependsOn": [2]
+    },
+    {
+      "id": 4,
+      "name": "Agent Layer",
+      "description": "Dashboard, mark command, smart guidance, parent aggregation, expiry reminder",
+      "tasks": ["TASK-009", "TASK-010"],
+      "parallelizable": true,
+      "dependsOn": [2, 3]
+    },
+    {
+      "id": 5,
+      "name": "Integration Validation",
+      "description": "Full regression test suite update and E2E validation",
+      "tasks": ["TASK-011", "TASK-012"],
+      "parallelizable": false,
+      "dependsOn": [4],
+      "note": "TASK-011 must complete before TASK-012"
+    },
+    {
+      "id": 6,
+      "name": "V2 Features",
+      "description": "Long-term stagnation detection and merged feature navigation (deferrable)",
+      "tasks": ["TASK-013", "TASK-014"],
+      "parallelizable": true,
+      "dependsOn": [4],
+      "deferrable": true
+    }
+  ],
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "创建 schema-v3.0.0.ts — 两字段模型完整定义",
+      "complexity": "L",
+      "wave": 1,
+      "dependencies": [],
+      "frs": ["FR-001", "FR-005", "FR-006"],
+      "files": [
+        {"action": "NEW", "path": "src/state/schema-v3.0.0.ts", "estimatedLines": 200}
+      ],
+      "verificationCommand": "npx tsc --noEmit src/state/schema-v3.0.0.ts",
+      "estimatedEffort": "1-2 days"
+    },
+    {
+      "id": "TASK-002",
+      "name": "编写 schema-v3.0.0 单元测试",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": ["TASK-001"],
+      "frs": ["FR-001", "FR-005", "FR-006"],
+      "files": [
+        {"action": "NEW", "path": "src/state/__tests__/schema-v3.0.0.test.ts", "estimatedLines": 150}
+      ],
+      "verificationCommand": "npx jest src/state/__tests__/schema-v3.0.0.test.ts --verbose",
+      "estimatedEffort": "0.5-1 day"
+    },
+    {
+      "id": "TASK-003",
+      "name": "更新类型导出和模块索引",
+      "complexity": "S",
+      "wave": 1,
+      "dependencies": ["TASK-001"],
+      "frs": ["FR-001"],
+      "files": [
+        {"action": "MODIFY", "path": "src/state/types.ts", "estimatedLines": 20},
+        {"action": "MODIFY", "path": "src/types.ts", "estimatedLines": 15},
+        {"action": "MODIFY", "path": "src/state/index.ts", "estimatedLines": 10}
+      ],
+      "verificationCommand": "npx tsc --noEmit",
+      "estimatedEffort": "0.5 day"
+    },
+    {
+      "id": "TASK-004",
+      "name": "重构 machine.ts — 删除双宇宙映射，phase+status 直接驱动",
+      "complexity": "L",
+      "wave": 2,
+      "dependencies": ["TASK-001", "TASK-003"],
+      "frs": ["FR-001", "FR-002", "FR-006"],
+      "files": [
+        {"action": "MODIFY", "path": "src/state/machine.ts", "estimatedLines": 350},
+        {"action": "MODIFY", "path": "src/state/__tests__/machine.test.ts", "estimatedLines": 100}
+      ],
+      "verificationCommand": "npx jest src/state/__tests__/machine.test.ts --verbose",
+      "estimatedEffort": "1-2 days"
+    },
+    {
+      "id": "TASK-005",
+      "name": "适配 state-loader.ts、auto-updater.ts、dependency-checker.ts",
+      "complexity": "M",
+      "wave": 2,
+      "dependencies": ["TASK-001", "TASK-003"],
+      "frs": ["FR-001", "FR-003"],
+      "files": [
+        {"action": "MODIFY", "path": "src/state/state-loader.ts", "estimatedLines": 80},
+        {"action": "MODIFY", "path": "src/utils/subfeature-manager.ts", "estimatedLines": 15},
+        {"action": "MODIFY", "path": "src/state/auto-updater.ts", "estimatedLines": 50},
+        {"action": "MODIFY", "path": "src/state/dependency-checker.ts", "estimatedLines": 30}
+      ],
+      "verificationCommand": "npx tsc --noEmit && npx jest src/state/state-loader.test.ts --verbose",
+      "estimatedEffort": "1 day"
+    },
+    {
+      "id": "TASK-006",
+      "name": "更新 tree-state-validator.ts、parent-state-manager.ts、migrator.ts",
+      "complexity": "M",
+      "wave": 2,
+      "dependencies": ["TASK-001", "TASK-003"],
+      "frs": ["FR-005", "FR-007"],
+      "files": [
+        {"action": "MODIFY", "path": "src/state/tree-state-validator.ts", "estimatedLines": 60},
+        {"action": "MODIFY", "path": "src/state/__tests__/tree-state-validator.test.ts", "estimatedLines": 40},
+        {"action": "MODIFY", "path": "src/state/parent-state-manager.ts", "estimatedLines": 30},
+        {"action": "MODIFY", "path": "src/state/migrator.ts", "estimatedLines": 40},
+        {"action": "MODIFY", "path": "src/state/__tests__/migrator.test.ts", "estimatedLines": 30}
+      ],
+      "verificationCommand": "npx jest src/state/__tests__/tree-state-validator.test.ts src/state/__tests__/migrator.test.ts --verbose",
+      "estimatedEffort": "1 day"
+    },
+    {
+      "id": "TASK-007",
+      "name": "创建 consistency-checker.ts — R5 内置升级机制",
+      "complexity": "L",
+      "wave": 3,
+      "dependencies": ["TASK-004", "TASK-005"],
+      "frs": ["FR-007", "FR-008"],
+      "files": [
+        {"action": "NEW", "path": "src/state/consistency-checker.ts", "estimatedLines": 350}
+      ],
+      "verificationCommand": "npx tsc --noEmit",
+      "estimatedEffort": "1-2 days"
+    },
+    {
+      "id": "TASK-008",
+      "name": "增强 tree-scanner.ts — 子随父归逻辑",
+      "complexity": "M",
+      "wave": 3,
+      "dependencies": ["TASK-004", "TASK-005"],
+      "frs": ["FR-004"],
+      "files": [
+        {"action": "MODIFY", "path": "src/state/tree-scanner.ts", "estimatedLines": 60}
+      ],
+      "verificationCommand": "npx tsc --noEmit",
+      "estimatedEffort": "0.5-1 day"
+    },
+    {
+      "id": "TASK-009",
+      "name": "重写 sddu.md.hbs — 分类仪表盘 + 标记命令 + 智能引导",
+      "complexity": "L",
+      "wave": 4,
+      "dependencies": ["TASK-004", "TASK-005", "TASK-007", "TASK-008"],
+      "frs": ["FR-003", "FR-004", "FR-009", "FR-010", "FR-010b", "FR-011", "FR-012"],
+      "files": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu.md.hbs", "estimatedLines": 300}
+      ],
+      "verificationCommand": "node build-agents.cjs --dry-run 2>&1 | grep -i error; npx tsc --noEmit",
+      "estimatedEffort": "2-3 days"
+    },
+    {
+      "id": "TASK-010",
+      "name": "更新 sddu-docs.md.hbs、sddu-agents.ts 及相关模板",
+      "complexity": "M",
+      "wave": 4,
+      "dependencies": ["TASK-004", "TASK-005"],
+      "frs": ["FR-002", "FR-010"],
+      "files": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "estimatedLines": 50},
+        {"action": "MODIFY", "path": "src/agents/sddu-agents.ts", "estimatedLines": 20},
+        {"action": "MODIFY", "path": "src/templates/agents/output/sddu-plan.md.hbs", "estimatedLines": 10},
+        {"action": "MODIFY", "path": "src/templates/subfeature-templates.ts", "estimatedLines": 10},
+        {"action": "MODIFY", "path": "src/utils/readme-generator.ts", "estimatedLines": 15}
+      ],
+      "verificationCommand": "npx tsc --noEmit",
+      "estimatedEffort": "1 day"
+    },
+    {
+      "id": "TASK-011",
+      "name": "更新全量回归测试套件和测试 fixtures",
+      "complexity": "M",
+      "wave": 5,
+      "dependencies": ["TASK-004", "TASK-005", "TASK-006"],
+      "frs": ["FR-001", "FR-002", "FR-005", "FR-006"],
+      "files": [
+        {"action": "MODIFY", "path": "src/state/__tests__/machine.test.ts"},
+        {"action": "MODIFY", "path": "src/state/__tests__/state-loader.test.ts"},
+        {"action": "MODIFY", "path": "src/state/__tests__/auto-updater.test.ts"},
+        {"action": "MODIFY", "path": "src/state/__tests__/dependency-checker.test.ts"},
+        {"action": "MODIFY", "path": "src/state/__tests__/multi-feature-manager.test.ts"},
+        {"action": "MODIFY", "path": "src/state/__tests__/parent-state-manager.test.ts"},
+        {"action": "MODIFY", "path": "tests/integration/tree-workflow.test.ts"},
+        {"action": "MODIFY", "path": "tests/state/agent-integration.test.ts"},
+        {"action": "MODIFY", "path": "tests/fixtures/multi-feature/*/state.json", "note": "~7 files"},
+        {"action": "MODIFY", "path": "examples/tree-structure-demo/*/state.json", "note": "~5 files"},
+        {"action": "MODIFY", "path": "scripts/e2e/basic/sddu-e2e.sh"},
+        {"action": "MODIFY", "path": "scripts/e2e/tree-scenario/setup.sh"},
+        {"action": "MODIFY", "path": "scripts/e2e/fullstack/sddu-e2e-fullstack.sh"},
+        {"action": "MODIFY", "path": "(~24 other test files)", "note": "full scan determined"}
+      ],
+      "verificationCommand": "npx jest --testPathPattern=\"src/state\" --verbose && npx jest --testPathPattern=\"tests/\" --verbose",
+      "estimatedEffort": "1 day"
+    },
+    {
+      "id": "TASK-012",
+      "name": "E2E 端到端验证和性能测试",
+      "complexity": "M",
+      "wave": 5,
+      "dependencies": ["TASK-009", "TASK-010", "TASK-011"],
+      "frs": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-010", "FR-010b", "FR-011", "FR-012"],
+      "files": [],
+      "verificationCommand": "bash scripts/e2e/fullstack/sddu-e2e-fullstack.sh",
+      "estimatedEffort": "1 day"
+    },
+    {
+      "id": "TASK-013",
+      "name": "FR-013 长期停滞检测",
+      "complexity": "M",
+      "wave": 6,
+      "dependencies": ["TASK-009"],
+      "frs": ["FR-013"],
+      "files": [
+        {"action": "MODIFY", "path": "src/state/consistency-checker.ts", "estimatedLines": 40},
+        {"action": "MODIFY", "path": "src/templates/agents/sddu.md.hbs", "estimatedLines": 20}
+      ],
+      "verificationCommand": null,
+      "estimatedEffort": "0.5 day",
+      "deferrable": true
+    },
+    {
+      "id": "TASK-014",
+      "name": "FR-014 Merged 特性跳转追溯",
+      "complexity": "S",
+      "wave": 6,
+      "dependencies": ["TASK-009"],
+      "frs": ["FR-014"],
+      "files": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu.md.hbs", "estimatedLines": 20}
+      ],
+      "verificationCommand": null,
+      "estimatedEffort": "0.5 day",
+      "deferrable": true
+    }
+  ],
+  "strategy": {
+    "approach": "clean-cut",
+    "noIncrementalTransition": true,
+    "noLegacyCompatibility": true,
+    "modificationBoundary": "direct-repair-scope (excluding .opencode/*, .sddu/*, opencode.json)",
+    "legacySchemaHandling": "R5 consistency-checker auto-detects and prompts user for repair"
+  },
+  "architectureDecisions": [
+    {
+      "id": "ADR-020",
+      "title": "Two-field isolation model: Phase + Status completely independent",
+      "status": "PROPOSED"
+    }
+  ]
+}

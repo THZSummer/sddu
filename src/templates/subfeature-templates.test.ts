@@ -40,8 +40,8 @@ describe('子 Feature 目录结构模板生成器测试', () => {
       expect(result).toContain('# SDD 多子 Feature 规格文档');
       expect(result).toContain('**Feature ID** | feature-1');
       expect(result).toContain('**Feature 名称** | 测试功能');
-      expect(result).toContain('| sub-1 | 子功能1 | sub-features/sub-1 | tasked | 张三 | sub-2 |');
-      expect(result).toContain('| sub-2 | 子功能2 | sub-features/sub-2 | tasked | 李四 | - |');
+      expect(result).toContain('| sub-1 | 子功能1 | sub-features/sub-1 | registered | tracked | 张三 | sub-2 |');
+      expect(result).toContain('| sub-2 | 子功能2 | sub-features/sub-2 | registered | tracked | 李四 | - |');
     });
 
     test('应该处理没有子 Feature 的情况', () => {
@@ -72,7 +72,7 @@ describe('子 Feature 目录结构模板生成器测试', () => {
       };
 
       const result = generateMainSpec(template);
-      expect(result).toContain('| sub-1 | 子功能1 | sub-features/sub-1 | tasked | - | - |');
+      expect(result).toContain('| sub-1 | 子功能1 | sub-features/sub-1 | registered | tracked | - | - |');
     });
   });
 
@@ -182,7 +182,7 @@ describe('子 Feature 目录结构模板生成器测试', () => {
       expect(result).toContain('# Sub Feature: 子功能1');
       expect(result).toContain('**ID**: `sub-1`');
       expect(result).toContain('张三');
-      expect(result).toContain('**依赖**: sub-2');
+      expect(result).toContain('**依赖**: `sub-feature-sub-2`');
       expect(result).toContain('描述子功能1');
     });
 
@@ -208,7 +208,7 @@ describe('子 Feature 目录结构模板生成器测试', () => {
     expect(result).toContain('认证系统重构');
     expect(result).toContain('用户管理重构');
     expect(result).toContain('用户模型设计');
-    expect(result).toContain('/specs-tree-root/');
+    expect(result).toContain('specs-tree-root/');
     expect(result).toContain('sub-features/');
   });
 });

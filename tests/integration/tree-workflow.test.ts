@@ -12,8 +12,44 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 
 // Mock filesystem to control the test environment
-jest.mock('fs/promises');
-jest.mock('path');
+// Use requireActual for path so path.join/basename/dirname work correctly
+jest.mock('path', () => jest.requireActual('path'));
+
+// In-memory filesystem mock for fs/promises
+const mockFiles: Map<string, string> = new Map();
+jest.mock('fs/promises', () => ({
+  access: jest.fn(async (p: string, _mode?: number) => {
+    if (!mockFiles.has(p)) {
+      const err: any = new Error(`ENOENT: no such file or directory, access '${p}'`);
+      err.code = 'ENOENT';
+      throw err;
+    }
+  }),
+  mkdir: jest.fn(async (_p: string, _opts?: any) => {
+    // Always succeed
+  }),
+  writeFile: jest.fn(async (p: string, data: string) => {
+    mockFiles.set(p, data);
+  }),
+  readFile: jest.fn(async (p: string, _encoding: string) => {
+    const content = mockFiles.get(p);
+    if (content === undefined) {
+      const err: any = new Error(`ENOENT: no such file or directory, open '${p}'`);
+      err.code = 'ENOENT';
+      throw err;
+    }
+    return content;
+  }),
+  // Stub readdir used by tree-scanner during loadAll()
+  readdir: jest.fn(async (_dirPath: string) => {
+    return [] as any;
+  }),
+  stat: jest.fn(async (_p: string) => {
+    const err: any = new Error(`ENOENT: no such file or directory`);
+    err.code = 'ENOENT';
+    throw err;
+  }),
+}));
 
 describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
   let stateMachine: StateMachine;
@@ -24,6 +60,7 @@ describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
   const testDataPath = '.sddu/specs-tree-integration-test';
 
   beforeEach(async () => {
+    mockFiles.clear();
     stateLoader = new StateLoader(testDataPath);
     stateMachine = new StateMachine(testDataPath);
     stateMachine['stateLoader'] = stateLoader;
@@ -35,7 +72,27 @@ describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
   afterEach(async () => {
     // Clean up test data
     jest.clearAllMocks();
+    mockFiles.clear();
   });
+
+  /** Write required artifact files for a phase transition (mock filesystem) */
+  async function writeArtifactFiles(featurePath: string, targetPhase: string): Promise<void> {
+    const requiredByPhase: Record<string, string[]> = {
+      'registered': [],
+      'discovered': ['discovery.md'],
+      'specified':  ['spec.md'],
+      'planned':    ['spec.md', 'plan.md'],
+      'tasked':     ['spec.md', 'plan.md', 'tasks.md'],
+      'builded':    ['spec.md', 'plan.md', 'tasks.md'],
+      'reviewed':   ['spec.md', 'plan.md', 'tasks.md', 'review.md'],
+      'validated':  ['spec.md', 'plan.md', 'tasks.md', 'review.md', 'validation.md'],
+    };
+    const files = requiredByPhase[targetPhase] || [];
+    for (const file of files) {
+      const filePath = path.join(testDataPath, featurePath, file);
+      await fs.writeFile(filePath, `// mock ${file} content`);
+    }
+  }
 
   describe('FR-120: Complete workflow from Discovery to Validate', () => {
     test('full workflow creates compliant state.json at each step for a leaf feature', async () => {
@@ -44,39 +101,54 @@ describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
       // Stage 1: Create using StateMachine - should auto-populate with StateLoader enhancements
       const initialFeature = await stateMachine.createFeature('Sample Integration Feature', featurePath);
       
-      // Validate the created state has all FR-101 requirements
+      // Validate the created state has all FR-101 requirements (v3.0.0)
       expect(initialFeature.feature).toBe(featurePath);
-      expect(initialFeature.version).toBe('v2.1.0');
+      expect(initialFeature.version).toBe('v3.0.0');
       expect(initialFeature.depth).toBe(1);  // Based on path with 2 occurrences: ...integration-test -> sample-feature
       expect(initialFeature.phaseHistory).toBeDefined();
       expect(initialFeature.phaseHistory.length).toBeGreaterThan(0);
       expect(initialFeature.dependencies).toBeDefined();
       expect(initialFeature.files).toBeDefined();
       
-      // Validate state via TreeStateValidator to ensure v2.1.0 compliance
+      // Validate state via TreeStateValidator to ensure v3.0.0 compliance
       const validationResult = validator.validate(initialFeature);
       expect(validationResult.valid).toBe(true);
-      expect(validationResult.state.version).toBe('v2.1.0');
+      expect(validationResult.state.version).toBe('v3.0.0');
       expect(validationResult.state.depth).toBeDefined();
       
-      // Stage 2: Update to specified phase
+      // Stage 2a: Update to discovered phase (v3.0.0: phase order is sequential)
+      // discovery.md is optional; skip writing for discovered
+      const discoveredFeature = await stateMachine.updateState(
+        featurePath, 
+        'discovered', 
+        initialFeature,
+        'IntegrationTest',
+        'Updated to discovered'
+      );
+      
+      expect(discoveredFeature.phase).toBe('discovered');
+      expect(discoveredFeature.status).toBe('tracked');
+      
+      // Stage 2b: Update to specified phase — needs spec.md
+      await writeArtifactFiles(featurePath, 'specified');
       const specifiedFeature = await stateMachine.updateState(
         featurePath, 
         'specified', 
-        initialFeature,
+        discoveredFeature,
         'IntegrationTest',
         'Updated to specified'
       );
       
-      expect(specifiedFeature.status).toBe('specified');
-      expect(specifiedFeature.phase).toBe(1);
+      expect(specifiedFeature.phase).toBe('specified');
+      expect(specifiedFeature.status).toBe('tracked');
       
       // Validate specified state
       const validationAfterSpec = validator.validate(specifiedFeature);
       expect(validationAfterSpec.valid).toBe(true);
       expect(validationAfterSpec.autoFixed.length).toBe(0);  // Should be properly formed from start
       
-      // Stage 3: Update to planned phase
+      // Stage 3: Update to planned phase — needs spec.md + plan.md
+      await writeArtifactFiles(featurePath, 'planned');
       const plannedFeature = await stateMachine.updateState(
         featurePath,
         'planned',
@@ -85,8 +157,8 @@ describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
         'Updated to planned'
       );
       
-      expect(plannedFeature.status).toBe('planned');
-      expect(plannedFeature.phase).toBe(2);
+      expect(plannedFeature.phase).toBe('planned');
+      expect(plannedFeature.status).toBe('tracked');
       
       // All updates should maintain schema compliance
       const validationAfterPlan = validator.validate(plannedFeature);
@@ -105,18 +177,52 @@ describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
       expect(parentFeature.depth).toBe(0); // Root under integration-test 
       expect(childFeature.depth).toBe(1);  // Nested under parent
       
-      // Attempt to update child to implementation phase 
-      const updatedChild = await stateMachine.updateState(
+      // Step through phases sequentially: registered → discovered → specified → planned → tasked → builded
+      const childDiscovered = await stateMachine.updateState(
         childPath,
-        'implementing',  // Changed from 'building' to 'implementing' which is the correct internal enum
+        'discovered',
         childFeature,
         'IntegrationTest',
-        'Updating child to building phase'
+        'Child to discovered'
+      );
+      await writeArtifactFiles(childPath, 'specified');
+      const childSpecified = await stateMachine.updateState(
+        childPath,
+        'specified',
+        childDiscovered,
+        'IntegrationTest',
+        'Child to specified'
+      );
+      await writeArtifactFiles(childPath, 'planned');
+      const childPlanned = await stateMachine.updateState(
+        childPath,
+        'planned',
+        childSpecified,
+        'IntegrationTest',
+        'Child to planned'
+      );
+      await writeArtifactFiles(childPath, 'tasked');
+      const childTasked = await stateMachine.updateState(
+        childPath,
+        'tasked',
+        childPlanned,
+        'IntegrationTest',
+        'Child to tasked'
+      );
+      
+      // Attempt to update child to build phase (v3.0.0: 'builded' replaces 'implementing'/'building')
+      await writeArtifactFiles(childPath, 'builded');
+      const updatedChild = await stateMachine.updateState(
+        childPath,
+        'builded',
+        childTasked,
+        'IntegrationTest',
+        'Updating child to build phase'
       );
       
       const childPostUpdate = await stateMachine.getState(childPath);
-      expect(childPostUpdate?.status).toBe('building');  // External representation is 'building'
-      expect(childPostUpdate?.phase).toBe(4);
+      expect(childPostUpdate?.phase).toBe('builded');
+      expect(childPostUpdate?.status).toBe('tracked');
       expect(childPostUpdate?.depth).toBe(1);
       
       // Verify child is stored properly in parent's childrens array when scanned
@@ -131,8 +237,8 @@ describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
       
       const createdFeature = await stateMachine.createFeature('Auto Fill Test', testFeaturePath);
       
-      // Verify the automatically populated fields match TreeStateValidator behavior
-      expect(createdFeature.version).toBe('v2.1.0');
+      // Verify the automatically populated fields match TreeStateValidator behavior (v3.0.0)
+      expect(createdFeature.version).toBe('v3.0.0');
       expect(createdFeature.depth).toBeDefined();  // Should be computed based on path
       expect(createdFeature.phaseHistory).toBeDefined();
       expect(createdFeature.files).toBeDefined();
@@ -151,12 +257,38 @@ describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
       const child = await stateMachine.createFeature('Child for Dep Test', childPath);
       const external = await stateMachine.createFeature('External Dep', externalPath);
       
+      // Step through phases to get child to 'tasked' where dependencies can be set
+      const childDiscovered = await stateMachine.updateState(
+        childPath,
+        'discovered',
+        child,
+        'IntegrationTest',
+        'Child to discovered'
+      );
+      await writeArtifactFiles(childPath, 'specified');
+      const childSpecified = await stateMachine.updateState(
+        childPath,
+        'specified',
+        childDiscovered,
+        'IntegrationTest',
+        'Child to specified'
+      );
+      await writeArtifactFiles(childPath, 'planned');
+      const childPlanned = await stateMachine.updateState(
+        childPath,
+        'planned',
+        childSpecified,
+        'IntegrationTest',
+        'Child to planned'
+      );
+      
       // Manually update child to depend on external feature
+      await writeArtifactFiles(childPath, 'tasked');
       const updatedChild = await stateMachine.updateState(
         childPath,
         'tasked',
         {
-          ...child,
+          ...childPlanned,
           dependencies: {
             on: [externalPath],
             blocking: []
@@ -203,26 +335,45 @@ describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
       const childB = await stateMachine.createFeature('Child B', childBPath);
       const standalone = await stateMachine.createFeature('Standalone', standalonePath);
       
-      // Update the parent to have children info
+      // Step through phases sequentially to reach desired states
+      // Parent: registered → discovered → specified → planned
+      const parentDiscovered = await stateMachine.updateState(
+        parentPath,
+        'discovered',
+        parent,
+        'IntegrationTest',
+        'Parent to discovered'
+      );
+      await writeArtifactFiles(parentPath, 'specified');
+      const parentSpecified = await stateMachine.updateState(
+        parentPath,
+        'specified',
+        parentDiscovered,
+        'IntegrationTest',
+        'Parent to specified'
+      );
+      
+      // Update the parent to have children info (v3.0.0 format)
       // In real usage, a parent's childrens array would be updated during scans
+      await writeArtifactFiles(parentPath, 'planned');
       const updatedParent = await stateMachine.updateState(
         parentPath,
         'planned',
         {
-          ...parent,
+          ...parentSpecified,
           childrens: [
             {
               path: childAPath,
               featureName: 'Child A',
-              status: 'specified',
-              phase: 1,
+              phase: 'specified',
+              status: 'tracked',
               lastModified: new Date().toISOString()
             },
             {
               path: childBPath,
               featureName: 'Child B',
-              status: 'discovered',
-              phase: 0,
+              phase: 'discovered',
+              status: 'tracked',
               lastModified: new Date().toISOString()
             }
           ]
@@ -231,12 +382,38 @@ describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
         'Updated Parent childrens'
       );
       
+      // ChildA: registered → discovered → specified → planned → tasked
+      const childADiscovered = await stateMachine.updateState(
+        childAPath,
+        'discovered',
+        childA,
+        'IntegrationTest',
+        'ChildA to discovered'
+      );
+      await writeArtifactFiles(childAPath, 'specified');
+      const childASpecified = await stateMachine.updateState(
+        childAPath,
+        'specified',
+        childADiscovered,
+        'IntegrationTest',
+        'ChildA to specified'
+      );
+      await writeArtifactFiles(childAPath, 'planned');
+      const childAPlanned = await stateMachine.updateState(
+        childAPath,
+        'planned',
+        childASpecified,
+        'IntegrationTest',
+        'ChildA to planned'
+      );
+      
       // Update dependencies as in E2E test scenario
+      await writeArtifactFiles(childAPath, 'tasked');
       await stateMachine.updateState(
         childAPath,
         'tasked',
         {
-          ...childA,
+          ...childAPlanned,
           dependencies: {
             on: [standalonePath],
             blocking: []
@@ -246,11 +423,21 @@ describe('Tree Structure Full Workflow Integration Tests (TASK-040)', () => {
         'ChildA dependson standalone'
       );
       
+      // ChildB: registered → discovered → specified
+      const childBDiscovered = await stateMachine.updateState(
+        childBPath,
+        'discovered',
+        childB,
+        'IntegrationTest',
+        'ChildB to discovered'
+      );
+      
+      await writeArtifactFiles(childBPath, 'specified');
       await stateMachine.updateState(
         childBPath,
         'specified',
         {
-          ...childB,
+          ...childBDiscovered,
           dependencies: {
             on: [childAPath],  // Cross-subtree reference for dependency testing
             blocking: []

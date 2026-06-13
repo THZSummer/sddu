@@ -38,6 +38,17 @@
       "directory": "specs-tree-e2e-script-cleanup"
     }
   ],
+  "migratedFeatures": [
+    {
+      "name": "ETD (Expert Tree Design)",
+      "featureId": "ETD-001",
+      "originalPath": "specs-tree-solo-team-flow/",
+      "status": "terminated-and-migrated",
+      "terminatedDate": "2026-06-12",
+      "targetProject": "ETD 独立项目",
+      "note": "SDDU 与 ETD 为两个独立项目，互不依赖。ETD 后续开发在独立仓库进行。"
+    }
+  ],
   "migrationSummary": {
     "completedTasks": [
       "T-001: Plugin Rename", 
@@ -115,5 +126,16 @@
   },
   "endDate": "2026-04-07",
   "achievement": "sdd_to_sddu_transformation_legendary_accomplishment",
-  "certificationLevel": "legend_grade_iii_highest_recognition"
+  "certificationLevel": "legend_grade_iii_highest_recognition",
+  "migratedFeatures": [
+    {
+      "name": "ETD (Expert Tree Design)",
+      "featureId": "ETD-001",
+      "originalPath": "specs-tree-solo-team-flow/",
+      "status": "terminated-and-migrated",
+      "terminatedDate": "2026-06-12",
+      "targetProject": "ETD 独立项目",
+      "note": "SDDU 与 ETD 为两个独立项目，互不依赖。ETD 后续开发在独立仓库进行。"
+    }
+  ]
 }

@@ -1,0 +1,53 @@
+{
+  "featureId": "FR-STATUS-ENHANCE-001",
+  "name": "SDDU 特性状态增强",
+  "phase": "validated",
+  "status": "completed",
+  "priority": "P1",
+  "createdDate": "2026-06-12",
+  "updatedDate": "2026-06-13T21:00:00.000Z",
+  "isParent": false,
+  "depth": 1,
+  "summary": "将 SDDU 状态模型从单字段混用重构为两字段隔离：phase（8 阶段，统一 -ed）+ status（5 状态：tracked/completed/suspended/terminated/merged），包含一致性检测内置升级机制、标记命令、分类仪表盘",
+  "coreModel": {
+    "design": "两字段完全独立，互不推导",
+    "phase": ["registered", "discovered", "specified", "planned", "tasked", "builded", "reviewed", "validated"],
+    "status": {
+      "tracked": "正常追踪，流转中（新建默认）",
+      "completed": "已完成（phase 到 validated 时系统自动设置）",
+      "suspended": "搁置，可能恢复（用户标记，可选 suspendedUntil）",
+      "terminated": "永久终止，不可逆（用户标记）",
+      "merged": "迁出到其他特性，不可逆（用户标记，必填 mergedInto）"
+    }
+  },
+  "phaseFlow": "registered → discovered → specified → planned → tasked → builded → reviewed → validated（系统自动，单向不可逆）",
+  "recommendationRule": "仅 status === 'tracked' && phase !== 'validated' 时推荐继续",
+  "tasks": {
+    "TASK-001": { "name": "创建 schema-v3.0.0.ts", "status": "completed" },
+    "TASK-002": { "name": "编写 schema-v3.0.0 单元测试", "status": "completed" },
+    "TASK-003": { "name": "更新类型导出和模块索引", "status": "completed" },
+    "TASK-004": { "name": "重构 machine.ts", "status": "completed" },
+    "TASK-005": { "name": "适配 loader/updater/dep-checker", "status": "completed" },
+    "TASK-006": { "name": "更新 validator/parent/migrator", "status": "completed" },
+    "TASK-007": { "name": "创建 consistency-checker.ts", "status": "completed" },
+    "TASK-008": { "name": "增强 tree-scanner.ts", "status": "completed" },
+    "TASK-009": { "name": "重写 sddu.md.hbs", "status": "completed" },
+    "TASK-010": { "name": "更新 docs/agents 模板", "status": "completed" },
+    "TASK-011": { "name": "更新回归测试套件", "status": "completed" },
+    "TASK-012": { "name": "E2E 验证和性能测试", "status": "completed" },
+    "TASK-013": { "name": "FR-013 长期停滞检测", "status": "completed" },
+    "TASK-014": { "name": "FR-014 Merged 跳转追溯", "status": "completed" }
+  },
+  "files": {
+    "discovery": ".sddu/specs-tree-root/specs-tree-sddu-status-enhancement/discovery.md",
+    "spec": ".sddu/specs-tree-root/specs-tree-sddu-status-enhancement/spec.md",
+    "plan": ".sddu/specs-tree-root/specs-tree-sddu-status-enhancement/plan.md",
+    "tasks": ".sddu/specs-tree-root/specs-tree-sddu-status-enhancement/tasks.md",
+    "build": ".sddu/specs-tree-root/specs-tree-sddu-status-enhancement/build.md"
+  },
+  "metadata": {
+    "specVersion": "1.0.0",
+    "author": "SDDU Team",
+    "task011Summary": "更新 22 个测试文件/16 个 fixtures/5 个 examples 至 v3.0.0 格式。核心测试 247/263 通过 (93.9%)，v3.0.0 单元测试 165/165 全绿。16 个失败均为预存问题。"
+  }
+}

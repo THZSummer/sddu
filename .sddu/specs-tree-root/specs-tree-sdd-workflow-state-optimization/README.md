@@ -12,16 +12,57 @@
 | **阶段** | Phase 6 (Validate) - 已完成 |
 | **优先级** | P1 |
 | **版本** | 2.0.0 |
+| **创建日期** | 2026-04-01 |
 | **修订日期** | 2026-04-05 |
 
-## 文档
+## 目录结构
 
-| 文档 | 状态 | 路径 |
+```
+specs-tree-sdd-workflow-state-optimization/
+├── README.md              # 本文件 - 目录导航
+├── spec.md                # 规范 v2.0.0
+├── spec-update-report.md  # 规范更新报告
+├── plan.md                # 技术规划 v2.0.0
+├── tasks.md               # 任务分解 (13 个任务, 6 个波次)
+├── review.md              # 代码审查报告
+├── validation-report.md   # 验证报告
+├── state.json             # 状态文件 (validated, phase 6)
+├── spec-v1.md.bak         # 旧版规范备份
+├── plan-v1.md.bak         # 旧版规划备份
+└── tasks-v1.md.bak        # 旧版任务备份
+```
+
+## 文件说明
+
+| 文档 | 状态 | 说明 |
 |------|------|------|
-| 规范 v2.0.0 | ✅ 已完成 | [spec.md](./spec.md) |
-| 规划 v2.0.0 | ✅ 已完成 | [plan.md](./plan.md) |
-| 架构决策 (ADR-006~010) | ✅ 已完成 | [architecture/adr/](../architecture/adr/) |
-| 任务分解 | ⏳ 待执行 | tasks.md |
+| spec.md | ✅ validated | 规范 v2.0.0 — 状态转换集成、自动更新、依赖检查等 |
+| plan.md | ✅ validated | 技术规划 v2.0.0 — 包含 ADR-006 ~ ADR-010 |
+| tasks.md | ✅ validated | 任务分解 — 13 个任务, 6 个执行波次 |
+| review.md | ✅ validated | 代码审查报告 — 所有功能实现符合规范 |
+| validation-report.md | ✅ validated | 最终验证报告 — 所有需求已满足 |
+
+## 流程阶段
+
+```
+✅ Spec      → 2026-04-01 完成 (specified)
+    ↓
+✅ Plan      → 2026-04-02 完成 (planned)
+    ↓
+✅ Tasks     → 2026-04-02 完成 (tasked)
+    ↓ (v2.0.0 重新审视)
+✅ Spec v2   → 2026-04-05 完成 (specified)
+    ↓
+✅ Plan v2   → 2026-04-05 完成 (planned)
+    ↓
+✅ Tasks v2  → 2026-04-05 完成 (tasked)
+    ↓
+✅ Build     → 2026-04-05 完成 (building)
+    ↓
+✅ Review    → 2026-04-05 完成 (reviewed)
+    ↓
+✅ Validate  → 2026-04-05 完成 (validated)
+```
 
 ## 依赖关系
 
@@ -30,13 +71,6 @@
 
 ## 核心功能
 
-### 已完成 (sdd-multi-module) ✅
-1. **分布式状态存储** - 每个 Feature 独立 state.json
-2. **State Schema v1.2.11** - 统一状态数据格式
-3. **依赖关系图** - 构建 Feature 依赖关系
-4. **循环依赖检测** - DFS 算法检测循环依赖
-
-### 待实现 (本 Feature) 🎯
 1. **状态机完全集成** - 将 StateMachine 集成到所有 Agent 工作流
 2. **状态自动更新** - session.idle 事件触发状态更新
 3. **状态历史记录自动化** - 每次状态变更自动记录
@@ -48,20 +82,21 @@
 
 | ADR ID | 标题 | 状态 |
 |--------|------|------|
-| ADR-006 | StateMachine 集成策略 | PROPOSED |
-| ADR-007 | 状态自动更新机制 | PROPOSED |
-| ADR-008 | 状态历史记录格式 | PROPOSED |
-| ADR-009 | 依赖检查器实现方案 | PROPOSED |
-| ADR-010 | State Schema v2.0.0 迁移 | PROPOSED |
+| ADR-006 | StateMachine 集成策略 | ACCEPTED |
+| ADR-007 | 状态自动更新机制 | ACCEPTED |
+| ADR-008 | 状态历史记录格式 | ACCEPTED |
+| ADR-009 | 依赖检查器实现方案 | ACCEPTED |
+| ADR-010 | State Schema v2.0.0 迁移 | ACCEPTED |
 
-## 下一步
+## 上级目录
 
-👉 运行 `@sdd-tasks specs-tree-sdd-workflow-state-optimization` 开始任务分解
+- [返回规范目录](../README.md)
+- [返回 SDDU 工作空间](../../README.md)
 
 ---
 
 **规范版本**: 2.0.0  
 **规划版本**: 2.0.0  
-**规划状态**: planned  
+**状态**: validated  
 **创建日期**: 2026-04-01  
-**修订日期**: 2026-04-05
+**修订日期**: 2026-06-12

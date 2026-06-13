@@ -1,7 +1,7 @@
 # 基础 E2E 测试脚本
 
-**版本**: 1.2.0  
-**更新日期**: 2026-04-12  
+**版本**: 1.3.0  
+**更新日期**: 2026-06-13  
 **类型**: TypeScript 单项目
 
 ---
@@ -48,6 +48,7 @@ bash sddu-e2e.sh "online-bookstore" --auto --report
 | `"project-name"` | 项目名称（必需，用作目录名） |
 | `--auto` | 自动模式，跳过所有确认提示 |
 | `--report` | 生成验收报告 (`sddu-e2e-report.md`) |
+| `--scenario tree` | 创建树形嵌套测试结构（父 Feature + 子 Feature + 独立 Feature） |
 
 ---
 
