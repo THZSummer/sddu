@@ -5,22 +5,33 @@
     从 GitHub 拉取 SDDU 最新源码，构建并安装到目标项目。
 
     用法:
+      # 直连
       powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project"
+      # 镜像
+      powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project -ProxyUrl https://gh-proxy.com/"
 
     或者先下载再执行:
       Invoke-RestMethod https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 -OutFile bootstrap.ps1
       .\bootstrap.ps1 -TargetDir ./my-project
+      .\bootstrap.ps1 -TargetDir ./my-project -ProxyUrl https://gh-proxy.com/
 
     需要: git, node, npm
 #>
 
 param(
     [Parameter(Position=0)]
-    [string]$TargetDir = "."
+    [string]$TargetDir = ".",
+    [string]$ProxyUrl = ""
 )
 
 $ErrorActionPreference = "Stop"
-$RepoUrl = "https://github.com/THZSummer/sddu.git"
+$RepoBase = "https://github.com/THZSummer/sddu.git"
+
+if ($ProxyUrl) {
+    $RepoUrl = "$($ProxyUrl.TrimEnd('/'))/$RepoBase"
+} else {
+    $RepoUrl = $RepoBase
+}
 
 Write-Host ""
 Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Cyan
@@ -28,7 +39,11 @@ Write-Host "║       SDDU Bootstrap Installer          ║" -ForegroundColor Cy
 Write-Host "╚══════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "目标项目: $TargetDir"
-Write-Host "源码仓库: $RepoUrl"
+if ($ProxyUrl) {
+    Write-Host "网络模式: 镜像 ($ProxyUrl)"
+} else {
+    Write-Host "网络模式: 直连 GitHub"
+}
 Write-Host ""
 
 # 检查依赖
@@ -46,7 +61,14 @@ New-Item -ItemType Directory -Force -Path $TmpDir | Out-Null
 
 try {
     Write-Host "[1/2] 拉取 SDDU 最新代码..." -ForegroundColor Cyan
-    git clone --depth 1 $RepoUrl $TmpDir 2>&1 | Select-Object -Last 1
+    git clone --depth 1 $RepoUrl $TmpDir 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ""
+        Write-Host "❌ 克隆失败" -ForegroundColor Red
+        Write-Host "提示: 如网络受限，请使用 -ProxyUrl 参数指定镜像" -ForegroundColor Yellow
+        Write-Host "  例: .\bootstrap.ps1 ./my-project -ProxyUrl https://gh-proxy.com/" -ForegroundColor Yellow
+        exit 1
+    }
 
     Write-Host ""
     Write-Host "[2/2] 构建并安装 SDDU 到目标项目..." -ForegroundColor Cyan
@@ -67,6 +89,9 @@ finally {
 
 # 导出函数，支持 iex 调用
 function Install-Sddu {
-    param([string]$TargetDir = ".")
-    & $PSCommandPath -TargetDir $TargetDir
+    param(
+        [string]$TargetDir = ".",
+        [string]$ProxyUrl = ""
+    )
+    & $PSCommandPath -TargetDir $TargetDir -ProxyUrl $ProxyUrl
 }
