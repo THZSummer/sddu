@@ -191,7 +191,7 @@
 | C | **validate agent 不做真正 E2E 测试** | 当前 validate 只做静态合规检查（文件存在、spec 覆盖率），不执行端到端行为验证。E2E 应属于 validated 阶段的核心职责 | `sddu-validate` agent |
 | D | **sddu coordinator 尝试调用 bash 工具失败** | opencode 环境中 `bash` 工具不可用，`invalid [tool=bash]` 错误（已自愈） | `sddu` coordinator |
 | E | **SDDU 缺少框架级系统验证层** | 框架 Feature（如本 Feature）需要验证"SDDU 本身还能正常工作"，当前无标准化流程 | SDDU 框架设计 |
-| F | **设计层未覆盖"如何验证"** | 设计层（spec/plan/tasks）服务于所有实施阶段（build/review/validate），"如何实现"和"如何验证"是同一层次的设计问题。但当前 plan.md 只覆盖了前者（架构、模块、任务分解），未覆盖后者——没有审查重点、没有验证计划、没有 E2E 场景定义。tasks.md 也只有 build 任务，没有验证任务。这不是要"为设计再做设计"，而是设计层天然就应该同时回答"怎么做"和"怎么验"。 | SDDU 工作流设计（plan/tasks 覆盖范围） |
+| F | **实施阶段中 build 被设计过，review/validate 没有** | build 阶段经过了 spec 定义需求、plan 设计方案、tasks 拆解任务的完整设计过程，产出物厚度高、质量可控。但同为实施阶段的 review 和 validate 未经历同等设计过程——没有对应的需求定义、方案设计、任务分解。三个实施阶段得到的"设计投入"存在显著不对称。 | SDDU 工作流设计 |
 
 #### 结论
 
