@@ -88,42 +88,40 @@ opencode-sddu-plugin/
 
 ## 🚀 安装
 
-### 一键安装（推荐）
+### 一行安装（无需克隆仓库）
 
 **Linux/macOS:**
 ```bash
-bash install.sh <目标项目目录>
-# 或 (确保脚本可执行)
-chmod +x install.sh
-./install.sh <目标项目目录>
+curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project
 ```
 
-⚠️ **注意**: 必须使用 `bash`，不要用 `sh install.sh`！
+**Windows (PowerShell):**
+```powershell
+powershell -c "iwr https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project"
+```
+
+> 需要: git, node, npm。脚本会自动拉取最新 SDDU 源码、构建并安装，完成后清理临时文件。
+
+### 本地安装（已克隆仓库）
+
+**Linux/macOS:**
+```bash
+bash install.sh ./my-project
+```
 
 **Windows:**
 ```powershell
-powershell -ExecutionPolicy Bypass -File "install.ps1" <目标项目目录>
+powershell -ExecutionPolicy Bypass -File install.ps1 ./my-project
 ```
 
-### 手动安装
+### 手动构建 + 安装
 
 ```bash
-# 构建
 npm install
 npm run build
-
-# 打包（生成 dist/sddu/ 和 dist/sddu.zip）
 npm run package
-
-# 安装
-bash install.sh <目标项目>
+bash install.sh ./my-project
 ```
-
-### 打包优化说明
-- ✅ 自动清理 dist 目录冗余文件
-- ✅ 保留 `dist/sddu/` 新版插件包
-- ✅ 生成 `dist/sddu.zip` 新版压缩包
-- ✅ 支持 ZIP 解压安装
 
 ## 🏗️ 项目架构
 

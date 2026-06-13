@@ -221,6 +221,17 @@ if (-not (Copy-DistributionToPlugin -SourceDir $DistSdduDir -DestDir $SdduPlugin
     exit 1
 }
 
+# Clean old SDDU/SDD agent files (only sddu-* and sdd-*, don't touch other plugins' agents)
+$agentsDir = Join-Path $TargetDir ".opencode\agents"
+if (Test-Path $agentsDir) {
+    $oldAgents = Get-ChildItem -Path $agentsDir -File | Where-Object { $_.Name -like "sddu-*" -or $_.Name -like "sdd-*" }
+    if ($oldAgents.Count -gt 0) {
+        Write-Host "[CLEANUP] Removing $($oldAgents.Count) old SDDU/SDD agent files..." -ForegroundColor Yellow
+        $oldAgents | Remove-Item -Force
+        Write-Host "[OK] Old SDDU/SDD agents cleaned" -ForegroundColor Green
+    }
+}
+
 # Copy agents from SDDU source to .opencode/agents/
 if (Test-Path (Join-Path $DistSdduDir "agents")) {
     Write-Host "  Copying SDDU agents from dist/sddu/agents/..." -ForegroundColor Gray
@@ -231,20 +242,6 @@ if (Test-Path (Join-Path $DistSdduDir "agents")) {
 $AgentCount = (Get-ChildItem -Path (Join-Path $TargetDir ".opencode\agents") -File | Measure-Object).Count
 Write-Host "[OK] Total agents copied: $AgentCount" -ForegroundColor Green
 
-# Copy output templates from dist/sddu/templates/output/
-$OutputTemplateSource = Join-Path $ScriptDir "dist\sddu\templates\output"
-if (Test-Path $OutputTemplateSource) {
-    Write-Host "  Copying output templates..." -ForegroundColor Gray
-    $OutputTarget = Join-Path $TargetDir ".opencode\plugins\sddu\templates\output"
-    New-Item -ItemType Directory -Force -Path $OutputTarget | Out-Null
-    Get-ChildItem "$OutputTemplateSource\*.hbs" | ForEach-Object {
-        Copy-Item $_.FullName -Destination $OutputTarget -Force
-    }
-    Write-Host "[OK] Output templates copied" -ForegroundColor Green
-}
-else {
-    Write-Host "[WARN] Output templates source not found: $OutputTemplateSource" -ForegroundColor Yellow
-}
 
 # Step 6: Version Detection
 Write-Host "[6/${TOTAL_STEPS}] Version Detection..." -ForegroundColor Cyan
@@ -359,22 +356,19 @@ Write-Host "  - .opencode/plugins/sddu/templates/output/ (output templates)" -Fo
 Write-Host "  - opencode.json (plugin configuration - SDDU standard)" -ForegroundColor White
 Write-Host "  - .sddu/ (workspace container)" -ForegroundColor White
 Write-Host ""
-Write-Host "  🚀 New Feature: 7-Stage Workflow is now available!" -ForegroundColor Yellow
-Write-Host "    - @sddu-discovery / @sddu-0-discovery - Deep requirement analysis (Stage 0/6)" -ForegroundColor Yellow
-Write-Host "    - Followed by Spec, Plan, Tasks, Build, Review, Validate stages" -ForegroundColor Yellow
+Write-Host "  🚀 v3.0.0: 8-Stage Workflow + Two-Field State Model" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Agents installed ($AgentCount total):" -ForegroundColor Cyan
 Write-Host "  SDDU Standard Agents:" -ForegroundColor White
 Write-Host "    @sddu              - Smart entry point"
 Write-Host "    @sddu-help         - Help assistant"
-Write-Host "    @sddu-discovery    - Requirement Discovery (Stage 0/6)"
-Write-Host "    @sddu-0-discovery  - Requirement Discovery full name (Stage 0/6)"
-Write-Host "    @sddu-1-spec       - Specification (Phase 1/6)"
-Write-Host "    @sddu-2-plan       - Technical planning (Phase 2/6)"
-Write-Host "    @sddu-3-tasks      - Task breakdown (Phase 3/6)"
-Write-Host "    @sddu-4-build      - Implementation (Phase 4/6)"
-Write-Host "    @sddu-5-review     - Code review (Phase 5/6)"
-Write-Host "    @sddu-6-validate   - Validation (Stage 6/6)"
+Write-Host "    @sddu-discovery    - Requirement Discovery"
+Write-Host "    @sddu-spec         - Specification"
+Write-Host "    @sddu-plan         - Technical Planning"
+Write-Host "    @sddu-tasks        - Task Breakdown"
+Write-Host "    @sddu-build        - Implementation"
+Write-Host "    @sddu-review       - Code Review"
+Write-Host "    @sddu-validate     - Validation"
 Write-Host "    @sddu-roadmap      - Roadmap planning"
 Write-Host "    @sddu-docs         - Directory navigation"
 Write-Host ""
@@ -385,9 +379,11 @@ Write-Host "  @sddu start [feature name]"
 Write-Host "  @sddu-discovery [topic]" 
 Write-Host ""
 Write-Host "SDDU Features:" -ForegroundColor Cyan
-Write-Host "  - Seven-stage workflow (Discovery → Spec → Plan → Tasks → Build → Review → Validate)"
-Write-Host "  - Improved architecture with standardized naming"
-Write-Host "  - Enhanced documentation maintenance"
+Write-Host "  - Eight-stage workflow (registered → discovered → specified → planned → tasked → builded → reviewed → validated)"
+Write-Host "  - Two-field state model: phase (8 values) + status (5 values: tracked/completed/suspended/terminated/merged)"
+Write-Host "  - 6-zone dashboard with @sddu status"
+Write-Host "  - R5 consistency checker for automatic state repair"
+Write-Host ""
 Write-Host ""
 Write-Host "✅ Installation complete. Ready to start your requirements discovery with SDDU!" -ForegroundColor Green
 Write-Host ""
