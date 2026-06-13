@@ -10,21 +10,24 @@
     或者先下载再执行:
       Invoke-RestMethod https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 -OutFile bootstrap.ps1
       .\bootstrap.ps1 -TargetDir ./my-project
+      .\bootstrap.ps1 -TargetDir ./my-project -ProxyUrl https://gh-proxy.com/
 
     需要: git, node, npm
 #>
 
 param(
     [Parameter(Position=0)]
-    [string]$TargetDir = "."
+    [string]$TargetDir = ".",
+    [string]$ProxyUrl = ""
 )
 
 $ErrorActionPreference = "Stop"
-$RepoUrl = "https://github.com/THZSummer/sddu.git"
-# 支持 GitHub 镜像
-if ($env:GH_PROXY) {
-    $RepoUrl = "$($env:GH_PROXY.TrimEnd('/'))/$RepoUrl"
-    Write-Host "🔗 使用镜像: $env:GH_PROXY" -ForegroundColor Cyan
+$RepoBase = "https://github.com/THZSummer/sddu.git"
+
+if ($ProxyUrl) {
+    $RepoUrl = "$($ProxyUrl.TrimEnd('/'))/$RepoBase"
+} else {
+    $RepoUrl = $RepoBase
 }
 
 Write-Host ""
@@ -33,7 +36,11 @@ Write-Host "║       SDDU Bootstrap Installer          ║" -ForegroundColor Cy
 Write-Host "╚══════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "目标项目: $TargetDir"
-Write-Host "源码仓库: $RepoUrl"
+if ($ProxyUrl) {
+    Write-Host "网络模式: 镜像 ($ProxyUrl)"
+} else {
+    Write-Host "网络模式: 直连 GitHub"
+}
 Write-Host ""
 
 # 检查依赖
@@ -72,6 +79,9 @@ finally {
 
 # 导出函数，支持 iex 调用
 function Install-Sddu {
-    param([string]$TargetDir = ".")
-    & $PSCommandPath -TargetDir $TargetDir
+    param(
+        [string]$TargetDir = ".",
+        [string]$ProxyUrl = ""
+    )
+    & $PSCommandPath -TargetDir $TargetDir -ProxyUrl $ProxyUrl
 }
