@@ -248,6 +248,15 @@ fi
 # Copy agents from source to .opencode/agents/ - only SDDU agents
 if [ -d "${SCRIPT_DIR}/dist/sddu/agents" ]; then
     print_color "${GRAY}  Copying SDDU agents from dist/sddu/agents/...${NC}"
+    # Clean old SDDU/SDD agent files (only sddu-* and sdd-*, don't touch other plugins' agents)
+    if [ -d "${TARGET_DIR}/.opencode/agents" ]; then
+        OLD_AGENTS=$(find "${TARGET_DIR}/.opencode/agents" -maxdepth 1 \( -name "sddu-*" -o -name "sdd-*" \) -type f 2>/dev/null | wc -l)
+        if [ "$OLD_AGENTS" -gt 0 ]; then
+            print_color "${YELLOW}[CLEANUP] Removing ${OLD_AGENTS} old SDDU/SDD agent files...${NC}"
+            rm -f "${TARGET_DIR}/.opencode/agents/sddu-"* "${TARGET_DIR}/.opencode/agents/sdd-"*
+            print_color "${GREEN}[OK] Old SDDU/SDD agents cleaned${NC}"
+        fi
+    fi
     cp "${SCRIPT_DIR}/dist/sddu/agents/"* "${TARGET_DIR}/.opencode/agents/" 2>/dev/null || print_color "${GRAY}  SDDU agents not found, continuing...${NC}"
 fi
 
@@ -381,18 +390,18 @@ echo "  - .opencode/agents/ ($AGENT_COUNT agents total)"
 echo "  - opencode.json (plugin configuration - SDDU standard)"
 echo "  - .sddu/ (workspace container)"
 echo ""
-echo "  🚀 New Feature: 7-Stage Workflow is now available!"
+echo "  🚀 New Feature: 8-Stage Workflow is now available!"
 print_color "${CYAN}Agents installed ($AGENT_COUNT total):${NC}"
 echo "  SDDU Standard Agents:"
 echo "    @sddu              - Smart entry point"
 echo "    @sddu-help         - Help assistant"
-echo "    @sddu-discovery    - Requirement Discovery (Stage 0)"
-echo "    @sddu-spec         - Specification (Stage 1)"
-echo "    @sddu-plan         - Technical planning (Stage 2)"
-echo "    @sddu-tasks        - Task breakdown (Stage 3)"
-echo "    @sddu-build        - Implementation (Stage 4)"
-echo "    @sddu-review       - Code review (Stage 5)"
-echo "    @sddu-validate     - Validation (Stage 6)"
+echo "    @sddu-discovery    - Requirement Discovery"
+echo "    @sddu-spec         - Specification"
+echo "    @sddu-plan         - Technical Planning"
+echo "    @sddu-tasks        - Task Breakdown"
+echo "    @sddu-build        - Implementation"
+echo "    @sddu-review       - Code Review"
+echo "    @sddu-validate     - Validation"
 echo "    @sddu-roadmap      - Roadmap planning"
 echo "    @sddu-docs         - Directory navigation"
 echo ""
@@ -403,7 +412,7 @@ echo "  @sddu start [feature name]"
 echo "  @sddu-discovery [topic]" 
 echo ""
 print_color "${CYAN}SDDU Features:${NC}"
-echo "  - Seven-stage workflow (Discovery → Spec → Plan → Tasks → Build → Review → Validate)"
+echo "  - Eight-stage workflow (registered → discovered → specified → planned → tasked → builded → reviewed → validated)"
 echo "  - Improved architecture with standardized naming"
 echo "  - Enhanced documentation maintenance"
 echo ""
