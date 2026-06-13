@@ -1,17 +1,102 @@
 {
+  "feature": "sdd-tools-optimization",
   "featureId": "specs-tree-sdd-tools-optimization",
-  "featureName": "SDD 工具系统优化",
-  "specVersion": "2.3.0",
-  "createdAt": "2026-04-05",
-  "updatedAt": "2026-04-05",
-  "author": "SDD Team",
+  "name": "SDD 工具系统优化",
+  "phase": 7,
+  "status": "completed",
   "priority": "P1",
-  "status": "validated",
-  "phase": 6,
-  "reviewedBy": "sdd-review",
-  "validatedBy": "sdd-validate",
-  "lastReviewDate": "2026-04-05",
-  "lastValidationDate": "2026-04-05",
-  "dependencies": [],
-  "relatedFeatures": []
+  "specVersion": "2.3.0",
+  "depth": 1,
+  "isParent": false,
+  "childrens": [],
+  "createdDate": "2026-04-05",
+  "updatedDate": "2026-06-13",
+  "summary": "解决 SDD 插件架构演进中 6 大核心痛点：统一类型导出架构、统一错误处理体系、Agent 动态注册机制、打包分发结构优化、工作流状态自动推进、插件入口集成优化",
+  "phaseHistory": [
+    {
+      "phase": 0,
+      "phaseName": "registered",
+      "timestamp": "2026-04-05"
+    },
+    {
+      "phase": 1,
+      "phaseName": "discovered",
+      "timestamp": "2026-04-05"
+    },
+    {
+      "phase": 2,
+      "phaseName": "specified",
+      "timestamp": "2026-04-05"
+    },
+    {
+      "phase": 3,
+      "phaseName": "planned",
+      "timestamp": "2026-04-05"
+    },
+    {
+      "phase": 4,
+      "phaseName": "tasked",
+      "timestamp": "2026-04-05"
+    },
+    {
+      "phase": 5,
+      "phaseName": "builded",
+      "timestamp": "2026-04-05"
+    },
+    {
+      "phase": 6,
+      "phaseName": "reviewed",
+      "timestamp": "2026-04-05"
+    },
+    {
+      "phase": 7,
+      "phaseName": "validated",
+      "timestamp": "2026-04-05"
+    }
+  ],
+  "tasks": {
+    "TASK-001": {
+      "name": "统一类型导出架构",
+      "status": "completed"
+    },
+    "TASK-002": {
+      "name": "统一错误处理体系",
+      "status": "completed"
+    },
+    "TASK-003": {
+      "name": "Agent 动态注册机制",
+      "status": "completed"
+    },
+    "TASK-004": {
+      "name": "打包分发结构优化",
+      "status": "completed"
+    },
+    "TASK-005": {
+      "name": "工作流状态自动推进",
+      "status": "completed"
+    },
+    "TASK-006": {
+      "name": "插件入口集成优化",
+      "status": "completed"
+    },
+    "TASK-007": {
+      "name": "代码审查",
+      "status": "completed"
+    },
+    "TASK-008": {
+      "name": "文档更新",
+      "status": "completed"
+    },
+    "TASK-009": {
+      "name": "最终验证",
+      "status": "completed"
+    }
+  },
+  "files": {
+    "spec": ".sddu/specs-tree-root/specs-tree-sdd-tools-optimization/spec.md",
+    "plan": ".sddu/specs-tree-root/specs-tree-sdd-tools-optimization/plan.md",
+    "tasks": ".sddu/specs-tree-root/specs-tree-sdd-tools-optimization/tasks.md",
+    "review": ".sddu/specs-tree-root/specs-tree-sdd-tools-optimization/review.md",
+    "validation": ".sddu/specs-tree-root/specs-tree-sdd-tools-optimization/validation.md"
+  }
 }

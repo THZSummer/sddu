@@ -1,16 +1,62 @@
 {
+  "feature": "sdd-plugin-baseline",
   "featureId": "sdd-plugin-baseline",
   "name": "SDD Plugin Phase 1 基线",
-  "version": "1.1.0",
+  "phase": 7,
   "status": "completed",
-  "createdAt": "2026-03-28T14:00:00Z",
-  "updatedAt": "2026-03-28T16:14:00Z",
-  "phase": 6,
-  "completedPhases": ["specified", "planned", "tasked", "implementing", "reviewed", "validated"],
-  "pendingPhases": [],
+  "priority": "P1",
+  "version": "1.1.0",
+  "depth": 1,
+  "isParent": false,
+  "childrens": [],
+  "createdDate": "2026-03-28",
+  "updatedDate": "2026-06-13",
+  "summary": "SDD 插件基本能力基线：基础架构、配置管理、生命周期管理和可观测性，为后续扩展提供稳定基线功能",
+  "phaseHistory": [
+    {
+      "phase": 0,
+      "phaseName": "registered",
+      "timestamp": "2026-03-28"
+    },
+    {
+      "phase": 1,
+      "phaseName": "discovered",
+      "timestamp": "2026-03-28"
+    },
+    {
+      "phase": 2,
+      "phaseName": "specified",
+      "timestamp": "2026-03-28"
+    },
+    {
+      "phase": 3,
+      "phaseName": "planned",
+      "timestamp": "2026-03-28"
+    },
+    {
+      "phase": 4,
+      "phaseName": "tasked",
+      "timestamp": "2026-03-28"
+    },
+    {
+      "phase": 5,
+      "phaseName": "builded",
+      "timestamp": "2026-03-28"
+    },
+    {
+      "phase": 6,
+      "phaseName": "reviewed",
+      "timestamp": "2026-03-28"
+    },
+    {
+      "phase": 7,
+      "phaseName": "validated",
+      "timestamp": "2026-03-28T16:14:00Z"
+    }
+  ],
   "files": {
-    "spec": ".specs/sdd-plugin-baseline/spec.md",
-    "plan": ".specs/sdd-plugin-baseline/plan.md",
-    "tasks": ".specs/sdd-plugin-baseline/tasks.md"
+    "spec": ".sddu/specs-tree-root/specs-tree-sdd-plugin-baseline/spec.md",
+    "plan": ".sddu/specs-tree-root/specs-tree-sdd-plugin-baseline/plan.md",
+    "tasks": ".sddu/specs-tree-root/specs-tree-sdd-plugin-baseline/tasks.md"
   }
 }
