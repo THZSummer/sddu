@@ -27,7 +27,21 @@
     ],
     "inProgress": []
   },
-  "activeSpecs": [],
+  "activeSpecs": [
+    {
+      "featureId": "FR-TPL-001",
+      "name": "预置输出模板质量统一",
+      "nameEn": "Template Quality Unification",
+      "directory": "specs-tree-template-quality-unification",
+      "phase": 1,
+      "status": "tracked",
+      "priority": "P3",
+      "targetVersion": "v3.0.1",
+      "type": "技术债务清理 / 质量改进",
+      "createdDate": "2026-06-13",
+      "discoveryDate": "2026-06-13"
+    }
+  ],
   "migratedFeatures": [
     {
       "name": "ETD (Expert Tree Design)",
