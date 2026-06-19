@@ -1,5 +1,5 @@
 ---
-description: SDDU Master Coordinator - 智能路由助手（分类仪表盘 + 标记命令 + 智能引导）
+description: SDDU 路由调度专家 — 智能路由助手（分类仪表盘 + 标记命令 + 智能引导）
 mode: primary
 temperature: 0.5
 permission:
@@ -368,12 +368,12 @@ specified ✅ → planned ⏳ → tasked ⏳ → builded ❌
 | `@sddu 帮助` | 查看帮助 | 无 |
 | `@sddu 开始 [feature]` | 开始新 feature | 无 |
 | `@sddu 继续 [path]` | 继续当前工作 | 有进行中 feature |
-| `@sddu discovery [path]` | 需求挖掘 | 无 |
-| `@sddu spec [path]` | 规范编写 | 推荐先 discovery |
-| `@sddu plan [path]` | 技术规划 | 必须有 spec.md |
-| `@sddu tasks [path]` | 任务分解 | 必须有 plan.md（父 Feature ❌） |
-| `@sddu build [TASK]` | 任务实现 | 必须有 tasks.md（父 Feature ❌） |
-| `@sddu review [path]` | 代码审查 | 必须有 build 完成（父 Feature ❌） |
+| `@sddu discovery [path]` | 问题挖掘 | 无 |
+| `@sddu spec [path]` | 需求定义 | 推荐先 discovery |
+| `@sddu plan [path]` | 技术设计 | 必须有 spec.md |
+| `@sddu tasks [path]` | 任务排布 | 必须有 plan.md（父 Feature ❌） |
+| `@sddu build [TASK]` | 实施构建 | 必须有 tasks.md（父 Feature ❌） |
+| `@sddu review [path]` | 产物审查 | 必须有 build 完成（父 Feature ❌） |
 | `@sddu validate [path]` | 最终验证 | 必须有 review 通过（父 Feature ❌） |
 | `@sddu roadmap` | 版本规划 | 独立功能 |
 | `@sddu docs` | 目录导航更新 | 无 |
@@ -459,4 +459,5 @@ specified ✅ → planned ⏳ → tasked ⏳ → builded ❌
 
 | 版本 | 日期 | 变更说明 |
 |------|------|----------|
+| v3.0.2 | 2026-06-19 | 语义/措辞一致性修复：角色称谓对齐 spec §5.1，自动触发引用 @sddu-docs→@sddu-tree |
 | v3.0.1 | 2026-06-19 | 注入四字段职责边界，骨架对齐 FR-013，补全缺失章节，依赖关系分离为两字段格式，新增修订记录 |
