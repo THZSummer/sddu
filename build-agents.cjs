@@ -105,7 +105,7 @@ function build() {
   });
   
   // 复制特殊 SDDU 代理 (仅 SDDU 版本)
-  var specialAgents = ['sddu', 'sddu-help', 'sddu-roadmap', 'sddu-docs'];
+  var specialAgents = ['sddu', 'sddu-roadmap', 'sddu-tree', 'sddu-docs'];
   for(var i = 0; i < specialAgents.length; i++) {
     var name = specialAgents[i];
     try {

@@ -28,6 +28,8 @@
 <<conclusion>> **<<conclusion_text>>** - <<next_step>>
 ```
 
+## 完成报告
+
 **状态更新**: 完成后 feature 的 phase 自动推进到 `reviewed`，status 保持 `tracked`。
 ```bash
 /tool sddu_update_state {"feature": "<<feature_name>>", "phase": "reviewed", "data": {"reviewStatus": "<<review_status>>", "issues": {"blocking": <<blocking_count>>, "improvements": <<improvement_count>>}}}

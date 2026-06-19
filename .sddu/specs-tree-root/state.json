@@ -3,7 +3,7 @@
   "version": "1.4.1",
   "status": "active",
   "currentFeature": null,
-  "lastModified": "2026-06-13",
+  "lastModified": "2026-06-19",
   "features": {
     "completed": [
       "T-001: Plugin Rename",
@@ -23,25 +23,12 @@
       "T-015: ROADMAP and Milestone Updates",
       "T-016: Migration Guide Creation",
       "T-017: Legacy User Documentation",
-      "T-018: Migration Scripts and Tools"
+      "T-018: Migration Scripts and Tools",
+      "FR-TPL-001: 预置输出模板质量统一"
     ],
     "inProgress": []
   },
-  "activeSpecs": [
-    {
-      "featureId": "FR-TPL-001",
-      "name": "预置输出模板质量统一",
-      "nameEn": "Template Quality Unification",
-      "directory": "specs-tree-template-quality-unification",
-      "phase": 1,
-      "status": "tracked",
-      "priority": "P3",
-      "targetVersion": "v3.0.1",
-      "type": "技术债务清理 / 质量改进",
-      "createdDate": "2026-06-13",
-      "discoveryDate": "2026-06-13"
-    }
-  ],
+  "activeSpecs": [],
   "migratedFeatures": [
     {
       "name": "ETD (Expert Tree Design)",
