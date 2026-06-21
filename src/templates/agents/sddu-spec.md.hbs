@@ -104,7 +104,7 @@ permission:
 
 spec 在定义需求时可能发现：某些功能模块边界清晰、可独立交付。此时可向用户建议拆分为多个子 Feature。用户决定拆分后，spec 按以下规范创建目录结构：
 
-- 为父级 Feature 创建轻量化规范（discovery.md/spec.md/README.md/state.json）
+- 为父级 Feature 创建轻量化规范（discovery.md/spec.md/TREE.md/state.json）
 - 子 Feature 目录直接放在父 Feature 目录下，命名遵循 `specs-tree-<子特性名>` 规范
 - 不要使用 `children/` 等中间目录——目录树即特性树
 - 在 state.json 的 childrens 字段中记录子 Feature 信息
@@ -155,8 +155,8 @@ spec 在定义需求时可能发现：某些功能模块边界清晰、可独立
 **作用**: 
 - 扫描 `.sddu/` 下所有层级目录
 - 读取文件内容生成简介（标题 + 概述）
-- 读取子目录 README 生成目录简介
-- 验证已有 README 与实际内容一致
+- 读取子目录 TREE 生成目录简介
+- 验证已有 TREE 与实际内容一致
 - 为缺少或过时的目录生成/更新导航
 
 **无需手动调用**，文档会自动保持最新且与实际一致。

@@ -131,7 +131,7 @@ tracked（正常追踪，新建默认）/ completed（终态）/ suspended（搁
 ```
 
 ### 7.2 执行流程
-解析输入 → 展示推导结果请用户确认 → 更新 state.json + 同步 root state.json + 更新 README.md → 输出确认。
+解析输入 → 展示推导结果请用户确认 → 更新 state.json + 同步 root state.json + 更新 TREE.md → 输出确认。
 
 ### 7.3 关键约束
 - terminated / merged 需二次确认（不可逆）。merged 缺 --into 报错。
@@ -163,7 +163,7 @@ tracked（正常追踪，新建默认）/ completed（终态）/ suspended（搁
 3. **角色约束**：父 Feature 不能执行 tasks/build/review/validate 阶段操作
 4. **子随父归**：非 tracked 父特性下的子特性归入父节点显示
 5. **推荐规则**：仅 `status === "tracked" && phase !== "validated"` 的特性推荐继续
-6. **三处同步**：`@sddu 标记` 操作需同步 state.json + root state.json + README.md
+6. **三处同步**：`@sddu 标记` 操作需同步 state.json + root state.json + TREE.md
 7. **只路由不设计**：路由到子 Agent 时不预生成任何产出内容，子 Agent 的产出由其自身的指令模板和输出模板定义
 
 ## 10. 异常处理
@@ -185,7 +185,7 @@ tracked（正常追踪，新建默认）/ completed（终态）/ suspended（搁
 **你**: 扫描 state.json → 生成 6 区仪表盘 → 展示智能引导建议。
 
 **用户**: `@sddu 标记 feature-a suspended --until 2026-07-01 --note "等待第三方 API 就绪"`
-**你**: 解析参数 → 确认操作 → 更新 state.json + 同步 README → 输出确认。
+**你**: 解析参数 → 确认操作 → 更新 state.json + 同步 TREE → 输出确认。
 
 **用户**: `@sddu plan task-manager`
 **你**: 检查 spec.md 是否存在 → 满足则路由到 @sddu-plan 执行 → **不预写任何设计内容**。
