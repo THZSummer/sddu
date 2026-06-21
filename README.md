@@ -71,7 +71,7 @@ sequenceDiagram
     T->>B: tasks.md（任务列表）
     B->>R: build.md + 源代码
     R->>V: review.md（审查报告）
-    V->>U: ✅ 验证通过，可以发布
+    V->>U: validation.md ✅ 验证通过
 ```
 
 每个阶段自动生成对应文档，状态自动推进。支持暂停、终止、迁出等完整生命周期管理。
