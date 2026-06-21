@@ -1,0 +1,309 @@
+[
+  {
+    "id": "TASK-001",
+    "name": "根目录脚本收敛",
+    "complexity": "S",
+    "wave": 1,
+    "dependencies": [],
+    "description": "将散落根目录的 2 个开发者脚本统一收敛至 scripts/，更新 package.json 中 build:agents 脚本路径引用",
+    "fr": ["ADR-005"],
+    "files": [
+      {"op": "MOVE", "from": "build-agents.cjs", "to": "scripts/build-agents.cjs"},
+      {"op": "MOVE", "from": "test-sddu-functionality.js", "to": "scripts/test-sddu-functionality.js"},
+      {"op": "MODIFY", "path": "package.json"},
+      {"op": "DELETE", "path": "build-agents.cjs"},
+      {"op": "DELETE", "path": "test-sddu-functionality.js"}
+    ],
+    "acceptance": [
+      "scripts/build-agents.cjs 存在且 __dirname 引用解析正确",
+      "scripts/test-sddu-functionality.js 存在",
+      "package.json 中 build:agents 脚本路径更新为 node scripts/build-agents.cjs",
+      "根目录旧址文件已删除",
+      "npm run build:agents 可正常执行"
+    ],
+    "verify": "ls -la scripts/build-agents.cjs scripts/test-sddu-functionality.js && test ! -f build-agents.cjs && node -e \"const p=require('./package.json'); console.assert(p.scripts['build:agents']==='node scripts/build-agents.cjs')\""
+  },
+  {
+    "id": "TASK-002",
+    "name": "shared/ 共享层创建",
+    "complexity": "M",
+    "wave": 1,
+    "dependencies": [],
+    "description": "创建 src/shared/ 目录，放置 3 个零依赖的公共模块 + 1 个聚合出口",
+    "fr": ["FR-004", "FR-010", "ADR-001"],
+    "files": [
+      {"op": "NEW", "path": "src/shared/types.ts"},
+      {"op": "NEW", "path": "src/shared/errors.ts"},
+      {"op": "NEW", "path": "src/shared/platform-adapter.ts"},
+      {"op": "NEW", "path": "src/shared/index.ts"}
+    ],
+    "acceptance": [
+      "src/shared/types.ts 包含所有零平台依赖的公共类型定义",
+      "src/shared/errors.ts 包含所有错误类定义",
+      "src/shared/platform-adapter.ts 定义 ToolDefinition, AgentDefinition, EventHandler, PlatformContext, PlatformAdapter 五个接口",
+      "src/shared/index.ts 从上述三个文件 re-export 全部公共 API",
+      "shared/ 内所有文件零平台 SDK 依赖、零业务域/adapters 引用"
+    ],
+    "verify": "ls src/shared/{types,errors,platform-adapter,index}.ts && rg '@opencode-ai/plugin' src/shared/ && echo FAIL || echo PASS && rg \"from '\\.\\./(pipeline|state|discovery|agents|templates|adapters)\" src/shared/ && echo FAIL || echo PASS"
+  },
+  {
+    "id": "TASK-003",
+    "name": "业务域目录搭建与公共 API 定义",
+    "complexity": "M",
+    "wave": 2,
+    "dependencies": ["TASK-002"],
+    "description": "创建 5 个核心业务域目录，每个域写入 index.ts 作为公共 API 出口",
+    "fr": ["FR-001", "FR-009", "ADR-001", "ADR-006"],
+    "files": [
+      {"op": "NEW", "path": "src/pipeline/index.ts"},
+      {"op": "NEW", "path": "src/state/index.ts"},
+      {"op": "NEW", "path": "src/discovery/index.ts"},
+      {"op": "NEW", "path": "src/agents/index.ts"},
+      {"op": "NEW", "path": "src/templates/index.ts"}
+    ],
+    "acceptance": [
+      "5 个业务域目录存在",
+      "每个域有 index.ts 文件（共 5 个）",
+      "每个 index.ts 中所有 import 和 export 语句不包含 @opencode-ai/plugin",
+      "pipeline/index.ts 不 import adapters/",
+      "TypeScript 类型声明可解析"
+    ],
+    "verify": "for dir in pipeline state discovery agents templates; do test -d \"src/$dir\" && test -f \"src/$dir/index.ts\" && echo \"OK: $dir\" || echo \"FAIL: $dir\"; done && rg '@opencode-ai/plugin' src/{pipeline,state,discovery,agents,templates}/index.ts && echo FAIL || echo PASS"
+  },
+  {
+    "id": "TASK-004",
+    "name": "adapters/opencode/ 适配层搭建",
+    "complexity": "M",
+    "wave": 2,
+    "dependencies": ["TASK-002", "TASK-003"],
+    "description": "创建 adapters/opencode/ 适配层目录结构，从 src/index.ts 中提取平台注册逻辑到 plugin.ts",
+    "fr": ["FR-003", "ADR-001", "ADR-006"],
+    "files": [
+      {"op": "NEW", "path": "src/adapters/opencode/plugin.ts"},
+      {"op": "NEW", "path": "src/adapters/opencode/index.ts"},
+      {"op": "NEW", "path": "src/adapters/opencode/agents/", "isDir": true},
+      {"op": "NEW", "path": "src/adapters/opencode/commands/", "isDir": true},
+      {"op": "NEW", "path": "src/adapters/opencode/templates/", "isDir": true}
+    ],
+    "acceptance": [
+      "plugin.ts 包含原 src/index.ts 中的 @opencode-ai/plugin 导入 + 工具注册 + Agent 注册 + 事件监听逻辑",
+      "adapters/opencode/index.ts 从 plugin.ts 导出公共 API",
+      "plugin.ts 中 import 业务域时仅通过域级 index.ts",
+      "3 个子目录存在",
+      "TypeScript 编译通过"
+    ],
+    "verify": "ls -d src/adapters/opencode/{agents,commands,templates} && test -f src/adapters/opencode/plugin.ts && test -f src/adapters/opencode/index.ts && rg '@opencode-ai/plugin' src/adapters/opencode/plugin.ts && echo PASS"
+  },
+  {
+    "id": "TASK-005",
+    "name": "编译与构建配置更新",
+    "complexity": "M",
+    "wave": 2,
+    "dependencies": ["TASK-001", "TASK-003"],
+    "description": "更新 tsconfig.json paths 别名、package.json subpath exports 和 test scripts、确认 build-agents.cjs 内部路径",
+    "fr": ["FR-005", "FR-007", "ADR-003", "ADR-005"],
+    "files": [
+      {"op": "MODIFY", "path": "tsconfig.json"},
+      {"op": "MODIFY", "path": "package.json"},
+      {"op": "MODIFY", "path": "scripts/build-agents.cjs"}
+    ],
+    "acceptance": [
+      "tsconfig.json 包含 7 组 paths 别名",
+      "package.json exports 字段包含主入口 . + 4 个子路径",
+      "package.json scripts 包含 test:core, test:opencode, test:integration, test:all, test:e2e",
+      "scripts/build-agents.cjs 中 AGENT_SRC_DIR 指向正确的 src/templates/agents/",
+      "require('./package.json').exports 无报错"
+    ],
+    "verify": "node -e \"const c=require('./tsconfig.json'); console.assert(c.compilerOptions.paths['@pipeline/*']); console.assert(c.compilerOptions.paths['@shared/*']); console.log('tsconfig OK')\" && node -e \"const p=require('./package.json'); console.assert(p.exports['./pipeline']); console.assert(p.exports['./opencode']); console.log('exports OK')\""
+  },
+  {
+    "id": "TASK-006",
+    "name": "核心业务域源码迁移（pipeline + state + discovery）",
+    "complexity": "L",
+    "wave": 3,
+    "dependencies": ["TASK-003", "TASK-004", "TASK-005"],
+    "description": "将 ~25 个 .ts 文件按业务域归属迁入 pipeline/ state/ discovery/，同步更新所有 import 路径",
+    "fr": ["FR-001", "ADR-001", "ADR-006"],
+    "files": [
+      {"op": "NEW", "path": "src/pipeline/workflow-engine.ts"},
+      {"op": "NEW", "path": "src/pipeline/coaching-mode.ts"},
+      {"op": "NEW", "path": "src/pipeline/state-validator.ts"},
+      {"op": "NEW", "path": "src/pipeline/types.ts"},
+      {"op": "NEW", "path": "src/discovery/workflow-engine.ts"},
+      {"op": "NEW", "path": "src/discovery/coaching-mode.ts"},
+      {"op": "NEW", "path": "src/discovery/state-validator.ts"},
+      {"op": "NEW", "path": "src/discovery/types.ts"},
+      {"op": "MODIFY", "path": "src/state/machine.ts", "note": "import 路径更新"},
+      {"op": "MODIFY", "path": "src/state/schema-v3.0.0.ts", "note": "import 路径更新"},
+      {"op": "MODIFY", "path": "src/state/*.ts", "note": "~14 个文件 import 路径批量更新"},
+      {"op": "MODIFY", "path": "src/state/types.ts", "note": "import 路径更新"}
+    ],
+    "acceptance": [
+      "pipeline/ state/ discovery/ 下所有文件零 @opencode-ai/plugin",
+      "不反向引用 adapters/",
+      "跨域 import 通过目标域的 index.ts",
+      "TypeScript 编译无错误"
+    ],
+    "verify": "for dir in pipeline state discovery; do rg '@opencode-ai/plugin' src/$dir/ && echo FAIL || echo PASS: $dir; done && rg \"from '.*/adapters/\" src/{pipeline,state,discovery} && echo FAIL || echo PASS && npx tsc --noEmit 2>&1 | grep \"error TS\" | head -10"
+  },
+  {
+    "id": "TASK-007",
+    "name": "平台适配源码迁移与模板资产重组",
+    "complexity": "L",
+    "wave": 3,
+    "dependencies": ["TASK-004", "TASK-005"],
+    "description": "将 ~12 个 .ts 文件迁入 adapters/opencode/，19 个 HBS 模板按方法论/平台性质分离重组",
+    "fr": ["FR-002", "FR-003", "FR-006", "ADR-001", "ADR-002"],
+    "files": [
+      {"op": "NEW", "path": "src/adapters/opencode/agents/registry.ts"},
+      {"op": "NEW", "path": "src/adapters/opencode/agents/sddu-agents.ts"},
+      {"op": "NEW", "path": "src/adapters/opencode/commands/sddu-migrate-schema.ts"},
+      {"op": "NEW", "path": "src/adapters/opencode/templates/opencode.json.hbs"},
+      {"op": "MODIFY", "path": "src/templates/subfeature-templates.ts"},
+      {"op": "MOVE", "from": "src/templates/agents/output/", "to": "src/templates/outputs/"},
+      {"op": "KEEP", "path": "src/templates/agents/*.hbs", "note": "11 个 Agent 提示词模板，路径不变"}
+    ],
+    "acceptance": [
+      "adapters/opencode/agents/ 包含 registry.ts 和 sddu-agents.ts",
+      "adapters/opencode/commands/sddu-migrate-schema.ts 存在",
+      "adapters/opencode/templates/opencode.json.hbs 存在",
+      "src/templates/outputs/ 包含 7 个产出格式 .hbs 文件",
+      "src/templates/agents/ 保留 11 个 Agent 提示词 .hbs 文件",
+      "src/templates/config/ 目录不存在",
+      "TypeScript 编译无错误"
+    ],
+    "verify": "ls src/adapters/opencode/agents/{registry,sddu-agents}.ts && ls src/adapters/opencode/commands/sddu-migrate-schema.ts && ls src/adapters/opencode/templates/opencode.json.hbs && ls src/templates/outputs/*.hbs | wc -l | xargs -I{} test {} -eq 7 && ls src/templates/agents/*.hbs | wc -l | xargs -I{} test {} -eq 11 && test ! -d src/templates/config && echo PASS"
+  },
+  {
+    "id": "TASK-008",
+    "name": "src/index.ts 薄桶重构 + utils/ 拆散归属",
+    "complexity": "M",
+    "wave": 3,
+    "dependencies": ["TASK-006", "TASK-007"],
+    "description": "重写 src/index.ts 为薄桶导出，将 src/utils/ 下的 5 个工具文件按其功能归属到各业务域",
+    "fr": ["FR-008", "ADR-001", "ADR-006"],
+    "files": [
+      {"op": "MODIFY", "path": "src/index.ts"},
+      {"op": "MOVE", "from": "src/utils/tasks-parser.ts", "to": "src/pipeline/ or src/state/"},
+      {"op": "MOVE", "from": "src/utils/subfeature-manager.ts", "to": "src/templates/"},
+      {"op": "MOVE", "from": "src/utils/readme-generator.ts", "to": "src/templates/ or src/discovery/"},
+      {"op": "MOVE", "from": "src/utils/dependency-notifier.ts", "to": "src/shared/"},
+      {"op": "DELETE", "path": "src/utils/index.ts"}
+    ],
+    "acceptance": [
+      "src/index.ts 不含 import { tool } from '@opencode-ai/plugin'",
+      "src/index.ts 不含 tool() 调用、Agent 注册、事件监听",
+      "src/utils/ 目录下 .ts 文件全部迁入对应业务域",
+      "src/utils/ 目录为空",
+      "TypeScript 编译无错误"
+    ],
+    "verify": "rg '@opencode-ai/plugin' src/index.ts && echo FAIL || echo PASS && rg 'tool\\(' src/index.ts && echo FAIL || echo PASS && ls src/utils/*.ts 2>/dev/null && echo WARN || echo PASS && npx tsc --noEmit 2>&1 | grep \"error TS\" | head -10"
+  },
+  {
+    "id": "TASK-009",
+    "name": "测试文件集中迁移",
+    "complexity": "L",
+    "wave": 4,
+    "dependencies": ["TASK-006", "TASK-007", "TASK-008"],
+    "description": "将 ~35 个分散的测试文件集中迁移至 src/__tests__/ 和 e2e/，同步更新 import 路径",
+    "fr": ["FR-005", "ADR-004"],
+    "files": [
+      {"op": "NEW", "path": "src/__tests__/unit/pipeline/"},
+      {"op": "NEW", "path": "src/__tests__/unit/state/"},
+      {"op": "NEW", "path": "src/__tests__/unit/discovery/"},
+      {"op": "NEW", "path": "src/__tests__/unit/agents/"},
+      {"op": "NEW", "path": "src/__tests__/unit/templates/"},
+      {"op": "NEW", "path": "src/__tests__/unit/adapters/opencode/agents/"},
+      {"op": "NEW", "path": "src/__tests__/unit/adapters/opencode/commands/"},
+      {"op": "NEW", "path": "src/__tests__/unit/shared/"},
+      {"op": "NEW", "path": "src/__tests__/integration/compatibility/"},
+      {"op": "NEW", "path": "src/__tests__/integration/regression/"},
+      {"op": "NEW", "path": "src/__tests__/integration/state/"},
+      {"op": "NEW", "path": "src/__tests__/fixtures/"},
+      {"op": "NEW", "path": "src/__tests__/reports/"},
+      {"op": "MOVE", "from": "tests/e2e/*.test.ts", "to": "e2e/*.test.ts"},
+      {"op": "DELETE", "path": "src/ 内 co-located *.test.ts (16 个)"},
+      {"op": "DELETE", "path": "src/ 内 __tests__/ 子目录 (2 个)"},
+      {"op": "DELETE", "path": "tests/"}
+    ],
+    "acceptance": [
+      "所有 src/ 内 co-located *.test.ts 文件已删除",
+      "所有 src/ 内 __tests__/ 子目录已删除",
+      "src/__tests__/unit/ 按业务域分子目录（7 个子域）",
+      "src/__tests__/integration/ 包含 compatibility/ regression/ state/",
+      "src/__tests__/fixtures/ 包含 legacy-v1.1.1/ 和 multi-feature/",
+      "e2e/ 目录包含 E2E 测试文件和 jest.config.ts",
+      "tests/ 根目录不存在"
+    ],
+    "verify": "find src/ -name '*.test.ts' -not -path '*/__tests__/*' | grep -v node_modules && echo FAIL || echo PASS && test -d e2e && test -f e2e/jest.config.ts && test ! -d tests && echo PASS"
+  },
+  {
+    "id": "TASK-010",
+    "name": "测试配置重构",
+    "complexity": "M",
+    "wave": 4,
+    "dependencies": ["TASK-009"],
+    "description": "重构 jest.config.ts 为 projects 模式，创建 e2e/jest.config.ts 独立配置",
+    "fr": ["FR-005", "ADR-004"],
+    "files": [
+      {"op": "MODIFY", "path": "jest.config.ts"},
+      {"op": "MODIFY", "path": "e2e/jest.config.ts"},
+      {"op": "MODIFY", "path": "package.json"}
+    ],
+    "acceptance": [
+      "jest.config.ts 包含 projects 数组（core / opencode / integration）",
+      "core 项目的 testMatch 覆盖核心域",
+      "opencode 项目的 testMatch 覆盖 adapters/",
+      "integration 项目的 testMatch 覆盖 integration/",
+      "e2e/jest.config.ts testMatch 指向 e2e/，不收集覆盖率",
+      "npm run test:core -- --passWithNoTests 可加载"
+    ],
+    "verify": "npx jest --config jest.config.ts --listTests 2>&1 | head -5 && npx jest --config e2e/jest.config.ts --listTests 2>&1 | head -5 && echo PASS"
+  },
+  {
+    "id": "TASK-011",
+    "name": "旧文件清理",
+    "complexity": "M",
+    "wave": 5,
+    "dependencies": ["TASK-006", "TASK-007", "TASK-008", "TASK-009"],
+    "description": "删除所有已迁移文件的旧址和空目录",
+    "fr": ["ADR-001", "ADR-004", "ADR-005"],
+    "files": [
+      {"op": "DELETE", "path": "src/agents/"},
+      {"op": "DELETE", "path": "src/commands/"},
+      {"op": "DELETE", "path": "src/utils/"},
+      {"op": "DELETE", "path": "src/errors.ts"},
+      {"op": "DELETE", "path": "src/types.ts"},
+      {"op": "DELETE", "path": "src/templates/config/"},
+      {"op": "DELETE", "path": "tests/"}
+    ],
+    "acceptance": [
+      "src/agents/ src/commands/ src/utils/ 目录不存在",
+      "src/errors.ts src/types.ts 不存在",
+      "src/ 内无 co-located *.test.ts 文件",
+      "tests/ 根目录不存在",
+      "src/templates/config/ 目录不存在",
+      "TypeScript 编译通过"
+    ],
+    "verify": "for dir in src/agents src/commands src/utils tests; do test -d $dir && echo FAIL: $dir || echo PASS: $dir; done && test ! -f src/errors.ts && test ! -f src/types.ts && echo PASS && npx tsc --noEmit 2>&1 | grep 'error TS' | head -10"
+  },
+  {
+    "id": "TASK-012",
+    "name": "构建验证与全量测试回归",
+    "complexity": "L",
+    "wave": 5,
+    "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-010", "TASK-011"],
+    "description": "执行端到端验证管线 — 编译检查、分层测试、E2E 测试、循环依赖检测、npm pack 验证",
+    "fr": ["NFR-001", "NFR-002", "NFR-004", "NFR-005", "EC-001", "ADR-003", "ADR-004", "ADR-006"],
+    "files": [],
+    "acceptance": [
+      "npx tsc --noEmit 零错误",
+      "npm run build 成功，dist/ 保留分层结构",
+      "npm run test:core / test:opencode / test:integration / test:all 全部通过",
+      "npm run test:e2e 通过",
+      "循环依赖检测零问题",
+      "npm pack 产物可正常安装使用"
+    ],
+    "verify": "npx tsc --noEmit && npm run build && ls dist/{pipeline,state,adapters/opencode,shared}/ && npm run test:core -- --passWithNoTests && npm run test:opencode -- --passWithNoTests && npm run test:integration -- --passWithNoTests && npm run test:all -- --passWithNoTests && npm run test:e2e -- --passWithNoTests && npm pack --dry-run 2>&1 | head -20"
+  }
+]

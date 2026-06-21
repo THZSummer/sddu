@@ -1,7 +1,7 @@
 # OpenCode SDDU Plugin
 
 [![Version](https://img.shields.io/badge/version-1.4.1-blue)](https://github.com/THZSummer/sddu/releases)
-[![Phase](https://img.shields.io/badge/Phase-4-important)](https://github.com/THZSummer/sddu)
+[![Phase](https://img.shields.io/badge/feature-17-blue)](https://github.com/THZSummer/sddu)
 [![Status](https://img.shields.io/badge/status-stable-green)](https://github.com/THZSummer/sddu)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/THZSummer/sddu/blob/main/LICENSE)
 
@@ -205,23 +205,27 @@ bash install.sh ./my-project
 ## 🏗️ 项目结构
 
 ```
-opencode-sddu-plugin/
+sddu/
 ├── src/
-│   ├── index.ts                # 插件入口
-│   ├── types.ts                # 统一类型导出
-│   ├── errors.ts               # 统一错误处理
-│   ├── agents/                 # Agent 注册 (registry.ts / sdd-agents.ts / sddu-agents.ts)
-│   ├── commands/               # 命令定义
-│   ├── state/                  # 状态机 v3.0.0
-│   ├── discovery/              # Discovery 阶段
-│   ├── utils/                  # 工具函数 (tasks-parser / subfeature-manager / TREE 导航生成)
-│   └── templates/agents/       # 11 个指令模板 + 7 个产物模板
-├── scripts/                    # 打包 + E2E 测试脚本
-├── dist/                       # 构建产物 (dist/sddu/ + dist/sddu.zip)
-├── .sddu/                      # SDDU 工作空间（本项目的 Feature 文档）
-├── tests/                      # 单元 / 集成 / E2E / 兼容性测试
-├── install.sh / install.ps1    # 安装脚本
-├── build-agents.cjs            # Agent 模板构建脚本
+│   ├── pipeline/              # 管线定义（阶段流转规则）
+│   ├── state/                 # 状态追踪（状态机 v3.0.0）
+│   ├── discovery/             # 需求挖掘引擎（7 步子工作流）
+│   ├── agents/                # Agent 注册表
+│   ├── templates/             # 模板引擎 + 方法论资产（18 .hbs）
+│   ├── adapters/opencode/     # OpenCode 平台适配器
+│   ├── shared/                # 跨域共享（类型/错误/接口契约）
+│   ├── __tests__/             # 统一测试目录（unit + integration）
+│   └── index.ts               # 薄桶公共 API
+├── e2e/                       # 端到端测试（Jest + Shell 编排脚本）
+│   ├── scripts/basic/         # 基础 E2E（TypeScript 单项目）
+│   └── scripts/fullstack/     # 全栈 E2E（SpringBoot + React）
+├── scripts/                   # 构建/验证/迁移脚本
+├── docs/                      # 文档
+├── examples/                  # 示例项目
+├── dist/                      # 构建产物
+├── .sddu/                     # SDDU 工作空间（本项目的 Feature 文档）
+├── install.sh / install.ps1   # 安装脚本
+├── bootstrap.sh / bootstrap.ps1  # 一键引导脚本
 └── package.json / tsconfig.json
 ```
 
@@ -246,10 +250,10 @@ npm run test:state:integration  # 状态机集成测试
 
 ```bash
 # 基础 E2E（TypeScript + Node.js，零外部依赖）
-bash scripts/e2e/basic/sddu-e2e.sh
+bash e2e/scripts/basic/sddu-e2e.sh
 
 # 全栈 E2E（SpringBoot + React，含 Docker）
-bash scripts/e2e/fullstack/sddu-e2e-fullstack.sh
+bash e2e/scripts/fullstack/sddu-e2e-fullstack.sh
 
 # SDD 残留检查
 ./scripts/check-sdd-residue.sh
@@ -263,6 +267,7 @@ bash scripts/e2e/fullstack/sddu-e2e-fullstack.sh
 
 | 版本 | 日期 | 说明 |
 |------|------|------|
+| v3.1.0 | 2026-06-21 | 🏗️ FR-FRAMEWORK-ARCH-001 源码架构重组 — 业务对象分层 + 平台适配器隔离 |
 | v3.0.1 | 2026-06-21 | 📐 模板质量统一 — 17 模板格式骨架 + 11 Agent 职责边界声明，sddu-tree 输出 TREE.md |
 | v1.4.1 | 2026-06-13 | 🔄 v3.0.0 两字段状态模型 — phase(8) + status(5) 分离，@sddu 标记/状态 命令，R5 一致性检测 |
 | v1.4.0 | 2026-04-20 | 🎯 SDDU 品牌升级正式发布 |
@@ -273,7 +278,7 @@ bash scripts/e2e/fullstack/sddu-e2e-fullstack.sh
 
 ---
 
-## ✅ 已完成 Feature (16 个)
+## ✅ 已完成 Feature (17 个)
 
 | # | Feature | 说明 |
 |:--|------|------|
@@ -293,6 +298,7 @@ bash scripts/e2e/fullstack/sddu-e2e-fullstack.sh
 | 14 | specs-tree-sddu-status-enhancement | 两字段状态模型 v3.0.0 |
 | 15 | specs-tree-solo-team-flow | Solo Team Flow (已终止→ETD) |
 | 16 | specs-tree-template-quality-unification | 模板质量统一 (17 模板 + 11 Agent 职责边界) |
+| 17 | specs-tree-framework-architecture | 框架源码架构重组 |
 
 ---
 

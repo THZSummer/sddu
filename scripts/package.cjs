@@ -189,7 +189,7 @@ async function packageSingleVersion(distDir, version, packageName) {
   }
   
 // 5. 从模板复制 opencode.json（src 是唯一配置来源）
-  const templatePath = path.join(__dirname, '..', 'src', 'templates', 'config', 'opencode.json.hbs');
+  const templatePath = path.join(__dirname, '..', 'src', 'adapters', 'opencode', 'templates', 'opencode.json.hbs');
   if (await fs.pathExists(templatePath)) {
     // 读取模板内容
     let templateContent = await fs.readFile(templatePath, 'utf8');

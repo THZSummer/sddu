@@ -10,7 +10,7 @@ import { StateMachine } from './machine';
 import { Phase, PHASE_ORDER } from './schema-v3.0.0';
 import { scanTreeStructure } from './tree-scanner';
 import { StateV3_0_0 } from './schema-v3.0.0';
-import { ErrorCode, TreeStructureError } from '../errors';
+import { ErrorCode, TreeStructureError } from '../shared/errors';
 
 /**
  * 依赖检查结果

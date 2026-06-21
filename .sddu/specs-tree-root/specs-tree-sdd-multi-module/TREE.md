@@ -12,7 +12,6 @@ specs-tree-sdd-multi-module/
 ├── tasks.md                         # 任务分解 (阶段 3)
 ├── review.md                        # 代码审查 (阶段 5)
 ├── validation.md                    # 功能验证 (阶段 6)
-├── TASK-250-003.completed           # 任务完成标记
 └── state.json                       # 状态文件
 ```
 
