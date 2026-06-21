@@ -54,7 +54,7 @@ src/templates/agents/
 | I5 | **依赖关系节字段混杂**：前置条件+输入+输出+下游混在同一节，输入/输出与职责边界重复 | 7/11 | 🟡 中 |
 | I6 | **修订记录节全部缺失**：0/11 模板包含修订记录 | 11/11 | 🟡 中 |
 | I7 | **缩进不一致**：sddu-review/sddu-validate 前置验证节缩进异常（多余空格） | 2/11 | 🟢 低 |
-| I8 | **产物模板缺少独立 ## 完成报告节**：完成报告内容嵌在 ## 输出格式 内 | 6/6 | 🟡 中 |
+| I8 | **产物模板**：完成报告已从产物模板迁入指令模板的「完成协议」节，产物模板定位为纯文档格式权威 | 7/7 | 🟢 低 |
 | I9 | **sddu-help 待移除** | 1/11 | 🔴 高 |
 | I10 | **sddu-docs→sddu-tree 重命名 + 新 sddu-docs 创建** | 2/11 | 🔴 高 |
 
@@ -92,7 +92,7 @@ build-agents.cjs (构建脚本，引用 specialAgents 列表)
 
 ### 方案 A：批量统一重构（推荐）
 
-**描述**：按 FR-013 骨架顺序，为 11 个指令模板逐文件注入四字段职责边界，统一章节命名、标题格式、代码块、缩进；为 6 个产物模板拆分完成报告节；按 FR-012 移除 sddu-help，按 FR-009 重命名 sddu-docs→sddu-tree，按 FR-010 新建 sddu-docs。
+**描述**：按 FR-020 文档格式骨架统一 7 个产物模板的章节结构和格式一致性。完成报告归属指令模板（FR-022）。
 
 实现方式：一次性批量变更，按依赖拓扑顺序执行。
 
@@ -171,7 +171,8 @@ Phase 3: 指令模板格式统一（主流程 → 入口 → 辅助）
   3.11 sddu-docs.md.hbs      [FR-010, FR-013~019]
 
 Phase 4: 产物模板格式统一
-   4.1 ~ 4.7 逐个处理 7 个 output/ 模板  [FR-020~022]
+   4.1 ~ 4.7 统一 7 个 output/ 模板为完整文档格式骨架  [FR-020~021]
+   （完成报告归属指令模板，不在此阶段处理 [FR-022]）
 
 Phase 5: 构建脚本适配
    5.1 build-agents.cjs: specialAgents 列表更新（移除 sddu-help，sddu-docs→sddu-tree，新增 sddu-docs）
@@ -203,13 +204,13 @@ Phase 6: 构建验证
 | ✏️ MODIFY | `src/templates/agents/sddu.md.hbs` | 四字段职责边界 + 标题格式统一 + 骨架对齐 + 新增修订记录 | FR-011,013~019 |
 | ✏️ MODIFY | `src/templates/agents/sddu-tree.md.hbs` | 四字段职责边界（tree）+ 骨架统一 + 新增修订记录 | FR-009,013~019 |
 | ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs`（新） | 四字段职责边界（新 docs）+ 完整骨架 | FR-010,013~019 |
-| ✏️ MODIFY | `src/templates/agents/output/sddu-discovery.md.hbs` | 拆分 ## 完成报告 节 | FR-020~022 |
-| ✏️ MODIFY | `src/templates/agents/output/sddu-spec.md.hbs` | 拆分 ## 完成报告 节 | FR-020~022 |
-| ✏️ MODIFY | `src/templates/agents/output/sddu-plan.md.hbs` | 拆分 ## 完成报告 节 | FR-020~022 |
-| ✏️ MODIFY | `src/templates/agents/output/sddu-tasks.md.hbs` | 拆分 ## 完成报告 节 | FR-020~022 |
-| ✏️ MODIFY | `src/templates/agents/output/sddu-build.md.hbs` | 拆分 ## 完成报告 节 | FR-020~022 |
-| ✏️ MODIFY | `src/templates/agents/output/sddu-review.md.hbs` | 拆分 ## 完成报告 节 | FR-020~022 |
-| ✏️ MODIFY | `src/templates/agents/output/sddu-validate.md.hbs` | 拆分 ## 完成报告 节 | FR-020~022 |
+| ✏️ MODIFY | `src/templates/agents/output/sddu-discovery.md.hbs` | 统一为完整文档格式骨架，对齐 FR-020~021 | FR-020~021 |
+| ✏️ MODIFY | `src/templates/agents/output/sddu-spec.md.hbs` | 统一为完整文档格式骨架，对齐 FR-020~021 | FR-020~021 |
+| ✏️ MODIFY | `src/templates/agents/output/sddu-plan.md.hbs` | 统一为完整文档格式骨架，对齐 FR-020~021 | FR-020~021 |
+| ✏️ MODIFY | `src/templates/agents/output/sddu-tasks.md.hbs` | 统一为完整文档格式骨架，对齐 FR-020~021 | FR-020~021 |
+| ✏️ MODIFY | `src/templates/agents/output/sddu-build.md.hbs` | 统一为完整文档格式骨架，对齐 FR-020~021 | FR-020~021 |
+| ✏️ MODIFY | `src/templates/agents/output/sddu-review.md.hbs` | 统一为完整文档格式骨架，对齐 FR-020~021 | FR-020~021 |
+| ✏️ MODIFY | `src/templates/agents/output/sddu-validate.md.hbs` | 统一为完整文档格式骨架，对齐 FR-020~021 | FR-020~021 |
 | ✏️ MODIFY | `build-agents.cjs` | specialAgents 列表：移除 sddu-help，sddu-docs→sddu-tree，新增 sddu-docs | FR-009/010/012 |
 
 **统计**：DELETE 1 | NEW 1 | RENAME 1 | MODIFY 19 | **总计 22 项文件操作**
@@ -266,11 +267,10 @@ git checkout -- src/templates/agents/sddu-*.md.hbs  # 仅回滚指令模板
 
 | # | 检查项 | 对应 FR | 预期结果 |
 |---|--------|:------:|----------|
-| C10 | 章节骨架：`## 输出格式` → `## 完成报告` | FR-020 | 序列一致，无遗漏 |
-| C11 | `## 输出格式` 节内容对齐 spec 5.1 对应 Agent 的"输出"字段 | FR-021 | 辅助 Agent（roadmap/tree/docs）标注输出为内置固定格式 |
-| C12 | `## 完成报告` 节为独立 `##` 级标题 | FR-022 | 不可嵌于 ## 输出格式 或其他节内 |
-| C13 | `### 自动触发文档更新` 为 `## 完成报告` 内的独立 `###` 子节 | FR-022 | 不可内嵌于其他段落 |
-| C14 | 所有 `<<变量名>>` 占位符与变更前一致 | NFR-002 | 逐文件 grep `<<.*?>>` 对比 |
+| C10 | 文档格式骨架完整：各模板定义 Agent 产出文档的完整章节结构（如 spec→元数据/上下文/目标/用户故事/FR/NFR/EC/开放问题/修订记录），末尾含修订记录表 | FR-020 | 逐文件章节结构完整，内容可独立作为文档格式参考 |
+| C11 | 格式一致性：章节命名和层级风格统一，表格格式一致（列数/缩进），代码块用 3 反引号。辅助 Agent 标注输出为内置固定格式（EC-004） | FR-021 | 逐文件格式一致 |
+| C12 | 完成报告归属指令模板：产物模板不含「完成报告」节，完成报告（含自动触发 @sddu-tree）在指令模板的「完成协议」节 | FR-022 | 产物模板无完成报告残留；指令模板完成协议节存在 |
+| C13 | `<<变量名>>` 占位符与变更前一致 | NFR-002 | 逐文件 grep 对比 |
 
 ### 7.3 文件级操作审查清单
 
@@ -290,7 +290,7 @@ git checkout -- src/templates/agents/sddu-*.md.hbs  # 仅回滚指令模板
 | 场景 | 验证步骤 | 预期结果 |
 |------|----------|----------|
 | **EC-001** 章节名统一 | grep 所有模板中的 `约束条件`、`## 规则` | 仅出现 `## 规则`，无 `约束条件` |
-| **EC-002** 产物模板双节结构 | 统计 7 个 output/ 模板的 `## ` 级标题 | 每个模板恰好含 `## 输出格式` 和 `## 完成报告` |
+| **EC-002** 产物模板格式骨架 | 检查 7 个 output/ 模板的章节结构 | 各模板为完整文档格式骨架，章节命名和层级风格统一 |
 | **EC-003** "不负责"措辞 | grep 所有模板中的 `禁止`、`唯一`、`不允许` 出现在"不负责"字段中 | "不负责"字段不含绝对禁止性措辞，使用"不输出/不设计/不X"格式 |
 | **EC-004** 辅助 Agent 输出声明 | 检查 sddu-roadmap / sddu-tree / sddu-docs 的输出模板 | 标注输出为内置固定格式，不走用户自定义模板覆盖路径 |
 
