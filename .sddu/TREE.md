@@ -24,7 +24,7 @@
     │   └── adr/                                 # ADR 文档集合
     │       ├── TREE.md                          # ADR 目录导航
     │       └── ADR-001.md ~ ADR-017.md          # 主 ADR 集合 (17 篇)
-    └── specs-tree-[feature]/                    # 标准化 Feature 目录 (16 个)
+    └── specs-tree-[feature]/                    # 标准化 Feature 目录 (17 个)
 ```
 
 ## 文件说明
@@ -38,15 +38,15 @@
 | 目录 | 说明 | 状态 |
 |------|------|------|
 | docs/ | SDDU 文档资源 — FAQ、迁移指南、迁移状态记录 (29 个文档) | ✅ 存在 |
-| specs-tree-root/ | 规范文件根目录 — 16 个 Feature 目录 + 架构 ADR | ✅ 存在 |
+| specs-tree-root/ | 规范文件根目录 — 17 个 Feature 目录 + 架构 ADR | ✅ 存在 |
 
 ## 统计
 | 指标 | 值 |
 |------|-----|
-| Feature 总数 | 16 |
+| Feature 总数 | 17 |
 | 已完成 (completed) | 15 |
 | 已终止 (terminated) | 1 |
-| 进行中 (tracked) | 0 |
+| 进行中 (tracked) | 1 |
 | 架构 ADR | 17 篇 (ADR-001 ~ ADR-017) |
 | 文档资源 | 29 个 .md 文件 |
 

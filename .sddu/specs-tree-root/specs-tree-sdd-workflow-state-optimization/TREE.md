@@ -9,11 +9,8 @@ specs-tree-sdd-workflow-state-optimization/
 ├── TREE.md                          # 本文件 - 目录导航
 ├── spec.md                          # 需求规范 (阶段 1) — v2.0.0
 ├── spec-update-report.md            # 规范更新报告
-├── spec-v1.md.bak                   # 旧版规范 (备份)
 ├── plan.md                          # 技术计划 (阶段 2)
-├── plan-v1.md.bak                   # 旧版计划 (备份)
 ├── tasks.md                         # 任务分解 (阶段 3)
-├── tasks-v1.md.bak                  # 旧版任务 (备份)
 ├── review.md                        # 代码审查 (阶段 5)
 ├── validation-report.md             # 验证报告 (阶段 6)
 └── state.json                       # 状态文件

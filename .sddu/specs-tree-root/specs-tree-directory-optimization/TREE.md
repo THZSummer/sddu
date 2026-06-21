@@ -16,9 +16,6 @@ specs-tree-directory-optimization/
 ├── task-026-validation-result.md             # TASK-026 验证结果
 ├── validation.md                             # 功能验证 (阶段 6)
 ├── TASK-012-status-update.json               # TASK-012 状态更新
-├── TASK-025.completed                        # TASK-025 完成标记
-├── TASK-026.completed                        # TASK-026 完成标记
-├── TASK-027.completed                        # TASK-027 完成标记
 └── state.json                                # 状态文件
 ```
 
