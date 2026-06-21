@@ -4,7 +4,9 @@
   "version": "2.0.0",
   "state": "validated",
   "status": "completed",
-  "phase": 6,
+  "phase": 7,
+  "isParent": false,
+  "depth": 1,
   "createdDate": "2026-04-09",
   "specifiedDate": "2026-04-09",
   "plannedDate": "2026-04-09",
@@ -61,7 +63,7 @@
       "triggeredBy": "sddu-review-agent"
     },
     {
-      "phase": 6,
+"phase": 7,
       "status": "validated",
       "timestamp": "2026-04-09T00:00:00.000Z",
       "triggeredBy": "sddu-validate-agent"

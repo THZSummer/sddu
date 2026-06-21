@@ -3,7 +3,9 @@
   "name": "specs-tree-root 管理目录结构命名优化",
   "version": "1.0.0",
   "status": "completed",
-  "phase": 6,
+  "phase": 7,
+  "isParent": false,
+  "depth": 1,
   "files": {
     "spec": "spec.md",
     "plan": "plan.md",
