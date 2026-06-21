@@ -2,7 +2,7 @@
   "feature": "deprecate-sdd-tools",
   "featureId": "FR-DEP-001",
   "name": "弃用旧版 SDD 工具",
-  "phase": 6,
+"phase": 7,
   "status": "completed",
   "priority": "P0",
   "depth": 1,

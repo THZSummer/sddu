@@ -3,8 +3,9 @@
   "name": "树形结构优化 v2 - 问题修复",
   "version": "v2.1.0",
   "status": "completed",
-  "phase": 6,
+  "phase": 7,
   "depth": 1,
+  "isParent": false,
   "phaseHistory": [
     {
       "phase": 0,

@@ -1,51 +1,83 @@
-# SDDU 项目 Roadmap — 实时状态版
+# SDDU 项目版本 Roadmap
 
-> **文档版本**: 6.0.0
-> **更新日期**: 2026-06-13 (深度审计)
-> **生成方式**: `@sddu-roadmap` 全量扫描 15 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md
+> **文档版本**: 8.0.0
+> **更新日期**: 2026-06-21 (增量更新 — 新增 FR-ARCH-001 架构解耦)
+> **状态**: 规划中 (v3.0.0 待启动)
+> **生成方式**: `@sddu-roadmap` 全量扫描 16 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估
 > **当前项目版本**: v1.4.1
-> **全局状态**: 14 validated, 0 tracked, 1 terminated | 待处理项目: 41
+> **全局状态**: 15 validated, 0 tracked, 1 terminated | 待处理项目: 40 (↓1: Issue G 已解决) | 新提案: 1 (FR-ARCH-001)
 
 ---
 
-## 执行摘要
+## 执行摘要 (前 20%)
+
+### 愿景陈述
+
+SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范驱动工作流框架。通过 11 个专业化 Agent 协同工作，覆盖从问题挖掘 (discovery)、需求定义 (spec)、技术设计 (plan)、任务分解 (tasks)、实施构建 (build)、审查 (review) 到验证 (validate) 的完整开发生命周期。项目自 2026 年 3 月启动，已迭代至 v3.0.1，完成 15 个核心 Feature，当前聚焦 v3.0.0 质量与工作流改进。
+
+项目的长期愿景是成为 AI 辅助软件工程的标准工作流框架 — 让 AI Agent 不仅能写代码，更能通过规范化流程保证交付质量、沉淀项目知识、持续自我演进。v3.0.0 系列将重点解决框架自身的质量闭环问题（Build Wave 一体化、Validate E2E 能力、框架级自验证），v3.2.0 将引入项目知识基础设施（全局配置 + 知识自动沉淀），为 SDDU 的规模化应用奠定基础。
 
 ### 项目状态速览
 
 | 指标 | 值 |
 |------|-----|
-| **Feature 总数** | 15 |
-| **已完成 (completed)** | 14 |
+| **Feature 总数** | 16 |
+| **已完成 (completed)** | 15 |
 | **已终止 (terminated/migrated)** | 1 |
 | **进行中 (tracked)** | **0** ⚠️ |
 | **搁置 (suspended)** | 0 |
-| **已知待解决问题** | **41 (A-I 核心 + 32 审计发现)** |
+| **已知待解决问题** | **41 (A-F + H-I 核心 + ARCH-001 新提案 + 32 审计发现)** |
 | **规划中版本** | v3.0.0, v3.1.0, v3.2.0 |
 
 ### ⚠️ 关键警示
 
-> **当前无活跃 Feature！** 自 2026-06-13 `sddu-status-enhancement` validated 后，项目处于无进行中 Feature 的空窗期。深度审计发现 **41 个待处理项目**（10 Bug + 12 Enhancement + 9 Tech-Debt + 6 Doc + 4 Suspended），其中 6 项可在 ~3h 内速赢解决。v3.0.0 的 6 个核心问题 (A-F) 已记录但尚未启动任何 Feature 的 discovery 流程。
+> **当前无活跃 Feature！** 自 2026-06-19 `template-quality-unification` validated 后，项目处于无进行中 Feature 的空窗期。v3.0.0 的 6 个核心问题 (A-F) 已记录但尚未启动任何 Feature 的 discovery 流程。上次审计中的 Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成。
 
 ### 版本总览表
 
-| 版本 | 主题 | 发布时间 | 状态 | 核心交付 |
+| 版本 | 主题 | 发布时间 | 状态 | 核心功能 |
 |------|------|----------|:----:|----------|
 | **v1.1.1** | Phase 1+ | 2026-03-30 | ✅ | 16 Agent 上线 |
 | **v1.4.0** | SDD → SDDU 品牌升级 | 2026-04-20 | ✅ | 插件改名 + 双版本命令 |
 | **v2.4.0** | Feature 拆分与树形结构优化 | 2026-04-13 | ✅ | 树形结构 + 目录优化 + v2 修复 |
 | **v2.5.0** | Agent 输出模板化系统 | 2026-05-25 | ✅ | Handlebars 模板引擎 + 7 模板 |
 | **v2.6.0** | SDDU 特性状态增强 | 2026-06-13 | ✅ | phase(8) + status(5) v3.0.0 |
+| **v3.0.1** | 模板质量统一 🆕 | 2026-06-19 | ✅ | 17 模板格式统一 + 11 Agent 职责边界 |
 | **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 |
-| **v3.1.0** | 后续增强 (G + Skills/TUI/MCP) | TBD | 💡 提议中 | 模板质量 + 高级功能 |
+| **v3.1.0** | 架构解耦与增强 | TBD | 💡 提议中 | FR-ARCH-001 解耦 + Skills/TUI/MCP |
 | **v3.2.0** | 项目知识基础设施 (H-I) | TBD | 💡 提议中 | 全局配置 + 知识沉淀 |
 
-### 本周优先事项 (2026-06-13 ~ 2026-06-20)
+### 本周优先事项 (2026-06-21 ~ 2026-06-28)
 
+- [x] ~~**🟡 重要**: 评审 G 问题 (模板质量)，确认 scope 边界~~ → ✅ 已完成 (FR-TPL-001, v3.0.1)
 - [ ] **🔴 紧急**: 启动首个 v3.0.0 Feature (建议 FR-QUALITY-001 或 FR-KB-001) 的 discovery 流程
-- [ ] **🟡 重要**: 评审 G/H/I 新增问题，确认 scope 边界
+- [ ] **🟡 重要**: 评审 H/I 新增问题，确认 scope 边界
 - [ ] **🟡 重要**: 决定 v3.0.0 / v3.1.0 / v3.2.0 的 Feature 归属和启动顺序
 - [ ] **🟢 日常**: 运行残留检查脚本，确保无回归
-- [ ] **⚡ 速赢**: 执行 6 项速赢任务 (~3h)：TREE.md 路径修正、FeatureStateEnum 清理、stale spec.json 同步、COMPLETION_CERTIFICATE 修正、phaseHistory 去重
+- [ ] **⚡ 速赢**: 执行 5 项速赢任务 (~2h)：TREE.md 路径修正、FeatureStateEnum 清理、stale spec.json 同步、COMPLETION_CERTIFICATE 修正、phaseHistory 去重
+
+### 功能优先级 Top 5 (跨版本 RICE 排名)
+
+| 排名 | 功能 | 版本 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
+|:----:|------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
+| 🥇 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
+| 🥈 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
+| 🥉 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
+| 4 | **FR-ARCH-001**: SDDU 架构解耦 🆕 | v3.1.0 | 9 | 9 | 65% | 8 | **7.1** | P0 |
+| 5 | **FR-QUALITY-003**: Review/Validate 设计规划 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
+
+> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成，不参与排名。FR-ARCH-001 为新提案。完整 9 项 RICE 排名见「跨版本 RICE 总排名」节。
+
+### 关键 milestones
+
+| 日期 | Milestone | 版本 |
+|------|-----------|:----:|
+| ✅ 2026-06-19 | v3.0.1 发布 — 模板质量统一 | v3.0.1 |
+| 2026-06-28 | 首个 v3.0.0 Feature discovery 完成 | v3.0.0 |
+| 2026-07-05 | 首个 v3.0.0 Feature spec + plan 完成 | v3.0.0 |
+| 2026-07-19 | v3.0.0 首批 P0 Feature validated | v3.0.0 |
+| 2026-08-30 | v3.0.0 全部 Feature 完成 | v3.0.0 |
+| 2026-Q4 | v3.1.0 FR-ARCH-001 discovery + v3.2.0 评估 | v3.1.0 / v3.2.0 |
 
 ### 功能完成时间线
 
@@ -67,15 +99,20 @@
 2026-05-25  ✅  specs-tree-agent-output-templating (模板化)
 2026-06-12  🚫  specs-tree-solo-team-flow (ETD) → 迁出
 2026-06-13  ✅  specs-tree-sddu-status-enhancement (状态增强 v3.0.0)
-           ↓
+2026-06-19  ✅  specs-tree-template-quality-unification (模板质量统一 v3.0.1)
+            ↓
 2026-Q3    📋  v3.0.0 质量与工作流改进
 ```
 
 ---
 
-## Feature 全量状态扫描 (2026-06-13)
+## 版本详细规划 (后 80%)
 
-### 已完成 Feature (14 个)
+### 已完成版本回顾
+
+#### Feature 全量状态扫描
+
+##### 已完成 Feature (15 个)
 
 | # | Feature 目录 | ID | 名称 | Phase | Priority | 完成日期 |
 |:--|-------------|------|------|:-----:|:--------:|----------|
@@ -93,68 +130,19 @@
 | 12 | `specs-tree-tree-structure-optimization-v2` | FR-TREE-002 | 树形结构优化 v2 修复 | validated | P1 | 2026-04-15 |
 | 13 | `specs-tree-agent-output-templating` | FR-TEMPLATE-001 | Agent 输出模板化系统 | validated | P1 | 2026-05-25 |
 | 14 | `specs-tree-sddu-status-enhancement` | FR-STATUS-001 | SDDU 特性状态增强 v3.0.0 | validated | P1 | 2026-06-13 |
+| **15** | **`specs-tree-template-quality-unification`** | **FR-TPL-001** | **预置输出模板质量统一 v3.0.1** | **validated** | **P1** | **2026-06-19** |
 
-### 已终止 Feature (1 个)
+##### 已终止 Feature (1 个)
 
 | # | Feature 目录 | ID | 名称 | 状态 | 终止日期 | 去向 |
 |:--|-------------|------|------|:------:|----------|------|
 | 1 | `specs-tree-solo-team-flow` | ETD-001 | Expert Tree Design | terminated-and-migrated | 2026-06-12 | ETD 独立仓库 |
 
-### 进行中 Feature (0 个)
+##### 进行中 Feature (0 个)
 
 > ⚠️ **当前无进行中的 Feature。** `state.json` 中 `inProgress` 数组为空，所有 14 个已完成 Feature 的 `status` 均为 `completed`。
 
 ---
-
-## 依赖关系图谱
-
-```
-specs-tree-sdd-plugin-baseline ─────────────────────────────────────────────────────── ✅
-    │
-    ├── specs-tree-sdd-tools-optimization ───────────────────────────────────────────── ✅
-    │       └── specs-tree-deprecate-sdd-tools ───────────────────────────────────────── ✅
-    │
-    ├── specs-tree-sdd-workflow-state-optimization ───────────────────────────────────── ✅
-    │       │  (depends on: baseline, multi-module)
-    │       └── specs-tree-agent-output-templating ───────────────────────────────────── ✅
-    │               (depends on: workflow-state-optimization)
-    │
-    ├── specs-tree-sdd-multi-module ──────────────────────────────────────────────────── ✅
-    │
-    ├── specs-tree-sdd-discovery-feature ─────────────────────────────────────────────── ✅
-    │
-    ├── specs-tree-directory-optimization ────────────────────────────────────────────── ✅
-    │
-    ├── specs-tree-plugin-rename-sddu (parent) ───────────────────────────────────────── ✅
-    │       └── specs-tree-plugin-rename-sddu-v2 (child) ─────────────────────────────── ✅
-    │
-    ├── specs-tree-sdd-plugin-roadmap ────────────────────────────────────────────────── ✅
-    │
-    ├── specs-tree-tree-structure-optimization ───────────────────────────────────────── ✅
-    │       └── specs-tree-tree-structure-optimization-v2 (child) ─────────────────────── ✅
-    │
-    └── specs-tree-sddu-status-enhancement (v2.6.0 / v3.0.0 model) ──────────────────── ✅
-            │  (latest: 2026-06-13)
-            │
-            ▼  ─── 📋 v3.0.0 规划中 ───
-            ├── FR-QUALITY-001 (Build Wave 一体化) — Issue A
-            ├── FR-QUALITY-002 (Validate E2E) — Issue C
-            ├── FR-QUALITY-003 (Review/Validate 设计规划) — Issue F
-            ├── FR-QUALITY-004 (框架自验证) — Issue E
-            ├── FR-QUALITY-005 (auto-updater 修复) — Issue B
-            ├── FR-QUALITY-006 (coordinator 兼容) — Issue D
-            │
-            ▼  ─── 💡 v3.1.0 / v3.2.0 提议中 ───
-            ├── FR-TPL-001 (模板质量统一) — Issue G → v3.1.0
-            ├── FR-KB-001 (全局项目配置) — Issue I → v3.2.0
-            └── FR-KB-002 (项目知识沉淀) — Issue H → v3.2.0 (依赖 KB-001)
-
-specs-tree-solo-team-flow (ETD-001) ──────────── 🚫 terminated → 独立仓库
-```
-
----
-
-## 📋 规划中版本详情
 
 ### v3.0.0 — 质量与工作流改进
 
@@ -205,52 +193,106 @@ specs-tree-solo-team-flow (ETD-001) ──────────── 🚫 te
 
 ---
 
-### v3.1.0 — 后续增强提议
+### v3.1.0 — 架构解耦与增强
 
-**预计时间**: TBD (建议 v3.0.0 启动后并行评估)
+**预计时间**: TBD (建议 v3.0.0 启动后并行评估 discovery)
 **状态**: 💡 提议中
-**新增问题**: G (模板质量)
+**主题**: SDDU 核心与平台解耦，为多平台接入奠定基础
 
-| Feature | 覆盖 | 优先级 | Effort | 来源 |
+**背景**: 当前 SDDU 插件与 opencode 耦合较深（opencode.json 配置、agent 定义方式、命令注册机制等），限制了 SDDU 作为独立工作流框架的扩展性。用户提出架构解耦需求，目标是使 opencode 成为 SDDU 的"一种接入方式"而非"唯一宿主"。
+
+#### 核心 Feature: FR-ARCH-001 — SDDU 架构解耦 🆕
+
+| 属性 | 值 |
+|------|-----|
+| **Feature ID** | FR-ARCH-001 |
+| **优先级** | 🥇 P0 (RICE 7.1，跨版本第 4 位) |
+| **Effort** | L (7-10 天) |
+| **来源** | 用户提案 (2026-06-21) |
+
+**核心目标**: SDDU 本体与 opencode 插件相关内容解耦，通过架构解耦为未来的多平台接入（CLI 独立运行、VS Code 插件、Web 集成等）做铺垫。
+
+**预期范围** (待 discovery 阶段细化):
+1. **抽象接入层接口** — 定义 SDDU 与宿主平台的契约（Agent 注册、命令调度、模板渲染、工具调用）
+2. **opencode 适配器层** — 将 opencode.json 配置、agent prompt 引用、命令注册等逻辑收敛到独立适配器
+3. **SDDU 核心平台无关化** — 状态机 (`src/state/machine.ts`)、工作流引擎 (`src/discovery/workflow-engine.ts`)、Agent 调度 (`src/agents/registry.ts`) 与平台解耦
+4. **CLI 接入验证** — 至少实现一个非 opencode 接入方式（如 CLI standalone），验证解耦有效性
+
+**RICE 详细分析**:
+
+| 维度 | 评分 | 依据 |
+|------|:---:|------|
+| Reach | **9** | 涉及全部 11 个 Agent 定义、coordinator 调度、模板系统、opencode.json 配置 — 影响整个 SDDU 代码库 |
+| Impact | **9** | 战略价值极高：使 SDDU 脱离 opencode 单一宿主，解锁 CLI / VS Code / Web 等多平台接入，提升项目长期生命力 |
+| Confidence | **65%** | 解耦模式成熟（Adapter/Facade），但当前耦合深度需 discovery 阶段精确量化；scope 存在膨胀风险（如 CLI 验证可能演化为完整 CLI 工具） |
+| Effort | **8** | 大规模重构：接口设计 (2d) + opencode 适配器迁移 (2d) + 核心去耦合 (3d) + CLI 验证实现 (2d) + 回归测试 (1d) |
+| **RICE** | **7.1** | **(9 × 9 × 0.65) / 8** |
+
+**与其他 Feature 的依赖关系**:
+
+```
+FR-ARCH-001 (架构解耦) ──→ FR-KB-001 (全局配置)    ← 解耦后配置格式需平台无关
+FR-ARCH-001 (架构解耦) ──→ Skills 系统 (v3.1.0)    ← Skills 注册机制可基于抽象接口
+FR-ARCH-001 (架构解耦) ──→ TUI (v3.1.0)            ← TUI 可作为新宿主平台实现
+FR-ARCH-001 (架构解耦) ──→ MCP 集成 (v3.1.0)      ← MCP 可基于抽象适配器层
+FR-KB-001 (全局配置) ──→ FR-ARCH-001               ← 全局配置可提供平台无关的配置基座
+```
+
+#### v3.1.0 其他增强项
+
+| Feature | 覆盖 | 优先级 | Effort | 说明 |
 |---------|:----:|:------:|--------|------|
-| **FR-TPL-001**: 预置输出模板质量统一 | G | 🥈 P1 | 5-7 天 | 本次新增 — 统一 7 个 Agent 输出模板的标题层级、表格格式、内容组织 |
+| **FR-ARCH-001**: SDDU 架构解耦 🆕 | — | 🥇 P0 | 7-10d | 核心与平台解耦 + CLI 验证 |
 | Skills 系统 | — | P2 | TBD | v2.5.0 遗留 |
 | TUI 界面 | — | P2 | TBD | v2.5.0 遗留 |
 | MCP 集成 | — | P2 | TBD | v2.5.0 遗留 |
 | 文件命名标准化 | — | P2 | TBD | v2.7.0 遗留 |
 | FeatureStateEnum 清理 | — | P2 | TBD | status-enhancement 遗留 |
 
+#### v3.1.0 RICE 排名
+
+| 排名 | Feature | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
+|:----:|---------|:-----:|:------:|:-----:|:------:|:--------:|:------:|
+| 🥇 | **FR-ARCH-001**: SDDU 架构解耦 🆕 | 9 | 9 | 65% | 8 | **7.1** | P0 |
+| — | Skills 系统 | TBD | TBD | TBD | TBD | TBD | P2 |
+| — | TUI 界面 | TBD | TBD | TBD | TBD | TBD | P2 |
+| — | MCP 集成 | TBD | TBD | TBD | TBD | TBD | P2 |
+
+> **注**: FR-ARCH-001 是 v3.1.0 的核心 Feature。Skills/TUI/MCP 等遗留项建议在架构解耦完成后重新评估，因解耦后的抽象接口可能简化这些功能的实现。
+
 ---
 
 ### v3.2.0 — 项目知识基础设施
 
-**预计时间**: TBD (依赖 v3.1.0 部分完成)
+**预计时间**: TBD (依赖 v3.1.0 部分完成，与 FR-ARCH-001 协同设计)
 **状态**: 💡 提议中
 **新增问题**: H (知识沉淀), I (全局配置)
+**注意**: FR-ARCH-001 (v3.1.0) 的架构解耦将影响 KB-001 的配置格式设计 — 需确保配置 schema 平台无关。
 
 | Feature | 覆盖 | 优先级 | Effort | 说明 |
 |---------|:----:|:------:|--------|------|
 | **FR-KB-001**: 全局项目配置文件 | I | 🥇 P0 | 3-5 天 | `.sddu/project.json` — 技术栈、命名规范、代码风格等 |
 | **FR-KB-002**: 项目级知识自动沉淀 | H | 🥈 P1 | 7-10 天 | 聚合 Feature 产出物为项目总览文档 (依赖 KB-001) |
 
-**RICE 分析 (G-I 问题)**:
+**RICE 分析 (H-I 问题)**:
 
 | 排名 | Feature | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:-----:|:------:|:-----:|:------:|:--------:|:------:|
 | 🥇 | FR-KB-001 (全局配置) | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 🥈 | FR-TPL-001 (模板质量) | 10 | 5 | 90% | 6 | **7.5** | P1 |
-| 🥉 | FR-KB-002 (知识沉淀) | 8 | 8 | 50% | 8 | **4.0** | P1 |
+| 🥈 | FR-KB-002 (知识沉淀) | 8 | 8 | 50% | 8 | **4.0** | P1 |
 
 ---
 
-## 跨版本 RICE 总排名 (全部 9 问题 A-I)
+### 跨版本 RICE 总排名 (全部 9 项: A-F + H-I + ARCH-001)
+
+> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成，不再参与排名。FR-ARCH-001 为新提案。
 
 | 排名 | Feature | 归属 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
 | 🥇 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
 | 🥈 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
 | 🥉 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
-| 4 | **FR-TPL-001**: 模板质量统一 | v3.1.0 | 10 | 5 | 90% | 6 | **7.5** | P1 |
+| 4 | **FR-ARCH-001**: SDDU 架构解耦 🆕 | v3.1.0 | 9 | 9 | 65% | 8 | **7.1** | P0 |
 | 5 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
 | 6 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
 | 7 | **FR-KB-002**: 项目知识沉淀 | v3.2.0 | 8 | 8 | 50% | 8 | **4.0** | P1 |
@@ -259,53 +301,110 @@ specs-tree-solo-team-flow (ETD-001) ──────────── 🚫 te
 
 ---
 
-## 执行依赖分析
+### 依赖关系分析
+
+#### 依赖关系图谱
+
+```
+specs-tree-sdd-plugin-baseline ─────────────────────────────────────────────────────── ✅
+    │
+    ├── specs-tree-sdd-tools-optimization ───────────────────────────────────────────── ✅
+    │       └── specs-tree-deprecate-sdd-tools ───────────────────────────────────────── ✅
+    │
+    ├── specs-tree-sdd-workflow-state-optimization ───────────────────────────────────── ✅
+    │       │  (depends on: baseline, multi-module)
+    │       └── specs-tree-agent-output-templating ───────────────────────────────────── ✅
+    │               (depends on: workflow-state-optimization)
+    │               └── specs-tree-template-quality-unification ────────────────────── ✅
+    │                       (depends on: agent-output-templating, v3.0.1)
+    │
+    ├── specs-tree-sdd-multi-module ──────────────────────────────────────────────────── ✅
+    │
+    ├── specs-tree-sdd-discovery-feature ─────────────────────────────────────────────── ✅
+    │
+    ├── specs-tree-directory-optimization ────────────────────────────────────────────── ✅
+    │
+    ├── specs-tree-plugin-rename-sddu (parent) ───────────────────────────────────────── ✅
+    │       └── specs-tree-plugin-rename-sddu-v2 (child) ─────────────────────────────── ✅
+    │
+    ├── specs-tree-sdd-plugin-roadmap ────────────────────────────────────────────────── ✅
+    │
+    ├── specs-tree-tree-structure-optimization ───────────────────────────────────────── ✅
+    │       └── specs-tree-tree-structure-optimization-v2 (child) ─────────────────────── ✅
+    │
+    └── specs-tree-sddu-status-enhancement (v2.6.0 / v3.0.0 model) ──────────────────── ✅
+            │  (latest: 2026-06-13)
+            │
+            ▼  ─── 📋 v3.0.0 规划中 ───
+            ├── FR-QUALITY-001 (Build Wave 一体化) — Issue A
+            ├── FR-QUALITY-002 (Validate E2E) — Issue C
+            ├── FR-QUALITY-003 (Review/Validate 设计规划) — Issue F
+            ├── FR-QUALITY-004 (框架自验证) — Issue E
+            ├── FR-QUALITY-005 (auto-updater 修复) — Issue B
+            ├── FR-QUALITY-006 (coordinator 兼容) — Issue D
+            │
+            ▼  ─── 💡 v3.1.0 / v3.2.0 提议中 ───
+            ├── FR-TPL-001 (模板质量统一) — Issue G → ✅ v3.0.1 已完成
+            ├── FR-ARCH-001 (SDDU 架构解耦) — 新提案 🆕 → v3.1.0
+            ├── FR-KB-001 (全局项目配置) — Issue I → v3.2.0
+            └── FR-KB-002 (项目知识沉淀) — Issue H → v3.2.0 (依赖 KB-001)
+
+specs-tree-solo-team-flow (ETD-001) ──────────── 🚫 terminated → 独立仓库
+```
+
+#### 执行依赖分析
 
 ```
 FR-KB-001 (全局配置) ──→ FR-KB-002 (知识沉淀)         ← 配置是知识沉淀的前提
+FR-ARCH-001 (架构解耦) ──→ FR-KB-001 (全局配置)      ← 解耦后配置需平台无关 🆕
+FR-ARCH-001 (架构解耦) ──→ Skills/TUI/MCP (v3.1.0)   ← 解耦后的抽象接口可简化这些实现 🆕
 FR-QUALITY-001 (Build Wave) ──→ FR-QUALITY-003 (设计规划)    ← Wave 经验指导设计
 FR-QUALITY-002 (Validate E2E) ──→ FR-QUALITY-004 (框架自验)  ← E2E 能力支撑自验证
-FR-TPL-001 (模板质量) — 可独立启动
 FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 
 推荐并行组合:
-┌─ Wave 1 ────────────────────────┐
-│ FR-QUALITY-001 (Build Wave)     │ ← RICE 9.6, 独立
-│ FR-QUALITY-005 (auto-updater)   │ ← RICE 4.8, 快速修复
-│ FR-QUALITY-006 (coordinator)    │ ← RICE 2.4, 快速修复
-└─────────────────────────────────┘
-┌─ Wave 2 ────────────────────────┐
-│ FR-QUALITY-002 (Validate E2E)   │ ← RICE 8.4, 依赖 Wave 1 经验
-│ FR-KB-001 (全局配置)            │ ← RICE 15.8, 独立
-└─────────────────────────────────┘
-┌─ Wave 3 ────────────────────────┐
-│ FR-QUALITY-003 (Review/Validate) │ ← 依赖 Wave 1 完成
-│ FR-TPL-001 (模板质量)           │ ← RICE 7.5, 独立
-└─────────────────────────────────┘
-┌─ Wave 4 ────────────────────────┐
-│ FR-QUALITY-004 (框架自验证)     │ ← 依赖 Wave 2 Validate E2E
-│ FR-KB-002 (知识沉淀)            │ ← 依赖 Wave 2 KB-001
-└─────────────────────────────────┘
+┌─ Wave 1 (v3.0.0) ─────────────────┐
+│ FR-QUALITY-001 (Build Wave)        │ ← RICE 9.6, 独立
+│ FR-QUALITY-005 (auto-updater)      │ ← RICE 4.8, 快速修复
+│ FR-QUALITY-006 (coordinator)       │ ← RICE 2.4, 快速修复
+└────────────────────────────────────┘
+┌─ Wave 2 (v3.0.0 + v3.1.0 发现) ──┐
+│ FR-QUALITY-002 (Validate E2E)      │ ← RICE 8.4, 依赖 Wave 1 经验
+│ FR-KB-001 (全局配置)               │ ← RICE 15.8, 独立
+│ FR-ARCH-001 discovery 启动 🆕      │ ← 并行评估 scope，不阻塞 v3.0.0
+└────────────────────────────────────┘
+┌─ Wave 3 (v3.0.0 收尾) ────────────┐
+│ FR-QUALITY-003 (Review/Validate)   │ ← 依赖 Wave 1 完成
+└────────────────────────────────────┘
+┌─ Wave 4 (v3.0.0 + v3.1.0) ────────┐
+│ FR-QUALITY-004 (框架自验证)        │ ← 依赖 Wave 2 Validate E2E
+│ FR-ARCH-001 实施 🆕                │ ← 依赖 KB-001 (配置格式) 完成
+└────────────────────────────────────┘
+┌─ Wave 5 (v3.2.0) ─────────────────┐
+│ FR-KB-002 (知识沉淀)               │ ← 依赖 KB-001 + ARCH-001
+│ Skills / TUI / MCP (重新评估) 🆕   │ ← 基于解耦后架构评估
+└────────────────────────────────────┘
 ```
 
 ---
 
-## 风险评估
+### 风险评估
 
 | 风险 | 影响 | 概率 | 缓解措施 |
 |------|------|:----:|----------|
 | **无活跃 Feature 空窗期过长** | 🔴 高 | 🟡 中 | 本周内启动首个 v3.0.0 Feature 的 discovery |
+| **FR-ARCH-001 scope 膨胀** 🆕 | 🔴 高 | 🟡 中 | discovery 阶段严格界定范围；分 Phase：Phase 1 接口抽象 + 适配器，Phase 2 CLI 验证 |
+| **FR-ARCH-001 引入回归** 🆕 | 🔴 高 | 🟡 中 | 重构前增加单元测试覆盖率；每个解耦步骤后用现有 396 测试验证 |
 | v3.0.0 范围蔓延 (6 问题全做) | 🔴 高 | 🟡 中 | 严格按优先级排序；A/C 先做，B/D 快速修复可并行 |
 | Build Wave 一体化改动大 | 🟡 中 | 🟡 中 | 提前原型验证 build agent 的 multi-wave 能力 |
 | Validate E2E 设计复杂度高 | 🟡 中 | 🟡 中 | 分两步：最小可行 E2E runner → 完整框架 |
-| Skills/TUI/MCP 持续延期 | 🟢 低 | 🔴 高 | 已有明确记录在 v3.1.0，资源有限可继续延后 |
+| Skills/TUI/MCP 持续延期 | 🟢 低 | 🔴 高 | FR-ARCH-001 解耦后重新评估；可能随架构变化调整或简化 |
 | KB-002 (知识沉淀) scope 不明确 | 🟡 中 | 🔴 高 | 依赖 KB-001 先落地；discovery 阶段详细界定 |
-| KB-001 (全局配置) schema 争议 | 🟡 中 | 🟡 中 | 参考主流框架实践；充分收拢需求再设计 |
-| 模板质量改进 (FR-TPL-001) 优先级争议 | 🟢 低 | 🟡 中 | RICE 7.5 排名第 4，清晰的 P1，不阻塞 P0 |
+| KB-001 (全局配置) schema 争议 | 🟡 中 | 🟡 中 | 参考主流框架实践；充分收拢需求再设计；与 ARCH-001 协同设计 |
 
 ---
 
-## 📋 下一步行动
+## 下一步行动
 
 ### 🔴 立即行动 (本周)
 
@@ -316,8 +415,9 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 
 2. **确认 Feature 归属版本** — 当前方案:
    - A-F → v3.0.0 (质量与工作流改进)
-   - G → v3.1.0 (模板质量统一)
+   - **FR-ARCH-001 (架构解耦)** → v3.1.0 (核心 Feature) 🆕
    - H-I → v3.2.0 (知识基础设施)
+   - G → ✅ 已完成 (FR-TPL-001, v3.0.1)
    - 是否需要调整归属？
 
 3. **运行残留检查**: `bash scripts/check-sdd-residue.sh`
@@ -331,23 +431,12 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 ### 🟢 中期行动 (1 个月内)
 
 7. 完成 v3.0.0 全部 P0 级 Feature
-8. 评估 v3.1.0 Feature 是否启动 (FR-TPL-001)
-9. 为 FR-KB-001 / FR-KB-002 收拢需求
-
-### 📅 建议里程碑
-
-| 日期 | 里程碑 | 关联 Feature |
-|------|--------|-------------|
-| 2026-06-20 | 首个 v3.0.0 Feature discovery 完成 | 待定 |
-| 2026-06-27 | 首个 v3.0.0 Feature spec + plan 完成 | 待定 |
-| 2026-07-15 | v3.0.0 首批 P0 Feature validated | FR-QUALITY-001/002 |
-| 2026-08-30 | v3.0.0 全部 Feature 完成 | A-F |
-| 2026-Q4 | v3.1.0 启动 | FR-TPL-001 + Skills/TUI/MCP |
-| 2026-Q4 | v3.2.0 启动 | FR-KB-001 → FR-KB-002 |
+8. 评估 v3.1.0 核心 Feature 是否启动 (FR-ARCH-001 架构解耦)
+9. 为 FR-KB-001 / FR-KB-002 收拢需求，与 ARCH-001 协同设计
 
 ---
 
-## 附录: Feature 文件覆盖率检查
+## 附录 A: Feature 文件覆盖率检查
 
 ### 各 Feature 文件产出物一览
 
@@ -367,43 +456,26 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | tree-structure-optimization-v2 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | agent-output-templating | ✅ | ✅ | ✅ | ✅ | — | ✅ | ✅ |
 | sddu-status-enhancement | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| template-quality-unification 🆕 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | solo-team-flow (终止) | ✅ | — | — | — | — | — | — |
 
 > ✅ = 文件存在  — = 文件缺失 (可能因 Feature 时代/类型不同)
 
 ---
 
-## 📁 相关文档
+## 附录 B: 全量审计 — 所有待处理项目清单 (2026-06-13 深度扫描)
 
-- 📁 **全局状态**: [state.json](./specs-tree-root/state.json)
-- 📝 **规范目录导航**: [specs-tree-root/README.md](./specs-tree-root/README.md)
-- 📋 **状态增强验证报告**: [specs-tree-sddu-status-enhancement/validation-report.md](./specs-tree-root/specs-tree-sddu-status-enhancement/validation-report.md)
-- 🏗️ **架构决策记录**: [architecture/adr/](./specs-tree-root/architecture/adr/)
-- 📁 **项目 README**: [../../../README.md](../../../README.md)
-
----
-
-> **文档维护**: 本 Roadmap 是动态文档。建议每季度回顾更新，或每当一个 Feature 完成 validated 阶段时运行 `@sddu-roadmap` 刷新状态。
-
-> **生成信息**: 本文档由 `@sddu-roadmap` Agent 于 2026-06-13 深度扫描生成，扫描范围覆盖 `.sddu/specs-tree-root/` 下 15 个 Feature 目录的全部 state.json / spec.md / tasks.md / spec.json / validation-report.md 以及 `.sddu/docs/` / `.sddu/TREE.md` / 架构 ADR 目录。
-
----
-
-## 📊 全量审计：所有待处理项目清单 (2026-06-13 深度扫描)
-
-### 📊 分类汇总
+### 分类汇总
 
 | 类别 | 数量 | 说明 |
 |------|:----:|------|
 | 🐛 Bug / 质量问题 | 10 | A-F + 4 预存测试失败 |
-| ✨ 增强特性 | 12 | G-I + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 + 遗留项 |
+| ✨ 增强特性 | 11 | H-I + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 |
 | 🔧 技术债务 | 9 | deprecated 类型、旧 schema、stale spec.json、仪表盘 TS 化、缺集成测试等 |
 | 📄 文档/配置 | 6 | TREE.md 过时、冗余 wave1 文件、路径引用错误等 |
 | ⏸️ 搁置但需关注 | 4 | ETD 独立仓库、Skills/TUI/MCP 持续延期 |
 
-**总计: 41 个待处理项目**
-
----
+**总计: 41 个待处理项目** (↓1: Issue G 已于 v3.0.1 解决；↑1: FR-ARCH-001 新提案)
 
 ### 🐛 一、待修复 Bug / 质量问题 (10 项)
 
@@ -419,13 +491,10 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | **T2** | wf-state-optimization phaseHistory 重复 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | state.json | phaseHistory 中有重复条目（从 tasked 回退到 specified 又回到 tasked），数据虽不影响功能但混淆调试 |
 | **T3** | agent-output-templating spec.json state 过期 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | spec.json | `"phase": "planned", "state": "specified"` — 实际 feature 早已 validated，spec.json 未同步更新 |
 
----
-
-### ✨ 二、待实现的增强特性 (12 项)
+### ✨ 二、待实现的增强特性 (11 项)
 
 | # | 名称 | 类型 | Effort | 优先级 | 归属 | 描述 |
 |:--|------|:----:|:------:|:------:|:-----|------|
-| **G** | 预置输出模板质量统一 | ✨ Enhancement | M (5-7d) | **P1** | v3.1.0 | 7 个 Agent 输出模板中标题层级、表格格式、内容组织不一致，需统一 |
 | **I** | 全局项目配置文件 | ✨ Enhancement | M (3-5d) | **P0** | v3.2.0 | `.sddu/project.json` — 技术栈、命名规范、代码风格等全局配置，RICE 15.8 排名第一 |
 | **H** | 项目级知识自动沉淀 | ✨ Enhancement | L (7-10d) | **P1** | v3.2.0 | 聚合 Feature 产出物为项目总览文档 (依赖 I: 全局配置) |
 | **S1** | FR-014: 模板校验工具命令 | ✨ Enhancement | M (3-5d) | **P2** | Could Have | `@sddu-validate-template` 命令，用户可提前验证模板正确性 (spec 中标记 "未来") |
@@ -438,7 +507,7 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | **S8** | FeatureStateEnum 清理 | ✨ Enhancement | XS (<1d) | **P1** | v3.1.0 遗留 | 移除 `@deprecated` 的 `FeatureStateEnum` 类型别名 (status-enhancement 延后) |
 | **S9** | docs Agent 输出模板化 | ✨ Enhancement | S (1-2d) | **P3** | 未来 | agent-output-templating 只覆盖 6 主流程 Agent，docs/roadmap/help 辅助 Agent 待模板化 |
 
----
+> **注**: ~~G: 预置输出模板质量统一~~ 已于 2026-06-19 通过 FR-TPL-001 (v3.0.1) 完成。全 22 FR + 3 NFR 100% 通过，17 个模板 + 11 个 Agent 职责边界声明全部到位。
 
 ### 🔧 三、技术债务 (9 项)
 
@@ -454,8 +523,6 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | **TD8** | 实际 AI Agent 行为验证缺失 | 🔧 Tech-Debt | M (3-5d) | **P2** | 建议在实际 opencode 环境中执行 `@sddu 状态` 并对比预期效果与模板描述是否一致 |
 | **TD9** | agent-output-templating plan.md 改进项 | 🔧 Tech-Debt | XS (<1d) | **P3** | 审查报告的改进项 #2：plan.md 示例路径引用，非阻塞 |
 
----
-
 ### 📄 四、文档/配置类 (6 项)
 
 | # | 名称 | 类型 | Effort | 优先级 | 描述 |
@@ -467,8 +534,6 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | **DOC5** | architecture/README.md ADR 数量过时 | 📄 Doc | XS (<1d) | **P3** | 说"ADR-002 ~ ADR-017"，实际有 ADR-001 ~ ADR-020（含子 Feature 的 ADR-018/019/020） |
 | **DOC6** | `.sddu/docs/README.md` 未包含 v3.0.0 Roadmap | 📄 Doc | XS (<1d) | **P3** | docs 导航未引用 v3.0.0 质量改进计划 |
 
----
-
 ### ⏸️ 五、搁置但需关注 (4 项)
 
 | # | 名称 | 状态 | Effort | 触发条件 | 描述 |
@@ -478,8 +543,6 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | **SUS3** | wf-state-optimization 缺 review/validation | ⏸️ 已标记 | N/A | — | Feature 在 state.json 中标记 completed 但 `files` 字段无 review/validation — 可能是 pre-SDDU 时代特征，功能已完成 |
 | **SUS4** | 预存测试 4 失败 | ⏸️ 已知 | S (1-2d) | — | 2 timeout + 1 断言 + 1 OOM，status-enhancement 中标记为非本次引入，需专门修复 |
 
----
-
 ### 📈 全量优先级总排名 (Top 20)
 
 | 排名 | ID | 名称 | 类型 | 归属 | Effort | RICE | 优先级 |
@@ -487,29 +550,31 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | 🥇 | **I** | 全局项目配置文件 | ✨ | v3.2.0 | M | 15.8 | **P0** |
 | 🥈 | **A** | Build Wave 一体化 | 🐛 | v3.0.0 | L | 9.6 | **P0** |
 | 🥉 | **C** | Validate Agent E2E | 🐛 | v3.0.0 | L | 8.4 | **P0** |
-| 4 | **G** | 模板质量统一 | ✨ | v3.1.0 | M | 7.5 | **P1** |
+| 4 | **ARCH-001** 🆕 | SDDU 架构解耦 | ✨ | v3.1.0 | L | 7.1 | **P0** |
 | 5 | **F** | Review/Validate 设计规划 | 🐛 | v3.0.0 | M | 5.3 | **P1** |
 | 6 | **B** | auto-updater 修复 | 🐛 | v3.0.0 | S | 4.8 | **P2** |
 | 7 | **H** | 项目知识沉淀 | ✨ | v3.2.0 | L | 4.0 | **P1** |
 | 8 | **E** | 框架自验证 | 🐛 | v3.0.0 | L | 2.8 | **P1** |
 | 9 | **D** | coordinator 兼容 | 🐛 | v3.0.0 | XS | 2.4 | **P3** |
-| 10 | **S8** | FeatureStateEnum 清理 | ✨ | v3.1.0 | XS | — | **P1** |
-| 11 | **T1** | 预存测试修复 | 🐛 | — | S | — | **P2** |
-| 12 | **TD1** | 仪表盘 TS 化 | 🔧 | — | M | — | **P2** |
-| 13 | **TD2** | consistency-checker 集成测试 | 🔧 | — | S | — | **P2** |
-| 14 | **DOC1** | TREE.md sdd→sddu | 📄 | — | XS | — | **P2** |
-| 15 | **DOC2** | Wave1 冗余文件归档 | 📄 | — | XS | — | **P2** |
-| 16 | **S4** | Skills 系统 | ✨ | v3.1.0 | L | — | **P2** |
-| 17 | **S7** | 文件命名标准化 | ✨ | — | S | — | **P2** |
-| 18 | **TD8** | AI Agent 行为验证 | 🔧 | — | M | — | **P2** |
-| 19 | **S1** | 模板校验工具 | ✨ | Could Have | M | — | **P2** |
-| 20 | **DOC3-6** | 路径/数量修正 | 📄 | — | XS×4 | — | **P3** |
-
----
+| 9 | **S8** | FeatureStateEnum 清理 | ✨ | v3.1.0 | XS | — | **P1** |
+| 10 | **T1** | 预存测试修复 | 🐛 | — | S | — | **P2** |
+| 11 | **TD1** | 仪表盘 TS 化 | 🔧 | — | M | — | **P2** |
+| 12 | **TD2** | consistency-checker 集成测试 | 🔧 | — | S | — | **P2** |
+| 13 | **DOC1** | TREE.md sdd→sddu | 📄 | — | XS | — | **P2** |
+| 14 | **DOC2** | Wave1 冗余文件归档 | 📄 | — | XS | — | **P2** |
+| 15 | **S4** | Skills 系统 | ✨ | v3.1.0 | L | — | **P2** |
+| 16 | **S7** | 文件命名标准化 | ✨ | — | S | — | **P2** |
+| 17 | **TD8** | AI Agent 行为验证 | 🔧 | — | M | — | **P2** |
+| 18 | **S1** | 模板校验工具 | ✨ | Could Have | M | — | **P2** |
+| 19 | **DOC3-6** | 路径/数量修正 | 📄 | — | XS×4 | — | **P3** |
+| 20 | **TD3** | schema-v1.2.5 清理 | 🔧 | — | XS | — | **P3** |
 
 ### 🗺️ 推荐执行顺序
 
 ```
+Phase 0 — ✅ 已完成 (v3.0.1, 2026-06-19)
+└── ✅ FR-TPL-001 (模板质量统一) — RICE 7.5，22 FR + 3 NFR 100% 通过
+
 Phase 1 — 🔥 立即启动 (本周)
 ├── 🔴 P0: FR-QUALITY-001 (Build Wave 一体化) — RICE 9.6，独立性强
 ├── 🔴 P0: FR-KB-001 (全局项目配置) — RICE 15.8，全局影响力最大
@@ -523,11 +588,11 @@ Phase 2 — 🟡 第二周
 
 Phase 3 — 🟡 第三~四周
 ├── 🟡 P1: FR-QUALITY-004 (框架自验证) — 依赖 Validate E2E
-├── 🟡 P1: FR-TPL-001 (模板质量统一) — 独立
 ├── 🟡 P1: FR-KB-002 (知识沉淀) — 依赖 KB-001
 └── 📄 P2: DOC2 (Wave1 文件归档) + TD1 (仪表盘 TS 化)
 
 Phase 4 — 🟢 后续 (v3.1.0/v3.2.0)
+├── 🆕 FR-ARCH-001 (SDDU 架构解耦) — RICE 7.1，v3.1.0 核心
 ├── S4 (Skills 系统) + S7 (文件命名标准化) + S9 (docs 模板化)
 ├── TD8 (AI Agent 行为验证) + S1 (模板校验工具)
 └── 📄 DOC3-6 (路径/引用修正，批量处理)
@@ -538,9 +603,7 @@ Phase 5 — ⏸️ 搁置
 └── TD3/TD4 (旧 schema) + TD5-7/TD9 (stale spec.json) — 低优先级清理
 ```
 
----
-
-### ⚡ 本周速赢清单 (Effort ≤ XS-S, 可立即执行，总耗时 ~3h)
+### ⚡ 本周速赢清单 (Effort ≤ XS-S, 可立即执行，总耗时 ~2.5h)
 
 | # | 项目 | 时间 | 价值 |
 |---|------|:--:|------|
@@ -550,4 +613,20 @@ Phase 5 — ⏸️ 搁置
 | 4 | **DOC3**: COMPLETION_CERTIFICATE.json 路径修正 | 5min | 消除过时引用 |
 | 5 | **T2**: wf-state-optimization phaseHistory 去重 | 10min | 数据整洁 |
 | 6 | **D**: coordinator bash 工具兼容性 | 1h | RICE 2.4 |
-| **合计** | **6 项速赢** | **~3h** | **快速降低技术债** |
+| **合计** | **6 项速赢** | **~2.5h** | **快速降低技术债** |
+
+---
+
+## 📁 相关文档
+
+- 📁 **全局状态**: [state.json](./specs-tree-root/state.json)
+- 📝 **规范目录导航**: [specs-tree-root/README.md](./specs-tree-root/README.md)
+- 📋 **状态增强验证报告**: [specs-tree-sddu-status-enhancement/validation-report.md](./specs-tree-root/specs-tree-sddu-status-enhancement/validation-report.md)
+- 🏗️ **架构决策记录**: [architecture/adr/](./specs-tree-root/architecture/adr/)
+- 📁 **项目 README**: [../../../README.md](../../../README.md)
+
+---
+
+> **文档维护**: 本 Roadmap 是动态文档。建议每季度回顾更新，或每当一个 Feature 完成 validated 阶段时运行 `@sddu-roadmap` 刷新状态。
+
+> **生成信息**: 本文档由 `@sddu-roadmap` Agent 于 2026-06-21 增量更新，基于 2026-06-13 深度扫描版本更新，反映 FR-TPL-001 (v3.0.1) 完成及 FR-ARCH-001 (SDDU 架构解耦) 新提案评估。扫描范围覆盖 `.sddu/specs-tree-root/` 下 16 个 Feature 目录的全部 state.json / spec.md / tasks.md / spec.json / validation-report.md 以及 `.sddu/docs/` / `.sddu/TREE.md` / 架构 ADR 目录。

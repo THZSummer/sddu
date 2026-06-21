@@ -3,7 +3,9 @@
   "name": "SDD 子 Feature 化并行开发支持", 
   "version": "1.2.11",
   "status": "completed",
-  "phase": 6,
+  "phase": 7,
+  "isParent": false,
+  "depth": 1,
   "files": {
     "spec": "spec.md",
     "plan": "plan.md",

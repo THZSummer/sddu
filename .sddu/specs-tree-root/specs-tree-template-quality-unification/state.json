@@ -3,7 +3,7 @@
   "name": "预置输出模板质量统一",
   "nameEn": "Template Quality Unification",
   "featureId": "FR-TPL-001",
-  "phase": "validated",
+  "phase": 7,
   "tasksDate": "2026-06-19",
   "status": "completed",
   "discoveryDate": "2026-06-13",
