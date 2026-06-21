@@ -1,41 +1,19 @@
 #!/usr/bin/env bash
-# SDDU Fullstack E2E Test Script
+# SDDU E2E Test Script (Simplified)
 #
-# 支持前后端分离项目（SpringBoot + React）
+# 端到端测试脚本 - 利用 install.sh 完成构建和安装
 #
 # 使用方式:
-#   bash sddu-e2e-fullstack.sh "项目名称"              # 生成前后端项目
-#   bash sddu-e2e-fullstack.sh "项目名" --auto        # 跳过确认提示（非自动执行工作流）
-#   bash sddu-e2e-fullstack.sh "项目名" --report      # 生成详细测试报告
-#
-# 技术栈:
-#   后端：SpringBoot 3.4.6 (Spring 6.2.12) + MyBatis 3.0.4 + MySQL 5.7 + Redis 6.0 + Docker
-#   前端：React 18 + TypeScript + Vite + Docker
-#   部署：Docker Compose
+#   bash sddu-e2e.sh                        # 默认项目名 user-login
+#   bash sddu-e2e.sh "项目名称"              # 自定义项目名
+#   bash sddu-e2e.sh "项目名" --auto        # 跳过确认提示（非自动执行工作流）
+#   bash sddu-e2e.sh "项目名" --report      # 生成详细测试报告
 #
 # 执行步骤:
 #   [1/4] 初始化测试环境 (创建目录)
 #   [2/4] 调用一键安装脚本 (自动完成 8 步构建 + 安装)
-#   [3/4] 创建测试提示词文件 (前后端分离架构)
+#   [3/4] 创建测试提示词文件 (SDDU 全流程命令)
 #   [4/4] 生成测试报告 (验证 + 统计)
-#
-# 生成的项目结构:
-# project-name/
-# ├── backend/              # SpringBoot 后端
-# │   ├── src/
-# │   ├── pom.xml
-# │   ├── Dockerfile
-# │   └── application.yml
-# ├── frontend/             # React 前端
-# │   ├── src/
-# │   ├── package.json
-# │   ├── vite.config.ts
-# │   ├── Dockerfile
-# │   └── tsconfig.json
-# ├── docker-compose.yml    # Docker 编排
-# └── README.md             # 项目说明
-#
-
 
 set -e
 
@@ -92,22 +70,7 @@ parse_arguments() {
     # Set default project name
     PROJECT_NAME="$DEFAULT_PROJECT_NAME"
     
-    # Find the project name first (non-flag argument)
-    for arg in "${args[@]}"; do
-        if [[ "$arg" != --* ]]; then
-            if validate_project_name "$arg"; then
-                PROJECT_NAME="$arg"
-            else
-                print_color "${YELLOW}警告: 项目名 '$arg' 格式无效${NC}"
-                print_color "${GRAY}项目名必须: 小写字母开头，只能包含小写字母、数字、连字符${NC}"
-                print_color "${GRAY}使用默认项目名: $DEFAULT_PROJECT_NAME${NC}"
-                PROJECT_NAME="$DEFAULT_PROJECT_NAME"
-            fi
-            break
-        fi
-    done
-    
-    # Process flags
+    # Process all arguments first
     for arg in "${args[@]}"; do
         case "$arg" in
             --auto)
@@ -115,6 +78,12 @@ parse_arguments() {
                 ;;
             --report)
                 REPORT_MODE=true
+                ;;
+            *)
+                # Check if it's a project name (not a flag) and is a valid project name
+                if [[ "$arg" != --* ]] && validate_project_name "$arg"; then
+                    PROJECT_NAME="$arg"
+                fi
                 ;;
         esac
     done
@@ -135,6 +104,8 @@ generate_unique_dir() {
     echo "$target_dir"
 }
 
+# Create tree test scenario: 1 parent + 2 children
+# Generate unique directory name function
 # Record current timestamp for timing
 start_timer() {
     START_TIME=$(date +%s)
@@ -150,11 +121,8 @@ stop_timer() {
 
 # Initialize test directories and start timer
 initialize_test() {
-    # Script directory (scripts/e2e/fullstack/)
+    # Script directory (project root)
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    
-    # Project root directory (two levels up from script)
-    PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
     
     # Base test directory
     BASE_TEST_DIR="${SDDU_TEST_DIR:-${HOME}/sddu-test-projects}"
@@ -170,13 +138,12 @@ initialize_test() {
     TEST_DIR_NAME=$(basename "$TEST_DIR")
     
     print_color "${CYAN}========================================${NC}"
-    print_color "${CYAN}     SDDU Fullstack 全流程端到端测试${NC}"
+    print_color "${CYAN}     SDDU 全流程端到端测试${NC}"
     print_color "${CYAN}========================================${NC}"
-    print_color "${GRAY}测试项目：${PROJECT_NAME}${NC}"
-    print_color "${GRAY}测试目录：${TEST_DIR}${NC}"
-    print_color "${GRAY}架构：前后端分离 (SpringBoot + React)${NC}"
+    print_color "${GRAY}测试项目: ${PROJECT_NAME}${NC}"
+    print_color "${GRAY}测试目录: ${TEST_DIR}${NC}"
     if [ "$AUTO_MODE" = true ]; then
-        print_color "${GRAY}模式：自动执行${NC}"
+        print_color "${GRAY}模式: 自动执行${NC}"
     fi
     echo ""
 
@@ -197,7 +164,9 @@ execute_installation() {
     echo ""
     
     # Execute installation script (includes full build)
-    if bash "$PROJECT_ROOT/install.sh" "$TEST_DIR"; then
+    # SCRIPT_DIR points to e2e/scripts/basic/, need to go up 2 levels to project root
+    INSTALL_SCRIPT="${SCRIPT_DIR}/../../../install.sh"
+    if bash "$INSTALL_SCRIPT" "$TEST_DIR"; then
         print_color "${GREEN}  ✅ 安装成功${NC}"
     else
         print_color "${RED}  ❌ 安装失败${NC}"
@@ -206,229 +175,58 @@ execute_installation() {
     echo ""
 }
 
-# Generate prompt file with SDDU commands for Fullstack project
+# Generate prompt file with SDDU commands
 create_prompt_file() {
-    print_color "${CYAN}[3/4] 创建 SDDU 测试提示词文件（前后端分离架构）...${NC}"
+    print_color "${CYAN}[3/4] 创建 SDDU 测试提示词文件...${NC}"
     
     # Create prompt file path
     PROMPT_FILE="${TEST_DIR}/sddu-test-prompt.md"
     
-    # Generate prompt file content for Fullstack project
+    # Generate prompt file content
+    # Determine business description based on project name
+    case "${PROJECT_NAME}" in
+        *book*)   BUSINESS_DESC="一个在线书店系统，支持图书浏览、搜索和购买功能，用户可以管理购物车和查看订单历史。" ;;
+        *login*)  BUSINESS_DESC="一个用户登录注册系统，支持邮箱/密码注册登录，提供个人资料管理和密码重置功能。" ;;
+        *todo*)   BUSINESS_DESC="一个任务管理系统，支持创建、编辑、删除待办事项，可按优先级和截止日期排序。" ;;
+        *blog*)   BUSINESS_DESC="一个个人博客系统，支持文章的创建、编辑、发布和评论功能，支持标签分类和归档。" ;;
+        *)        BUSINESS_DESC="一个轻量级应用系统，提供核心业务功能的数据管理和用户交互接口。" ;;
+    esac
+
     cat > "$PROMPT_FILE" << EOF
-# SDDU Fullstack 全流程测试
+# ${PROJECT_NAME}
 
-**项目名称**: ${PROJECT_NAME}
+## 业务需求
 
----
-## ⚠️ 核心要求（必须遵守）
+${BUSINESS_DESC}
 
-**全程自动化，禁止询问用户**：
+## 技术要求
 
-1. **禁止确认**: 任何操作都不要问"是否继续"、"确认吗"等问题  
-2. **禁止等待**: 不要等待用户输入，直接使用默认值
-3. **自主决策**: 遇到选择时，自动选择最合理的方案
-4. **自动推进**: 每个阶段完成后立即进入下一阶段
-5. **无需批准**: 所有决策自动执行，无需用户批准
+- TypeScript + Node.js
+- 零外部中间件依赖（不用 MySQL/Redis/MQ）
+- 数据存储在内存或本地 JSON 文件
+- 代码可直接 \`npm install && npm start\` 运行
 
----
+## 约束
 
-## 技术栈要求
+- 全程自动推进，无需人工确认
+- 自主决策技术方案
 
-**前后端分离架构**：
+## 执行要求
 
-### 后端技术栈
-- ✅ **语言**: Java 21
-- ✅ **框架**: SpringBoot 3.4.6 (Spring 6.2.12)
-- ✅ **ORM**: MyBatis (mybatis-spring-boot-starter 3.0.4)
-- ✅ **数据库**: H2 (内存模式，测试用)
-- ✅ **缓存**: 内存缓存 (ConcurrentHashMap)
-- ✅ **构建工具**: Maven
-- ✅ **API 风格**: RESTful API
-- ✅ **容器化**: Docker + Dockerfile
+本项目的目标是快速验证 SDDU 工作流是否正常运转，因此：
+- **禁止停顿等待**：任何阶段不得暂停询问用户
+- **禁止人工确认**：不得依赖用户确认选项或决策
+- **全自动推进**：从 discovery 到 validate 一气呵成
+- **自主决策**：技术选型、方案设计等全部由 SDDU 自行决定
 
-### 前端技术栈
-- ✅ **语言**: TypeScript 5.x
-- ✅ **框架**: React 18
-- ✅ **构建工具**: Vite 5.x
-- ✅ **UI 组件**: Ant Design 或 Material-UI
-- ✅ **HTTP 客户端**: Axios
-- ✅ **容器化**: Docker + Dockerfile
+## 入口
 
-### 部署配置
-- ✅ **编排工具**: Docker Compose
-- ✅ **服务发现**: 通过 Docker 网络
-- ✅ **环境变量**: .env 文件配置
-
----
-
-## 项目结构
-
-\`\`\`
-${PROJECT_NAME}/
-├── backend/              # SpringBoot 后端
-│   ├── src/main/java/   # Java 源代码
-│   ├── src/main/resources/
-│   │   ├── application.yml
-│   │   └── application-dev.yml
-│   ├── pom.xml          # Maven 配置
-│   ├── Dockerfile       # 后端 Docker 镜像
-│   └── README.md        # 后端说明
-├── frontend/            # React 前端
-│   ├── src/            # TypeScript 源代码
-│   ├── public/
-│   ├── package.json    # NPM 配置
-│   ├── vite.config.ts  # Vite 配置
-│   ├── tsconfig.json   # TypeScript 配置
-│   ├── Dockerfile      # 前端 Docker 镜像
-│   └── README.md       # 前端说明
-├── docker-compose.yml   # Docker 编排配置
-├── .env.example         # 环境变量示例
-└── README.md            # 项目总说明
-\`\`\`
-
----
-
-## 执行流程
-
-> **阶段说明**: SDDU v3.0.0 使用 8 个阶段名（registered → discovered → specified → planned → tasked → builded → reviewed → validated），每个 Agent 完成后自动推进阶段。
-
-### 第一步: 创建 Feature（注册）
-
-    @sddu 开始 ${PROJECT_NAME}
-
-- 在当前项目下创建 Feature，阶段初始为 \`registered\`
-
-### 第二步: 需求挖掘
-
-    @sddu-discovery ${PROJECT_NAME}
-
-- 分析需求，识别核心功能（包含前后端功能划分），生成 discovery.md
-- 阶段推进至 \`discovered\`
-
-### 第三步: 规范编写
-
-    @sddu-spec ${PROJECT_NAME}
-
-- 定义 RESTful API 接口、设计数据库表结构（JPA Entity）、定义前端组件结构
-- 阶段推进至 \`specified\`
-
-### 第四步: 技术规划
-
-    @sddu-plan ${PROJECT_NAME}
-
-- 设计前后端分离架构，划分后端模块（Controller/Service/Repository）和前端模块（Components/Hooks/Services）
-- 阶段推进至 \`planned\`
-
-### 第五步: 任务分解
-
-    @sddu-tasks ${PROJECT_NAME}
-
-- 拆分后端和前端任务，定义任务依赖关系
-- 阶段推进至 \`tasked\`
-
-### 第六步: 代码实现
-
-    @sddu-build ${PROJECT_NAME}
-
-- 实现后端 API（SpringBoot）、前端页面（React）
-- 编写单元测试（JUnit + React Testing Library）
-- 配置 Docker 和 Docker Compose
-- 阶段推进至 \`builded\`
-
-### 第七步: 代码审查
-
-    @sddu-review ${PROJECT_NAME}
-
-- 代码质量检查、技术栈合规检查、Docker 配置检查
-- 阶段推进至 \`reviewed\`
-
-### 第八步: 验证确认
-
-    @sddu-validate ${PROJECT_NAME}
-- 运行后端测试（mvn test）、前端测试（npm test）
-- 构建 Docker 镜像，启动 Docker Compose 验证，生成验证报告
-- 阶段推进至 \`validated\`，状态自动设为 \`completed\`
-
----
-
-## 验收标准（自动检查）
-
-### 后端验收标准
-- [ ] SpringBoot 3.x 项目结构正确
-- [ ] Maven 构建成功（mvn clean package）
-- [ ] RESTful API 可访问
-- [ ] H2 数据库连接配置正确
-- [ ] 内存缓存配置正确
-- [ ] 单元测试通过率 >= 80%
-- [ ] Docker 镜像构建成功
-
-### 前端验收标准
-- [ ] React 18 + TypeScript 项目结构正确
-- [ ] NPM 安装成功（npm install）
-- [ ] Vite 构建成功（npm run build）
-- [ ] 页面组件可正常渲染
-- [ ] 与后端 API 联调成功
-- [ ] Docker 镜像构建成功
-
-### 整体验收标准
-- [ ] Docker Compose 启动成功
-- [ ] 前后端服务可互相通信
-- [ ] 完整功能流程可运行
-- [ ] README 文档完整
-
----
-
-## 开发命令
-
-### 后端命令
-\`\`\`bash
-cd backend
-mvn clean package              # 构建项目
-mvn spring-boot:run           # 本地运行
-docker build -t ${PROJECT_NAME}-backend .   # 构建 Docker 镜像
-\`\`\`
-
-### 前端命令
-\`\`\`bash
-cd frontend
-npm install                    # 安装依赖
-npm run dev                    # 开发模式
-npm run build                  # 生产构建
-docker build -t ${PROJECT_NAME}-frontend .  # 构建 Docker 镜像
-\`\`\`
-
-### Docker 命令
-\`\`\`bash
-docker-compose up -d          # 启动所有服务
-docker-compose down           # 停止所有服务
-docker-compose logs -f        # 查看日志
-\`\`\`
-
----
-
-## 一键执行命令
-
-\`\`\`bash
 @sddu ${PROJECT_NAME}
-\`\`\`
-执行后，全流程自动完成，无需任何人工干预！
-
----
-
-## 默认配置
-
-- **后端端口**: 8080
-- **前端端口**: 5173
-- **数据库**: H2 (内存模式)
-- **API 路径**: /api/v1
-
----
-*生成时间: $(get_timestamp)*
 EOF
     
-    print_color "${GRAY}  项目名称：${PROJECT_NAME}${NC}"
-    print_color "${GRAY}  提示词文件：${PROMPT_FILE}${NC}"
-    print_color "${GREEN}  ✅ 提示词文件创建成功（支持前后端分离架构）${NC}"
+    print_color "${GRAY}  项目名称: ${PROJECT_NAME}${NC}"
+    print_color "${GRAY}  提示词文件: ${PROMPT_FILE}${NC}"
+    print_color "${GREEN}  ✅ 提示词文件创建成功${NC}"
     echo ""
 }
 
@@ -542,24 +340,21 @@ EOF
 # Complete the test
 complete_test() {
     print_color "${CYAN}========================================${NC}"
-    print_color "${GREEN}     SDDU Fullstack 全流程测试完成！${NC}"
+    print_color "${GREEN}     SDDU 全流程测试完成！${NC}"
     print_color "${CYAN}========================================${NC}"
     echo ""
     
     # Show timing
-    print_color "${GRAY}总耗时：$(stop_timer)${NC}"
+    print_color "${GRAY}总耗时: $(stop_timer)${NC}"
     echo ""
     
-    print_color "📁 测试目录：${CYAN}${TEST_DIR}${NC}"
+    print_color "📁 测试目录: ${CYAN}${TEST_DIR}${NC}"
     echo ""
     print_color "📋 生成的文件:"
     print_color "   - .opencode/plugins/sddu/ (插件文件)"
-    print_color "   - .opencode/agents/ (Agent 定义)"
+    print_color "   - .opencode/agents/ (Agent定义)"
     print_color "   - opencode.json (配置文件)"
-    print_color "   - .sddu/ (SDDU 工作空间)"
-    print_color "   - backend/ (SpringBoot 后端项目)"
-    print_color "   - frontend/ (React 前端项目)"
-    print_color "   - docker-compose.yml (Docker 编排)"
+    print_color "   - .sddu/ (SDDU工作空间)"
     print_color "   - ${CYAN}sddu-test-prompt.md${NC} (测试提示词文件)"
     if [ "$REPORT_MODE" = true ]; then
         print_color "   - ${CYAN}sddu-test-report.md${NC} (详细报告)"
@@ -571,31 +366,28 @@ complete_test() {
     print_color "   ${CYAN}cat sddu-test-prompt.md${NC}  # 查看完整提示词"
     print_color "   ${CYAN}@sddu ${PROJECT_NAME}${NC}  # 一键执行全流程"
     echo ""
-    print_color "💡 提示：提示词文件已包含前后端分离架构的 8 阶段完整流程（registered → validated）！"
-    print_color "   后端：SpringBoot 3.x + H2 + Docker"
-    print_color "   前端：React 18 + TypeScript + Vite + Docker"
+    print_color "💡 提示: 提示词文件已包含 8 阶段完整流程（registered → validated）！"
 }
 
 # Main execution sequence
 main() {
     parse_arguments "$@"
     initialize_test
-    
     execute_installation
     create_prompt_file
-    
-    # Wait for user to run the test if not in auto mode
-    if [ "$AUTO_MODE" = false ]; then
-        print_color "${YELLOW}⚠️  脚本执行完成，在新终端中执行以下命令开始测试:${NC}"
-        print_color ""
-        print_color "   ${CYAN}cd ${TEST_DIR}${NC}"
-        print_color "   ${CYAN}opencode${NC}"
-        print_color "   ${CYAN}cat sddu-test-prompt.md${NC}"
-        print_color "   ${CYAN}@sddu ${PROJECT_NAME}${NC}"
-        print_color ""
-        print_color "${GRAY}按任意键继续查看最终摘要...${NC}"
-        read -n 1 -s
-    fi
+        
+        # Wait for user to run the test if not in auto mode
+        if [ "$AUTO_MODE" = false ]; then
+            print_color "${YELLOW}⚠️  脚本执行完成，在新终端中执行以下命令开始测试:${NC}"
+            print_color ""
+            print_color "   ${CYAN}cd ${TEST_DIR}${NC}"
+            print_color "   ${CYAN}opencode${NC}"
+            print_color "   ${CYAN}cat sddu-test-prompt.md${NC}"
+            print_color "   ${CYAN}@sddu ${PROJECT_NAME}${NC}"
+            print_color ""
+            print_color "${GRAY}按任意键继续查看最终摘要...${NC}"
+            read -n 1 -s
+        fi
     
     # Post-test validation (only if directory exists)
     if [ -d "${TEST_DIR}/.sddu/specs-tree-root/${PROJECT_NAME}" ]; then

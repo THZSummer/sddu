@@ -108,7 +108,7 @@ fi
 
 # Build agents
 print_color "${GRAY}  Building agents...${NC}"
-node "${SCRIPT_DIR}/build-agents.cjs"
+node "${SCRIPT_DIR}/scripts/build-agents.cjs"
 if [ $? -ne 0 ]; then
     print_color "${RED}Agent build failed${NC}"
     exit 1
@@ -157,7 +157,7 @@ else
         
         # Build agents
         print_color "${GRAY}  Building agents...${NC}"
-        node "${SCRIPT_DIR}/build-agents.cjs"
+        node "${SCRIPT_DIR}/scripts/build-agents.cjs"
         if [ $? -ne 0 ]; then
             print_color "${RED}Agent build failed${NC}"
             exit 1

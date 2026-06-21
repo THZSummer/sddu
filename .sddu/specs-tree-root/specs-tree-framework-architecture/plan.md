@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-06-21  
-> **版本**: v1.7  
-> **更新人**: SDDU Plan Agent  
-> **更新时间**: 2026-06-21  
-> **更新说明**: 调研修正 — 测试策略统一为完全集中式 + 新增 API 边界规则与 ADR-006
+> **版本**: v1.8
+> **更新人**: SDDU Plan Agent
+> **更新时间**: 2026-06-21
+> **更新说明**: Bug-001 修复 — §2.2.1 `e2e/` 合并 `scripts/e2e/`，消除双 `e2e` 目录冗余
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -177,9 +177,13 @@ src/                          ← 单一扁平命名空间，无层级区分
 │   └─────────────────────────────────────────────────────────────┘
 ├── src/                               ← 源码：业务对象架构（详见 2.2.2）
 │
-├── e2e/                               ← 端到端测试（独立 jest 配置，不 import src/，不收集覆盖率）
-│   ├── jest.config.ts
-│   └── *.test.ts
+├── e2e/                               ← 端到端测试目录（Jest 测试 + Shell 编排脚本统一入口）
+│   ├── jest.config.ts                 ← E2E 独立 Jest 配置（不 import src/，不收集覆盖率）
+│   ├── *.test.ts                      ← E2E Jest 测试用例
+│   └── scripts/                       ← 🟢 Shell 编排脚本（从 scripts/e2e/ 迁入）
+│       ├── basic/sddu-e2e.sh          ← 基础 E2E 编排
+│       ├── fullstack/sddu-e2e-fullstack.sh ← 全栈 E2E 编排
+│       └── README.md
 │
 ├── scripts/                           ← 工具脚本统一收敛（构建/验证/迁移/检查）
 │   ├── build-agents.cjs               ← 🟢 Agent 构建脚本 [MOVE from 根目录]
@@ -189,10 +193,7 @@ src/                          ← 单一扁平命名空间，无层级区分
 │   ├── migrate-sdd-to-sddu.sh         ← SDD→SDDU 迁移 [已在此]
 │   ├── check-sdd-residue.sh           ← SDD 残留检查 [已在此]
 │   ├── sddu-check.sh                  ← SDDU 功能验证 [已在此]
-│   ├── sddu-validation-report.sh      ← 验证报告生成 [已在此]
-│   └── e2e/                           ← E2E 测试脚本 [已在此]
-│       ├── basic/
-│       └── fullstack/
+│   └── sddu-validation-report.sh      ← 验证报告生成 [已在此]
 │
 
 ├── docs/                              ← 项目文档（8 个 md 文件） [不变]
@@ -209,7 +210,7 @@ src/                          ← 单一扁平命名空间，无层级区分
 | **约定文件必须根目录** | `package.json`、`tsconfig.json`、`LICENSE`、`README.md`、`CHANGELOG.md`、`.gitignore` 等工具链约定文件必须在根目录——这是 Node.js/TypeScript/npm/Git 生态的硬约束 |
 | **用户入口脚本保留根目录** | `bootstrap.sh`、`install.sh` 是面向终端用户的公开入口——`bootstrap.sh` 的 curl URL (`https://raw.githubusercontent.com/.../main/bootstrap.sh`) 是外部文档和教程中的固定引用，移动会破坏公开链接；`install.sh` 的 `./install.sh` 调用习惯不宜变更 |
 | **构建/验证脚本收敛 scripts/** | `build-agents.cjs` 和 `test-sddu-functionality.js` 面向开发者而非终端用户——将它们移入 `scripts/` 统一管理，根目录减少 2 个混杂条目。`package.json` 中的引用路径同步更新（`"build:agents": "node scripts/build-agents.cjs"`） |
-| **测试全部统一至 src/__tests__/** | 根目录 `tests/` 整体迁入 `src/__tests__/`，按 `unit/` 和 `integration/` 分型管理（见 ADR-004）。E2E 测试独立为顶层 `e2e/`（自带 `jest.config.ts`，不 import 源码、不收集覆盖率），与单元/集成测试物理隔离 |
+| **测试全部统一至 src/__tests__/** | 根目录 `tests/` 整体迁入 `src/__tests__/`，按 `unit/` 和 `integration/` 分型管理（见 ADR-004）。E2E 测试独立为顶层 `e2e/`（Jest 测试 + Shell 编排脚本统一入口：`scripts/e2e/` 迁入 `e2e/scripts/`，消除双 `e2e` 目录冗余），与单元/集成测试物理隔离 |
 | **根目录条目从 27 → 20** | 移除 2 个脚本（迁移至 scripts/）+ 移除 `tests/` 功能子目录（单元/集成迁入 `src/__tests__/`，E2E 独立为 `e2e/`），根目录保留约定文件 + 4 个入口脚本 + 5 个功能子目录（src/、e2e/、scripts/、docs/、examples/） |
 
 **脚本路径变更详情**：
@@ -695,6 +696,7 @@ export interface PlatformAdapter {
 
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
+| v1.8 | Bug-001 修复 — §2.2.1 To-Be 架构：`e2e/` 下增加 `scripts/` 子目录（Shell 编排脚本从 `scripts/e2e/` 迁入），`scripts/` 移除 `e2e/` 子目录；同步更新 ADR-005 | 2026-06-21 | SDDU Plan Agent |
 | v1.7 | 调研修正 — ADR-004 明确完全集中式测试（禁止 co-located .test.ts），§5.3 增加 22 个测试文件旧址删除清单；新增 §2.4 API 边界规则（域级 index.ts 公共 API 契约）与 ADR-006；To-Be 架构图 + §5.1 增加各域 index.ts；更新汇总统计与审查/验证策略 | 2026-06-21 | SDDU Plan Agent |
 | v1.6 | E2E 测试独立 — 采用方案 B，E2E 从 `src/__tests__/integration/e2e/` 独立为顶层 `e2e/` 目录（含独立 `jest.config.ts`，不 import src/、不收集覆盖率）；重新统计根目录条目（27→20）；同步更新 ADR-004 / ADR-005 | 2026-06-21 | SDDU Plan Agent |
 | v1.5 | 根目录测试统一 — `tests/` 整体迁入 `src/__tests__/`，按 `unit/` / `integration/` 分型；根目录移除独立的 `tests/` 功能子目录；同步更新 ADR-004 / ADR-005 | 2026-06-21 | SDDU Plan Agent |

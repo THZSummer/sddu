@@ -64,7 +64,7 @@
 
 | # | 角色 | 动作 |
 |---|------|------|
-| ① | 开发者 | 在 SDDU 项目根目录运行 `bash scripts/e2e/basic/sddu-e2e.sh "project-name" --auto --report` |
+| ① | 开发者 | 在 SDDU 项目根目录运行 `bash e2e/scripts/basic/sddu-e2e.sh "project-name" --auto --report` |
 | ② | 脚本 | 在 `$SDDU_TEST_DIR` 下创建独立测试项目目录 |
 | ③ | 脚本 | 调用 `install.sh` 构建最新 SDDU 插件 |
 | ④ | 脚本 | 将插件安装到测试项目的 `.opencode/plugins/`，生成 `opencode.json` |
@@ -92,12 +92,12 @@ e2e/
 
 ### 基础 E2E（TypeScript 单项目）
 ```bash
-bash scripts/e2e/basic/sddu-e2e.sh "online-bookstore" --auto --report
+bash e2e/scripts/basic/sddu-e2e.sh "online-bookstore" --auto --report
 ```
 
 ### 全栈 E2E（前后端分离）
 ```bash
-bash scripts/e2e/fullstack/sddu-e2e-fullstack.sh "smart-office-system" --auto --report
+bash e2e/scripts/fullstack/sddu-e2e-fullstack.sh "smart-office-system" --auto --report
 ```
 
 ## 环境变量
@@ -111,7 +111,7 @@ bash scripts/e2e/fullstack/sddu-e2e-fullstack.sh "smart-office-system" --auto --
 ### 设置示例
 ```bash
 export SDDU_TEST_DIR="$HOME/sddu-e2e-tests"
-bash scripts/e2e/basic/sddu-e2e.sh "my-project" --auto --report
+bash e2e/scripts/basic/sddu-e2e.sh "my-project" --auto --report
 ```
 
 ## 业务测试项目示例
@@ -119,7 +119,7 @@ bash scripts/e2e/basic/sddu-e2e.sh "my-project" --auto --report
 ### 基础 E2E 示例
 ```bash
 # 在线书店系统（TypeScript 单项目）
-bash scripts/e2e/basic/sddu-e2e.sh "online-bookstore" --auto --report
+bash e2e/scripts/basic/sddu-e2e.sh "online-bookstore" --auto --report
 ```
 - 用户管理、书籍 CRUD、订单处理
 - 生成 TypeScript + Node.js 项目
@@ -128,7 +128,7 @@ bash scripts/e2e/basic/sddu-e2e.sh "online-bookstore" --auto --report
 ### 全栈 E2E 示例
 ```bash
 # 智能办公系统（SpringBoot + React）
-bash scripts/e2e/fullstack/sddu-e2e-fullstack.sh "smart-office-system" --auto --report
+bash e2e/scripts/fullstack/sddu-e2e-fullstack.sh "smart-office-system" --auto --report
 ```
 - 员工管理、考勤打卡、审批流程
 - 生成 SpringBoot 后端 + React 前端
@@ -146,13 +146,13 @@ bash scripts/e2e/fullstack/sddu-e2e-fullstack.sh "smart-office-system" --auto --
 ### 完整命令示例
 ```bash
 # 交互式（手动确认每个步骤）
-bash scripts/e2e/basic/sddu-e2e.sh "online-bookstore"
+bash e2e/scripts/basic/sddu-e2e.sh "online-bookstore"
 
 # 自动模式（无确认）
-bash scripts/e2e/basic/sddu-e2e.sh "online-bookstore" --auto
+bash e2e/scripts/basic/sddu-e2e.sh "online-bookstore" --auto
 
 # 自动模式 + 生成报告
-bash scripts/e2e/basic/sddu-e2e.sh "online-bookstore" --auto --report
+bash e2e/scripts/basic/sddu-e2e.sh "online-bookstore" --auto --report
 ```
 
 ## 设计原则
