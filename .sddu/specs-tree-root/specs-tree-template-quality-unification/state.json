@@ -1,0 +1,21 @@
+{
+  "feature": "specs-tree-template-quality-unification",
+  "name": "预置输出模板质量统一",
+  "nameEn": "Template Quality Unification",
+  "featureId": "FR-TPL-001",
+  "phase": "validated",
+  "tasksDate": "2026-06-19",
+  "status": "completed",
+  "discoveryDate": "2026-06-13",
+  "specDate": "2026-06-13",
+  "planDate": "2026-06-19",
+  "buildDate": "2026-06-19",
+  "reviewDate": "2026-06-19",
+  "validateDate": "2026-06-19",
+  "priority": "P1",
+  "isParent": false,
+  "depth": 1,
+  "targetVersion": "v3.0.1",
+  "type": "技术债务清理 / 质量改进",
+  "description": "统一 SDDU 插件 17 个内置模板文件的格式与结构，明确全部 11 个 Agent 的职责边界"
+}

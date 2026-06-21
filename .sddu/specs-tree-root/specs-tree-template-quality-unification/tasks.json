@@ -1,0 +1,180 @@
+{
+  "feature": "specs-tree-template-quality-unification",
+  "featureId": "FR-TPL-001",
+  "name": "预置输出模板质量统一",
+  "phase": "tasked",
+  "totalTasks": 13,
+  "totalFileOps": 22,
+  "waves": 4,
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "删除 sddu-help 模板",
+      "complexity": "S",
+      "wave": 1,
+      "dependencies": [],
+      "fileOps": { "DELETE": 1 },
+      "files": ["src/templates/agents/sddu-help.md.hbs"],
+      "fr": ["FR-012"]
+    },
+    {
+      "id": "TASK-002",
+      "name": "重命名 sddu-docs → sddu-tree",
+      "complexity": "S",
+      "wave": 1,
+      "dependencies": [],
+      "fileOps": { "RENAME": 1 },
+      "files": ["src/templates/agents/sddu-docs.md.hbs → src/templates/agents/sddu-tree.md.hbs"],
+      "fr": ["FR-009"]
+    },
+    {
+      "id": "TASK-003",
+      "name": "新建 sddu-docs 模板（项目全景）",
+      "complexity": "S",
+      "wave": 1,
+      "dependencies": [],
+      "fileOps": { "NEW": 1 },
+      "files": ["src/templates/agents/sddu-docs.md.hbs"],
+      "fr": ["FR-010", "FR-013", "FR-014", "FR-015", "FR-016", "FR-017", "FR-018", "FR-019"]
+    },
+    {
+      "id": "TASK-004",
+      "name": "统一指令模板：discovery / spec / plan",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "fileOps": { "MODIFY": 3 },
+      "files": [
+        "src/templates/agents/sddu-discovery.md.hbs",
+        "src/templates/agents/sddu-spec.md.hbs",
+        "src/templates/agents/sddu-plan.md.hbs"
+      ],
+      "fr": ["FR-001", "FR-002", "FR-003", "FR-013", "FR-014", "FR-015", "FR-016", "FR-017", "FR-018", "FR-019"]
+    },
+    {
+      "id": "TASK-005",
+      "name": "统一指令模板：tasks / build",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "fileOps": { "MODIFY": 2 },
+      "files": [
+        "src/templates/agents/sddu-tasks.md.hbs",
+        "src/templates/agents/sddu-build.md.hbs"
+      ],
+      "fr": ["FR-004", "FR-005", "FR-013", "FR-014", "FR-015", "FR-016", "FR-017", "FR-018", "FR-019"]
+    },
+    {
+      "id": "TASK-006",
+      "name": "统一指令模板：review / validate",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "fileOps": { "MODIFY": 2 },
+      "files": [
+        "src/templates/agents/sddu-review.md.hbs",
+        "src/templates/agents/sddu-validate.md.hbs"
+      ],
+      "fr": ["FR-006", "FR-007", "FR-013", "FR-014", "FR-015", "FR-016", "FR-017", "FR-018", "FR-019"]
+    },
+    {
+      "id": "TASK-007",
+      "name": "统一产物模板：output/ 全部 7 个",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "fileOps": { "MODIFY": 7 },
+      "files": [
+        "src/templates/agents/output/sddu-discovery.md.hbs",
+        "src/templates/agents/output/sddu-spec.md.hbs",
+        "src/templates/agents/output/sddu-plan.md.hbs",
+        "src/templates/agents/output/sddu-tasks.md.hbs",
+        "src/templates/agents/output/sddu-build.md.hbs",
+        "src/templates/agents/output/sddu-review.md.hbs",
+        "src/templates/agents/output/sddu-validate.md.hbs"
+      ],
+      "fr": ["FR-020", "FR-021", "FR-022"]
+    },
+    {
+      "id": "TASK-008",
+      "name": "统一指令模板：sddu / roadmap / tree / docs",
+      "complexity": "M",
+      "wave": 2,
+      "dependencies": ["TASK-002", "TASK-003"],
+      "fileOps": { "MODIFY": 4 },
+      "files": [
+        "src/templates/agents/sddu.md.hbs",
+        "src/templates/agents/sddu-roadmap.md.hbs",
+        "src/templates/agents/sddu-tree.md.hbs",
+        "src/templates/agents/sddu-docs.md.hbs"
+      ],
+      "fr": ["FR-008", "FR-009", "FR-010", "FR-011", "FR-013", "FR-014", "FR-015", "FR-016", "FR-017", "FR-018", "FR-019"],
+      "status": "completed",
+      "completedAt": "2026-06-19"
+    },
+    {
+      "id": "TASK-009",
+      "name": "更新 build-agents.cjs 并验证构建",
+      "complexity": "S",
+      "wave": 3,
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008"],
+      "fileOps": { "MODIFY": 1 },
+      "files": ["build-agents.cjs"],
+      "fr": ["FR-009", "FR-010", "FR-012"],
+      "verification_scenarios": ["V2"]
+    },
+    {
+      "id": "TASK-010",
+      "name": "模板完整性验证",
+      "complexity": "M",
+      "wave": 3,
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008"],
+      "fileOps": {},
+      "files": [],
+      "fr": [],
+      "verification_scenarios": ["V3", "V4", "V5", "V6"]
+    },
+    {
+      "id": "TASK-011",
+      "name": "审查清单：指令模板 (C1–C9)",
+      "complexity": "S",
+      "wave": 4,
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008"],
+      "fileOps": {},
+      "files": [],
+      "checklist_items": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9"],
+      "fr": ["FR-013", "FR-014", "FR-015", "FR-016", "FR-017", "FR-018", "FR-019"]
+    },
+    {
+      "id": "TASK-012",
+      "name": "审查清单：产物模板 + 文件操作 + 构建脚本 (C10–C18)",
+      "complexity": "S",
+      "wave": 4,
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009"],
+      "fileOps": {},
+      "files": [],
+      "checklist_items": ["C10", "C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18"],
+      "fr": ["FR-009", "FR-010", "FR-012", "FR-020", "FR-021", "FR-022"],
+      "nfr": ["NFR-002"]
+    },
+    {
+      "id": "TASK-013",
+      "name": "验证场景：全部边界/正向用例 (EC-001–004, V1–V6)",
+      "complexity": "S",
+      "wave": 4,
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-010"],
+      "fileOps": {},
+      "files": [],
+      "verification_scenarios": ["EC-001", "EC-002", "EC-003", "EC-004", "V1", "V2", "V3", "V4", "V5", "V6"],
+      "fr": []
+    }
+  ],
+  "summary": {
+    "DELETE": 1,
+    "RENAME": 1,
+    "NEW": 1,
+    "MODIFY": 19,
+    "totalFileOps": 22,
+    "complexityDistribution": { "S": 7, "M": 6, "L": 0 }
+  }
+}

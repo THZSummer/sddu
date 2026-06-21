@@ -50,7 +50,7 @@
 | [architecture/](./architecture/README.md) | 架构决策记录目录 |
 | [architecture/adr/](./architecture/adr/README.md) | ADR 文档集合 (ADR-001 ~ ADR-017) |
 
-### 已完成 Feature 目录（15 个）
+### 已完成 Feature 目录（14 个）
 
 | 目录 | 说明 | 状态 |
 |------|------|------|
@@ -68,13 +68,12 @@
 | [specs-tree-tree-structure-optimization-v2/](./specs-tree-tree-structure-optimization-v2/README.md) | 树形结构优化 v2 - 问题修复 | ✅ validated |
 | [specs-tree-agent-output-templating/](./specs-tree-agent-output-templating/README.md) | Agent 输出模板化系统 | ✅ validated |
 | [specs-tree-sddu-status-enhancement/](./specs-tree-sddu-status-enhancement/README.md) | SDDU 特性状态增强 — phase + status 两字段隔离重构 | ✅ validated |
-| [architecture/](./architecture/README.md) | 架构决策记录目录 | ✅ active |
 
-### 进行中 Feature 目录（0 个）
+### 进行中 Feature 目录（1 个）
 
 | 目录 | 说明 | 状态 |
 |------|------|------|
-| — | 当前无进行中的 Feature | — |
+| [specs-tree-template-quality-unification/](./specs-tree-template-quality-unification/README.md) | 预置输出模板质量统一 (FR-TPL-001) — 10 类格式问题修复 | 🔵 discovered (tracked) |
 
 ### 已终止 Feature 目录（1 个）
 

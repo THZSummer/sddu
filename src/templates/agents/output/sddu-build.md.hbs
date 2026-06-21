@@ -1,45 +1,49 @@
-## 输出格式
+# 构建报告：<<feature_name>>
 
-### 实现完成后
+> **文档定位**: SDDU 构建报告 — 记录全部任务的文件变更和实现结果，作为 review 阶段的输入  
+> **前置依赖**: tasks.md（任务清单）、plan.md（技术方案）、spec.md（需求规范）  
+> **创建人**: <<创建人，如 SDDU Build Agent>>  
+> **创建时间**: <<日期，如 2026-06-20>>  
+> **版本**: <<版本号，如 v1.0>>  
+> **更新人**: <<修订人，如 SDDU Build Agent>>  
+> **更新时间**: <<日期，如 2026-06-20>>  
+> **更新说明**: <<变更说明，如 初始创建>>
 
-```markdown
-## ✅ <<task_name>> 实现完成
+## 1. 构建概要
+> 本次构建的整体统计
 
-### 修改的文件
-- <<file_path>> - <<file_description>>
-- <<file_path>> - <<file_description>>
-- <<file_path>> - <<file_description>>
+| 维度 | 数值 |
+|------|:--:|
+| 完成任务数 | <<completed_count>> / <<total_count>> |
+| 复杂度分布 | S×<<s_count>> / M×<<m_count>> / L×<<l_count>> |
+| 新增文件 | <<new_count>> 个 |
+| 修改文件 | <<modify_count>> 个 |
 
-### 实现的功能
-- [x] <<functionality_description>>
-- [x] <<functionality_description>>
-- [x] <<functionality_description>>
+## 2. 文件变更
+> 本次构建涉及的全部文件操作（含源码、测试、配置等所有类型）
 
-### 测试覆盖
-- 单元测试：<<test_count>> 个用例
-- 覆盖率：<<coverage_percentage>>%
+| 操作 | 文件路径 | 对应任务 | 说明 |
+|:--:|------|:--:|------|
+| NEW | <<路径>> | TASK-xxx | <<说明>> |
+| MODIFY | <<路径>> | TASK-xxx | <<说明>> |
 
+## 3. 任务完成清单
+> 每个任务的完成状态
 
-### 下一步
-- 实现 <<next_task_name>>
-- 或运行 @sddu-review 审查当前实现
-```
+| 任务 | 名称 | 复杂度 | 状态 | 对应 FR |
+|------|------|:--:|:--:|------|
+| TASK-001 | <<名称>> | S | ✅ completed | FR-xxx |
+| TASK-002 | <<名称>> | M | ✅ completed | FR-xxx |
 
-**状态更新**: 完成后 feature 的 phase 自动推进到 `builded`，status 保持 `tracked`。
-```bash
-/tool sddu_update_state {"feature": "<<feature_name>>", "phase": "builded", "data": {"currentTask": "<<current_task>>", "progress": {"<<current_task>>": "completed"}}}
-或
-```
+## 4. 下一步
 
-### 自动触发文档更新
+| 场景 | 操作 |
+|------|------|
+| 全部任务已完成 | 运行 `@sddu-review <<feature_name>>` 开始审查 |
 
-完成后自动触发 `@sddu-docs` 扫描并更新 `.sddu/` 目录导航。
+## 修订记录
+> 记录本文档的版本变更历史
 
-**作用**: 
-- 扫描 `.sddu/` 下所有层级目录
-- 读取文件内容生成简介（标题 + 概述）
-- 读取子目录 README 生成目录简介
-- 验证已有 README 与实际内容一致
-- 为缺少或过时的目录生成/更新导航
-
-**无需手动调用**，文档会自动保持最新且与实际一致。
+| 版本 | 变更说明 | 日期 | 修订人 |
+|------|---------|------|--------|
+| <<版本号，如 v1.0>> | <<变更说明，如：初始创建>> | <<日期，如 2026-06-20>> | <<修订人，如 SDDU Build Agent>> |
