@@ -1,0 +1,57 @@
+{
+  "feature": "specs-tree-framework-architecture",
+  "featureId": "FR-FRAMEWORK-ARCH-001",
+  "name": "SDDU 框架源码架构重组",
+  "version": "v4.0.0",
+  "status": "tasked",
+  "phase": 3,
+  "depth": 1,
+  "isParent": false,
+  "phaseHistory": [
+    {
+      "phase": 0,
+      "status": "discovered",
+      "timestamp": "2026-06-21T00:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent"
+    },
+    {
+      "phase": 1,
+      "status": "specified",
+      "timestamp": "2026-06-21T00:00:00.000Z",
+      "triggeredBy": "sddu-spec-agent"
+    },
+    {
+      "phase": 2,
+      "status": "planned",
+      "timestamp": "2026-06-21T00:00:00.000Z",
+      "triggeredBy": "sddu-plan-agent"
+    },
+    {
+      "phase": 3,
+      "status": "tasked",
+      "timestamp": "2026-06-21T00:00:00.000Z",
+      "triggeredBy": "sddu-tasks-agent"
+    }
+  ],
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "tasks": "tasks.md",
+    "tasksJson": "tasks.json",
+    "adrs": [
+      "ADR-001-three-layer-architecture.md",
+      "ADR-002-template-separation.md",
+      "ADR-003-build-configuration.md",
+      "ADR-004-test-organization.md",
+      "ADR-005-root-directory-architecture.md",
+      "ADR-006-module-public-api-contract.md"
+    ]
+  },
+  "dependencies": {
+    "on": [],
+    "blocking": []
+  },
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z"
+}
