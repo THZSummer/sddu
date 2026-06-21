@@ -52,7 +52,7 @@ opencode-sddu-plugin/
 │   ├── docs/
 │   │   └── guide.md
 │   └── specs-tree-root/        # 规范目录
-│       ├── README.md           # 目录导航
+│       ├── TREE.md             # 目录导航
 │       ├── state.json          # 全局状态
 │       ├── specs-tree-sddu-status-enhancement/
 │       │   ├── spec.md
@@ -159,7 +159,7 @@ graph LR
     subgraph Utils[工具层]
         U1["src/utils/\n任务解析"]
         U2["src/utils/\n子 Feature 管理"]
-        U3["src/utils/\nREADME 生成"]
+        U3["src/utils/\nTREE 导航生成"]
         U4["src/utils/\n依赖通知"]
     end
 
@@ -189,6 +189,7 @@ graph LR
 - ✅ Agent 动态注册表 (`src/agents/registry.ts`)
 - ✅ 8 个阶段 Agent 使用 `mode: all` 支持双模式
 - ✅ Agent 输出模板化系统 — 内置 7 个输出模板，支持用户自定义覆盖
+- ✅ 模板质量统一 — 11 个 Agent 职责边界声明 + 17 个模板格式骨架统一 (FR-TPL-001)
 - ✅ Discovery 可选状态联动
 - ✅ 安装脚本适配 `dist/sddu/` 结构
 
@@ -196,20 +197,20 @@ graph LR
 
 #### 智能入口
 - @sddu — SDDU Master Coordinator — 智能路由助手
-- @sddu-help — SDDU Help Assistant — 使用指南
 
 #### 8 阶段标准版 (mode: all 双模式支持)
-- @sddu-discovery — SDDU 需求挖掘专家 (阶段 1/8)
-- @sddu-spec — SDDU 规范编写专家 (阶段 2/8)
-- @sddu-plan — SDDU 技术规划专家 (阶段 3/8)
-- @sddu-tasks — SDDU 任务分解专家 (阶段 4/8)
-- @sddu-build — SDDU 任务实现专家 (阶段 5/8)
-- @sddu-review — SDDU 代码审查专家 (阶段 6/8)
-- @sddu-validate — SDDU 验证专家 (阶段 7/8)
+- @sddu-discovery — SDDU 需求挖掘专家 (阶段 0/6)
+- @sddu-spec — SDDU 规范编写专家 (阶段 0/6)
+- @sddu-plan — SDDU 技术规划专家 (阶段 1/6)
+- @sddu-tasks — SDDU 任务分解专家 (阶段 2/6)
+- @sddu-build — SDDU 任务实现专家 (阶段 3/6)
+- @sddu-review — SDDU 代码审查专家 (阶段 4/6)
+- @sddu-validate — SDDU 验证专家 (阶段 5/6)
 
 #### 特殊功能
 - @sddu-roadmap — SDDU Roadmap 规划专家 — 多版本路线图规划
-- @sddu-docs — SDDU 目录导航生成器 — 扫描目录结构生成 README 导航
+- @sddu-tree — SDDU 目录导航生成器 — 扫描目录结构生成 TREE.md 导航
+- @sddu-docs — SDDU 项目全景专家 — 扫描代码/配置/Schema 生成业务+技术全景
 
 **总计：11 个 Agent** (mode: all 支持双模式)
 
@@ -226,13 +227,13 @@ graph LR
 
 直接调用特定阶段 Agent：
 ```bash
-@sddu-discovery "用户需要登录和注册功能"    # 需求挖掘 (阶段 1)
-@sddu-spec "基于需求完善技术规范"            # 技术规范 (阶段 2)
-@sddu-plan "制定实现计划"                   # 技术规划 (阶段 3)
-@sddu-tasks "拆解为具体任务"                # 任务分解 (阶段 4)
-@sddu-build "实现代码"                      # 任务实现 (阶段 5)
-@sddu-review "代码审查"                     # 代码审查 (阶段 6)
-@sddu-validate "验证功能"                   # 功能验证 (阶段 7)
+@sddu-discovery "用户需要登录和注册功能"    # 需求挖掘 (阶段 0)
+@sddu-spec "基于需求完善技术规范"            # 技术规范 (阶段 0)
+@sddu-plan "制定实现计划"                   # 技术规划 (阶段 1)
+@sddu-tasks "拆解为具体任务"                # 任务分解 (阶段 2)
+@sddu-build "实现代码"                      # 任务实现 (阶段 3)
+@sddu-review "代码审查"                     # 代码审查 (阶段 4)
+@sddu-validate "验证功能"                   # 功能验证 (阶段 5)
 ```
 
 ### 规划辅助 Agent（整体规划支持）
@@ -265,16 +266,16 @@ flowchart TD
     end
 
     subgraph TacticalLayer[战术层 - 纵向开发]
-        TL1["@sddu-discovery\n🔍 需求挖掘 (1/8)"]
-        TL2["@sddu-spec\n📝 规范编写 (2/8)"]
-        TL3["@sddu-plan\n🛠️ 技术规划 (3/8)"]
-        TL4["@sddu-tasks\n📌 任务分解 (4/8)"]
+        TL1["@sddu-discovery\n🔍 需求挖掘 (0/6)"]
+        TL2["@sddu-spec\n📝 规范编写 (1/6)"]
+        TL3["@sddu-plan\n🛠️ 技术规划 (2/6)"]
+        TL4["@sddu-tasks\n📌 任务分解 (3/6)"]
     end
 
     subgraph ExecutionLayer[执行层 - 实现验证]
-        EL1["@sddu-build\n💻 任务实现 (5/8)"]
-        EL2["@sddu-review\n👁️ 代码审查 (6/8)"]
-        EL3["@sddu-validate\n✅ 功能验证 (7/8)"]
+        EL1["@sddu-build\n💻 任务实现 (4/6)"]
+        EL2["@sddu-review\n👁️ 代码审查 (5/6)"]
+        EL3["@sddu-validate\n✅ 功能验证 (6/6)"]
     end
 
     SR1 --> TL1
@@ -307,13 +308,13 @@ SDDU 实现从需求到验证的完整 8 阶段工作流 (v3.0.0 两字段模型
 sequenceDiagram
     participant User as 👤 用户
     participant R as 📌 Registered (初始)
-    participant D as 🔍 Discovered (阶段 1)
-    participant S as 📝 Specified (阶段 2)
-    participant P as 🛠️ Planned (阶段 3)
-    participant T as 📌 Tasked (阶段 4)
-    participant B as 💻 Builded (阶段 5)
-    participant RV as 👁️ Reviewed (阶段 6)
-    participant V as ✅ Validated (阶段 7)
+    participant D as 🔍 Discovered (阶段 0)
+    participant S as 📝 Specified (阶段 0)
+    participant P as 🛠️ Planned (阶段 1)
+    participant T as 📌 Tasked (阶段 2)
+    participant B as 💻 Builded (阶段 3)
+    participant RV as 👁️ Reviewed (阶段 4)
+    participant V as ✅ Validated (阶段 5)
 
     User->>R: 创建 Feature
     R->>D: 开始挖掘
@@ -375,7 +376,7 @@ opencode
 @sddu-build "实现 TASK-001"
 ```
 
-## ✅ 已完成 Feature (15 个)
+## ✅ 已完成 Feature (16 个)
 
 ```mermaid
 gantt
@@ -407,6 +408,7 @@ gantt
     section 模板化与状态增强
     Agent 输出模板化      :done, template, 2026-05-25, 1d
     两字段状态模型 v3.0.0 :done, status, 2026-06-13, 1d
+    模板质量统一          :done, tpl_unify, 2026-06-19, 1d
 ```
 
 ### v3.0.0 亮点 — specs-tree-sddu-status-enhancement
@@ -436,6 +438,7 @@ gantt
 | 12 | specs-tree-tree-structure-optimization-v2 | 树形结构优化 v2 (问题修复) |
 | 13 | specs-tree-agent-output-templating | Agent 输出模板化系统 |
 | 14 | specs-tree-sddu-status-enhancement | 两字段状态模型 v3.0.0 |
+| 16 | specs-tree-template-quality-unification | 模板质量统一 (17 模板格式骨架 + 11 Agent 职责边界) |
 | 15 | specs-tree-solo-team-flow | Solo Team Flow |
 
 ## 🔨 开发命令
@@ -546,6 +549,7 @@ V2 版本提供了自动化检查工具，用于验证代码中是否还有 SDD 
 
 | 版本 | 日期 | 说明 |
 |------|------|------|
+| v3.0.1 | 2026-06-21 | 📐 模板质量统一 — 17 模板格式骨架统一，11 Agent 职责边界声明，sddu-tree 输出 TREE.md |
 | v1.4.1 | 2026-06-13 | 🔄 v3.0.0 两字段状态模型 — phase(8) + status(5) 分离，`@sddu 标记`/`状态` 命令，R5 一致性检测 |
 | v1.4.0 | 2026-04-20 | 🎯 SDDU 品牌升级正式发布 — 插件改名 + 双版本命令兼容 |
 | v1.3.0 | 2026-05-25 | 🎨 Agent 输出模板化 — 7 个 Agent 输出固化为可自定义模板，用户自定义覆盖机制 |
