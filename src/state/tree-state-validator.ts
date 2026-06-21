@@ -17,7 +17,7 @@ import {
   VALID_PHASES,
   VALID_STATUSES,
 } from './schema-v3.0.0';
-import { TreeStructureError, ErrorCode } from '../errors';
+import { TreeStructureError, ErrorCode } from '../shared/errors';
 import * as path from 'path';
 
 // ============================================================================

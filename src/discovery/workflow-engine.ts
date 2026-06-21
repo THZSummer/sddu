@@ -5,7 +5,7 @@
 
 import { DiscoveryStep, DiscoveryContext, StepExecutionResult, CoachingConfig } from './types';
 import { CoachingModeEngine, CoachingLevel } from './coaching-mode';
-import { StateMachine } from '../state/machine';
+import { StateMachine } from '../state';
 import { DiscoveryStateValidator } from './state-validator';
 
 // 定义Discovery工作流状态

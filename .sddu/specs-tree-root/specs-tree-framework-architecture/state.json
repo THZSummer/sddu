@@ -3,8 +3,8 @@
   "featureId": "FR-FRAMEWORK-ARCH-001",
   "name": "SDDU 框架源码架构重组",
   "version": "v4.0.0",
-  "status": "tasked",
-  "phase": 3,
+  "status": "validated",
+  "phase": 6,
   "depth": 1,
   "isParent": false,
   "phaseHistory": [
@@ -31,6 +31,24 @@
       "status": "tasked",
       "timestamp": "2026-06-21T00:00:00.000Z",
       "triggeredBy": "sddu-tasks-agent"
+    },
+    {
+      "phase": 4,
+      "status": "builded",
+      "timestamp": "2026-06-21T00:00:00.000Z",
+      "triggeredBy": "sddu-build-agent"
+    },
+    {
+      "phase": 5,
+      "status": "reviewed",
+      "timestamp": "2026-06-21T10:08:25.906Z",
+      "triggeredBy": "sddu-review-agent"
+    },
+    {
+      "phase": 6,
+      "status": "validated",
+      "timestamp": "2026-06-21T10:26:43.310Z",
+      "triggeredBy": "sddu-validate-agent"
     }
   ],
   "files": {
@@ -53,5 +71,5 @@
     "blocking": []
   },
   "createdAt": "2026-06-21T00:00:00.000Z",
-  "updatedAt": "2026-06-21T00:00:00.000Z"
+  "updatedAt": "2026-06-21T10:26:43.310Z"
 }

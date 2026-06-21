@@ -14,9 +14,16 @@
     "baseUrl": ".",
     "paths": {
       "@opencode-ai/plugin": ["./node_modules/@opencode-ai/plugin/dist/index.js"],
-      "@opencode-ai/plugin/*": ["./node_modules/@opencode-ai/plugin/dist/*"]
+      "@opencode-ai/plugin/*": ["./node_modules/@opencode-ai/plugin/dist/*"],
+      "@pipeline/*": ["./src/pipeline/*"],
+      "@state/*": ["./src/state/*"],
+      "@discovery/*": ["./src/discovery/*"],
+      "@agents/*": ["./src/agents/*"],
+      "@templates/*": ["./src/templates/*"],
+      "@opencode/*": ["./src/adapters/opencode/*"],
+      "@shared/*": ["./src/shared/*"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", ".opencode"]
+  "exclude": ["node_modules", "dist", ".opencode", "src/__tests__", "e2e"]
 }

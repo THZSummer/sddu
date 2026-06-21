@@ -6,11 +6,11 @@
  * Removed old FeatureStateEnum / mapWorkflowStatusToStateEnum mapping.
  */
 
-import { StateMachine } from '../state/machine';
+import { StateMachine } from '../state';
 import * as fsPromises from 'fs/promises';
 import { existsSync } from 'fs';
 import * as path from 'path';
-import { Phase } from '../state/schema-v3.0.0';
+import { Phase } from '../state';
 
 interface DiscoveryTransitionResult {
   canTransition: boolean;

@@ -38,13 +38,13 @@ specs-tree-root/
 |------|-----|
 | 项目版本 | v1.4.1 |
 | 最后修改 | 2026-06-21 |
-| 当前活跃 Feature | 1 (specs-tree-framework-architecture) |
-| 已完成 Feature | 15 |
+| 当前活跃 Feature | 0 |
+| 已完成 Feature | 16 |
 | 已终止 Feature | 1 |
 
 ## Feature 目录一览
 
-### 已完成 Feature (15 个)
+### 已完成 Feature (16 个)
 | 目录 | Feature ID | 说明 | Phase | Status |
 |------|-----------|------|:-----:|:------:|
 | specs-tree-sdd-plugin-baseline | SDD-PLUGIN-BASE | SDD 插件基线建立 | validated | ✅ completed |
@@ -62,11 +62,7 @@ specs-tree-root/
 | specs-tree-agent-output-templating | FR-TEMPLATE-001 | Agent 输出模板化系统 | validated | ✅ completed |
 | specs-tree-sddu-status-enhancement | FR-STATUS-001 | 特性状态增强 v3.0.0 | validated | ✅ completed |
 | specs-tree-template-quality-unification | FR-TPL-001 | 模板质量统一 v3.0.1 | validated | ✅ completed |
-
-### 进行中 Feature (1 个)
-| 目录 | Feature ID | 说明 | Phase | Status |
-|------|-----------|------|:-----:|:------:|
-| specs-tree-framework-architecture | FR-FRAMEWORK-ARCH-001 | SDDU 框架源码架构重组 | tasked | tracked |
+| specs-tree-framework-architecture | FR-FRAMEWORK-ARCH-001 | SDDU 框架源码架构重组 | validated | ✅ completed |
 
 ### 已终止 Feature (1 个)
 | 目录 | Feature ID | 说明 | Status | 去向 |

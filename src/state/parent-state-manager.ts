@@ -7,7 +7,7 @@ import {
   FeatureStatus,
   validateStateV3,
 } from './schema-v3.0.0';
-import { TreeStructureError, ErrorCode } from '../errors';
+import { TreeStructureError, ErrorCode } from '../shared/errors';
 import { StateLoader } from './state-loader';
 
 /**
