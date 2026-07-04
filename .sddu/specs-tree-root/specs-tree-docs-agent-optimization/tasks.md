@@ -54,13 +54,13 @@ Wave 4 ─── (依赖 TASK-006)
 | 🆕 NEW | `src/templates/outputs/docs/sddu-docs-overview.md.hbs` (~100 行) |
 
 **验收标准**:
-- [ ] `src/templates/outputs/docs/` 目录已创建
-- [ ] `sddu-docs-overview.md.hbs` 包含文件头定位声明（`> **文档定位**: ...`）
-- [ ] 包含「1. 业务全景」章节：`<<entity_name>>`、自身概述表、`#each children` 子组件遍历
-- [ ] 包含「2. 技术全景」章节：`#each tech_stack`、`#each adrs` 遍历
-- [ ] 包含修订记录表格（`<<generated_at>>`、`<<changed_features>>`、`<<full_or_incremental>>`）
-- [ ] 全部使用 `<<变量名>>` 占位符，无硬编码内容
-- [ ] Handlebars 语法正确（`#each`/`#if`/`#else` 成对闭合）
+- [x] `src/templates/outputs/docs/` 目录已创建
+- [x] `sddu-docs-overview.md.hbs` 包含文件头定位声明（`> **文档定位**: ...`）
+- [x] 包含「1. 业务全景」章节：`<<entity_name>>`、自身概述表、`#each children` 子组件遍历
+- [x] 包含「2. 技术全景」章节：`#each tech_stack`、`#each adrs` 遍历
+- [x] 包含修订记录表格（`<<generated_at>>`、`<<changed_features>>`、`<<full_or_incremental>>`）
+- [x] 全部使用 `<<变量名>>` 占位符，无硬编码内容
+- [x] Handlebars 语法正确（`#each`/`#if`/`#else` 成对闭合）
 
 **验证命令**:
 ```bash
@@ -91,6 +91,7 @@ grep -c '#each' src/templates/outputs/docs/sddu-docs-overview.md.hbs && grep -c 
 | **前置依赖** | 无（并行于 TASK-001） |
 | **执行波次** | Wave 1 |
 | **对应 FR** | FR-002, FR-003 |
+| **状态** | ✅ completed |
 
 **描述**: 
 按 plan §3.3 内置模板清单，批量创建 8 个实体/功能描述类模板。每个模板开头声明定位，使用 `<<变量名>>` 占位符，遵循 T1 建立的 Handsbars 模式。模板覆盖业务全景维度的核心文档类型：业务对象（T2）、API 路由（T3）、数据模型（T4）、前端页面（T5）、业务流程（T6）、领域事件（T11）、命令文档（T13）、命令树（T20）。每个模板 40-60 行。
@@ -140,6 +141,7 @@ done
 | **复杂度** | M |
 | **前置依赖** | 无（并行于 TASK-001/002） |
 | **执行波次** | Wave 1 |
+| **状态** | ✅ completed |
 | **对应 FR** | FR-002, FR-003 |
 
 **描述**: 
@@ -290,6 +292,7 @@ grep -q '^---$' src/templates/agents/sddu-docs.md.hbs && echo "PASS: has frontma
 | **前置依赖** | TASK-005 |
 | **执行波次** | Wave 3 |
 | **对应 FR** | FR-005, FR-007, FR-008 |
+| **状态** | ✅ completed |
 
 **描述**: 
 在 TASK-005 完成的核心工作流基础上，补全 Agent 指令模板的规则、异常处理和用户交互章节。主要包括：§7 完成协议（输出路径确认、状态摘要格式）、§8 规则（更新为 specs-tree 扫描规则 + 三 Agent 边界定义）、§9 异常处理（从 5 条扩展为 EC-001~011 共 11 条完整方案）、§10 示例对话（与实际 7 步工作流对齐）。§7 边界定义包含 ADR-002 定义的 7 维度三 Agent 边界表（与 @sddu-tree/@sddu-roadmap 精确划分）。
@@ -394,26 +397,26 @@ test $count -eq 20 && echo "PASS: 20 output templates built" || echo "FAIL: expe
 | ✏️ MODIFY | `.sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json` |
 
 **验收标准**:
-- [ ] Agent 模板 §6 引用的模板名称全部在 `src/templates/outputs/docs/` 下存在实际文件
-- [ ] `src/templates/outputs/docs/` 下的 20 个文件全部被 Agent 模板 §6 覆盖（无孤立模板）
-- [ ] 审查清单 C1-C12：12 项全部通过
-- [ ] state.json `phase` 字段值为 `"tasked"`
-- [ ] state.json `phaseHistory` 新增 `{"phase": "tasked", "timestamp": "...", "triggeredBy": "sddu-tasks-agent"}` 条目
-- [ ] state.json `files` 新增 `"tasks": "tasks.md"` 条目
+- [x] Agent 模板 §6 引用的模板名称全部在 `src/templates/outputs/docs/` 下存在实际文件
+- [x] `src/templates/outputs/docs/` 下的 20 个文件全部被 Agent 模板 §6 覆盖（无孤立模板）
+- [x] 审查清单 C1-C12：12 项全部通过
+- [x] state.json `phase` 字段值为 `"builded"`
+- [x] state.json `phaseHistory` 更新 `"builded"` 条目时间戳
+- [x] state.json `files` 新增 `"agentTemplate"` + `"templateFiles"` 条目
 
 **审查清单（plan §9 C1-C12）**:
-- [ ] **C1**: §5 工作流从占位变为分批可执行流程（轻量预扫描 + 逐域迭代），每步含操作指令 → FR-001
-- [ ] **C2**: 工作流程包含版本感知聚合逻辑 → FR-001(a2)
-- [ ] **C3**: 输出为目录树结构，每级含入口文档，其余由模板库按需选用 → FR-002
-- [ ] **C4**: Agent 指令模板 §8 包含 7 维度三 Agent 边界表 → FR-005
-- [ ] **C5**: §6 输出模板节正确实现了按内容匹配选择逻辑 → FR-006, FR-006a
-- [ ] **C6**: 模板库包含 20 个内置模板，LLM 按内容匹配选择 → FR-003
-- [ ] **C7**: 异常处理表覆盖 EC-001 ~ EC-011 全部场景 → FR-001(f)
-- [ ] **C8**: 增量更新采用统一增量模式（首次=全量，后续=仅变更 Feature 子树）→ FR-009
-- [ ] **C9**: 示例对话与 §5 工作流步骤一致 → FR-007
-- [ ] **C10**: §6 关于输出格式的描述由模板库定义，不写死固定格式 → FR-008
-- [ ] **C11**: Handlebars 语法使用标准 `#each`/`#if`/`<<变量名>>`，无自定义 helper → NFR-002
-- [ ] **C12**: 20 个模板文件遵循 `.hbs` 扩展名约定，可通过 build-agents.cjs 正常构建 → NFR-003
+- [x] **C1**: §5 工作流从占位变为分批可执行流程（轻量预扫描 + 逐域迭代），每步含操作指令 → FR-001
+- [x] **C2**: 工作流程包含版本感知聚合逻辑 → FR-001(a2)
+- [x] **C3**: 输出为目录树结构，每级含入口文档，其余由模板库按需选用 → FR-002
+- [x] **C4**: Agent 指令模板 §8 包含 7 维度三 Agent 边界表 → FR-005
+- [x] **C5**: §6 输出模板节正确实现了按内容匹配选择逻辑 → FR-006, FR-006a
+- [x] **C6**: 模板库包含 20 个内置模板，LLM 按内容匹配选择 → FR-003
+- [x] **C7**: 异常处理表覆盖 EC-001 ~ EC-011 全部场景 → FR-001(f)
+- [x] **C8**: 增量更新采用统一增量模式（首次=全量，后续=仅变更 Feature 子树）→ FR-009
+- [x] **C9**: 示例对话与 §5 工作流步骤一致 → FR-007
+- [x] **C10**: §6 关于输出格式的描述由模板库定义，不写死固定格式 → FR-008
+- [x] **C11**: Handlebars 语法使用标准 `#each`/`#if`/`<<变量名>>`，无自定义 helper → NFR-002
+- [x] **C12**: 20 个模板文件遵循 `.hbs` 扩展名约定，可通过 build-agents.cjs 正常构建 → NFR-003
 
 **验证命令**:
 ```bash

@@ -2,8 +2,8 @@
   "feature": "specs-tree-docs-agent-optimization",
   "name": "@sddu-docs Agent 补全与优化",
   "version": "v3.0.0",
-  "phase": "tasked",
-  "status": "tracked",
+  "phase": "validated",
+  "status": "completed",
   "depth": 1,
   "phaseHistory": [
     {
@@ -30,6 +30,21 @@
       "phase": "tasked",
       "timestamp": "2026-07-05T00:00:00.000Z",
       "triggeredBy": "sddu-tasks-agent"
+    },
+    {
+      "phase": "builded",
+      "timestamp": "2026-07-05T18:00:00.000Z",
+      "triggeredBy": "sddu-build-agent"
+    },
+    {
+      "phase": "reviewed",
+      "timestamp": "2026-07-05T20:00:00.000Z",
+      "triggeredBy": "sddu-review-agent"
+    },
+    {
+      "phase": "validated",
+      "timestamp": "2026-07-05T22:00:00.000Z",
+      "triggeredBy": "sddu-validate-agent"
     }
   ],
   "files": {
@@ -38,10 +53,36 @@
     "plan": "plan.md",
     "tasks": "tasks.md",
     "tasksJson": "tasks.json",
+    "build": "build.md",
     "adrs": [
       "ADR-001-agent-native-scanning-approach.md",
       "ADR-002-three-agent-boundary-definition.md"
-    ]
+    ],
+    "agentTemplate": "src/templates/agents/sddu-docs.md.hbs",
+    "templateFiles": [
+      "src/templates/outputs/docs/sddu-docs-overview.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-object.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-api.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-data.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-page.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-flow.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-config.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-integration.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-deploy.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-security.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-event.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-export.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-command.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-relation-deps.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-relation-flow.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-relation-sequence.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-relation-matrix.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-adr-index.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-source.md.hbs",
+      "src/templates/outputs/docs/sddu-docs-command-tree.md.hbs"
+    ],
+    "review": "review.md",
+    "validate": "validate.md"
   },
   "dependencies": {
     "on": [],
@@ -50,6 +91,6 @@
   "metadata": {
     "priority": "P0",
     "createdAt": "2026-07-04T00:00:00.000Z",
-    "updatedAt": "2026-07-05T00:00:00.000Z"
+    "updatedAt": "2026-07-05T22:00:00.000Z"
   }
 }

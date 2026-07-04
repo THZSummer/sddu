@@ -127,16 +127,22 @@ function build() {
     if (!fs.existsSync(OUTPUT_DIST_DIR)) {
       fs.mkdirSync(OUTPUT_DIST_DIR, { recursive: true });
     }
-    const outputFiles = fs.readdirSync(OUTPUT_SRC_DIR);
+    // 使用 recursive: true 读取子目录（如 docs/）中的 .hbs 文件
+    // Node 24+ 原生支持 recursive readdirSync，返回相对路径字符串
+    const outputFiles = fs.readdirSync(OUTPUT_SRC_DIR, { recursive: true });
+    let copiedCount = 0;
     outputFiles.forEach(file => {
       if (file.endsWith('.hbs')) {
         const srcPath = path.join(OUTPUT_SRC_DIR, file);
         const destPath = path.join(OUTPUT_DIST_DIR, file);
+        // 确保目标子目录存在
+        fs.mkdirSync(path.dirname(destPath), { recursive: true });
         fs.copyFileSync(srcPath, destPath);
         console.log('  ✅ dist/templates/output/' + file);
+        copiedCount++;
       }
     });
-    console.log('\n✅ Output templates copied (' + outputFiles.filter(f => f.endsWith('.hbs')).length + ' files)');
+    console.log('\n✅ Output templates copied (' + copiedCount + ' files)');
   } else {
     console.log('  🚸 Output template directory not found, skipping...');
   }
