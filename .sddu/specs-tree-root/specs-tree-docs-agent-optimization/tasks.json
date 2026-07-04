@@ -1,0 +1,188 @@
+{
+  "feature": "specs-tree-docs-agent-optimization",
+  "createdAt": "2026-07-05T00:00:00.000Z",
+  "createdBy": "SDDU Tasks Agent",
+  "version": "v1.0",
+  "totalTasks": 8,
+  "totalWaves": 4,
+  "complexityDistribution": {
+    "S": 2,
+    "M": 5,
+    "L": 1
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "创建全景入口模板 + 模板库目录体系",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "correspondingFR": ["FR-002", "FR-003", "FR-008"],
+      "description": "在 src/templates/outputs/ 下新建 docs/ 目录，创建模板库基础设施和标杆模板 T1（sddu-docs-overview.md.hbs），定义双全景结构（业务全景+技术全景）",
+      "fileOperations": [
+        {"action": "NEW", "path": "src/templates/outputs/docs/", "type": "directory"},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-overview.md.hbs", "estimatedLines": 100}
+      ],
+      "acceptanceCriteria": [
+        "docs/ 目录已创建",
+        "T1 模板包含文件头定位声明",
+        "包含 1.业务全景 和 2.技术全景 两章节",
+        "使用 <<变量名>> 和 #each 标准 Handlebars 语法",
+        "包含修订记录表格占位"
+      ]
+    },
+    {
+      "id": "TASK-002",
+      "name": "创建实体/功能描述模板（批量 8 个）",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "correspondingFR": ["FR-002", "FR-003"],
+      "description": "批量创建 8 个业务实体与功能描述模板：object(T2), api(T3), data(T4), page(T5), flow(T6), event(T11), command(T13), command-tree(T20)",
+      "fileOperations": [
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-object.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-api.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-data.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-page.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-flow.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-event.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-command.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-command-tree.md.hbs", "estimatedLines": 40}
+      ],
+      "acceptanceCriteria": [
+        "8 个文件全部创建且非空",
+        "每个模板含定位声明",
+        "T2-T6/T11/T13/T20 各自包含对应类型的结构化章节",
+        "全部使用标准 Handlebars 语法"
+      ]
+    },
+    {
+      "id": "TASK-003",
+      "name": "创建技术描述模板（批量 5 个）",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "correspondingFR": ["FR-002", "FR-003"],
+      "description": "批量创建 5 个技术描述模板：config(T7), integration(T8), deploy(T9), security(T10), export(T12)",
+      "fileOperations": [
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-config.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-integration.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-deploy.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-security.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-export.md.hbs", "estimatedLines": 60}
+      ],
+      "acceptanceCriteria": [
+        "5 个文件全部创建且非空",
+        "每个模板含定位声明",
+        "T7-T10/T12 各自包含对应技术维度的结构化章节",
+        "全部使用标准 Handlebars 语法"
+      ]
+    },
+    {
+      "id": "TASK-004",
+      "name": "创建关系 + 元数据模板（批量 6 个）",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "correspondingFR": ["FR-002", "FR-003"],
+      "description": "批量创建 4 个关系描述模板 + 2 个元数据支持模板：relation-deps(T14), relation-flow(T15), relation-sequence(T16), relation-matrix(T17), adr-index(T18), source(T19)",
+      "fileOperations": [
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-relation-deps.md.hbs", "estimatedLines": 40},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-relation-flow.md.hbs", "estimatedLines": 40},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-relation-sequence.md.hbs", "estimatedLines": 40},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-relation-matrix.md.hbs", "estimatedLines": 40},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-adr-index.md.hbs", "estimatedLines": 50},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-source.md.hbs", "estimatedLines": 40}
+      ],
+      "acceptanceCriteria": [
+        "6 个文件全部创建且非空",
+        "每个模板含定位声明",
+        "关系模板含依赖/数据流/时序/矩阵对应结构",
+        "元数据模板含 ADR 列表/产物溯源表",
+        "全部使用标准 Handlebars 语法"
+      ]
+    },
+    {
+      "id": "TASK-005",
+      "name": "补全 Agent 指令模板核心 — §1-§6",
+      "complexity": "L",
+      "wave": 2,
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004"],
+      "correspondingFR": ["FR-001", "FR-001(a2)", "FR-009", "NFR-002"],
+      "description": "对 sddu-docs.md.hbs 进行核心改造：§4 前置验证改为 specs-tree-root 扫描；§5 从占位扩展为 7 步可执行工作流（工作空间验证→Feature扫描→业务层级推导→逐域迭代处理→模板选择→文档生成→完成）；新增 §6 输出模板选择机制（按内容匹配选择 + 加载优先级）",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "estimatedDeltaLines": "+170/-10", "estimatedFinalLines": 280}
+      ],
+      "acceptanceCriteria": [
+        "§4 改为检查 specs-tree-root/",
+        "§5 含 7 个明确编号步骤，每步标注下一跳",
+        "步骤中包含版本感知聚合（多版本取最新）",
+        "步骤中包含增量更新分支（mtime 对比）",
+        "§6 列举 20 个模板及按内容匹配选择规则",
+        "§6 包含模板加载优先级（用户→内置→报错）",
+        "无「待后续 Feature 定义」占位文本残留"
+      ]
+    },
+    {
+      "id": "TASK-006",
+      "name": "补全 Agent 指令模板规则 — §7-§10",
+      "complexity": "M",
+      "wave": 3,
+      "dependencies": ["TASK-005"],
+      "correspondingFR": ["FR-005", "FR-007", "FR-008"],
+      "description": "在核心工作流就位后补全规则、异常处理和示例对话：§7 完成协议（状态更新+自动触发）；§8 规则（7维三Agent边界表+扫描规则）；§9 异常处理（EC-001~011 全部场景）；§10 示例对话（对齐7步工作流含增量模式）",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "estimatedDeltaLines": "+60", "estimatedFinalLines": 300}
+      ],
+      "acceptanceCriteria": [
+        "§7 含 sddu_update_state 指令和完成摘要格式",
+        "§8 含 7 维度三 Agent 边界表",
+        "§8 声明不触碰 TREE.md/ROADMAP.md",
+        "§9 覆盖 EC-001~011 全部场景",
+        "§10 示例含全量和增量两种交互模式",
+        "修订记录已更新"
+      ]
+    },
+    {
+      "id": "TASK-007",
+      "name": "构建验证 — build-agents.cjs 编译通过",
+      "complexity": "S",
+      "wave": 4,
+      "dependencies": ["TASK-006"],
+      "correspondingFR": ["NFR-002", "NFR-003"],
+      "description": "运行 build-agents.cjs 验证所有模板编译通过，确认构建产物输出到正确位置",
+      "fileOperations": [
+        {"action": "VERIFY", "path": "scripts/build-agents.cjs"},
+        {"action": "VERIFY", "path": ".opencode/agents/sddu-docs.md"},
+        {"action": "VERIFY", "path": ".opencode/plugins/sddu/templates/output/docs/"}
+      ],
+      "acceptanceCriteria": [
+        "build-agents.cjs 返回 exit 0",
+        "无 Handlebars 编译错误",
+        "构建产物 sddu-docs.md 存在",
+        "20 个输出模板全部复制到插件目录"
+      ]
+    },
+    {
+      "id": "TASK-008",
+      "name": "交叉一致性校验 + FR 覆盖清单 + 状态更新",
+      "complexity": "S",
+      "wave": 4,
+      "dependencies": ["TASK-006", "TASK-007"],
+      "correspondingFR": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-006a", "FR-007", "FR-008", "FR-009"],
+      "description": "最终三项验证：(1) Agent 模板引用与文件一致性；(2) plan §9 审查清单 C1-C12 逐项勾检；(3) 更新 state.json phase→tasked",
+      "fileOperations": [
+        {"action": "VERIFY", "path": "src/templates/agents/sddu-docs.md.hbs"},
+        {"action": "VERIFY", "path": "src/templates/outputs/docs/"},
+        {"action": "MODIFY", "path": ".sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json"}
+      ],
+      "acceptanceCriteria": [
+        "Agent 模板引用的模板名与实际文件完全一致",
+        "审查清单 C1-C12 全部通过",
+        "state.json phase='tasked'",
+        "state.json phaseHistory 包含 tasked 条目",
+        "state.json files 包含 tasks.md"
+      ]
+    }
+  ]
+}

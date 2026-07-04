@@ -1,0 +1,55 @@
+{
+  "feature": "specs-tree-docs-agent-optimization",
+  "name": "@sddu-docs Agent 补全与优化",
+  "version": "v3.0.0",
+  "phase": "tasked",
+  "status": "tracked",
+  "depth": 1,
+  "phaseHistory": [
+    {
+      "phase": "registered",
+      "timestamp": "2026-07-04T00:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent"
+    },
+    {
+      "phase": "discovered",
+      "timestamp": "2026-07-04T00:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent"
+    },
+    {
+      "phase": "specified",
+      "timestamp": "2026-07-04T00:00:00.000Z",
+      "triggeredBy": "sddu-spec-agent"
+    },
+    {
+      "phase": "planned",
+      "timestamp": "2026-07-04T12:00:00.000Z",
+      "triggeredBy": "sddu-plan-agent"
+    },
+    {
+      "phase": "tasked",
+      "timestamp": "2026-07-05T00:00:00.000Z",
+      "triggeredBy": "sddu-tasks-agent"
+    }
+  ],
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "tasks": "tasks.md",
+    "tasksJson": "tasks.json",
+    "adrs": [
+      "ADR-001-agent-native-scanning-approach.md",
+      "ADR-002-three-agent-boundary-definition.md"
+    ]
+  },
+  "dependencies": {
+    "on": [],
+    "blocking": []
+  },
+  "metadata": {
+    "priority": "P0",
+    "createdAt": "2026-07-04T00:00:00.000Z",
+    "updatedAt": "2026-07-05T00:00:00.000Z"
+  }
+}
