@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md (v1.3，需求规范) + discovery.md (问题挖掘)  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-07-04  
-> **版本**: v1.9  
+> **版本**: v2.4  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-07-05  
-> **更新说明**: v1.9 — §3 模板库重构：参考 sddu-spec.md.hbs 设计模式，模板开头声明定位、文件名即语义、扁平目录、按内容匹配选择（不预判项目类型）；同步更新 §4.2/§5.1/§5.2/§6.2；删除 build-agents 递归复制需求
+> **更新说明**: v2.4 — §10.3.1 步骤 2/7 修正：TEST_DIR 改为固定路径加时间戳（替代 mktemp 随机后缀），方便用户定位验证产物；验证完成后保留 TEST_DIR 不自动删除，方便复核
 
 ---
 
@@ -630,6 +630,7 @@ LLM 不预判项目类型，而是**按内容匹配选择模板**：
 | 🆕 NEW | `src/templates/outputs/docs/sddu-docs-command-tree.md.hbs` | 命令树 | ~40 |
 | ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs` | **指令模板补全** — 从 110 行占位骨架扩展为 ~300 行可执行模板。核心变更：§5（7 步工作流）、§6（输出模板选择）、§7（三 Agent 边界）、§8（EC-001~EC-011）、§9（示例对话） | +190 / -10 |
 | 🆕 NEW | 运行时创建 | `.sddu/docs-tree-root/` 目录树（含子系统/模块/对象逐级目录 + 文件） | 由 @sddu-docs 运行时按需生成 |
+| 🆕 NEW | `e2e/scripts/docs-agent/sddu-docs-e2e.sh` | **E2E 验证脚本** — 创建隔离测试项目 + 安装 SDDU 插件 + 生成 mock Feature 目录（3 个 Feature：完整/缺 plan/含 ADR）→ 供 validate Agent 层 B 使用 | ~80 |
 
 ### 6.2 无需变更的组件
 
@@ -706,30 +707,291 @@ LLM 不预判项目类型，而是**按内容匹配选择模板**：
 
 ## 10. 产物验证策略
 
-> 供 `@sddu-validate` 阶段使用的产物清单和验证基准
+> 供 `@sddu-validate` 阶段使用的产物清单和验证基准。
+>
+> **核心思路**：SDDU 的验证应类比其他项目类型的真实验证 —— Java 项目启动应用调接口、前端项目启动 dev server 交互验证。SDDU 项目的"真实运行"就是：**在隔离项目中安装当前构建的 SDDU 插件，执行对应工作流，验证产物**。
 
-| 验证产物 | 验证基准 |
-|---------|---------|
-| `src/templates/agents/sddu-docs.md.hbs` | spec.md FR-001 完整度（分批流程无占位）/ FR-005 边界完整性（7 维度无缺失）/ FR-008 描述一致性 |
-| `src/templates/outputs/docs/` 下 17 个模板 | spec.md FR-002 目录树结构 / Handlebars 语法正确（`node build-agents.cjs` 通过） |
-| Agent 实际调用 `@sddu-docs` | spec.md FR-001/NFR-001（逐域迭代）/ EC-001~EC-011 边界行为正确 / 产物 `docs-tree-root/` 目录树格式符合模板库定义 |
+### 10.1 验证分层
 
-### 验证场景
+本 Feature 的产物是 Agent 指令模板 + Handlebars 输出模板。验证分两层：
 
-| 场景 | 验证步骤 | 预期结果 | 对应 FR/EC |
-|------|----------|----------|:--:|
-| **V1** 空项目 | 临时项目无 `.sddu/` 目录下运行 `@sddu-docs` | Agent 提示无可分析 Feature 并终止 | EC-001 |
-| **V2** 标准项目首次生成 | 当前 SDDU 项目运行 `@sddu-docs` | 生成 `docs-tree-root/` 目录树，含全部 17 个 Feature，逐域迭代完成 | FR-001 |
-| **V3** 产物已存在 | 已存在 `docs-tree-root/` 时运行 `@sddu-docs` | 进入增量模式，仅处理变更 Feature 所在域 | EC-002 |
-| **V4** 增量更新 | 模拟一个 Feature 更新，运行 `@sddu-docs` | 仅重写变更 Feature 的目录子树，其余域不变 | FR-009 |
-| **V5** 多版本目录 | 模拟 Feature 下有 v1/ 和 v2/ 子目录 | Agent 取 v2/ 内容，标注版本号 | EC-011 |
-| **V6** 用户自定义模板 | 放置同名模板文件到用户目录 | 产物使用用户自定义格式 | FR-006a |
-| **V7** 模板缺失报错 | 删除内置和用户模板 | Agent 显式报错并终止 | EC-010 |
-| **V8** 模板按内容匹配 | 内容涉及 API/数据/页面等多个维度时运行 | LLM 按内容特征选用合适的模板组合 | FR-003 |
-| **V9** spec/plan 部分缺失 | 某个 Feature 仅含 spec.md 不含 plan.md | 标注「缺失 plan.md」，部分聚合 | EC-003 |
+| 层 | 内容 | 验证什么 | 依赖 | 可执行性 |
+|:--:|------|------|------|:--:|
+| **A** | 静态检查 | 模板可编译、Handlebars 语法正确、FR 覆盖完整 | 仅需 Node.js + grep | ✅ 本期可直接执行 |
+| **B** | E2E 隔离运行 | `@sddu-docs` Agent 在隔离项目中对 mock Feature 执行扫描 → 模板选择 → 渲染 → 落盘，验证完整执行链路 | 需 Agent 模板已构建（build phase 输出）+ opencode task 工具 + LLM + install.sh | ✅ build phase 完成后可执行 |
+
+层 A 是**必要条件**（不通过则产物无法交付），层 B 是**充分条件**（通过才代表产物在真实项目中真正可用）。
+
+**与旧版的关键区别**：
+- **旧版 v1.x**：要求"在当前项目上运行 @sddu-docs 来验证 @sddu-docs"→ 循环依赖，不可行
+- **旧版 v2.0**：引入 fixture 隔离项目，但未解决 install.sh 依赖和 task 工具调用路径
+- **本版 v2.1**：层 B 通过 `mktemp` 创建隔离项目 → `install.sh` 安装当前构建产物 → `task(sddu-docs)` 以绝对路径指定 mock Feature 目录 → 验证 docs-tree-root/ 输出。全程不污染当前项目的 `.sddu/`，Agent 按 prompt 中的绝对路径操作测试项目
 
 ---
 
+### 10.2 层 A：构建 + 静态语法检查（10 项 · 可直接执行）
+
+> 所有检查均可通过 `bash` + `grep` + `node` 命令执行，不依赖 LLM。
+
+| # | 验证项 | 执行方法 | 预期 |
+|:--:|------|------|------|
+| A1 | **构建产物就绪** | `node scripts/build-agents.cjs` | exit 0；`dist/templates/agents/sddu-docs.md` 存在；`dist/templates/output/docs/` 下有 ≥16 个 `.hbs` 文件 |
+| A2 | **`#each` 块闭合** | `for f in src/templates/outputs/docs/*.hbs; do open=$(grep -c '#each' "$f"); close=$(grep -c '/each' "$f"); [ "$open" != "$close" ] && echo "MISMATCH: $f"; done` | 无 MISMATCH 输出 |
+| A3 | **`#if` 块闭合** | `for f in src/templates/outputs/docs/*.hbs; do open=$(grep -c '#if' "$f"); close=$(grep -c '/if' "$f"); [ "$open" != "$close" ] && echo "MISMATCH: $f"; done` | 无 MISMATCH 输出 |
+| A4 | **无占位残留** | `grep -rn '待后续 Feature 定义' src/templates/agents/sddu-docs.md.hbs` | 0 处（`grep` 无匹配或 exit 1） |
+| A5 | **工作流步骤连续** | `grep -oP '步骤 \d+' src/templates/agents/sddu-docs.md.hbs \| sort -u` | 1→7 连续（含步骤 1~7 全部） |
+| A6 | **EC 全量覆盖** | `grep -oP 'EC-\d{3}' src/templates/agents/sddu-docs.md.hbs \| sort -u \| wc -l` | ≥11 项 |
+| A7 | **输出模板齐全** | `ls src/templates/outputs/docs/sddu-docs-*.md.hbs \| wc -l` | 与 §3.3 模板清单数量一致 |
+| A8 | **三 Agent 边界表存在** | `grep -c '@sddu-docs\|@sddu-tree\|@sddu-roadmap' src/templates/agents/sddu-docs.md.hbs` | ≥7 行（7 维度边界表） |
+| A9 | **增量模式检测逻辑** | `grep -c 'mtime\|增量\|incremental\|stat' src/templates/agents/sddu-docs.md.hbs` | ≥3 处 |
+| A10 | **模板引用一致性** | 对比 Agent 模板 §6 引用的模板文件名 ↔ `src/templates/outputs/docs/` 实际文件列表 | 1:1 匹配，无悬空引用 |
+
+> **判定**：10/10 通过 → ✅ 层 A 通过。任一项失败 → ❌ 阻塞，不可进入层 B。
+
+---
+
+### 10.3 层 B：E2E 隔离运行验证（8 项 · build phase 完成后可执行）
+
+层 B 验证 `@sddu-docs` Agent 在隔离测试项目中的完整执行链路：构建当前产物 → 安装到隔离项目 → 创建 mock Feature → Agent 扫描 → 模板选择与渲染 → 目录树落盘 → 增量更新。
+
+#### 10.3.1 执行链路（7 步）
+
+```
+步骤 1: 构建当前产物
+  cd <当前项目根目录>
+  node scripts/build-agents.cjs
+  → dist/templates/agents/sddu-docs.md         (Agent 编译产物)
+  → dist/templates/output/docs/*.hbs           (输出模板编译产物)
+  → install.sh 在后续步骤中引用这些产物
+
+步骤 2: 创建隔离测试项目
+  TEST_DIR="/tmp/sddu-validate-docs-$(date +%Y%m%d-%H%M%S)"
+  mkdir -p "$TEST_DIR"
+  mkdir -p "$TEST_DIR/.sddu/specs-tree-root"
+  → TEST_DIR 与当前项目完全隔离，无文件污染
+
+步骤 3: 安装 SDDU 插件到隔离项目
+  bash install.sh "$TEST_DIR"
+  → 从当前源码完整构建（npm install + build:agents + build:ts + package）
+  → 安装到 $TEST_DIR/.opencode/plugins/sddu/
+  → 复制 Agent 定义到 $TEST_DIR/.opencode/agents/
+  → 生成 $TEST_DIR/opencode.json
+
+步骤 4: 创建 Mock Feature（3 个 Feature，覆盖完整/缺 plan/含 ADR）
+  按 §10.3.2 设计写入以下目录结构:
+    $TEST_DIR/.sddu/specs-tree-root/
+    ├── feature-auth/              ← 完整 Feature（spec + plan + ADR）
+    │   ├── spec.md
+    │   ├── plan.md
+    │   ├── ADR-001-jwt-auth.md
+    │   └── state.json
+    ├── feature-api/               ← 完整 Feature（spec + plan）
+    │   ├── spec.md
+    │   ├── plan.md
+    │   └── state.json
+    └── feature-legacy/            ← 不完整 Feature（只有 spec，故意缺 plan）
+        ├── spec.md
+        └── state.json
+
+步骤 5: 独立 opencode 进程执行 Agent（方案 B — 进程级隔离，v2.3 修正）
+
+  设计说明：
+  - **v2.2 缺陷**：使用 `--dir "$TEST_DIR"` 切换工作目录，但 `--dir` 只改变 Agent 进程的 CWD
+    （`.sddu/specs-tree-root/` 的查找路径），**不改变** opencode 自身的插件加载路径。
+    opencode 仍从当前项目（`/home/usb/wks/sddu`）加载 `.opencode/plugins/` 和 `opencode.json`，
+    导致 Agent §4 的前置验证读取当前项目的 `.sddu/specs-tree-root/`（18 个真实 Feature），
+    而非测试项目中仅有的 3 个 mock Feature。
+  - **v2.3 修正**：`install.sh` 已将 SDDU 插件完整安装到 `$TEST_DIR/.opencode/plugins/sddu/`
+    并生成了 `$TEST_DIR/opencode.json`。改为 `cd "$TEST_DIR"` 后启动 opencode，
+    opencode 从测试项目根目录启动 → 加载测试项目的插件（含 sddu-docs Agent 定义）
+    → Agent CWD 自然为测试项目根目录 → §4 前置验证看到的就是 3 个 mock Feature。
+  - **核心区别**：`--dir` 只切换 Agent 工作目录（CWD，即文件操作的默认路径），
+    `cd` 切换 opencode 的启动目录（决定插件加载路径 + Agent 工作目录）。
+    插件目录的 `opencode.json` 是 Agent 定义（包括 §4 前置验证逻辑）的加载来源，
+    必须通过启动目录切换才能实现真正的上下文隔离。
+
+  validate Agent 通过 bash 工具执行（超时 300s，对齐 NFR-001 ≤120s 全量生成 + 缓冲）:
+    cd "$TEST_DIR"
+    response=$(opencode run \
+      "扫描 .sddu/specs-tree-root/ 下的所有 Feature，
+       生成项目全景文档到 .sddu/docs-tree-root/" \
+      --agent sddu-docs \
+      --model deepseek/deepseek-v4-pro \
+      --auto \
+      2>&1)
+
+  关键参数：
+  - `cd "$TEST_DIR"` — 切换到隔离项目根目录，确保 opencode 从该目录启动，
+    加载 `$TEST_DIR/.opencode/plugins/sddu/` 下的插件和 `$TEST_DIR/opencode.json`
+    （Agent 定义来源）；同时 Agent 的 CWD 即为测试项目，§4 检查命中 3 个 mock Feature
+  - 注意：**不再使用 `--dir` 参数** — `cd` 已经同时设置了启动目录和 Agent CWD，
+    无需重复指定（且 `--dir` 仍只影响 CWD 不影响插件加载）
+  - `--agent sddu-docs` — 直接以 sddu-docs Agent 身份执行，接收上述消息作为用户输入
+  - `--auto` — 自动批准权限（Agent 需 bash/write/read/glob），非交互模式必需
+  - `--model deepseek/deepseek-v4-pro` — 与 Agent 定义一致
+  - `2>&1` — 合并 stderr，确保 LLM 响应文本可被 grep 断言
+  - `response` 变量存储完整终端输出，供步骤 6/7 中 B6/B8 断言匹配 Agent 响应文本
+
+步骤 6: 验证输出（首次全量）
+  按 §10.3.3 断言矩阵 B1~B5 逐项检查 $TEST_DIR/.sddu/docs-tree-root/
+
+步骤 7: 增量验证 + 清理
+  修改 $TEST_DIR/.sddu/specs-tree-root/feature-api/spec.md（追加一行注释触发 mtime 变更）
+  再次执行步骤 5（Agent 应识别 docs-tree-root/ 已存在 → 增量模式）
+  按断言 B6~B7 检查仅 feature-api 子树更新
+
+  > ⚠️ 验证完成后**保留** `$TEST_DIR`，不自动删除。方便用户手动进入目录复核产物内容。
+```
+
+#### 10.3.2 Mock Feature 设计
+
+> 以下内容由 validate Agent 在步骤 4 使用 `write` 工具直接创建。Feature 内容使用真实业务语义，使 Agent 能从中提取有意义的信息进行模板选择和聚合。
+
+**Feature A — `feature-auth`**（完整 Feature：spec + plan + ADR）
+
+`state.json`：
+```json
+{
+  "feature": "feature-auth",
+  "phase": "specified",
+  "status": "tracked",
+  "version": "v1.0",
+  "phaseHistory": [
+    {"phase": "specified", "status": "completed", "timestamp": "2026-06-01T10:00:00Z"}
+  ]
+}
+```
+
+`spec.md` 核心内容（~60 行）：
+- FR 清单：JWT 签发/验证、OAuth2 第三方登录集成、Token 刷新机制、会话管理
+- 用户故事：作为用户，我希望能用邮箱/密码注册并登录；作为管理员，我希望能管理用户角色和权限
+- 目标：构建统一认证中心，支持多种登录方式，提供 Token 生命周期管理
+
+`plan.md` 核心内容（~50 行）：
+- 方案选择：方案 A（JWT 自签发）vs 方案 B（OAuth2 代理），推荐方案 A
+- 技术栈：Node.js 18 + jsonwebtoken 9.x + bcrypt 5.x + Express 4.x
+- 架构：无状态 JWT（access 15min + refresh 7d），Redis 黑名单缓存
+- ADR-001：JWT 签发选择 HMAC-SHA256，理由：内网部署无需非对称加密开销
+
+`ADR-001-jwt-auth.md`：
+```markdown
+# ADR-001: JWT 认证方案选择
+
+## 状态
+ACCEPTED
+
+## 背景
+需要统一的用户认证机制支持多系统 SSO。
+
+## 决策
+选择 JWT（HMAC-SHA256）+ refresh token 方案。
+
+## 后果
+- 优点：无状态、水平扩展友好、跨域支持
+- 缺点：无法主动撤销单个 token（依赖短期过期 + 黑名单缓存缓解）
+```
+
+---
+
+**Feature B — `feature-api`**（完整 Feature：spec + plan，无 ADR）
+
+`state.json`：
+```json
+{
+  "feature": "feature-api",
+  "phase": "planned",
+  "status": "tracked",
+  "version": "v2.1",
+  "phaseHistory": [
+    {"phase": "specified", "status": "completed", "timestamp": "2026-05-15T09:00:00Z"},
+    {"phase": "planned", "status": "completed", "timestamp": "2026-05-20T14:30:00Z"}
+  ]
+}
+```
+
+`spec.md` 核心内容（~50 行）：
+- FR 清单：RESTful API 端点定义（CRUD for products）、请求参数字段校验、基于 token bucket 的限流策略、统一错误响应格式
+- NFR：P99 延迟 ≤200ms，单实例 QPS ≥1000
+- API 端点表：`GET /api/v1/products`、`POST /api/v1/products`、`GET /api/v1/products/:id`、`PUT /api/v1/products/:id`、`DELETE /api/v1/products/:id`、`GET /api/v1/health`
+
+`plan.md` 核心内容（~50 行）：
+- 技术栈：Express 4.18 + TypeScript 5.x + helmet + express-rate-limit + zod（请求校验）
+- 部署拓扑：Nginx 反向代理 → PM2 cluster（4 worker）→ Express → 内存存储
+- 中间件链：helmet → cors → rate-limiter → validator → handler
+
+---
+
+**Feature C — `feature-legacy`**（不完整 Feature：仅 spec，故意缺 plan.md）
+
+`state.json`：
+```json
+{
+  "feature": "feature-legacy",
+  "phase": "discovered",
+  "status": "tracked",
+  "version": "v1.0",
+  "phaseHistory": [
+    {"phase": "discovered", "status": "completed", "timestamp": "2026-01-10T08:00:00Z"}
+  ]
+}
+```
+
+`spec.md` 核心内容（~30 行）：
+- 自由文本描述（非标准章节，测试 EC-004 格式自适应）：「遗留订单模块负责管理系统中所有订单的创建、状态变更和历史查询。原本基于 PHP 单体架构，计划迁移到 Node.js 微服务。订单状态包括：待支付、已支付、配送中、已完成、已取消。该模块目前尚未进入 plan 阶段。」
+- **不含 plan.md** —— 验证 EC-003（缺 plan 时标注但不崩溃）
+
+---
+
+#### 10.3.3 断言矩阵（B1~B8）
+
+| 场景 | 输入条件 | 预期行为 | 验证方法 | 对应 |
+|:--:|------|------|------|:--:|
+| **B1** | 3 个 Feature，2 完整 + 1 缺 plan | `docs-tree-root/` 创建成功；根级 `docs-overview.md` 含 feature-auth、feature-api、feature-legacy 三个 Feature 的索引条目 | `grep -c 'feature-auth\|feature-api\|feature-legacy' "$TEST_DIR/.sddu/docs-tree-root/docs-overview.md"` → 3 | FR-001, FR-002, FR-004 |
+| **B2** | feature-legacy 缺 plan.md | feature-legacy 子树存在但标注「缺失 plan.md」或类似标记，Agent 不崩溃不报错 | `grep -c '缺失.*plan\|missing.*plan' "$TEST_DIR/.sddu/docs-tree-root/" -r` → ≥1 | EC-003 |
+| **B3** | feature-api plan.md 含技术栈描述（Express/TypeScript/helmet） | feature-api 子树使用了技术类模板渲染（如部署信息、配置项），文档含技术栈引用 | `grep -c 'Express\|TypeScript\|helmet' "$TEST_DIR/.sddu/docs-tree-root/" -r` → ≥2 | FR-003 |
+| **B4** | feature-auth 含 ADR-001 | feature-auth 子树或根级文档含 ADR 索引引用（ADR-001 字样或 ADR 摘要） | `grep -c 'ADR-001\|JWT.*认证\|HMAC-SHA256' "$TEST_DIR/.sddu/docs-tree-root/" -r` → ≥1 | FR-003 |
+| **B5** | 首次运行（docs-tree-root/ 原本不存在） | 产物含全量模式标记（如「全量生成」「首次构建」「full generation」） | `grep -ci '全量\|full\|首次.*生成\|initial' "$TEST_DIR/.sddu/docs-tree-root/docs-overview.md"` → ≥1 | FR-009 |
+| **B6** | 二次运行（docs-tree-root/ 已存在，无 Feature 变更） | Agent 识别已有产物，进入增量模式，不重复生成（或输出标注「增量模式」「无变更」） | validate Agent 捕获 `opencode run` 输出到 `$response` 变量，`grep -ci '增量\|无变更\|skip\|unchanged' <<< "$response"` → ≥1 | EC-002 |
+| **B7** | 二次运行 + 仅 feature-api spec.md 有变更 | 仅 feature-api 子树重新生成（mtime 更新），feature-auth 和 feature-legacy 子树内容不变（mtime 不变） | `find "$TEST_DIR/.sddu/docs-tree-root/" -name '*.md' -newer "$MARKER_FILE"` 返回的文件均在 feature-api 相关路径下 | FR-009, EC-009 |
+| **B8** | 空项目（specs-tree-root/ 无任何 Feature 目录） | Agent 输出提示「无可分析的 Feature」并终止，不写入空文档 | `opencode run` 输出（`$response`）含终止提示（EC-001），`docs-tree-root/` 未被创建或不含业务文件 | EC-001 |
+
+> **注意**：B5~B7 的验证依赖 LLM 输出文本的语义匹配（如「全量」「增量」等关键词），存在一定概率偏差。若关键词匹配失败但实际行为正确（文件时间戳验证通过），应视为通过。
+
+#### 10.3.4 执行前置条件与可行性分析
+
+| 条件 | 状态 | 说明 |
+|------|:--:|------|
+| Agent 模板已编译（build phase 完成） | ✅ 本期满足 | validate 在 build 之后执行，`dist/templates/agents/sddu-docs.md` 已就绪 |
+| opencode `run` 子命令可用 | ✅ 本期满足 | opencode v24+ 支持 `opencode run --agent --auto --model` 非交互执行；通过 `cd "$TEST_DIR"` 切换启动目录使 opencode 加载测试项目插件（非 `--dir`，后者只设 CWD 不切换插件路径）；validate Agent 通过 `bash` 工具调用 |
+| `install.sh` 可从当前源码构建 | ✅ 本期满足 | install.sh 读取当前项目 `scripts/build-agents.cjs` + `package.json`，构建产物即为本次 build phase 产出 |
+| LLM 可调用 | ✅ 本期满足 | `opencode run` 启动独立进程，LLM 调用由 opencode 管理，与 validate Agent 会话隔离 |
+| 磁盘空间充足（tmp 目录） | ✅ 预期满足 | mock Feature 文件总量 < 50KB |
+| **无后续基础设施依赖** | ✅ | 不依赖外部数据库、消息队列、第三方 API |
+
+> **结论**：层 B 所有 8 项断言均可在本期 validate 阶段执行。唯一前置条件是 build phase 已完成 Agent 模板编译 —— 这与 SDDU 工作流顺序天然吻合（validate 在 build 之后执行）。
+
+---
+
+### 10.4 验证结论判定
+
+| 条件 | 通过标准 | 不通过行为 |
+|------|------|------|
+| 层 A（10/10） | 全部 10 项通过 | ❌ 阻塞 — 产物存在语法/结构缺陷，不可交付 |
+| 层 B（8/8） | B1~B8 全通过 | ⚠️ 有条件通过 — 结构性断言失败需修复；LLM 输出波动导致的单项失败经人工复核后可豁免 |
+
+> **最终判定**：层 A + 层 B 均达标 → ✅ **通过**。层 A 不通过 → ❌ **不可进入 build 阶段的后续流程**。
+
+---
+
+### 10.5 不在验证范围的事项
+
+| 事项 | 原因 | 替代验证 |
+|------|------|------|
+| Agent 生成文档的内容质量（措辞准确性、完整性） | LLM 生成内容，无确定性断言标准 | 层 B 验证**结构性完整**（文件存在、关键词覆盖、模板使用正确） |
+| NFR-001（首次全量耗时 ≤120s） | 依赖 LLM 响应速度 + 当前模型负载，非模板本身可控制 | —（性能测试需在受控环境中独立完成） |
+| 语义聚类的业务准确性（Feature A 是否该归属「用户域」） | LLM 行为，不同模型/不同运行结果可能不同 | 层 B 只验证聚类产出了**某种**层级结构，不验证语义正确性 |
+| NFR-003（新增模板自动发现） | 本 Feature 创建的是初始模板库，不包含模板添加后的增量行为 | 后续模板新增 Feature 中单独验证 |
+| EC-011（多版本目录 v1/v2 处理） | mock Feature 设计为单版本（无 v1/v2 子目录），EC-011 为远期场景 | 在多版本 mock 可用后补充 |
 ## 修订记录
 
 | 版本 | 变更说明 | 日期 | 修订人 |
@@ -744,3 +1006,8 @@ LLM 不预判项目类型，而是**按内容匹配选择模板**：
 | v1.7 | **对齐专家裁定（一期目录树）** — §2 清除单文件残留；§3 模板库恢复嵌套目录；§4~§7 路径/数字/引用对齐；ADR-001/002 同步；build-agents 列入变更 | 2026-07-05 | SDDU Plan Agent |
 | v1.8 | **P0-2 聚类算法** — 新增 §2.4 步骤 3 业务层级推导（LLM 语义聚类 + 首次持久化）；新增 D7；更新 P6 | 2026-07-05 | SDDU Plan Agent |
 | v1.9 | **§3 模板库重构** — 参考 sddu-spec.md.hbs：模板开头声明定位、文件名即语义、扁平目录、按内容匹配选择；同步 §4.2/§5.1/§5.2/§6.2 | 2026-07-05 | SDDU Plan Agent |
+| v2.0 | **§10 产物验证策略重写** — 三层验证体系（A 构建语法 / B E2E 隔离运行），新增 Mock Feature 隔离测试项目，消除循环依赖和项目污染风险；§6.1 追加 docs-agent fixtures 文件清单 | 2026-07-05 | SDDU Plan Agent |
+| v2.1 | **§10 产物验证策略重写（v2）** — 层 A 10 项静态检查（可直接执行，仅需 Node.js + grep）；层 B E2E 隔离验证（mktemp → install.sh → task(sddu-docs) 绝对路径 → 增量验证 → 清理），含 3 个 mock Feature 完整设计（完整/缺 plan/含 ADR）和 8 项断言矩阵 B1~B8，明确本期可执行性和前置条件；§6.1 追加 e2e/scripts/docs-agent/sddu-docs-e2e.sh 入口 | 2026-07-05 | SDDU Plan Agent |
+| v2.2 | **§10.3.1 步骤 5 修复** — 设计缺陷修正：`task(sddu-docs)` 在**当前** opencode 会话执行会导致 Agent §4 前置验证扫描当前项目的 `.sddu/specs-tree-root/`（18 个 Feature），而非隔离项目的 3 个 mock Feature，即便 prompt 中明确指定 `$TEST_DIR` 绝对路径也无法绕过 Agent 模板硬编码的 CWD 检查；改为 `opencode run --dir $TEST_DIR --agent sddu-docs --auto` **方案 B（独立进程）**，利用 `--dir` 切换进程工作目录实现真正的上下文隔离，Agent 仅看到测试项目的 `.sddu/specs-tree-root/`；B6/B8 断言验证方法 + 可行性表同步更新 | 2026-07-05 | SDDU Plan Agent |
+| v2.3 | **§10.3.1 步骤 5 二次修正** — v2.2 使用 `--dir` 切换工作目录，但 `--dir` 只设置 Agent CWD 不改变 opencode 插件加载路径；`install.sh` 已将 SDDU 插件安装到 `$TEST_DIR`，opencode 必须从 `$TEST_DIR` 启动（`cd "$TEST_DIR"`）才能加载该目录下的 `.opencode/plugins/sddu/` 和 `opencode.json`；步骤 5 说明文字补充「插件加载路径 vs 工作目录」区别；可行性表同步更新 | 2026-07-05 | SDDU Plan Agent |
+| v2.4 | **§10.3.1 步骤 2/7 修正** — 步骤 2：TEST_DIR 由 `mktemp -d /tmp/sddu-docs-test-XXXXXX`（随机后缀，用户无法定位）改为固定路径 `"/tmp/sddu-validate-docs-$(date +%Y%m%d-%H%M%S)"`，用时间戳避免多实例冲突；步骤 7：移除 `rm -rf "$TEST_DIR"` 自动删除，补充说明验证完成后保留目录供用户手动复核产物内容 | 2026-07-05 | SDDU Plan Agent |
