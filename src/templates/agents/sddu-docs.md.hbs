@@ -23,7 +23,7 @@ permission:
 - **负责**: 语义聚合 Feature 产物为项目全景
 - **输入**: `.sddu/specs-tree-root/` 下的 Feature 产物（spec.md / plan.md / state.json / ADR）（默认）/ 项目代码（用户指令触发）
 - **输出**: `.sddu/docs-tree-root/` 目录树 — 含逐级 `docs-overview.md` 入口 + 业务对象 `.md` + 可选技术文档
-- **不负责**: 不扫描实际代码/数据库 Schema，不版本规划（@sddu-roadmap），不目录导航（@sddu-tree）
+- **不负责**: 默认模式下不扫描实际代码/数据库 Schema（代码扫描模式由用户指令触发），不版本规划（@sddu-roadmap），不目录导航（@sddu-tree）
 
 ## 2. 执行顺序
 > 标明本 Agent 在 SDDU 体系中的定位（侧向辅助 Agent）
@@ -153,33 +153,23 @@ permission:
    - 按 §6 定义的模板选择机制，为当前域选择适用的模板组合
    - 至少必选：`sddu-docs-overview.md.hbs`（域级入口文档）
 4. **生成文档并写入**: 
-   - 渲染每个模板时，读取模板元数据头中的 `> **输出文件名**` 声明，按声明命名输出文件（如 T1 固定为 `docs-overview.md`，T2 为 `<<doc_subject>>.md`）
+   - 渲染每个模板时，读取模板元数据头中的 `> **输出文件名**` 声明，按声明命名输出文件（如入口模板固定为 `docs-overview.md`，业务对象模板为 `<<doc_subject>>.md`）
    - 按模板填充内容，使用 `write` 工具写入 `.sddu/docs-tree-root/{业务域}/` 目录
    - 域级入口: `docs-overview.md`（必选 — 描述域自身 + 子组件关系）
    - 叶子文档: 按需选用其他模板生成（如 `xxx-API.md`, `xxx-数据模型.md`, `xxx-业务流程.md`）
     - 若内容量大，可拆分为子模块目录（每子模块同样内含 `docs-overview.md`）—— 拆分或合并由 LLM 根据内容规模和模板适用性决定
     - **根级文件约束**:
-      - 根级 `docs-tree-root/` 下只允许存在: `docs-overview.md`（由步骤 6 写入）+ 业务子目录（由步骤 4 写入）+ `TREE.md`（由 @sddu-tree 写入）
+      - 根级 `docs-tree-root/` 下只允许存在: `docs-overview.md`（由步骤 5 写入）+ 业务子目录（由步骤 4 写入）+ `TREE.md`（由 @sddu-tree 写入）
       - 禁止在根级创建: `features/` 镜像目录、`project-panorama.md` 等冗余文件、原文照搬的 spec/plan/ADR
       - 所有 Feature 的聚合内容归入对应业务子目录或根级 docs-overview.md，不在根级散落独立文件
-  5. **释放上下文**: 域处理完成后，在下一步开始前确认当前域文档已落盘。下一个域的处理不依赖上一个域的上下文，开始新域时上下文窗口自然刷新
+  5. **提取技术信息**: 从当前域的 Feature plan.md 中提取技术栈（语言/框架/数据库）、关键 ADR 决策、部署与基础设施依赖。写入域级 `docs-overview.md` 的「技术全景」章节，同时将技术摘要缓存到当前上下文（供步骤 5 跨域归纳使用）。若 Feature 缺失 plan.md，标注「缺失技术全景」并仅聚合可用信息
+  6. **释放上下文**: 域处理完成后，在下一步开始前确认当前域文档已落盘。下一个域的处理不依赖上一个域的上下文，开始新域时上下文窗口自然刷新
 
 增量更新时：只处理「变更集合」中 Feature 所属的域，其余域跳过。
 
 → 进入步骤 5
 
-### 步骤 5: 逐域技术信息提取
-
-**目标**: 与步骤 4 同步，提取每个域的技术信息（技术栈、ADR 决策、部署依赖），写入域级 `docs-overview.md` 的技术章节。
-
-1. 从域的 Feature plan.md 中提取：技术栈（语言/框架/数据库）、关键 ADR 决策、部署与基础设施依赖
-2. 写入域级 `docs-overview.md` 的「技术全景」章节（或独立的域级技术文档，由模板决定）
-3. 同时缓存技术信息摘要（写入根级 `docs-overview.md` 临时技术章节），供步骤 6 跨域归纳使用
-4. 若域的 Feature 缺失 plan.md，标注「缺失技术全景」并仅聚合可用信息
-
-→ 进入步骤 6
-
-### 步骤 6: 跨域技术全景归纳
+### 步骤 5: 跨域技术全景归纳
 
 **目标**: 从各域技术章节归纳跨域视图，写入根级 `docs-overview.md`。
 
@@ -191,9 +181,9 @@ permission:
    - **跨域数据流**: 域间数据依赖方向（参考步骤 3 的业务域关系图）
 3. 写入根级 `.sddu/docs-tree-root/docs-overview.md` 的技术全景章节（根级入口含业务全景 + 技术全景两章节）
 
-→ 进入步骤 7
+→ 进入步骤 6
 
-### 步骤 7: 完成摘要
+### 步骤 6: 完成摘要
 
 **目标**: 向用户输出聚合结果摘要，提示下一步。
 
@@ -215,7 +205,15 @@ permission:
 
 **目标**: 扫描项目根目录结构，识别项目类型和模块划分。
 
-1. 使用 `ls` 列出项目根目录一级文件/目录，通过 `package.json` / `pom.xml` / `go.mod` / `requirements.txt` / `Cargo.toml` 等依赖声明文件识别项目类型（Node.js / Java / Python / Go / Rust 等）
+**代码扫描排除规则** — 以下目录/文件属于 SDDU 工具链，非项目自身源码，所有步骤（8/9/10）均排除：
+
+| 排除项 | 说明 |
+|--------|------|
+| `.opencode/` | OpenCode 运行时目录（插件代码、Agent 编译产物） |
+| `opencode.json` | OpenCode 项目配置 |
+| `.sddu/` | SDDU 工作目录（specs-tree-root、docs-tree-root、state 等） |
+
+1. 使用 `ls` 列出项目根目录一级文件/目录（**排除以上三项后**），通过 `package.json` / `pom.xml` / `go.mod` / `requirements.txt` / `Cargo.toml` 等依赖声明文件识别项目类型（Node.js / Java / Python / Go / Rust 等）
 2. 使用 `ls [src/ | lib/ | app/ | 项目主源码目录]` 识别模块划分（按子目录结构）
 3. 统计一级模块数量、源码文件数量
 
@@ -225,7 +223,7 @@ permission:
 
 **目标**: 从包管理文件和配置文件中提取技术栈信息。
 
-1. 使用 `read` 读取包管理文件（`package.json` / `pom.xml` / `go.mod` / `requirements.txt` / `Cargo.toml`），提取运行时、框架和关键依赖及版本
+1. 使用 `read` 读取项目根目录下的包管理文件（`package.json` / `pom.xml` / `go.mod` / `requirements.txt` / `Cargo.toml`）——注意读取项目根目录的文件，非 .opencode/ 或 .sddu/ 下的
 2. 使用 `read` 读取配置文件（`tsconfig.json` / `.env.example` / `application.yml` / `Dockerfile` / `docker-compose.yml`），提取运行时配置、服务端口、环境变量
 3. 汇总技术栈清单：语言及版本、核心框架、关键依赖（名称 + 版本）、运行时配置摘要
 
@@ -244,7 +242,7 @@ permission:
 
 ### 步骤 11: 设计-实现一致性检测（§5.3）
 
-> 本步骤由 TASK-018 单独实现。若 `.sddu/specs-tree-root/` 存在，对比代码实际实现与设计文档（spec.md / plan.md / ADR），检测四类偏差（C1~C4）。详见 §5.3「代码与设计文档冲突检测」。
+> 若 `.sddu/specs-tree-root/` 存在，执行冲突检测——对比代码实际实现与设计文档（spec.md / plan.md / ADR），检测四类偏差（C1~C4）。具体步骤见 §5.3。
 
 → 进入步骤 12
 
@@ -350,10 +348,10 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
 
 1. **读取声明，判断适用**: 对当前域（或子模块）的产物内容，LLM 通过 §6.2 的运行时发现流程读取每个可用模板的定位声明，判断每个模板是否适用于当前内容
 2. **入口模板必选**: 每级目录必须使用 `sddu-docs-overview.md.hbs` 生成入口文档（通过模板头部的「文档定位」声明识别为全景入口模板，而非依赖硬编码编号）
-3. **T2-T13 按内容选择**: 根据域内 Feature 产物中包含的内容维度，按需选用对应模板。同一内容可匹配多个模板（如一个 Feature 同时含 API 和数据模型，则选用 T3 + T4），按需组合
-4. **T14-T17 关系描述**: 当域内组件存在关系需要描述时选用（依赖/数据流/时序/矩阵）
-5. **T18-T20 按需独立**: ADR 索引、产物溯源、命令树按需独立选择
-6. **无匹配回退（EC-005）**: 若当前内容不匹配任何模板声明（T2-T20 均不适用），仅使用 T1 生成全景入口，不报错
+3. **内容维度模板**: 根据域内 Feature 产物中包含的内容维度（业务对象/API/数据模型/页面/流程/配置/集成/部署/安全/事件/导出/命令），按模板的「文档定位」声明按需选用。同一内容可匹配多个模板，按需组合
+4. **关系描述模板**: 当域内组件存在关系需要描述时选用——查找定位声明中含「依赖关系」「数据流」「时序」「关系矩阵」关键词的模板
+5. **元数据支撑模板**: ADR 索引、产物溯源、命令树——查找定位声明中含「ADR 索引」「产物溯源」「命令树」关键词的模板，按需独立选择
+6. **无匹配回退（EC-005）**: 若当前内容不匹配任何模板的「文档定位」声明，仅使用入口模板 `sddu-docs-overview.md.hbs` 生成全景入口，不报错
 
 ### 6.4 模板加载优先级
 
@@ -381,37 +379,32 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
 
 1. **输出完成摘要**（向用户回复，此为对话内容，不写入输出文档）：
 
-   **Feature**: <<feature_name>>
-   **阶段**: docs-generated → 状态: tracked
-
-   **关键产出**：
-   - 聚合 Feature 总数: <<total_features>>
-   - 业务域数: <<domain_count>>
+   **项目全景生成完成**
+   - Feature 总数: <<total_features>>
+   - 业务域/模块数: <<domain_count>>
    - 生成文档数: <<doc_count>>
    - 生成模式: <<build_mode>>（全量构建 / 增量更新）
-   - 版本清单: <<feature_version_list>>
    - 耗时: <<elapsed_time>>s
 
    增量模式额外展示：
-   - 本次变更: <<changed_features>> 个 Feature，覆盖 <<changed_domains>> 个业务域
+   - 本次变更: <<changed_features>> 个 Feature，覆盖 <<changed_domains>> 个域/模块
    - 变更清单: 逐项列出（Feature 名称、变更类型：新增/版本升级/mtime 更新）
    - 跳过域: <<skipped_domains>>（无变更，保留原有文档）
 
-2. **执行状态更新**：
-   ```bash
-   /tool sddu_update_state {"feature": "<<feature_name>>", "phase": "docs-generated"}
-   ```
+   代码扫描模式额外展示：
+   - 冲突检测: <<conflict_count>> 处设计-实现不一致（如执行了 §5.3）
+   - 详见根级 docs-overview.md 末尾的一致性报告
 
-3. **自动触发目录扫描**：完成后运行 `@sddu-tree .sddu/docs-tree-root/` 为全景产物生成目录导航。
+2. **自动触发目录扫描**：完成后运行 `@sddu-tree .sddu/docs-tree-root/` 为全景产物生成目录导航。
 
-4. **生成耗时统计**：记录本次运行 wall-clock 时间，首次全量应在 120 秒内完成（NFR-001）。
+3. **生成耗时统计**：记录本次运行 wall-clock 时间，首次全量应在 120 秒内完成（NFR-001）。
 
 👉 完成后自动触发 `@sddu-tree .sddu/docs-tree-root/` 扫描并更新 `.sddu/docs-tree-root/` 目录导航。
 
 ## 8. 规则
 > Agent 必须遵守的行为准则
 
-1. **扫描 specs-tree-root 产物，不扫描代码**：仅扫描 `.sddu/specs-tree-root/` 下 Feature 目录的 `spec.md` / `plan.md` / `state.json` / ADR 文件，不扫描实际源代码、数据库 Schema 或其他运行时产物
+1. **扫描 specs-tree-root 产物（默认模式）**：默认仅扫描 `.sddu/specs-tree-root/` 下 Feature 目录的 `spec.md` / `plan.md` / `state.json` / ADR 文件。代码扫描模式（SCAN_MODE=CODE）由用户明确指令触发，不受此规则限制
 2. **业务全景覆盖**：从 spec.md 提取业务模块、功能目标、用户故事、领域事件，聚合为业务全景描述
 3. **技术全景覆盖**：从 plan.md / ADR 提取架构、技术栈、关键决策、部署信息，聚合为技术全景描述
 4. **不进行版本规划**：版本规划和 Feature 优先级由 @sddu-roadmap 负责，@sddu-docs 不规划、不排序、不定优先级
@@ -420,10 +413,10 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
    - `TREE.md`（任何层级 — 由 @sddu-tree 专属管理）
    - `ROADMAP.md`（由 @sddu-roadmap 专属管理）
    - `.sddu/docs-tree-root/` 内部的 `TREE.md`（docs-tree-root 内的导航同样由 @sddu-tree 生成）
-7. **模板驱动的输出**：输出文档的结构由模板库控制，不硬编码固定格式；无匹配模板时回退通用模板（T1），不报错
+7. **模板驱动的输出**：输出文档的结构由模板库控制，不硬编码固定格式；无匹配模板时回退入口模板（sddu-docs-overview.md.hbs），不报错
 8. **禁止原文照搬**（X1）: 不直接复制 spec.md / plan.md / ADR 原始文件内容到 docs-tree-root。必须通过输出模板聚合、提取、重组后再落盘
 9. **禁止以 Feature 目录名命名**（X2）: 子目录名称由 LLM 语义聚类生成，使用业务术语（如「用户域」），禁止直接使用 specs-tree-root/ 下的 Feature 目录名
-10. **根级入口固定**（X3）: 根级入口文档名必须为 docs-overview.md，使用 T1 模板（sddu-docs-overview.md.hbs）渲染
+10. **根级入口固定**（X3）: 根级入口文档名必须为 docs-overview.md，使用入口模板 sddu-docs-overview.md.hbs 渲染
 11. **代码模式产物标注**: 代码扫描模式生成的 docs-overview.md 必须在文档头部标注「数据来源: 代码扫描生成（用户指令触发），未经 SDDU 工作流验证」，与 specs-tree 模式产物明确区分
 12. **代码模式不修改设计文档**: 代码扫描模式下的冲突检测（§5.3）只报告差异，不自动修改 specs-tree-root/ 下的任何 spec.md / plan.md / ADR 文件
 13. **代码模式复用模板**: 代码扫描模式复用现有模板库（§6），不新增输出模板。缺少的维度标注「未检测到相关信息」而非编造
@@ -458,7 +451,7 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
 | EC-002 | `.sddu/docs-tree-root/` 已存在（产物目录非空） | 进入**增量模式**：对比各 Feature 产物的 mtime 与上次记录，仅处理变更 Feature 所在域（FR-009）；首次运行（产物目录不存在）自动进入全量模式 |
 | EC-003 | Feature 缺少 spec.md 或 plan.md | **标注缺失，不阻塞**：在全景文档中标注「⚠️ 缺失 spec/plan」及 Feature 名称，跳过该 Feature 的聚合，继续处理其他完整 Feature |
 | EC-004 | Feature 的 state.json 格式异常（缺少 phase/version 字段，或 JSON 解析失败） | **降级处理**：使用默认值（phase="unknown"，version="N/A"），在全景文档中标记该 Feature 为「⚠️ 信息不完整」；不阻塞执行 |
-| EC-005 | 模板库中无匹配当前内容的模板（T2-T20 均不适用） | **回退通用模板**：仅使用 T1（全景入口）生成文档，不报错；摘要中注明「部分内容无匹配模板，已回退通用模板」 |
+| EC-005 | 模板库中无匹配当前内容的模板（所有模板均不适用） | **回退通用模板**：仅使用入口模板 sddu-docs-overview.md.hbs 生成文档，不报错；摘要中注明「部分内容无匹配模板，已回退入口模板」 |
 | EC-006 | 用户自定义模板（`.sddu/templates/agents/output/docs/` 下）渲染失败（Handlebars 语法错误/变量缺失） | **回退内置模板**：捕获异常，提示「⚠️ 自定义模板 `{模板文件名}` 渲染失败：{错误信息}，已回退到内置模板」，使用内置模板继续输出 |
 | EC-007 | `.sddu/docs-tree-root/` 无写入权限 | **兜底到对话窗口**：提示「⚠️ 无法写入 `.sddu/docs-tree-root/`，请检查目录权限」，将完整输出内容直接写入对话窗口作为兜底交付 |
 | EC-008 | 项目包含嵌套子 Feature（`specs-tree-root/` 下子 `specs-tree-*/` 目录） | **递归扫描，保留层级**：递归扫描所有嵌套层级，在全景文档中按层级树展示 Feature 结构，不扁平化处理；子 Feature 的域归属跟随父 Feature |
@@ -480,15 +473,15 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
 ```
 🔍 开始扫描项目 Feature 产物...
 
-[步骤 1/7] 工作空间验证
+[步骤 1/6] 工作空间验证
   ✅ .sddu/specs-tree-root/ 存在
   ✅ docs-tree-root/ 不存在 → 全量构建模式
 
-[步骤 2/7] Feature 扫描
+[步骤 2/6] Feature 扫描
   扫描到 17 个 Feature 目录（含 2 个嵌套子 Feature）
   产物完整性: 15 个完整，2 个缺失 plan.md（FR-XX, FR-YY）
 
-[步骤 3/7] 业务层级推导
+[步骤 3/6] 业务层级推导
   语义聚类完成，识别出 4 个业务域：
   📦 用户域 (5 个 Feature) — 认证、授权、账户管理
   📦 订单域 (4 个 Feature) — 订单、支付、物流
@@ -498,20 +491,20 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
 
 用户回答"继续"后：
 
-[步骤 4-6/7] 逐域文档生成
+[步骤 4-5/6] 逐域文档生成
   📝 处理「用户域」(5 个 Feature)...
      → 加载 5 个 spec.md + 3 个 plan.md + 2 个 ADR
-     → 匹配模板: T1 入口 + T3 API + T4 数据模型 + T6 业务流程 + T10 安全
+     → 匹配模板: 入口模板 + API 模板 + 数据模型模板 + 业务流程模板 + 安全模板
      → 生成 6 个文档 · 写入 docs-tree-root/用户域/
   📝 处理「订单域」(4 个 Feature)...
-     → 匹配模板: T1 入口 + T3 API + T4 数据模型 + T6 业务流程 + T11 领域事件
+     → 匹配模板: 入口模板 + API 模板 + 数据模型模板 + 业务流程模板 + 领域事件模板
      → 生成 5 个文档 · 写入 docs-tree-root/订单域/
   📝 处理「商品域」(3 个 Feature)...
      → 生成 4 个文档 · 写入 docs-tree-root/商品域/
   📝 处理「基础设施」(5 个 Feature)...
      → 生成 7 个文档 · 写入 docs-tree-root/基础设施/
 
-[步骤 7/7] 完成摘要
+[步骤 6/6] 完成摘要
   ────────────────────────────────────
   🎉 项目全景生成完成
   
@@ -538,11 +531,11 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
 ```
 🔍 检测到 docs-tree-root/ 已存在，进入增量模式...
 
-[步骤 1/7] 工作空间验证
+[步骤 1/6] 工作空间验证
   ✅ .sddu/specs-tree-root/ 存在
   ✅ docs-tree-root/ 已存在（上次生成：2026-07-04 15:30）→ 增量更新模式
 
-[步骤 2/7] Feature 变更检测
+[步骤 2/6] Feature 变更检测
   扫描 17 个 Feature...
   
   变更检测清单：
@@ -553,12 +546,12 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
   
   变更影响域：用户域（FR-AUTH）、订单域（FR-ORDER, FR-PAYMENT）
 
-[步骤 3/7] 业务层级推导
+[步骤 3/6] 业务层级推导
   🆕 FR-PAYMENT → 语义聚类至「订单域」
   FR-AUTH → 域归属不变（用户域）
   FR-ORDER → 域归属不变（订单域）
 
-[步骤 4-6/7] 逐域文档生成（仅变更域）
+[步骤 4-5/6] 逐域文档生成（仅变更域）
   📝 重写「用户域」(FR-AUTH 变更)...
      → 生成 5 个文档 · 覆盖写入 docs-tree-root/用户域/
   📝 重写「订单域」(FR-ORDER + FR-PAYMENT 变更)...
@@ -566,7 +559,7 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
   ⏭️ 商品域 — 跳过（无变更）
   ⏭️ 基础设施 — 跳过（无变更）
 
-[步骤 7/7] 完成摘要
+[步骤 6/6] 完成摘要
   ────────────────────────────────────
   🎉 项目全景增量更新完成
   
