@@ -52,13 +52,13 @@
 <</each>>
 ```
 
-<<#if examples>>
 | # | 场景 | 说明 |
 |---|------|------|
 <<#each examples>>
-| <<@index_plus_one>> | <<scenario>> | <<description>> |
+| <<seq>> | <<scenario>> | <<description>> |
+<<#else>>
+| — | — | 当前无使用示例 |
 <</each>>
-<</if>>
 
 ## 修订记录
 
