@@ -370,7 +370,7 @@ Write-Host "    @sddu-build        - Implementation"
 Write-Host "    @sddu-review       - Code Review"
 Write-Host "    @sddu-validate     - Validation"
 Write-Host "    @sddu-roadmap      - Roadmap planning"
-Write-Host "    @sddu-docs         - Directory navigation"
+Write-Host "    @sddu-docs         - Project panorama generation"
 Write-Host ""
 Write-Host "Quick Start:" -ForegroundColor Cyan
 Write-Host "  cd '$TargetDir'"

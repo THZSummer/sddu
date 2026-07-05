@@ -99,7 +99,7 @@ sequenceDiagram
 | `@sddu` | 🚪 入口 | 智能路由、分类仪表盘、状态标记 |
 | `@sddu-roadmap` | 📋 独立 | 多版本路线图规划、RICE 优先级排序 |
 | `@sddu-tree` | 🔄 自动 | 扫描 `.sddu/` 生成 TREE.md 目录导航 |
-| `@sddu-docs` | 📖 独立 | 扫描代码/配置/Schema 生成项目全景文档 |
+| `@sddu-docs` | 📖 独立 | 双模式项目全景：默认扫描 specs-tree 过程产物，支持用户指令扫描代码 |
 
 ---
 
