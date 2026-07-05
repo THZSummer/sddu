@@ -4,10 +4,10 @@
 > **前置依赖**: plan.md（技术方案）、spec.md（需求规范）  
 > **创建人**: SDDU Tasks Agent  
 > **创建时间**: 2026-07-05  
-> **版本**: v2.0  
+> **版本**: v3.0  
 > **更新人**: SDDU Tasks Agent  
 > **更新时间**: 2026-07-05  
-> **更新说明**: v2.0 — 增量任务：基于 plan v2.9 新约束（模板自声明输出文件名、`<<entity_name>>`→`<<doc_subject>>` 重命名、定位声明去限定词、子目录命名规则 N1~N5、禁止事项 X1~X3），新增 5 个任务、3 个波次
+> **更新说明**: v3.0 — 增量任务：基于 plan v3.3 双模式架构（YAML 描述修正、双模式入口、§5.2 代码扫描 5 步骤工作流、C1~C4 冲突检测、EC-001 增强），新增 8 个任务、4 个波次
 
 ## 1. 依赖拓扑总览
 > 任务依赖关系和执行顺序
@@ -936,6 +936,842 @@ print('PASS: state.json validated')
 
 ---
 
+---
+
+## 6. 增量任务（plan v3.3 代码扫描双模式 + 冲突检测）
+
+> 以下为 plan v2.9→v3.3 迭代中新增的 5 类设计变更所对应的增量任务。前置任务 TASK-001~013 已完成，20 个模板 + Agent 模板 specs-tree 主模式均已就位。增量任务聚焦于修改 Agent 指令模板（`src/templates/agents/sddu-docs.md.hbs`），新增代码扫描双模式入口、§5.2 代码扫描工作流、C1~C4 冲突检测，不新增模板文件。
+
+### 6.1 增量依赖拓扑总览
+
+```
+Wave 8 ─── (无依赖，独立段落并行)
+  TASK-014 [S]  YAML frontmatter description 修正
+  TASK-015 [S]  §1 角色定位双模式更新
+  TASK-016 [M]  §4 前置验证触发短语路由 + EC-001 增强
+
+Wave 9 ─── (依赖 TASK-014, TASK-015, TASK-016)
+  TASK-017 [L]  §5 拆分 §5.1 + §5.2 代码扫描工作流（步骤 8~10, 12）
+  TASK-018 [M]  §5.2 步骤 11 冲突检测 C1~C4
+
+Wave 10 ─── (依赖 TASK-017, TASK-018)
+  TASK-019 [M]  §8 规则双模式 + §9 EC 模式适用范围标注
+  TASK-020 [S]  §10 示例对话代码扫描模式
+
+Wave 11 ─── (依赖 Wave 9 + Wave 10)
+  TASK-021 [S]  构建验证 + 交叉一致性校验 + 版本升级
+```
+
+### 6.2 增量任务列表
+
+---
+
+#### TASK-014: YAML frontmatter description 修正
+> 将 Agent 模板 YAML description 从虚假承诺改为诚实描述
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | S |
+| **前置依赖** | 无（Wave 8 并行） |
+| **执行波次** | Wave 8 |
+| **状态** | ✅ completed |
+| **对应 plan** | §2.9.4 修正清单 #1, §2.9.3 决策 #4 |
+
+**描述**: 
+修正 Agent 模板 YAML frontmatter（第 2 行）的 `description` 字段。当前描述为「扫描代码、配置、Schema 等实际产物，生成项目业务与技术全景视图」——这是对项目源码级全景的承诺，与 §1/§8 定义的 specs-tree-root 扫描矛盾。根据 plan v3.3 双模式架构，改为如实反映两种能力：
+
+**原**：
+```
+description: SDDU 项目全景专家 - 扫描代码、配置、Schema 等实际产物，生成项目业务与技术全景视图
+```
+
+**新**：
+```
+description: SDDU 项目全景专家 - 主扫描 .sddu/specs-tree-root/ 下各 Feature 的过程产物（spec.md / plan.md / state.json / ADR），聚合为项目业务与技术全景视图；支持用户指令下扫描项目代码和配置生成项目快照
+```
+
+**涉及文件**:
+
+| 操作 | 文件路径 | 变更 |
+|:--:|------|------|
+| ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs` | YAML description 行替换（~1 行） |
+
+**验收标准**:
+- [x] YAML `description` 不再包含「扫描代码、配置、Schema 等实际产物」等原文本
+- [x] 新描述包含「主扫描 specs-tree-root」开头
+- [x] 新描述包含「支持用户指令下扫描项目代码和配置生成代码级全景」
+- [x] YAML 格式完整（`---` 分隔符、`mode: subagent`、`temperature: 0.3`、`permission:` 块不变）
+
+**验证命令**:
+```bash
+# 验证原描述已替代
+! grep -q '扫描代码、配置、Schema 等实际产物' src/templates/agents/sddu-docs.md.hbs \
+  && echo "PASS: old description removed" || echo "FAIL: old description remains"
+
+# 验证新描述关键词
+grep -q '主扫描.*specs-tree-root' src/templates/agents/sddu-docs.md.hbs \
+  && echo "PASS: main mode description"
+grep -q '用户指令.*扫描项目代码' src/templates/agents/sddu-docs.md.hbs \
+  && echo "PASS: code scanning description"
+
+# 验证 YAML 完整性
+grep -c '^---$' src/templates/agents/sddu-docs.md.hbs | xargs -I{} test {} -eq 2 \
+  && echo "PASS: YAML frontmatter intact"
+```
+
+---
+
+#### TASK-015: §1 角色定位双模式更新
+> 将 §1 职责描述从单一 specs-tree 扫描改为双模式
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | S |
+| **前置依赖** | 无（Wave 8 并行） |
+| **执行波次** | Wave 8 |
+| **对应 plan** | §2.9.4 修正清单 #3 |
+
+**描述**: 
+更新 Agent 模板 §1「角色定位与职责边界」（第 16 行）的职责描述，从纯 specs-tree 扫描改为双模式声明。原「负责扫描 `.sddu/specs-tree-root/` 下各 Feature 的过程产物…」改为：
+
+```
+你是 SDDU 项目全景专家。主模式：扫描 `.sddu/specs-tree-root/` 下各 Feature 的过程产物（spec.md、plan.md、state.json、ADR），抽取并聚合业务信息与技术信息，生成按业务层级组织的项目全景目录树（`.sddu/docs-tree-root/`）。辅助模式：响应用户明确指令（如「扫描代码生成全景」），扫描项目代码和配置生成代码快照。
+```
+
+同时更新「不负责」条目，体现双模式下的能力边界（代码扫描模式不超能力天花板——无法还原设计意图和技术决策，详见 plan §2.10.2）。
+
+**涉及文件**:
+
+| 操作 | 文件路径 | 变更 |
+|:--:|------|------|
+| ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs` | §1 职责描述改写（~3 行变更） |
+
+**验收标准**:
+- [ ] §1 职责描述包含「主模式」和「辅助模式」两个模式的分离声明
+- [ ] 主模式描述保留「扫描 specs-tree-root/ → 生成 docs-tree-root/」核心链路
+- [ ] 辅助模式描述包含「用户明确指令」「代码快照」关键词
+- [ ] 「不负责」条目更新（如：辅助模式不负责推断设计意图）
+
+**验证命令**:
+```bash
+# 验证双模式关键词
+grep -q '主模式' src/templates/agents/sddu-docs.md.hbs && echo "PASS: main mode declared"
+grep -q '辅助模式' src/templates/agents/sddu-docs.md.hbs && echo "PASS: auxiliary mode declared"
+grep -q '代码快照' src/templates/agents/sddu-docs.md.hbs && echo "PASS: code snapshot mentioned"
+
+# 验证核心链路保留
+grep -q 'specs-tree-root' src/templates/agents/sddu-docs.md.hbs && echo "PASS: specs-tree-root referenced"
+grep -q 'docs-tree-root' src/templates/agents/sddu-docs.md.hbs && echo "PASS: docs-tree-root referenced"
+```
+
+---
+
+#### TASK-016: §4 前置验证触发短语路由 + EC-001 增强
+> 在 §4 前置验证中插入触发短语检测逻辑，实现双模式入口路由
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | M |
+| **前置依赖** | 无（Wave 8 并行） |
+| **执行波次** | Wave 8 |
+| **对应 plan** | §2.9.4 修正清单 #2, #4；§2.10.1 触发条件；§2.10.5 §4 影响 |
+| **对应 FR/EC** | FR-001 |
+| **状态** | ✅ completed |
+
+**描述**: 
+在 Agent 模板 §4「前置验证」（约第 38 行）的**最开头**，在「检查 specs-tree-root/ 是否存在」之前，插入触发短语检测路由逻辑。同时增强 EC-001 错误提示，追加代码扫描模式引导。
+
+**变更 1 — 插入触发短语路由逻辑**（§4 开头 +~15 行）：
+
+```
+## 4. ⚠️ 前置验证（必须执行）
+> 启动前必须检查的环境和文件条件，不满足则拒绝执行
+
+**首先判断用户意图**：检查用户输入是否包含以下代码扫描触发短语（任一匹配即进入代码扫描分支）：
+- "扫描代码生成全景" / "扫描代码" / "分析项目代码" / "分析代码" / "代码模式" / "代码快照"
+
+→ **匹配**：跳过 specs-tree-root 验证，直接进入 §5.2「代码扫描模式」
+→ **不匹配**：继续执行以下 specs-tree 主模式前置验证
+
+在开始项目全景生成前（specs-tree 主模式）：
+1. 检查 `.sddu/specs-tree-root/` 目录是否存在
+2. ...
+```
+
+**变更 2 — EC-001 错误提示增强**（在第 3 步末尾追加一行）：
+在现有的 EC-001 终止提示后追加：
+```
+💡 若您的项目尚未使用 SDDU 工作流，可尝试 "@sddu-docs 扫描代码生成全景" 进入代码扫描模式（产出为代码快照，非完整全景）
+```
+
+**涉及文件**:
+
+| 操作 | 文件路径 | 变更 |
+|:--:|------|------|
+| ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs` | §4 开头插入路由逻辑（+~15 行）+ EC-001 提示末尾追加（+~1 行） |
+
+**验收标准**:
+- [x] §4 开头最先执行的是触发短语检测（在 specs-tree-root 检查之前）
+- [x] 触发短语集包含「扫描代码」「分析项目代码」「scan code」「不依赖 SDDU」「直接分析项目」「代码级全景」六类触发关键词
+- [x] 匹配成功时明确指示「直接跳转到 §5.2（代码扫描分支）」
+- [x] 不匹配时继续执行现有 EC-001~EC-002 逻辑（行为不变）
+- [x] EC-001 错误提示末尾包含「💡」引导提示，指向代码扫描模式
+- [x] 提示文本包含「基于项目实际代码生成全景」的质量说明
+
+**验证命令**:
+```bash
+# 验证触发短语路由在 §4 开头
+grep -n '触发短语' src/templates/agents/sddu-docs.md.hbs | head -1
+
+# 验证核心触发短语
+for phrase in "扫描代码" "分析代码" "代码模式" "代码快照"; do
+  grep -q "$phrase" src/templates/agents/sddu-docs.md.hbs && echo "PASS: trigger '$phrase'" || echo "FAIL: missing '$phrase'"
+done
+
+# 验证路由跳转指令
+grep -q '§5.2' src/templates/agents/sddu-docs.md.hbs && echo "PASS: routes to §5.2"
+grep -q '代码扫描模式' src/templates/agents/sddu-docs.md.hbs && echo "PASS: code scan mode referenced"
+
+# 验证 EC-001 增强提示
+grep -q '扫描代码生成全景' src/templates/agents/sddu-docs.md.hbs && echo "PASS: EC-001 enhanced"
+grep -q '代码快照.*非完整全景' src/templates/agents/sddu-docs.md.hbs && echo "PASS: quality disclaimer"
+```
+
+---
+
+#### TASK-017: §5 拆分 §5.1 + §5.2 代码扫描工作流（步骤 8~10, 12）
+> 将现有的统一 §5 拆分为主模式 §5.1 + 新增 §5.2 代码扫描分支，定义代码快照生成的核心流程
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | L |
+| **前置依赖** | TASK-014, TASK-015, TASK-016（Wave 8） |
+| **执行波次** | Wave 9 |
+| **状态** | ✅ completed |
+| **对应 plan** | §2.10.4 工作流分支设计；§2.10.2 能力边界 CS1~CS5；§2.10.3 产物标注与覆盖行为 |
+| **对应 FR/EC** | FR-001 |
+
+**描述**: 
+对 `src/templates/agents/sddu-docs.md.hbs` 的 §5 进行结构性拆分和扩展。这是 v3.0 最核心的变更。
+
+**变更 1 — §5 标题拆分**：
+原：
+```
+## 5. 工作流程
+```
+改为：
+```
+## 5. 工作流程
+> specs-tree 主模式（§5.1）和代码扫描辅助模式（§5.2），由 §4 触发短语检测路由决定执行哪个分支
+
+### 5.1 specs-tree 主模式（默认）
+```
+在现有 7 步工作流末尾（步骤 7 之后）插入：
+
+```
+---
+
+### 5.2 代码扫描模式（用户指令触发）
+> 响应用户明确指令（如「@sddu-docs 扫描代码生成全景」），扫描项目源代码和配置文件，生成代码快照。产出为代码级项目视图，不包含设计意图、业务语义和技术决策分析。
+
+#### 步骤 8: 模式确认
+
+**目标**: 向用户确认进入代码扫描模式，告知产出限制。
+
+1. 向用户输出以下确认信息：
+   ```
+   ⚠️ 代码扫描模式将分析项目源代码和配置，生成代码快照。
+   此模式无法还原设计意图和技术决策。
+   产物将标注"未经 SDDU 工作流验证"。
+   
+   产物将写入 .sddu/docs-tree-root/（若该目录已有 specs-tree 模式产物，将被覆盖）。
+   是否继续？（y/n）
+   ```
+2. 等待用户确认。用户拒绝 → 终止执行
+
+→ 进入步骤 9
+
+#### 步骤 9: 项目结构扫描
+
+**目标**: 扫描项目根目录，从 5 个维度收集代码级信息。
+
+1. **CS1 目录结构**: 使用 `ls -R --max-depth=2` 或 glob 扫描一级/二级子目录，识别关键目录名（如 `src/`、`tests/`、`config/`、`docs/`）
+2. **CS2 技术栈**: 使用 glob 检测依赖声明文件（`package.json` / `go.mod` / `Cargo.toml` / `requirements.txt` / `pom.xml` / `pyproject.toml` 等），提取技术栈清单（语言、框架、关键依赖及版本）
+3. **CS3 API 面**: 使用 grep/glob 检测路由定义文件（`routes/*.ts`、`@RequestMapping` 注解、`app.get()` 调用、`@Get()` 装饰器等），提取 API 端点清单（方法 + 路径 + 处理器函数名）
+4. **CS4 配置信息**: 使用 glob 检测配置文件（`.env` / `config/*.yaml` / `docker-compose.yml` / `Dockerfile` / CI 配置文件），提取部署信息摘要（服务端口、环境变量名、外部依赖）
+5. **CS5 数据模型**: 使用 glob 检测模型文件（`*.sql` / `schema/*.prisma` / `models/*.ts` / ORM 实体定义），提取数据表/实体清单（表名、关键字段、索引）
+
+→ 进入步骤 10
+
+#### 步骤 10: 生成代码快照文档
+
+**目标**: 按 CS1~CS5 五个维度组织代码快照文档结构，写入 `docs-tree-root/`。
+
+1. 生成目录结构文档：`docs-tree-root/模块划分.md`（目录 → 模块映射表）
+2. 生成技术栈文档：`docs-tree-root/技术栈清单.md`
+3. 生成 API 端点清单：`docs-tree-root/API端点清单.md`
+4. 生成部署信息：`docs-tree-root/部署信息摘要.md`
+5. 生成数据模型清单：`docs-tree-root/数据模型清单.md`
+6. 生成根级入口文档：`docs-tree-root/docs-overview.md`（整合 5 个维度 + 内部导航链接）
+
+**产物标注**：上述每个 `.md` 文件头部必须标注：
+```
+> ⚠️ **数据来源**: 代码扫描生成（用户指令触发），未经 SDDU 工作流验证。不包含设计意图、业务语义和技术决策分析。
+```
+
+**产物覆盖行为**：代码扫描模式产物直接写入 `.sddu/docs-tree-root/`。若该目录存在由 specs-tree 模式生成的产物，将被覆盖。Agent 在步骤 8 模式确认时已告知用户此行为。每个文件通过「数据来源」标注区分来源。
+
+→ 进入步骤 12
+```
+
+**设计理由**：步骤编号从 8 开始（而非从 1），在 Agent 指令模板中自然形成分段——步骤 1~7 是主模式，步骤 8~12 是辅助模式。步骤 11 由 TASK-018 单独实现。
+
+**涉及文件**:
+
+| 操作 | 文件路径 | 变更 |
+|:--:|------|------|
+| ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs` | §5 标题拆分 + §5.1 包装 + 新增 §5.2（步骤 8~10,12，~120 行） |
+
+**验收标准**:
+- [ ] §5 标题行新增双模式概览说明（一行）
+- [ ] 原 7 步工作流被包裹为「### 5.1 specs-tree 主模式（默认）」，内部步骤编号不变（步骤 1~7）
+- [ ] 新增「### 5.2 代码扫描模式（用户指令触发）」
+- [ ] 步骤 8 包含模式确认交互（⚠️ 警告 + y/n 确认）
+- [ ] 步骤 9 按 CS1~CS5 五个维度定义扫描操作（每维度 1-2 行 + 示例命令）
+- [ ] 步骤 10 定义 6 个产物文档（模块划分/技术栈/API/部署/数据模型/入口 docs-overview.md）
+- [ ] 步骤 10 定义产物标注格式（「⚠️ **数据来源**: 代码扫描生成…」）
+- [ ] 步骤 10 包含覆盖行为说明（统一写入 docs-tree-root/）
+- [ ] 步骤 12（完成报告）列出扫描到的模块数、技术栈项数、API 端点数、配置项数、数据表数
+- [ ] 步骤 12 提示用户产物为代码快照的局限
+- [ ] §5.1 和 §5.2 之间有清晰的分隔线（`---`）
+- [ ] 不破坏现有步骤 1~7 的结构和「→ 进入步骤 N+1」跳转链
+- [ ] 新增内容总计约 120-150 行
+
+**验证命令**:
+```bash
+# 验证 §5 拆分
+grep -q '### 5.1 specs-tree 主模式' src/templates/agents/sddu-docs.md.hbs && echo "PASS: §5.1 exists"
+grep -q '### 5.2 代码扫描模式' src/templates/agents/sddu-docs.md.hbs && echo "PASS: §5.2 exists"
+
+# 验证步骤 8~12 存在
+for step in 8 9 10 11 12; do
+  grep -q "步骤 $step" src/templates/agents/sddu-docs.md.hbs && echo "PASS: step $step present" || echo "FAIL: step $step missing"
+done
+
+# 验证 CS1~CS5 维度
+for cs in CS1 CS2 CS3 CS4 CS5; do
+  grep -q "$cs" src/templates/agents/sddu-docs.md.hbs && echo "PASS: $cs defined" || echo "FAIL: $cs missing"
+done
+
+# 验证产物标注格式
+grep -q '⚠️.*数据来源.*代码扫描生成' src/templates/agents/sddu-docs.md.hbs && echo "PASS: data source annotation"
+grep -q '未经 SDDU 工作流验证' src/templates/agents/sddu-docs.md.hbs && echo "PASS: quality disclaimer"
+
+# 验证 y/n 确认交互
+grep -q '是否继续.*y/n' src/templates/agents/sddu-docs.md.hbs && echo "PASS: user confirmation"
+
+# 验证主模式步骤 1~7 仍在
+for step in 1 2 3 4 5 6 7; do
+  grep -q "步骤 $step:" src/templates/agents/sddu-docs.md.hbs && echo "PASS: step $step still present" || echo "FAIL: step $step lost"
+done
+
+# 统计新增行数（近似）
+old_lines=468
+new_lines=$(wc -l < src/templates/agents/sddu-docs.md.hbs)
+delta=$((new_lines - old_lines))
+echo "Delta: +$delta lines (target: +120~150)"
+```
+
+---
+
+#### TASK-018: §5.2 步骤 11 冲突检测 C1~C4
+> 在代码扫描工作流的步骤 10 和步骤 12 之间插入四类设计-实现冲突检测
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | M |
+| **前置依赖** | TASK-014, TASK-015, TASK-016（Wave 8 — 与 TASK-017 同波次 Wave 9） |
+| **执行波次** | Wave 9 |
+| **对应 plan** | §2.10.6 冲突检测机制（C1~C4 + 检测流程 + 产物格式 + 覆盖保留规则 + D8~D11 决策） |
+| **对应 FR/EC** | FR-001 |
+| **状态** | ✅ completed |
+
+**描述**: 
+在 TASK-017 创建的 §5.2 框架中，步骤 10「生成代码快照文档」和步骤 12「完成报告」之间，插入步骤 11「设计-实现一致性检测」。这是 plan v3.3 区别于 v3.1~v3.2 的核心增量。
+
+**变更内容**（在步骤 10 和步骤 12 之间插入 ~80 行）：
+
+```
+→ 进入步骤 11
+
+#### 步骤 11: 设计-实现一致性检测
+
+**目标**: 若 specs-tree-root/ 存在，对比代码实际实现与设计文档（spec.md/plan.md/ADR），检测四类偏差。只检测不修复（D8）。
+
+**前置检查**: 
+- glob/read 检查 `.sddu/specs-tree-root/` 是否存在且至少含一个 Feature 目录
+- 不满足 → **跳过**步骤 11，直接进入步骤 12，完成报告中标注「无可对比的设计文档，未执行一致性检测」（D10）
+
+**四类冲突定义**（对齐 plan §2.10.6.2）:
+
+| # | 冲突类型 | 检测方式 | 示例 |
+|---|:------:|---------|------|
+| C1 | **技术选型漂移** | 对比 plan.md/ADR 中的技术栈记录与代码依赖声明文件（package.json/go.mod 等）的实际依赖 | spec.md 写 JWT，代码已用 OAuth2（next-auth）；plan.md 写 Node.js 16，引擎声明 >=20 |
+| C2 | **模块增删** | 对比 specs-tree Feature 目录对应的模块与代码目录结构中的模块 | specs-tree 有 feature-payment，代码无对应 src/payment/；代码有 src/notification/ 但 specs-tree 无对应 Feature |
+| C3 | **API 差异** | 对比 spec.md FR 章节的 API 端点（方法+路径）与步骤 9 CS3 扫描到的路由定义 | spec 定义 POST /api/v1/login，路由为 POST /api/v1/auth/signin；参数签名不同 |
+| C4 | **架构偏离** | 对比 plan.md 描述的架构设计（部署拓扑、数据流方向、组件关系、通信协议）与步骤 9/10 代码中的实际实现 | plan 设计 REST 同步调用，代码改为消息队列；plan 设计单体，代码已有 docker-compose 多服务 |
+
+**检测流程**（对齐 plan §2.10.6.3）:
+
+**步骤 11-1: 前置检查** — glob/read 检查 specs-tree-root/ 存在且非空；不满足 → 跳过，进入步骤 12
+
+**步骤 11-2: 加载设计文档** — 读取 specs-tree-root/ 下各 Feature 的 spec.md（FR 章节、API 描述）、plan.md（技术栈、架构设计、部署拓扑）、ADR（技术决策记录）
+
+**步骤 11-3: 逐类对比**:
+- C1 技术选型: 从 plan.md/ADR 提取依赖项 → 对比步骤 9 扫描到的实际依赖 → 语义对比（关注整体方案变更）
+- C2 模块对比: 从 specs-tree 提取 Feature 目录名 → 对比步骤 9 代码目录 → 差集分析（代码有但设计无 / 设计有但代码无）
+- C3 API 对比: 从 spec.md FR 提取端点 → 对比步骤 9 CS3 路由 → 对比路径、方法、参数
+- C4 架构对比: 从 plan.md 提取架构描述 → 对比步骤 9/10 配置/部署推断的实际架构模式
+
+**步骤 11-4: 生成一致性报告** — 按 §2.10.6.4 格式（含 Markdown 冲突表 + 检测摘要），**追加**到根级 `docs-overview.md` 末尾：
+
+```markdown
+---
+
+## ⚠️ 设计-实现一致性报告
+
+> 以下对比 specs-tree-root/ 中设计文档与代码实际实现。仅检测差异，不自动修改任何文件。
+
+| # | 冲突类型 | specs-tree 记录 | 代码实际实现 | 建议操作 |
+|---|:------:|----------------|-------------|---------|
+| ... | ... | ... | ... | ... |
+
+**检测摘要**: 共检测 N 个 Feature，发现 M 处不一致
+- C1 技术选型漂移: X 处 / C2 模块增删: X 处 / C3 API 差异: X 处 / C4 架构偏离: X 处
+```
+
+若未检测到冲突，报告为：「✅ 未检测到设计文档与代码实现的明显冲突。设计文档与代码实现基本一致。」
+
+**覆盖保留规则**（对齐 plan §2.10.6.5）:
+- 旧版有一致性报告 + 本次执行了检测 → 新版替换旧版
+- 旧版有一致性报告 + 本次跳过了检测 → 保留旧版，标注「（上次检测于 \<timestamp\>）」
+- 旧版无报告 + 本次执行了检测 → 追加新版
+- 旧版无报告 + 本次跳过了检测 → 不追加
+- 一致性报告追加在 docs-overview.md 末尾，不混合业务/技术全景章节（D9）
+- 报告由 Agent 内联生成，不依赖独立模板文件（D11）
+
+→ 进入步骤 12
+```
+
+**涉及文件**:
+
+| 操作 | 文件路径 | 变更 |
+|:--:|------|------|
+| ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs` | 在 §5.2 步骤 10 之后插入步骤 11（~80 行） |
+
+**验收标准**:
+- [ ] 步骤 11 位于步骤 10（生成代码快照）和步骤 12（完成报告）之间
+- [ ] 步骤 11 开头有前置检查说明（specs-tree-root 不存在 → 跳过）
+- [ ] 四种冲突类型 C1~C4 均有定义（含检测方式 + 示例）
+- [ ] C1 对比 plan.md/ADR 技术栈 vs 代码依赖声明文件
+- [ ] C2 对比 specs-tree Feature 列表 vs 代码目录结构（差集分析）
+- [ ] C3 对比 spec.md FR 端点 vs 代码路由定义
+- [ ] C4 对比 plan.md 架构设计 vs 代码组件关系/部署文件
+- [ ] 检测流程按 11-1~11-4 四子步骤组织
+- [ ] 产物格式包含 Markdown 冲突表（冲突类型/specs-tree 记录/代码实现/建议操作 4 列）+ 检测摘要
+- [ ] 未检测到冲突时输出「✅ 未检测到明显冲突…」
+- [ ] 覆盖保留规则 4 场景完整覆盖
+- [ ] 报告追加在 docs-overview.md 末尾（`---` 分隔 + 独立章节标题）
+- [ ] 设计决策标注：D8 只检测不修复 / D9 追加不替换正文 / D10 无对比文档则跳过 / D11 不新增独立模板
+
+**验证命令**:
+```bash
+# 验证步骤 11 存在
+grep -q "步骤 11.*一致性检测" src/templates/agents/sddu-docs.md.hbs && echo "PASS: step 11 title"
+
+# 验证 C1~C4 四类冲突定义
+for c in C1 C2 C3 C4; do
+  grep -c "$c" src/templates/agents/sddu-docs.md.hbs | xargs -I{} test {} -ge 2 && echo "PASS: $c defined" || echo "FAIL: $c underdefined"
+done
+
+# 验证子步骤 11-1~11-4
+for ss in 11-1 11-2 11-3 11-4; do
+  grep -q "步骤 $ss" src/templates/agents/sddu-docs.md.hbs && echo "PASS: sub-step $ss" || echo "FAIL: sub-step $ss missing"
+done
+
+# 验证关键关键词
+for kw in "只检测不修复" "前置检查" "覆盖保留规则" "设计-实现一致性报告" "未检测到明显冲突"; do
+  grep -q "$kw" src/templates/agents/sddu-docs.md.hbs && echo "PASS: keyword '$kw'" || echo "FAIL: keyword '$kw' missing"
+done
+
+# 验证报告格式关键词
+grep -q '冲突类型.*specs-tree 记录.*代码实际实现' src/templates/agents/sddu-docs.md.hbs && echo "PASS: report table format"
+grep -q '检测摘要' src/templates/agents/sddu-docs.md.hbs && echo "PASS: detection summary"
+
+# 验证 D8~D11 决策引用
+for d in D8 D9 D10 D11; do
+  grep -q "$d" src/templates/agents/sddu-docs.md.hbs && echo "PASS: decision $d referenced" || echo "WARN: $d not referenced"
+done
+```
+
+---
+
+#### TASK-019: §8 规则双模式 + §9 EC 模式适用范围标注
+> 为双模式架构更新规则体系和异常处理表
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | M |
+| **前置依赖** | TASK-017, TASK-018（Wave 9） |
+| **执行波次** | Wave 10 |
+| **对应 plan** | §2.10.5 对 §7/§8/§9 的影响分析 |
+| **对应 FR/EC** | FR-005 |
+
+**描述**: 
+在 Agent 模板的 §8（规则）和 §9（异常处理）中体现双模式架构的差异。
+
+**变更 1 — §8「规则」新增代码扫描模式规则**（在现有 10 条规则末尾追加 ~22 行）：
+
+在第 10 条规则「根级入口固定（X3）」之后、§8.1「三 Agent 精确边界」之前插入：
+
+```
+### 8.0 模式专属规则
+
+以下规则明确标注适用范围：
+
+**specs-tree 主模式专属规则**（已在上方列出）：
+- 规则 1~10 — 适用于 specs-tree 主模式，约束 Feature 产物扫描、模板驱动的输出、子目录命名、禁止事项
+
+**代码扫描模式专属规则**：
+11. **不自动触发**：代码扫描模式仅在用户输入包含触发短语时激活（§4 路由），Agent 不在缺乏 specs-tree-root 时自作主张降级（plan §2.9.3 决策 #2）
+12. **能力天花板声明**：代码扫描产物头部必须标注「未经 SDDU 工作流验证」，明确区分代码快照与完整全景（plan §2.10.2）
+13. **不推断意图**：代码扫描模式不推断设计意图、业务语义和技术决策（如「为什么选这个框架」「模块 A 和 B 的业务关系」），这些信息仅能从 SDDU 过程产物中提取（plan §2.10.2 能力天花板）
+14. **可覆盖**：代码扫描模式产物写入 docs-tree-root/，若同名文件存在（来自 specs-tree 模式），直接覆盖。用户在步骤 8 确认时已知情（plan §2.10.3）
+15. **冲突检测可选**：步骤 11 冲突检测仅在 specs-tree-root/ 存在时执行；不存在则跳过并标注（plan §2.10.6 D10）
+```
+
+**变更 2 — §9「异常处理」追加模式适用范围标注**（在 EC 表前加一行注释）：
+
+在 §9 标题行后、EC 表之前插入：
+```
+> **适用范围**: EC-001~EC-011 适用于 specs-tree 主模式。代码扫描模式的异常处理在 §5.2 各步骤的内联注释中定义（如：无 package.json → 标注「未检测到依赖声明文件」；无配置文件 → 标注「未检测到配置文件」），不占用独立 EC 编号（对齐 plan §2.10.5 §8 异常处理影响评估）。
+```
+
+**变更 3 — EC-001 更新模式引用**：
+在 EC-001 的「处理方式」列中已有行为不变，但需确认触发短语路由已在 §4 实现（TASK-016）。
+
+**涉及文件**:
+
+| 操作 | 文件路径 | 变更 |
+|:--:|------|------|
+| ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs` | §8 追加规则 11~15（~22 行）+ §9 加适用范围标注（~3 行） |
+
+**验收标准**:
+- [ ] §8 新增「### 8.0 模式专属规则」分隔小节
+- [ ] 明确标注「specs-tree 主模式专属规则」（规则 1~10）和「代码扫描模式专属规则」（规则 11~15）
+- [ ] 规则 11 包含「不自动触发」声明
+- [ ] 规则 12 包含「能力天花板声明」
+- [ ] 规则 13 包含「不推断意图」
+- [ ] 规则 14 包含「可覆盖」和「用户知情」
+- [ ] 规则 15 包含「冲突检测可选」
+- [ ] §9 标题后有一行适用范围标注（明确 EC-001~011 仅适用主模式）
+- [ ] 标注说明代码扫描异常处理在 §5.2 内联定义
+- [ ] 三 Agent 边界表（§8.1）保持不变
+
+**验证命令**:
+```bash
+# 验证模式专属规则段存在
+grep -q '模式专属规则' src/templates/agents/sddu-docs.md.hbs && echo "PASS: mode-specific rules section"
+grep -q '代码扫描模式专属规则' src/templates/agents/sddu-docs.md.hbs && echo "PASS: code scan rules subtitle"
+
+# 验证规则 11~15 关键词
+for rule_num in 11 12 13 14 15; do
+  grep -q "$rule_num" src/templates/agents/sddu-docs.md.hbs && echo "PASS: rule $rule_num present" || echo "FAIL: rule $rule_num missing"
+done
+
+# 验证关键规则内容
+grep -q '不自动触发' src/templates/agents/sddu-docs.md.hbs && echo "PASS: rule 11 no-auto-trigger"
+grep -q '未经 SDDU 工作流验证' src/templates/agents/sddu-docs.md.hbs && echo "PASS: rule 12 capability ceiling"
+grep -q '不推断.*设计意图' src/templates/agents/sddu-docs.md.hbs && echo "PASS: rule 13 no-intent-inference"
+grep -q '可覆盖' src/templates/agents/sddu-docs.md.hbs && echo "PASS: rule 14 overwrite"
+
+# 验证 §9 适用范围标注
+grep -q 'EC-001.*EC-011.*适用于.*主模式' src/templates/agents/sddu-docs.md.hbs && echo "PASS: §9 scope annotation"
+
+# 验证三 Agent 边界表不变
+grep -c '7 维度' src/templates/agents/sddu-docs.md.hbs | xargs -I{} test {} -ge 1 && echo "PASS: boundary table intact"
+```
+
+---
+
+#### TASK-020: §10 示例对话代码扫描模式
+> 在示例对话章节中新增代码扫描模式的完整交互示例
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | S |
+| **前置依赖** | TASK-017, TASK-018（Wave 9） |
+| **执行波次** | Wave 10 |
+| **对应 plan** | §2.10.5 §10 影响评估 |
+| **对应 FR/EC** | FR-007 |
+
+**描述**: 
+在 Agent 模板 §10「示例对话」中，现有的 §10.1 全量模式和 §10.2 增量模式之后，新增 §10.3 代码扫描模式示例对话。展示用户通过「扫描代码生成全景」触发短语进入代码扫描分支的完整交互流程——从触发识别 → 模式确认 → 五维度扫描 → 冲突检测 → 完成摘要。
+
+**变更**（在 §10.2 末尾之后追加 ~45 行）：
+
+```
+### 10.3 代码扫描模式（用户指令触发）
+
+**用户**: `@sddu-docs 扫描代码生成全景`
+
+**你**:
+
+```
+🔍 检测到代码扫描触发短语 → 进入代码扫描模式
+
+[步骤 8/12] 模式确认
+  ⚠️ 代码扫描模式将分析项目源代码和配置，生成代码快照。
+  此模式无法还原设计意图和技术决策。
+  产物将标注"未经 SDDU 工作流验证"。
+
+  产物将写入 .sddu/docs-tree-root/（若已有 specs-tree 模式产物将被覆盖）。
+  是否继续？（y/n）
+
+<用户确认 y>
+
+[步骤 9/12] 项目结构扫描
+  CS1 目录结构: 识别到 12 个一级子目录 — src/ tests/ config/ docs/ scripts/ dist/ ...
+  CS2 技术栈: 检测到 package.json → Node.js 20 + TypeScript 5.x + Express 4.18
+               检测到依赖: zod, jsonwebtoken, bcrypt, prisma
+  CS3 API 面: 扫描到 15 个路由端点（src/routes/）— GET/POST/PUT/DELETE
+  CS4 配置信息: 检测到 .env 模板、docker-compose.yml, Dockerfile, .github/workflows/ci.yml
+  CS5 数据模型: 检测到 prisma/schema.prisma — 8 个数据表, 3 个关系
+
+[步骤 10/12] 生成代码快照文档
+  📝 生成模块划分文档 · docs-tree-root/模块划分.md
+  📝 生成技术栈清单 · docs-tree-root/技术栈清单.md
+  📝 生成 API 端点清单 · docs-tree-root/API端点清单.md (15 endpoints)
+  📝 生成部署信息 · docs-tree-root/部署信息摘要.md
+  📝 生成数据模型清单 · docs-tree-root/数据模型清单.md (8 tables)
+  📝 生成根级入口 · docs-tree-root/docs-overview.md
+
+[步骤 11/12] 设计-实现一致性检测
+  ✅ 检测到 specs-tree-root/ 含 8 个 Feature
+  对比设计文档 vs 代码实现...
+  
+  ⚠️ 发现 3 处不一致：
+  C1 技术选型漂移: feature-auth/plan.md 记录 JWT，代码使用 next-auth (OAuth2)
+  C3 API 差异: feature-api/spec.md 定义 POST /api/v1/login → 代码路由 POST /api/v1/auth/signin
+  C2 模块增删: specs-tree 含 feature-legacy，代码中无对应目录
+  
+  一致性报告已追加至 docs-tree-root/docs-overview.md
+
+[步骤 12/12] 完成摘要
+  ────────────────────────────────────
+  🏗️ 代码快照生成完成
+  
+  - 扫描到模块数: 12
+  - 技术栈项数: 16
+  - API 端点数: 15
+  - 配置项数: 8
+  - 数据表数: 8
+  - 冲突检测: 3 处不一致（C1×1, C2×1, C3×1）
+  
+  ⚠️ 此产物为代码快照，非完整全景。
+  如需包含设计意图的全景视图，请先完成 Feature 的 spec/plan 后运行 @sddu-docs。
+  
+  产物路径: .sddu/docs-tree-root/
+  ────────────────────────────────────
+```
+```
+
+**涉及文件**:
+
+| 操作 | 文件路径 | 变更 |
+|:--:|------|------|
+| ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs` | §10 新增 §10.3（~45 行） |
+
+**验收标准**:
+- [ ] §10.3 标题存在「代码扫描模式（用户指令触发）」
+- [ ] 示例对话以 `@sddu-docs 扫描代码生成全景` 作为用户输入
+- [ ] 对话展示步骤 8~12 的完整流程（含步骤编号 `/12`）
+- [ ] 步骤 9 展示 CS1~CS5 五个维度的扫描摘要
+- [ ] 步骤 10 展示 6 个产物文件的生成列表
+- [ ] 步骤 11 展示冲突检测结果（含具体 C1/C2/C3 示例）
+- [ ] 步骤 12 完成摘要含模块数、技术栈项数、API 端点数、配置项数、数据表数
+- [ ] 步骤 12 末尾提示「代码快照，非完整全景」及完整全景触发方式
+- [ ] 示例整体对齐 §5.2 步骤 8~12 的结构
+
+**验证命令**:
+```bash
+# 验证 §10.3 存在
+grep -q '### 10.3 代码扫描模式' src/templates/agents/sddu-docs.md.hbs && echo "PASS: §10.3 section"
+
+# 验证步骤编号为 /12
+grep -c '步骤 8/12' src/templates/agents/sddu-docs.md.hbs | xargs -I{} test {} -ge 1 && echo "PASS: step 8/12"
+grep -c '步骤 12/12' src/templates/agents/sddu-docs.md.hbs | xargs -I{} test {} -ge 1 && echo "PASS: step 12/12"
+
+# 验证 CS1~CS5 出现在示例中
+grep -q 'CS1.*目录结构' src/templates/agents/sddu-docs.md.hbs && echo "PASS: CS1 in example"
+grep -q 'CS5.*数据模型' src/templates/agents/sddu-docs.md.hbs && echo "PASS: CS5 in example"
+
+# 验证冲突检测示例
+grep -q 'C1.*技术选型漂移' src/templates/agents/sddu-docs.md.hbs && echo "PASS: C1 example"
+grep -q 'C3.*API 差异' src/templates/agents/sddu-docs.md.hbs && echo "PASS: C3 example"
+grep -q '3 处不一致' src/templates/agents/sddu-docs.md.hbs && echo "PASS: conflict count"
+
+# 验证完成摘要表格
+grep -q '扫描到模块数' src/templates/agents/sddu-docs.md.hbs && echo "PASS: module count"
+grep -q '技术栈项数' src/templates/agents/sddu-docs.md.hbs && echo "PASS: tech stack count"
+grep -q 'API 端点数' src/templates/agents/sddu-docs.md.hbs && echo "PASS: API endpoint count"
+
+# 验证代码快照限制提示
+grep -q '代码快照.*非完整全景' src/templates/agents/sddu-docs.md.hbs && echo "PASS: limitation disclaimer"
+```
+
+---
+
+#### TASK-021: 构建验证 + 交叉一致性校验 + 版本升级
+> 运行构建流程，验证所有增量变更编译通过；执行交叉一致性校验；升级版本号
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | S |
+| **前置依赖** | TASK-017, TASK-018, TASK-019, TASK-020（Wave 9 + Wave 10） |
+| **执行波次** | Wave 11 |
+| **对应 plan** | §6 文件影响分析 |
+| **对应 FR/EC** | NFR-002, NFR-003 |
+
+**描述**: 
+在 v3.0 增量变更全部完成后执行三项收尾工作：
+
+**1. 构建验证**：
+- 运行 `node scripts/build-agents.cjs` 验证 Agent 指令模板（+240 行）编译通过
+- 重点验证：Handlebars frontmatter 语法正确（YAML description 修改不破坏 `---` 分隔）、`#each`/`#if` 块在新增的 §5.2 步骤中配对完好
+- 构建产物 `.opencode/agents/sddu-docs.md` 存在且非空
+
+**2. 交叉一致性校验**：
+- Agent 模板中 phrasal references 一致：§4 路由指令引用的「§5.2」在文件中真实存在
+- 步骤编号连续性：§5.1 步骤 1~7 + §5.2 步骤 8~12，全 12 步连续
+- CS1~CS5 全部 5 个维度在 §5.2 中定义
+- C1~C4 全部 4 类冲突在 §5.2 步骤 11 中定义
+- D8~D11 全部 4 个设计决策在步骤 11 中引用
+- 规则编号连续（1~10 主模式 + 11~15 代码模式），无跳号
+- 示例对话与 §5.2 工作流步骤结构一致
+
+**3. 版本升级**：
+- tasks.md 头部信息：版本 v2.0 → v3.0，更新说明改为 plan v3.3 变更
+- tasks.json `version` → `"v3.0"`，`totalTasks` 13→21，`totalWaves` 7→11，`complexityDistribution` 更新
+- tasks.json 新增 TASK-014~021 共 8 个任务条目
+- tasks.md 合并统计表更新（新增 v3.0 列）
+- state.json phaseHistory 新增 `tasked` 条目（v3.0）
+
+**涉及文件**:
+
+| 操作 | 文件路径 |
+|:--:|------|
+| 🔍 VERIFY | `scripts/build-agents.cjs`（只运行，不修改） |
+| 🔍 VERIFY | `.opencode/agents/sddu-docs.md`（构建产物） |
+| ✏️ MODIFY | `.sddu/specs-tree-root/specs-tree-docs-agent-optimization/tasks.json` |
+| ✏️ MODIFY | `.sddu/specs-tree-root/specs-tree-docs-agent-optimization/tasks.md` |
+| ✏️ MODIFY | `.sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json` |
+
+**验收标准**:
+- [ ] `node scripts/build-agents.cjs` 执行返回 exit code 0
+- [ ] 构建输出中无 Handlebars 编译错误
+- [ ] `.opencode/agents/sddu-docs.md` 构建产物存在且非空
+- [ ] Agent 模板 §4 引用「§5.2」真实存在于文件中
+- [ ] 步骤 1~12 全部连续存在（12 个步骤，无跳号）
+- [ ] CS1~CS5 + C1~C4 + D8~D11 全覆盖
+- [ ] tasks.md 版本号为 v3.0
+- [ ] tasks.json `version` = `"v3.0"`, `totalTasks` = 21, `totalWaves` = 11
+- [ ] state.json phaseHistory 含新 `tasked` 条目（v3.0 标记）
+
+**验证命令**:
+```bash
+# 构建验证
+node scripts/build-agents.cjs && echo "✓ Build passed"
+test -s .opencode/agents/sddu-docs.md && echo "PASS: agent built" || echo "FAIL: agent not built"
+
+# 步骤连续性验证
+echo "=== Step Coverage ===" 
+for i in $(seq 1 12); do
+  grep -q "步骤 $i" src/templates/agents/sddu-docs.md.hbs && echo "  PASS: step $i" || echo "  FAIL: step $i missing"
+done
+
+# CS/C/D 全覆盖验证
+for label in CS1 CS2 CS3 CS4 CS5 C1 C2 C3 C4 D8 D9 D10 D11; do
+  grep -q "$label" src/templates/agents/sddu-docs.md.hbs && echo "PASS: $label covered" || echo "FAIL: $label missing"
+done
+
+# §4→§5.2 交叉引用验证
+grep -q '§5.2' src/templates/agents/sddu-docs.md.hbs && echo "PASS: §5.2 cross-reference"
+
+# tasks.json 验证
+python3 -c "
+import json
+with open('.sddu/specs-tree-root/specs-tree-docs-agent-optimization/tasks.json') as f:
+    t = json.load(f)
+assert t['version'] == 'v3.0', f'FAIL: version={t[\"version\"]}'
+assert t['totalTasks'] == 21, f'FAIL: totalTasks={t[\"totalTasks\"]}'
+assert t['totalWaves'] == 11, f'FAIL: totalWaves={t[\"totalWaves\"]}'
+task_ids = [task['id'] for task in t['tasks']]
+assert 'TASK-021' in task_ids, 'FAIL: TASK-021 missing'
+print('PASS: tasks.json validated')
+"
+
+# state.json 验证
+python3 -c "
+import json
+with open('.sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json') as f:
+    s = json.load(f)
+# Check latest phaseHistory entry
+latest = s['phaseHistory'][-1]
+assert latest['phase'] == 'tasked', f'FAIL: phase={latest[\"phase\"]}'
+assert 'v3.0' in latest.get('note', ''), f'FAIL: v3.0 not in note: {latest.get(\"note\", \"\")}'
+print('PASS: state.json latest entry = tasked (v3.0)')
+"
+```
+
+---
+
+### 6.3 增量任务汇总
+
+| 统计项 | 数值 |
+|--------|:--:|
+| 增量任务数 | 8 |
+| S 级 (简单) | 4 |
+| M 级 (中等) | 3 |
+| L 级 (复杂) | 1 |
+| 执行波次 | 4 |
+| 修改文件数 | 1（Agent 指令模板 `sddu-docs.md.hbs`）+ 2 元数据文件（`tasks.json` + `state.json`） |
+| 新增行数（Agent 模板） | ~240 行（468 → ~708 行） |
+
+### 6.4 增量执行策略
+
+| 波次 | 任务 | 策略 |
+|:--:|------|------|
+| 8 | TASK-014, TASK-015, TASK-016 | **并行执行** — 三个任务修改 Agent 模板的不同段落（YAML 第 2 行、§1 第 16 行、§4 第 38 行），互不冲突。build agent 应按序写入（YAML→§1→§4），或合并为单次文件写入 |
+| 9 | TASK-017, TASK-018 | **阻塞执行** — TASK-017 创建 §5.2 骨架（步骤 8~10,12），TASK-018 在骨架中插入步骤 11。两者依赖 Wave 8 完成（需 §4 路由 + §5.1/§5.2 标识就位）。同一波次内 TASK-018 依赖 TASK-017 的步骤 10/12 就位后再插入步骤 11 |
+| 10 | TASK-019, TASK-020 | **并行执行** — TASK-019 修改 §8/§9（文件后半），TASK-020 修改 §10（文件后半），段落紧邻但互不覆盖。依赖 Wave 9 完成（需 §5.2+步骤 11 已就位） |
+| 11 | TASK-021 | **阻塞执行** — 等待所有变更完成。构建验证 + 交叉一致性 + 版本升级 |
+
+**关键路径**: TASK-014~016 → TASK-017 → TASK-018 → TASK-019 → TASK-021
+> TASK-020 与 TASK-019 并行，不阻塞关键路径。TASK-014/015/016 互不阻塞。
+
+### 6.5 合并后总体统计
+
+| 统计项 | 原 v1.0 | 增量 v2.0 | 增量 v3.0 | 合计 |
+|--------|:--:|:--:|:--:|:--:|
+| 总任务数 | 8 | +5 | +8 | 21 |
+| S 级 | 2 | +2 | +4 | 8 |
+| M 级 | 5 | +3 | +3 | 11 |
+| L 级 | 1 | +0 | +1 | 2 |
+| 波次数 | 4 | +3 | +4 | 11 |
+
+---
+
 ## 修订记录
 > 记录本文档的版本变更历史
 
@@ -943,3 +1779,4 @@ print('PASS: state.json validated')
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 基于 plan v1.9 分解为 8 个任务、4 个波次；覆盖 20 个模板（4 批）+ 1 个 Agent 指令模板（2 段）+ 2 个验证任务 | 2026-07-05 | SDDU Tasks Agent |
 | v2.0 | 增量任务 — 基于 plan v2.9 新约束（模板自声明输出文件名、`<<entity_name>>`→`<<doc_subject>>` 重命名、定位声明去限定词、子目录命名规则 N1~N5、禁止事项 X1~X3），新增 TASK-009~013 共 5 个任务、3 个波次；涉及 21 个文件的修改 | 2026-07-05 | SDDU Tasks Agent |
+| v3.0 | 增量任务 — 基于 plan v3.3 双模式架构（§2.9 YAML 修正→§2.10 双模式入口→§2.10.4 代码扫描 5 步骤→§2.10.6 C1~C4 冲突检测→§2.9 EC-001 增强），新增 TASK-014~021 共 8 个任务、4 个波次；全部变更集中在 Agent 指令模板（单一文件，+~240 行） | 2026-07-05 | SDDU Tasks Agent |

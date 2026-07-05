@@ -2,13 +2,13 @@
   "feature": "specs-tree-docs-agent-optimization",
   "createdAt": "2026-07-05T00:00:00.000Z",
   "createdBy": "SDDU Tasks Agent",
-  "version": "v2.0",
-  "totalTasks": 13,
-  "totalWaves": 7,
+  "version": "v3.0",
+  "totalTasks": 21,
+  "totalWaves": 11,
   "complexityDistribution": {
-    "S": 4,
-    "M": 8,
-    "L": 1
+    "S": 8,
+    "M": 11,
+    "L": 2
   },
   "tasks": [
     {
@@ -17,31 +17,13 @@
       "complexity": "M",
       "wave": 1,
       "dependencies": [],
-      "correspondingFR": [
-        "FR-002",
-        "FR-003",
-        "FR-008"
-      ],
+      "correspondingFR": ["FR-002", "FR-003", "FR-008"],
       "description": "在 src/templates/outputs/ 下新建 docs/ 目录，创建模板库基础设施和标杆模板 T1（sddu-docs-overview.md.hbs），定义双全景结构（业务全景+技术全景）",
       "fileOperations": [
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/",
-          "type": "directory"
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-overview.md.hbs",
-          "estimatedLines": 100
-        }
+        {"action": "NEW", "path": "src/templates/outputs/docs/", "type": "directory"},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-overview.md.hbs", "estimatedLines": 100}
       ],
-      "acceptanceCriteria": [
-        "docs/ 目录已创建",
-        "T1 模板包含文件头定位声明",
-        "包含 1.业务全景 和 2.技术全景 两章节",
-        "使用 <<变量名>> 和 #each 标准 Handlebars 语法",
-        "包含修订记录表格占位"
-      ],
+      "acceptanceCriteria": ["docs/ 目录已创建", "T1 模板包含文件头定位声明", "包含 1.业务全景 和 2.技术全景 两章节", "使用 <<变量名>> 和 #each 标准 Handlebars 语法", "包含修订记录表格占位"],
       "status": "completed"
     },
     {
@@ -50,59 +32,19 @@
       "complexity": "M",
       "wave": 1,
       "dependencies": [],
-      "correspondingFR": [
-        "FR-002",
-        "FR-003"
-      ],
+      "correspondingFR": ["FR-002", "FR-003"],
       "description": "批量创建 8 个业务实体与功能描述模板：object(T2), api(T3), data(T4), page(T5), flow(T6), event(T11), command(T13), command-tree(T20)",
       "fileOperations": [
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-object.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-api.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-data.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-page.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-flow.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-event.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-command.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-command-tree.md.hbs",
-          "estimatedLines": 40
-        }
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-object.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-api.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-data.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-page.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-flow.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-event.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-command.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-command-tree.md.hbs", "estimatedLines": 40}
       ],
-      "acceptanceCriteria": [
-        "8 个文件全部创建且非空",
-        "每个模板含定位声明",
-        "T2-T6/T11/T13/T20 各自包含对应类型的结构化章节",
-        "全部使用标准 Handlebars 语法"
-      ],
+      "acceptanceCriteria": ["8 个文件全部创建且非空", "每个模板含定位声明", "T2-T6/T11/T13/T20 各自包含对应类型的结构化章节", "全部使用标准 Handlebars 语法"],
       "status": "completed"
     },
     {
@@ -111,44 +53,16 @@
       "complexity": "M",
       "wave": 1,
       "dependencies": [],
-      "correspondingFR": [
-        "FR-002",
-        "FR-003"
-      ],
+      "correspondingFR": ["FR-002", "FR-003"],
       "description": "批量创建 5 个技术描述模板：config(T7), integration(T8), deploy(T9), security(T10), export(T12)",
       "fileOperations": [
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-config.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-integration.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-deploy.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-security.md.hbs",
-          "estimatedLines": 60
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-export.md.hbs",
-          "estimatedLines": 60
-        }
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-config.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-integration.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-deploy.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-security.md.hbs", "estimatedLines": 60},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-export.md.hbs", "estimatedLines": 60}
       ],
-      "acceptanceCriteria": [
-        "5 个文件全部创建且非空",
-        "每个模板含定位声明",
-        "T7-T10/T12 各自包含对应技术维度的结构化章节",
-        "全部使用标准 Handlebars 语法"
-      ],
+      "acceptanceCriteria": ["5 个文件全部创建且非空", "每个模板含定位声明", "T7-T10/T12 各自包含对应技术维度的结构化章节", "全部使用标准 Handlebars 语法"],
       "status": "completed"
     },
     {
@@ -157,50 +71,17 @@
       "complexity": "M",
       "wave": 1,
       "dependencies": [],
-      "correspondingFR": [
-        "FR-002",
-        "FR-003"
-      ],
+      "correspondingFR": ["FR-002", "FR-003"],
       "description": "批量创建 4 个关系描述模板 + 2 个元数据支持模板：relation-deps(T14), relation-flow(T15), relation-sequence(T16), relation-matrix(T17), adr-index(T18), source(T19)",
       "fileOperations": [
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-relation-deps.md.hbs",
-          "estimatedLines": 40
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-relation-flow.md.hbs",
-          "estimatedLines": 40
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-relation-sequence.md.hbs",
-          "estimatedLines": 40
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-relation-matrix.md.hbs",
-          "estimatedLines": 40
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-adr-index.md.hbs",
-          "estimatedLines": 50
-        },
-        {
-          "action": "NEW",
-          "path": "src/templates/outputs/docs/sddu-docs-source.md.hbs",
-          "estimatedLines": 40
-        }
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-relation-deps.md.hbs", "estimatedLines": 40},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-relation-flow.md.hbs", "estimatedLines": 40},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-relation-sequence.md.hbs", "estimatedLines": 40},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-relation-matrix.md.hbs", "estimatedLines": 40},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-adr-index.md.hbs", "estimatedLines": 50},
+        {"action": "NEW", "path": "src/templates/outputs/docs/sddu-docs-source.md.hbs", "estimatedLines": 40}
       ],
-      "acceptanceCriteria": [
-        "6 个文件全部创建且非空",
-        "每个模板含定位声明",
-        "关系模板含依赖/数据流/时序/矩阵对应结构",
-        "元数据模板含 ADR 列表/产物溯源表",
-        "全部使用标准 Handlebars 语法"
-      ],
+      "acceptanceCriteria": ["6 个文件全部创建且非空", "每个模板含定位声明", "关系模板含依赖/数据流/时序/矩阵对应结构", "元数据模板含 ADR 列表/产物溯源表", "全部使用标准 Handlebars 语法"],
       "status": "completed"
     },
     {
@@ -208,36 +89,13 @@
       "name": "补全 Agent 指令模板核心 — §1-§6",
       "complexity": "L",
       "wave": 2,
-      "dependencies": [
-        "TASK-001",
-        "TASK-002",
-        "TASK-003",
-        "TASK-004"
-      ],
-      "correspondingFR": [
-        "FR-001",
-        "FR-001(a2)",
-        "FR-009",
-        "NFR-002"
-      ],
-      "description": "对 sddu-docs.md.hbs 进行核心改造：§4 前置验证改为 specs-tree-root 扫描；§5 从占位扩展为 7 步可执行工作流（工作空间验证→Feature扫描→业务层级推导→逐域迭代处理→模板选择→文档生成→完成）；新增 §6 输出模板选择机制（按内容匹配选择 + 加载优先级）",
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004"],
+      "correspondingFR": ["FR-001", "FR-001(a2)", "FR-009", "NFR-002"],
+      "description": "对 sddu-docs.md.hbs 进行核心改造：§4 前置验证改为 specs-tree-root 扫描；§5 从占位扩展为 7 步可执行工作流；新增 §6 输出模板选择机制",
       "fileOperations": [
-        {
-          "action": "MODIFY",
-          "path": "src/templates/agents/sddu-docs.md.hbs",
-          "estimatedDeltaLines": "+170/-10",
-          "estimatedFinalLines": 280
-        }
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "estimatedDeltaLines": "+170/-10", "estimatedFinalLines": 280}
       ],
-      "acceptanceCriteria": [
-        "§4 改为检查 specs-tree-root/",
-        "§5 含 7 个明确编号步骤，每步标注下一跳",
-        "步骤中包含版本感知聚合（多版本取最新）",
-        "步骤中包含增量更新分支（mtime 对比）",
-        "§6 列举 20 个模板及按内容匹配选择规则",
-        "§6 包含模板加载优先级（用户→内置→报错）",
-        "无「待后续 Feature 定义」占位文本残留"
-      ],
+      "acceptanceCriteria": ["§4 改为检查 specs-tree-root/", "§5 含 7 个明确编号步骤", "步骤中包含版本感知聚合+增量更新分支", "§6 列举 20 个模板及按内容匹配选择规则", "§6 包含模板加载优先级", "无占位文本残留"],
       "status": "completed"
     },
     {
@@ -245,31 +103,13 @@
       "name": "补全 Agent 指令模板规则 — §7-§10",
       "complexity": "M",
       "wave": 3,
-      "dependencies": [
-        "TASK-005"
-      ],
-      "correspondingFR": [
-        "FR-005",
-        "FR-007",
-        "FR-008"
-      ],
-      "description": "在核心工作流就位后补全规则、异常处理和示例对话：§7 完成协议（状态更新+自动触发）；§8 规则（7维三Agent边界表+扫描规则）；§9 异常处理（EC-001~011 全部场景）；§10 示例对话（对齐7步工作流含增量模式）",
+      "dependencies": ["TASK-005"],
+      "correspondingFR": ["FR-005", "FR-007", "FR-008"],
+      "description": "补全规则、异常处理和示例对话：§7 完成协议 + §8 规则(7维三Agent边界) + §9 异常处理(EC-001~011) + §10 示例对话(全量+增量双模式)",
       "fileOperations": [
-        {
-          "action": "MODIFY",
-          "path": "src/templates/agents/sddu-docs.md.hbs",
-          "estimatedDeltaLines": "+60",
-          "estimatedFinalLines": 300
-        }
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "estimatedDeltaLines": "+60", "estimatedFinalLines": 300}
       ],
-      "acceptanceCriteria": [
-        "§7 含 sddu_update_state 指令和完成摘要格式",
-        "§8 含 7 维度三 Agent 边界表",
-        "§8 声明不触碰 TREE.md/ROADMAP.md",
-        "§9 覆盖 EC-001~011 全部场景",
-        "§10 示例含全量和增量两种交互模式",
-        "修订记录已更新"
-      ],
+      "acceptanceCriteria": ["§7 含 sddu_update_state 指令", "§8 含 7 维度三 Agent 边界表", "§9 覆盖 EC-001~011 全部场景", "§10 示例含全量和增量两种交互"],
       "status": "completed"
     },
     {
@@ -277,34 +117,15 @@
       "name": "构建验证 — build-agents.cjs 编译通过",
       "complexity": "S",
       "wave": 4,
-      "dependencies": [
-        "TASK-006"
-      ],
-      "correspondingFR": [
-        "NFR-002",
-        "NFR-003"
-      ],
+      "dependencies": ["TASK-006"],
+      "correspondingFR": ["NFR-002", "NFR-003"],
       "description": "运行 build-agents.cjs 验证所有模板编译通过，确认构建产物输出到正确位置",
       "fileOperations": [
-        {
-          "action": "VERIFY",
-          "path": "scripts/build-agents.cjs"
-        },
-        {
-          "action": "VERIFY",
-          "path": ".opencode/agents/sddu-docs.md"
-        },
-        {
-          "action": "VERIFY",
-          "path": ".opencode/plugins/sddu/templates/output/docs/"
-        }
+        {"action": "VERIFY", "path": "scripts/build-agents.cjs"},
+        {"action": "VERIFY", "path": ".opencode/agents/sddu-docs.md"},
+        {"action": "VERIFY", "path": ".opencode/plugins/sddu/templates/output/docs/"}
       ],
-      "acceptanceCriteria": [
-        "build-agents.cjs 返回 exit 0",
-        "无 Handlebars 编译错误",
-        "构建产物 sddu-docs.md 存在",
-        "20 个输出模板全部复制到插件目录"
-      ],
+      "acceptanceCriteria": ["build-agents.cjs 返回 exit 0", "无 Handlebars 编译错误", "构建产物 sddu-docs.md 存在", "20 个输出模板全部复制到插件目录"],
       "status": "completed"
     },
     {
@@ -312,44 +133,15 @@
       "name": "交叉一致性校验 + FR 覆盖清单 + 状态更新",
       "complexity": "S",
       "wave": 4,
-      "dependencies": [
-        "TASK-006",
-        "TASK-007"
-      ],
-      "correspondingFR": [
-        "FR-001",
-        "FR-002",
-        "FR-003",
-        "FR-004",
-        "FR-005",
-        "FR-006",
-        "FR-006a",
-        "FR-007",
-        "FR-008",
-        "FR-009"
-      ],
-      "description": "最终三项验证：(1) Agent 模板引用与文件一致性；(2) plan §9 审查清单 C1-C12 逐项勾检；(3) 更新 state.json phase→tasked",
+      "dependencies": ["TASK-006", "TASK-007"],
+      "correspondingFR": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-006a", "FR-007", "FR-008", "FR-009"],
+      "description": "最终三项验证：Agent模板引用vs文件一致性 + plan §9 审查清单C1-C12 + state.json phase→tasked",
       "fileOperations": [
-        {
-          "action": "VERIFY",
-          "path": "src/templates/agents/sddu-docs.md.hbs"
-        },
-        {
-          "action": "VERIFY",
-          "path": "src/templates/outputs/docs/"
-        },
-        {
-          "action": "MODIFY",
-          "path": ".sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json"
-        }
+        {"action": "VERIFY", "path": "src/templates/agents/sddu-docs.md.hbs"},
+        {"action": "VERIFY", "path": "src/templates/outputs/docs/"},
+        {"action": "MODIFY", "path": ".sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json"}
       ],
-      "acceptanceCriteria": [
-        "Agent 模板引用的模板名与实际文件完全一致",
-        "审查清单 C1-C12 全部通过",
-        "state.json phase='tasked'",
-        "state.json phaseHistory 包含 tasked 条目",
-        "state.json files 包含 tasks.md"
-      ],
+      "acceptanceCriteria": ["Agent 模板引用与实际文件完全一致", "审查清单 C1-C12 全部通过", "state.json phase='tasked'", "phaseHistory 含 tasked 条目"],
       "status": "completed"
     },
     {
@@ -358,60 +150,21 @@
       "complexity": "M",
       "wave": 5,
       "dependencies": [],
-      "correspondingFR": [
-        "FR-002",
-        "FR-003",
-        "FR-008"
-      ],
-      "description": "对前 10 个输出模板施加 3 类变更：A-添加 >  **输出文件名** 元数据行；B-<<entity_name>>→<<doc_subject>> 全局替换（8 个文件）；C-定位声明去限定词（7 个文件含旧模式，T2 删「单个」、T3-T10 改「含X的文档」为「X文档」）",
+      "correspondingFR": ["FR-002", "FR-003", "FR-008"],
+      "description": "对前 10 个输出模板施加 3 类变更：A-添加输出文件名元数据行；B-<<entity_name>>→<<doc_subject>> 替换(8个文件)；C-定位声明去限定词(7个文件)",
       "fileOperations": [
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-overview.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-object.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-api.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-data.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-page.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-flow.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-config.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-integration.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-deploy.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-security.md.hbs"
-        }
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-overview.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-object.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-api.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-data.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-page.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-flow.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-config.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-integration.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-deploy.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-security.md.hbs"}
       ],
-      "acceptanceCriteria": [
-        "T1-T10 每个模板含 >  **输出文件名** 元数据行",
-        "8 个文件 <<entity_name>> 全部替换为 <<doc_subject>>，无残留",
-        "T2-T10 定位声明无「含X的文档」「单个」等旧模式",
-        "#each/#if 块配对完好"
-      ],
+      "acceptanceCriteria": ["T1-T10 含输出文件名元数据行", "8个文件 entity_name→doc_subject 无残留", "定位声明无「含X的文档」「单个」等旧模式", "#each/#if 闭合完好"],
       "status": "completed"
     },
     {
@@ -420,61 +173,21 @@
       "complexity": "M",
       "wave": 5,
       "dependencies": [],
-      "correspondingFR": [
-        "FR-002",
-        "FR-003",
-        "FR-008"
-      ],
-      "description": "对后 10 个输出模板施加 3 类变更：A-添加 >  **输出文件名** 元数据行；B-<<entity_name>>→<<doc_subject>> 全局替换（7 个文件）；C-定位声明去限定词（T11-T13 改「含X的文档」、T20 改「该命令组」为「命令树」）",
+      "correspondingFR": ["FR-002", "FR-003", "FR-008"],
+      "description": "对后 10 个输出模板施加 3 类变更：A-添加输出文件名元数据行；B-<<entity_name>>→<<doc_subject>> 替换(7个文件)；C-定位声明去限定词(T11~T13,T20)",
       "fileOperations": [
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-event.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-export.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-command.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-relation-deps.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-relation-flow.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-relation-sequence.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-relation-matrix.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-adr-index.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-source.md.hbs"
-        },
-        {
-          "action": "MODIFY",
-          "path": "src/templates/outputs/docs/sddu-docs-command-tree.md.hbs"
-        }
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-event.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-export.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-command.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-relation-deps.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-relation-flow.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-relation-sequence.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-relation-matrix.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-adr-index.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-source.md.hbs"},
+        {"action": "MODIFY", "path": "src/templates/outputs/docs/sddu-docs-command-tree.md.hbs"}
       ],
-      "acceptanceCriteria": [
-        "T11-T20 每个模板含 >  **输出文件名** 元数据行",
-        "7 个文件 <<entity_name>> 全部替换为 <<doc_subject>>，无残留",
-        "T11-T13/T20 定位声明无「含X的文档」「该命令组」等旧模式",
-        "T18/T19 输出文件名为固定值 adr-index.md/source.md",
-        "#each/#if 块配对完好"
-      ],
+      "acceptanceCriteria": ["T11-T20 含输出文件名元数据行", "7个文件 entity_name→doc_subject 无残留", "定位声明无旧模式", "T18/T19固定文件名", "#each/#if 闭合完好"],
       "status": "completed"
     },
     {
@@ -483,24 +196,12 @@
       "complexity": "M",
       "wave": 5,
       "dependencies": [],
-      "correspondingFR": [
-        "FR-001",
-        "FR-002"
-      ],
-      "description": "在 Agent 指令模板 §5 步骤 3 追加子目录命名规则 N1~N5（业务语义命名/禁止泄漏 Feature 目录名/层级自相似/版本号不参与/首次聚类持久化）；§8 规则末尾追加产物禁止事项 X1~X3（禁止原文照搬 spec-plan-ADR/禁止 Feature 目录名作为子目录名/根级入口固定 docs-overview.md）",
+      "correspondingFR": ["FR-001", "FR-002"],
+      "description": "在 Agent 指令模板 §5 步骤 3 追加子目录命名规则 N1~N5；§8 规则末尾追加产物禁止事项 X1~X3",
       "fileOperations": [
-        {
-          "action": "MODIFY",
-          "path": "src/templates/agents/sddu-docs.md.hbs",
-          "estimatedDeltaLines": "+45"
-        }
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "estimatedDeltaLines": "+45"}
       ],
-      "acceptanceCriteria": [
-        "§5 步骤 3 含 N1~N5 命名规则表",
-        "§8 含 X1~X3 禁止事项表（位于 §8.1 之前）",
-        "§5 步骤 2/4 无 docs-tree-xxx 泛指占位符作为目录引用",
-        "步骤编号和跳转逻辑不破坏"
-      ],
+      "acceptanceCriteria": ["§5 步骤 3 含 N1~N5 命名规则表", "§8 含 X1~X3 禁止事项表", "步骤编号和跳转逻辑不破坏"],
       "status": "completed"
     },
     {
@@ -508,26 +209,13 @@
       "name": "Agent 模板 §6.2 表定位声明同步",
       "complexity": "S",
       "wave": 6,
-      "dependencies": [
-        "TASK-009",
-        "TASK-010"
-      ],
-      "correspondingFR": [
-        "FR-003",
-        "FR-006"
-      ],
-      "description": "将 Agent 指令模板 §6.2「模板清单与适用场景」表中的定位声明列，同步为 TASK-009/010 更新后的模板实际定位文本（T2-T13/T20 共 13 行变更）",
+      "dependencies": ["TASK-009", "TASK-010"],
+      "correspondingFR": ["FR-003", "FR-006"],
+      "description": "将 Agent 指令模板 §6.2 模板清单表中的定位声明列，同步为 TASK-009/010 更新后的模板实际定位文本",
       "fileOperations": [
-        {
-          "action": "MODIFY",
-          "path": "src/templates/agents/sddu-docs.md.hbs"
-        }
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs"}
       ],
-      "acceptanceCriteria": [
-        "§6.2 表定位声明与模板文件 >  **文档定位** 行一致",
-        "无「含X的文档」「单个」「该命令组」旧模式",
-        "表行数仍为 20（T1-T20）"
-      ],
+      "acceptanceCriteria": ["§6.2 表定位声明与模板文件一致", "无旧模式残留", "表行数仍为 20"],
       "status": "completed"
     },
     {
@@ -535,41 +223,180 @@
       "name": "构建验证 + 交叉一致性校验 + 版本升级",
       "complexity": "S",
       "wave": 7,
-      "dependencies": [
-        "TASK-009",
-        "TASK-010",
-        "TASK-011",
-        "TASK-012"
-      ],
-      "correspondingFR": [
-        "NFR-002",
-        "NFR-003"
-      ],
-      "description": "运行 build-agents.cjs 构建验证；全局残留检查（<<entity_name>>、旧定位模式）；#each/#if 闭合检查；更新 tasks.json 和 state.json 版本号与阶段状态",
+      "dependencies": ["TASK-009", "TASK-010", "TASK-011", "TASK-012"],
+      "correspondingFR": ["NFR-002", "NFR-003"],
+      "description": "运行 build-agents.cjs 构建验证；全局残留检查；#each/#if 闭合检查；更新 tasks.json 和 state.json",
       "fileOperations": [
-        {
-          "action": "VERIFY",
-          "path": "scripts/build-agents.cjs"
-        },
-        {
-          "action": "VERIFY",
-          "path": ".opencode/plugins/sddu/templates/output/docs/"
-        },
-        {
-          "action": "MODIFY",
-          "path": ".sddu/specs-tree-root/specs-tree-docs-agent-optimization/tasks.json"
-        },
-        {
-          "action": "MODIFY",
-          "path": ".sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json"
-        }
+        {"action": "VERIFY", "path": "scripts/build-agents.cjs"},
+        {"action": "VERIFY", "path": ".opencode/plugins/sddu/templates/output/docs/"},
+        {"action": "MODIFY", "path": ".sddu/specs-tree-root/specs-tree-docs-agent-optimization/tasks.json"},
+        {"action": "MODIFY", "path": ".sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json"}
+      ],
+      "acceptanceCriteria": ["构建 exit 0，产物 20 个模板到位", "全项目无 entity_name 残留", "#each/#if 全部闭合", "tasks.json v2.0，state.json phase=tasked"],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-014",
+      "name": "YAML frontmatter description 修正",
+      "complexity": "S",
+      "wave": 8,
+      "dependencies": [],
+      "correspondingFR": ["FR-001"],
+      "description": "修正 Agent 模板 YAML description（第2行）：从「扫描代码、配置、Schema 等实际产物」→「主扫描 specs-tree-root 过程产物，支持用户指令下扫描项目代码和配置生成项目快照」",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "section": "YAML frontmatter (line 2)"}
       ],
       "acceptanceCriteria": [
-        "构建 exit 0，产物 20 个模板到位",
-        "全项目无 <<entity_name>> 残留",
-        "全项目无「含X的文档」旧定位模式",
-        "#each/#if 全部闭合",
-        "tasks.json v2.0，state.json phase=tasked"
+        "YAML description 不再含「扫描代码、配置、Schema 等实际产物」原文本",
+        "新描述以「主扫描 .sddu/specs-tree-root/」开头",
+        "新描述含「支持用户指令下扫描项目代码和配置」",
+        "YAML frontmatter 格式不变"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-015",
+      "name": "§1 角色定位双模式更新",
+      "complexity": "S",
+      "wave": 8,
+      "dependencies": [],
+      "correspondingFR": ["FR-001"],
+      "description": "更新 Agent 模板 §1 角色定位：从单一 specs-tree 扫描 → 主模式（specs-tree） + 辅助模式（用户指令代码扫描）双模式声明；更新「不负责」条目体现能力边界",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "section": "§1 (lines 14-23)"}
+      ],
+      "acceptanceCriteria": [
+        "§1 含「主模式」和「辅助模式」分离声明",
+        "主模式保留「specs-tree-root → docs-tree-root」核心链路",
+        "辅助模式含「用户明确指令」「代码快照」关键词"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-016",
+      "name": "§4 前置验证触发短语路由 + EC-001 增强",
+      "complexity": "M",
+      "wave": 8,
+      "dependencies": [],
+      "correspondingFR": ["FR-001"],
+      "description": "在 Agent 模板 §4 最开头插入触发短语检测逻辑（6 个触发短语→路由至 §5.2），实现双模式入口；EC-001 错误提示末尾追加「💡 尝试 @sddu-docs 扫描代码生成全景」引导",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "section": "§4 (lines 38-48)"}
+      ],
+      "acceptanceCriteria": [
+        "§4 开头首先执行触发短语检测（在 specs-tree-root 检查之前）",
+        "触发短语集含「扫描代码」「分析代码」「代码模式」「代码快照」",
+        "匹配时跳转 §5.2，不匹配时继续现有流程",
+        "EC-001 末尾含「💡」提示 + 「@sddu-docs 扫描代码生成全景」引导"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-017",
+      "name": "§5 拆分 §5.1 + §5.2 代码扫描工作流（步骤 8~10, 12）",
+      "complexity": "L",
+      "wave": 9,
+      "dependencies": ["TASK-014", "TASK-015", "TASK-016"],
+      "correspondingFR": ["FR-001"],
+      "description": "将现有 §5 统一工作流拆分为 §5.1（原步骤 1~7，包装为 specs-tree 主模式）和 §5.2（新增代码扫描模式 4 步骤：步骤 8 模式确认→步骤 9 项目结构扫描 CS1~CS5→步骤 10 生成代码快照文档→步骤 12 完成报告）；步骤 11 由 TASK-018 单独实现",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "section": "§5", "estimatedDeltaLines": "+140"}
+      ],
+      "acceptanceCriteria": [
+        "§5 标题新增双模式概览行",
+        "§5.1 包装原 7 步工作流，内部步骤编号不变",
+        "§5.2 新增，步骤 8 含 y/n 确认交互",
+        "§5.2 步骤 9 按 CS1~CS5 五维度定义扫描操作",
+        "§5.2 步骤 10 定义 6 个产物文档 + 产物标注",
+        "§5.2 步骤 12 含完成摘要含模块数/技术栈/API/配置/数据表统计",
+        "新增内容 ~120-150 行",
+        "步骤 1~7 结构不破坏"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-018",
+      "name": "§5.2 步骤 11 冲突检测 C1~C4",
+      "complexity": "M",
+      "wave": 9,
+      "dependencies": ["TASK-014", "TASK-015", "TASK-016"],
+      "correspondingFR": ["FR-001"],
+      "description": "在 Agent 模板 §5.2 步骤 10 和步骤 12 之间插入步骤 11「设计-实现一致性检测」：四类冲突 C1~C4 + 检测流程 11-1~11-4 + 报告产物格式 + 覆盖保留规则 4 场景 + D8~D11 设计决策",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "section": "§5.2 (between step 10 and step 12)", "estimatedDeltaLines": "+80"}
+      ],
+      "acceptanceCriteria": [
+        "步骤 11 位于步骤 10 和步骤 12 之间",
+        "C1~C4 四种冲突类型均有定义（含检测方式+示例）",
+        "检测流程按 11-1~11-4 四子步骤组织",
+        "产物格式含 Markdown 冲突表 + 检测摘要",
+        "未检测到冲突时有 ✅ 友好输出",
+        "覆盖保留规则 4 场景完整覆盖",
+        "D8~D11 设计决策标注"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-019",
+      "name": "§8 规则双模式 + §9 EC 模式适用范围标注",
+      "complexity": "M",
+      "wave": 10,
+      "dependencies": ["TASK-017", "TASK-018"],
+      "correspondingFR": ["FR-005"],
+      "description": "§8 新增「8.0 模式专属规则」小节：规则 11~15（代码扫描模式专属）→ 不自动触发/能力天花板声明/不推断意图/可覆盖/冲突检测可选；§9 标题后追加一行适用范围标注（EC-001~011 仅适用主模式，代码扫描异常在 §5.2 内联）",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "section": "§8 + §9", "estimatedDeltaLines": "+25"}
+      ],
+      "acceptanceCriteria": [
+        "§8 新增「8.0 模式专属规则」分隔小节",
+        "规则 11~15 含 5 条代码扫描专属规则",
+        "§9 标题后有一行适用范围标注",
+        "三 Agent 边界表保持不变"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-020",
+      "name": "§10 示例对话代码扫描模式",
+      "complexity": "S",
+      "wave": 10,
+      "dependencies": ["TASK-017", "TASK-018"],
+      "correspondingFR": ["FR-007"],
+      "description": "在 Agent 模板 §10 新增 §10.3「代码扫描模式（用户指令触发）」示例对话，展示触发识别→模式确认→五维度扫描→冲突检测→完成摘要完整流程",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs", "section": "§10", "estimatedDeltaLines": "+45"}
+      ],
+      "acceptanceCriteria": [
+        "§10.3 存在「代码扫描模式（用户指令触发）」标题",
+        "示例以 @sddu-docs 扫描代码生成全景 为输入",
+        "步骤编号为 /12",
+        "步骤 9 展示 CS1~CS5 五维度扫描摘要",
+        "步骤 11 展示 3 处冲突示例（C1×1/C2×1/C3×1）",
+        "步骤 12 末尾含「代码快照，非完整全景」限制提示"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-021",
+      "name": "构建验证 + 交叉一致性校验 + 版本升级",
+      "complexity": "S",
+      "wave": 11,
+      "dependencies": ["TASK-017", "TASK-018", "TASK-019", "TASK-020"],
+      "correspondingFR": ["NFR-002", "NFR-003"],
+      "description": "运行 build-agents.cjs 构建验证；步骤连续性检查(1~12)；CS/C/D 全覆盖验证；更新 tasks.json(v3.0, totalTasks=21) + state.json 新增 tasked phaseHistory",
+      "fileOperations": [
+        {"action": "VERIFY", "path": "scripts/build-agents.cjs"},
+        {"action": "VERIFY", "path": ".opencode/agents/sddu-docs.md"},
+        {"action": "MODIFY", "path": ".sddu/specs-tree-root/specs-tree-docs-agent-optimization/tasks.json"},
+        {"action": "MODIFY", "path": ".sddu/specs-tree-root/specs-tree-docs-agent-optimization/tasks.md"},
+        {"action": "MODIFY", "path": ".sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json"}
+      ],
+      "acceptanceCriteria": [
+        "构建 exit 0",
+        "步骤 1~12 全部连续",
+        "CS1~CS5 + C1~C4 + D8~D11 全覆盖",
+        "tasks.json version='v3.0' totalTasks=21 totalWaves=11",
+        "state.json phaseHistory 含 v3.0 tasked 条目"
       ],
       "status": "completed"
     }
