@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md (v1.3，需求规范) + discovery.md (问题挖掘)  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-07-04  
-> **版本**: v2.4  
-> **更新人**: SDDU Plan Agent  
-> **更新时间**: 2026-07-05  
-> **更新说明**: v2.4 — §10.3.1 步骤 2/7 修正：TEST_DIR 改为固定路径加时间戳（替代 mktemp 随机后缀），方便用户定位验证产物；验证完成后保留 TEST_DIR 不自动删除，方便复核
+> **版本**: v2.9
+> **更新人**: SDDU Plan Agent
+> **更新时间**: 2026-07-05
+> **更新说明**: v2.9 — 修正 §2.7 docs-tree-xxx 语义混乱：将节标题从「docs-tree-xxx 目录规范」改为「docs-tree-root 目录规范」，明确 docs-tree-xxx 是泛指占位符而非命名规则；§2.7 模板占位符 `{业务名称}/`→`{LLM聚类业务域名}/`，与 §2.8.2 示例的用户域/订单域/商品域对齐；新增 §2.8.2 子目录命名规则（N1~N5），禁止以 Feature 目录名作为子目录名、禁止原文照搬 spec.md/plan.md；新增 §2.7 产物禁止事项块（3 条禁止 + 1 条指引）
 
 ---
 
@@ -200,16 +200,18 @@ src/templates/outputs/                         ← 产物模板（Handlebars 源
 | **触发时机** | **手动**: `@sddu-docs`；**不参与** 8 Agent 执行后自动触发 | **自动**: 8 个主流程 Agent 完成；**手动**: `@sddu-tree [path]` | **手动**: `@sddu-roadmap` |
 | **一句话区分** | 「系统**实际是什么**」—— 语义聚合当前产物为项目全景 | 「文件**在哪里**」—— 结构导航和文件简介 | 「系统**应该怎么走**」—— 版本规划和 Feature 优先级 |
 
-### 2.7 docs-tree-xxx 目录规范
+### 2.7 docs-tree-root 目录规范
 
-> 本节定义 `docs-tree-root/` 下每一级目录（下称 **docs-tree-xxx**）的结构。该结构是递归的 —— 根、子系统、模块，每一级遵循相同结构。
+> 本节定义 `docs-tree-root/` 及其子目录的结构。该结构是递归的 —— 根、子系统、模块，每一级遵循相同结构。
+> 
+> **命名约定**：本文档中以 **docs-tree-xxx** 作为泛指占位符（`xxx` 代指任意层级），表示 `docs-tree-root/` 下的任意一级目录。这不是目录的命名规则 —— 实际目录名来自 LLM 语义聚类产生的业务语义名称（如 `用户域/`、`认证模块/`），详见 §2.8.2 命名规则。仅根目录名是固定的字面值 `docs-tree-root`。
 
 ```
-{业务名称}/                    ← docs-tree-xxx 目录
+{LLM聚类业务域名}/              ← 根为字面值 docs-tree-root；子目录名为 LLM 语义聚类产生的业务名称
 │
 ├── docs-overview.md           ← 【必选】本级入口：自身描述 + 内部组件关系
 │
-├── {子模块目录}/               ← 【可选 · 递归】子级目录，结构与本级相同
+├── {子级业务目录}/              ← 【可选 · 递归】子级目录，结构与本级相同
 │   ├── docs-overview.md        （必选）
 │   └── ...                     （其余文件由 LLM 从模板库按需选用）
 │
@@ -219,6 +221,14 @@ src/templates/outputs/                         ← 产物模板（Handlebars 源
 > 每级必须包含 `docs-overview.md`，其余文件由 LLM 从模板库按需选用，不限层级。目录深度由业务结构决定，不强制固定。具体文件类型由 §3 模板库定义。
 > 
 > 根级 `docs-overview.md` 为单一入口，包含业务全景（子系统关系、Feature 索引）和技术全景（整体架构、技术栈、部署拓扑、跨域数据流）两章节。技术全景由逐域处理完成后从各域技术章节归纳生成。
+> 
+> **⚠️ 产物禁止事项**：以下行为在 `docs-tree-root/` 目录树中**严格禁止**：
+> 
+> | # | 禁止行为 | 说明 | 正确做法 |
+> |---|---------|------|---------|
+> | ❌ **X1** | **原文照搬 spec.md / plan.md / ADR** | 不得将 Feature 的原始产物文件复制粘贴到 docs-tree-root。所有文档必须通过 §3 模板库渲染生成 | 使用 T19 产物溯源模板标注出处链接，让读者自行参考原始文件 |
+> | ❌ **X2** | **以 Feature 目录名作为子目录名** | `docs-tree-root/` 的子目录名必须是 LLM 语义聚类的业务语义名称（如 `用户域/`、`认证模块/`），**禁止**直接拷贝 `specs-tree-root/` 中的原始目录名（如 `feature-api/`、`specs-tree-auth/`） | 遵循 §2.8.2 子目录命名规则 N1~N5 |
+> | ❌ **X3** | **更改根级入口文件名** | 根级入口文件固定命名为 `docs-overview.md`，不得输出为 `project-overview.md`、`README.md` 或其他名称 | 使用 T1 模板（固定输出文件名 `docs-overview.md`） |
 
 ---
 
@@ -239,7 +249,19 @@ src/templates/outputs/                         ← 产物模板（Handlebars 源
 | **P5** | **LLM 决定拆分或合并** | specs-tree 里拆成多个文件，docs-tree 中可以合并也可以进一步拆分，由 LLM 根据实际内容量和模板适用性决定，没有固定映射规则 |
 | **P6** | **不越界** | `specs-tree-root/` 的目录是 SDDU 主流程的工作空间，不反向要求其组织方式。聚类依赖 LLM 对 spec.md 内容的语义理解，不依赖目录命名规范。Feature 目录名怎么取不影响聚类结果 |
 
-#### 2.8.2 期望的输出结构（以电商系统为例）
+#### 2.8.2 子目录命名规则
+
+> `docs-tree-root/` 下各级子目录的名称由 LLM 在 §5 步骤 3（语义聚类）中确定。以下规则约束命名行为，确保产物统一、可读、不泄漏过程信息。
+
+| # | 规则 | 说明 |
+|---|------|------|
+| **N1** | **业务语义命名** | 子目录名是 LLM 对 Feature 产物语义聚类后产生的业务域/模块名称。使用目标读者（人类）熟悉的业务术语，如 `用户域/`、`订单域/`、`认证模块/`。语言（中文/英文）由 LLM 根据 Feature 产物中的主导语言决定，优先保持一致性 |
+| **N2** | **禁止泄漏 Feature 目录名** | 子目录名**禁止**直接拷贝 `specs-tree-root/` 下的 Feature 目录名（如 `feature-api/`、`specs-tree-auth/`）。Feature 目录名是 SDDU 工作流的过程标识符，对全景读者是噪音（§2.8.1 D4 版本聚合、P4） |
+| **N3** | **层级自相似，固定入口文件命名** | 每级目录的入口文件固定为 `docs-overview.md`。子目录自身的命名方式与父级相同：使用业务语义名称，不添加 `docs-tree-` 前缀（`docs-tree-xxx` 仅为本文档的泛指占位符，见 §2.7 命名约定） |
+| **N4** | **版本号不参与目录名** | 版本号降级为元数据行，不作为目录名（§2.8.1 P4）。`用户域-v2/` 是**错误**命名，`用户域/` 是**正确**命名。同一 Feature 的多版本在域级 `docs-overview.md` 中标注「聚合自 v1/v2」 |
+| **N5** | **首次聚类持久化** | 首次运行 §5 步骤 3 时，业务域分组结果（含各域名称）写入根级 `docs-overview.md` 的 Feature 索引表。后续增量运行仅调整变更 Feature 的域归属，不重新聚类全量 Feature，维持目录名稳定 |
+
+#### 2.8.3 期望的输出结构（以电商系统为例）
 
 ```
 .sddu/docs-tree-root/
@@ -349,7 +371,7 @@ src/templates/outputs/                         ← 产物模板（Handlebars 源
 └── TREE.md                                   ← @sddu-tree 维护
 ```
 
-#### 2.8.3 与 `@sddu-tree` 的边界
+#### 2.8.4 与 `@sddu-tree` 的边界
 
 | 维度 | @sddu-docs | @sddu-tree |
 |------|-----------|-----------|
@@ -358,7 +380,7 @@ src/templates/outputs/                         ← 产物模板（Handlebars 源
 | 目录 | 创建/维护 `docs-tree-root/` 的业务目录树 | 只读扫描 `docs-tree-root/`，不修改其内容 |
 | 关系 | @sddu-tree 扫描 docs-tree-root 的业务结构生成导航，不重复描述关系 | @sddu-docs 不生成 TREE.md，专注关系描述 |
 
-#### 2.8.3 关键设计决策
+#### 2.8.5 关键设计决策
 
 | # | 决策 | 说明 |
 |---|------|------|
@@ -380,22 +402,26 @@ src/templates/outputs/                         ← 产物模板（Handlebars 源
 
 在 SDDU 体系中，**模板**是一个 **Handlebars（.hbs）文件**，它定义了一份输出文档的**结构骨架和格式约定**。Agent 在执行任务时读取模板，把提取到的实际内容填入模板中的占位符，渲染为最终的 `.md` 文档。
 
-**模板由两部分组成**：
+**模板由三部分组成**：
 
 | 组成部分 | 说明 | 示例 |
 |---------|------|------|
 | **固定内容** | 不会变的章节标题、表格结构、说明文字 | `## 1. 自身概述`、`\| 属性 \| 值 \|` |
-| **变量占位符** | `<<变量名>>`，由 Agent 在执行时替换为实际内容 | `<<entity_name>>` → `接口管理`，`<<responsibility>>` → `接收客户端请求...` |
+| **变量占位符** | `<<变量名>>`，由 Agent 在执行时替换为实际内容 | `<<doc_subject>>` → `订单域`，`<<responsibility>>` → `接收客户端请求...` |
+| **元数据头** | 模板开头以 `>` 注释形式声明的元数据，Agent 读取时获取。包含 `> **文档定位**`（模板用途声明）、`> **输出文件名**`（渲染后的目标文件名，新增）、`> **数据来源**`、`> **创建人**` 等。出文件名可以是**固定字符串**（如 T1 `docs-overview.md`）或**模板表达式**（如 T3 `<<doc_subject>>-api.md`），详情见 §3.2.1 | `> **输出文件名**: docs-overview.md` → Agent 直接命名；`> **输出文件名**: <<doc_subject>>-api.md` → Agent 解析变量后命名 |
 
 **一个模板的例子**（`sddu-docs-overview.md.hbs` 的简化片段，参考 `sddu-spec.md.hbs` 模式）：
 
 > ⚠️ 以下为**示意参考**，展示模板应有的元数据结构和 Handlebars 语法模式。最终模板由 §3.3 内置模板清单中的各 `.hbs` 文件定义，LLM 按需选用。
 
 ```handlebars
-# <<entity_name>> — docs-overview
+# <<doc_subject>> — docs-overview
 
 > **文档定位**: <<level_description>> — 包含业务全景 + 技术全景，描述本级实体自身 + 内部子组件间的关系  
+> **输出文件名**: docs-overview.md  
 > **数据来源**: 聚合自 specs-tree-root/<<feature_list>>  
+
+(以下为 T1 模板示例，输出文件名为固定值。T3 等模板则使用模板表达式，如 `> **输出文件名**: <<doc_subject>>-api.md`，变量由 Agent 解析。详见 §3.2.1。)  
 > **创建人**: <<created_by，如 SDDU Docs Agent>>  
 > **创建时间**: <<created_at，如 2026-07-05>>  
 > **版本**: <<version，如 v1.0>>  
@@ -470,6 +496,38 @@ src/templates/outputs/                         ← 产物模板（Handlebars 源
 - 每个模板文件**开头声明自己的定位**（`> **文档定位**: ...`），LLM 读开头即知用途
 - 文件名直接反映定位，不需要目录层级做场景约束
 - 模板之间是平等的，LLM 按内容匹配选择，不存在「基础/变体」的层级关系
+- 每个模板**自声明输出文件名**（`> **输出文件名**: xxx.md`），Agent 渲染时按声明命名。不硬编码文件映射，用户自定义模板同样遵循
+
+### 3.2.1 `<<doc_subject>>` 变量：来源、约束与解析
+
+部分模板的输出文件名不是固定字符串，而是含 `<<doc_subject>>` 变量的模板表达式（如 `<<doc_subject>>-api.md`）。本节定义该变量的语义。
+
+**为什么不用「实体名」**：`docs-tree-root/` 的目录层级是递归的 —— 系统 → 子系统/业务域 → 模块 → 对象（§2.7、§2.8.1 P3）。根级描述的是「系统」而非「实体」；业务域描述的是「子系统」而非「实体」。只有最底层才对应传统意义上的「业务实体」。因此需要一个能跨越这四个层级都自然适用的变量名。
+
+| 属性 | 规则 |
+|------|------|
+| **语义** | **文档主题** — 当前文档所描述的 docs-tree 节点。在不同层级表现为：系统（根级，如"电商平台"）、子系统/业务域（如"订单域"）、模块（如"认证模块"）、业务对象（如"登录认证"） |
+| **来源** | LLM 在构建 `docs-tree-root/` 目录树时（§5 步骤 3 语义聚类 + 步骤 4 逐域文档生成），根据语义聚类结果确定各级节点的名称。节点名称经标准化后即为 `<<doc_subject>>` 的值。**不依赖单一 `spec.md`** —— 根级无对应 spec，业务域/模块聚合多个 Feature，只有对象级才可能与单个 spec 一一对应 |
+| **标准化** | 转为 **kebab-case**：小写 ASCII 字母 + 数字 + 连字符。中文名称转拼音或英文翻译（如"用户"→`user`，"订单域"→`order-domain`，"认证模块"→`auth-module`，"商品管理"→`product-management`）。不得保留汉字、空格或下划线 |
+| **约束** | 仅含 `[a-z0-9-]`。不以连字符开头或结尾。长度 ≤ 64 字符 |
+| **回退** | 若 LLM 无法确定节点名称，使用该节点在 docs-tree 中的父级名称 + 序号（如 `order-domain-01`） |
+| **唯一性** | 同一目录下同名文件自动覆盖（增量模式下的预期行为）。Agent **不检查**同名冲突，由 LLM 自行确保节点命名不重叠 |
+
+**在模板文件中的表达**：模板元数据头使用 Handlebars `<<doc_subject>>` 占位符（如 T3 模板的 `> **输出文件名**: <<doc_subject>>-api.md`）。下文的 §3.3 模板清单表中以人类可读的 `{主题}` 占位符表示该变量。
+
+**Agent 解析流程**：
+
+1. 读取模板文件元数据头，提取 `> **输出文件名**` 所在行的值
+2. 判断值类型：
+   - **不含 `<<...>>` 占位符**（如 `docs-overview.md`）→ **固定文件名**，直接使用，无需变量替换
+   - **含 `<<...>>` 占位符**（如 `<<doc_subject>>-api.md`）→ **模板表达式**，进入步骤 3
+3. 从当前文档渲染上下文中解析所有 `<<变量名>>`（与模板正文的变量替换机制一致）：
+   - `<<doc_subject>>` → 当前 docs-tree 节点的标准化名称（如 `product`）
+   - 其他变量（如有）同理
+4. 替换后的字符串即为最终写入的文件名（如 `<<doc_subject>>-api.md` → `product-api.md`）
+5. 使用 `write` 工具以该文件名写入文档
+
+> **设计理由**：`> **输出文件名**` 元数据采用与模板正文相同的 Handlebars `<<变量名>>` 语法，不引入额外的表达式语言。Agent 的变量解析逻辑在 §3.1「Template 使用规则」中已约定（`<<变量名>>` 由 Agent 在执行时替换为实际内容），输出文件名的变量解析是该机制的自然延伸。
 
 ### 3.3 内置模板清单
 
@@ -486,28 +544,32 @@ src/templates/outputs/docs/
 └── sddu-docs-command-tree.md.hbs  ← 命令树
 ```
 
-| # | 名称 | 全景目标 | 模板文件 | 定位说明 |
-|---|------|:--:|---------|---------|
-| T1 | 全景入口 | 双 | `sddu-docs-overview.md.hbs` | 本级全景入口（每级必选）— 包含业务全景 + 技术全景，描述本级实体是什么 + 内部子组件间的关系 |
-| T2 | 业务对象 | 业务 | `sddu-docs-object.md.hbs` | 业务对象详情 — 描述单个业务实体的职责、属性、关联关系、生命周期 |
-| T3 | API 文档 | 业务 | `sddu-docs-api.md.hbs` | 含 API 路由的文档 — REST 端点、请求/响应 Schema、状态码 |
-| T4 | 数据模型 | 业务 | `sddu-docs-data.md.hbs` | 含数据模型的文档 — 表结构、字段、索引、关联关系 |
-| T5 | 前端页面 | 业务 | `sddu-docs-page.md.hbs` | 含前端页面的文档 — 路由、组件树、交互流程 |
-| T6 | 业务流程 | 业务 | `sddu-docs-flow.md.hbs` | 含业务流程的文档 — 状态机、流转规则、异常路径 |
-| T7 | 配置项 | 技术 | `sddu-docs-config.md.hbs` | 含配置项的文档 — 环境变量、开关、参数说明 |
-| T8 | 第三方集成 | 技术 | `sddu-docs-integration.md.hbs` | 含第三方集成的文档 — 外部服务、回调、认证方式 |
-| T9 | 部署信息 | 技术 | `sddu-docs-deploy.md.hbs` | 含部署信息的文档 — 拓扑、资源、CI/CD |
-| T10 | 安全模型 | 技术 | `sddu-docs-security.md.hbs` | 含安全策略的文档 — 认证流程、授权矩阵、安全边界 |
-| T11 | 领域事件 | 业务 | `sddu-docs-event.md.hbs` | 含领域事件的文档 — 事件类型、生产者、消费者、触发条件 |
-| T12 | 导出符号表 | 技术 | `sddu-docs-export.md.hbs` | 含导出符号表的文档 — 类型定义、公共接口、使用示例 |
-| T13 | 命令文档 | 业务 | `sddu-docs-command.md.hbs` | 含命令树的文档 — 参数说明、管道组合 |
-| T14 | 依赖关系 | 双 | `sddu-docs-relation-deps.md.hbs` | 组件之间的依赖、调用链 |
-| T15 | 数据流 | 双 | `sddu-docs-relation-flow.md.hbs` | 组件之间的数据流向、格式、转换 |
-| T16 | 时序 | 双 | `sddu-docs-relation-sequence.md.hbs` | 组件之间的调用顺序、事件触发 |
-| T17 | 关系矩阵 | 双 | `sddu-docs-relation-matrix.md.hbs` | 组件间的接口/能力对照 |
-| T18 | ADR 索引 | 技术 | `sddu-docs-adr-index.md.hbs` | 汇总本级所有架构决策 |
-| T19 | 产物溯源 | 双 | `sddu-docs-source.md.hbs` | 列出聚合了哪些原始文件 |
-| T20 | 命令树 | 业务 | `sddu-docs-command-tree.md.hbs` | 该命令组的完整命令结构 |
+| # | 名称 | 全景目标 | 模板文件 | 输出文件名 | 定位说明 |
+|---|------|:--:|---------|:--------:|---------|
+| T1 | 全景入口 | 双 | `sddu-docs-overview.md.hbs` | `docs-overview.md` | 本级全景入口（每级必选）— 包含业务全景 + 技术全景，描述本级实体是什么 + 内部子组件间的关系 |
+| T2 | 业务对象 | 业务 | `sddu-docs-object.md.hbs` | `{主题}.md` | 业务对象详情 — 描述业务实体的职责、属性、关联关系和生命周期 |
+| T3 | API 文档 | 业务 | `sddu-docs-api.md.hbs` | `{主题}-api.md` | API 路由文档 — REST 端点、请求/响应 Schema、状态码 |
+| T4 | 数据模型 | 业务 | `sddu-docs-data.md.hbs` | `{主题}-data.md` | 数据模型文档 — 表结构、字段、索引、关联关系 |
+| T5 | 前端页面 | 业务 | `sddu-docs-page.md.hbs` | `{主题}-page.md` | 前端页面文档 — 路由、组件树、交互流程 |
+| T6 | 业务流程 | 业务 | `sddu-docs-flow.md.hbs` | `{主题}-flow.md` | 业务流程文档 — 状态机、流转规则、异常路径 |
+| T7 | 配置项 | 技术 | `sddu-docs-config.md.hbs` | `{主题}-config.md` | 配置项文档 — 环境变量、开关、参数说明 |
+| T8 | 第三方集成 | 技术 | `sddu-docs-integration.md.hbs` | `{主题}-integration.md` | 第三方集成文档 — 外部服务、回调、认证方式 |
+| T9 | 部署信息 | 技术 | `sddu-docs-deploy.md.hbs` | `{主题}-deploy.md` | 部署信息文档 — 拓扑、资源、CI/CD |
+| T10 | 安全模型 | 技术 | `sddu-docs-security.md.hbs` | `{主题}-security.md` | 安全策略文档 — 认证流程、授权矩阵、安全边界 |
+| T11 | 领域事件 | 业务 | `sddu-docs-event.md.hbs` | `{主题}-event.md` | 领域事件文档 — 事件类型、生产者、消费者、触发条件 |
+| T12 | 导出符号表 | 技术 | `sddu-docs-export.md.hbs` | `{主题}-export.md` | 导出符号表文档 — 类型定义、公共接口、使用示例 |
+| T13 | 命令文档 | 业务 | `sddu-docs-command.md.hbs` | `{主题}-command.md` | 命令列表文档 — 命令名称、参数说明、管道组合 |
+| T14 | 依赖关系 | 双 | `sddu-docs-relation-deps.md.hbs` | `{主题}-deps.md` | 组件之间的依赖、调用链 |
+| T15 | 数据流 | 双 | `sddu-docs-relation-flow.md.hbs` | `{主题}-dataflow.md` | 组件之间的数据流向、格式、转换 |
+| T16 | 时序 | 双 | `sddu-docs-relation-sequence.md.hbs` | `{主题}-sequence.md` | 组件之间的调用顺序、事件触发 |
+| T17 | 关系矩阵 | 双 | `sddu-docs-relation-matrix.md.hbs` | `{主题}-matrix.md` | 组件间的接口/能力对照 |
+| T18 | ADR 索引 | 技术 | `sddu-docs-adr-index.md.hbs` | `adr-index.md` | 汇总本级所有架构决策 |
+| T19 | 产物溯源 | 双 | `sddu-docs-source.md.hbs` | `source.md` | 列出聚合了哪些原始文件 |
+| T20 | 命令树 | 业务 | `sddu-docs-command-tree.md.hbs` | `{主题}-command-tree.md` | 命令树的完整层级结构 |
+
+> **「输出文件名」列说明**：
+> - **固定字符串**（T1 `docs-overview.md`、T18 `adr-index.md`、T19 `source.md`）：模板元数据中为纯文本，Agent 直接使用，无需变量替换。以 `docs-overview.md` 为例——这是 §2.8.5 D2「统一入口文件名」的体现：每级目录的入口文档固定命名，用户在任意层级都能锁定入口。
+> - **模板表达式**（T2~T17、T20，含 `{主题}`）：表中 `{主题}` 是人类可读占位符，代表**当前 docs-tree 节点的标准化名称**。在模板文件的元数据头中，对应 Handlebars 变量 `<<doc_subject>>`（如 T3 模板的元数据行为 `> **输出文件名**: <<doc_subject>>-api.md`）。Agent 渲染时，以当前 docs-tree 节点在 §5 步骤 3~4 中确定的名称（已 kebab-case 标准化）替换变量。变量来源与解析规则见 §3.2.1。
 
 ### 3.4 模板选择机制
 
@@ -629,6 +691,7 @@ LLM 不预判项目类型，而是**按内容匹配选择模板**：
 | 🆕 NEW | `src/templates/outputs/docs/sddu-docs-source.md.hbs` | 产物溯源 | ~40 |
 | 🆕 NEW | `src/templates/outputs/docs/sddu-docs-command-tree.md.hbs` | 命令树 | ~40 |
 | ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs` | **指令模板补全** — 从 110 行占位骨架扩展为 ~300 行可执行模板。核心变更：§5（7 步工作流）、§6（输出模板选择）、§7（三 Agent 边界）、§8（EC-001~EC-011）、§9（示例对话） | +190 / -10 |
+| 📝 META | 以上 20 个模板文件 | 每个模板各含一行 `> **输出文件名**（如 `> **输出文件名**: docs-overview.md`）元数据声明（总计 +20 行） | — |
 | 🆕 NEW | 运行时创建 | `.sddu/docs-tree-root/` 目录树（含子系统/模块/对象逐级目录 + 文件） | 由 @sddu-docs 运行时按需生成 |
 | 🆕 NEW | `e2e/scripts/docs-agent/sddu-docs-e2e.sh` | **E2E 验证脚本** — 创建隔离测试项目 + 安装 SDDU 插件 + 生成 mock Feature 目录（3 个 Feature：完整/缺 plan/含 ADR）→ 供 validate Agent 层 B 使用 | ~80 |
 
@@ -1011,3 +1074,8 @@ ACCEPTED
 | v2.2 | **§10.3.1 步骤 5 修复** — 设计缺陷修正：`task(sddu-docs)` 在**当前** opencode 会话执行会导致 Agent §4 前置验证扫描当前项目的 `.sddu/specs-tree-root/`（18 个 Feature），而非隔离项目的 3 个 mock Feature，即便 prompt 中明确指定 `$TEST_DIR` 绝对路径也无法绕过 Agent 模板硬编码的 CWD 检查；改为 `opencode run --dir $TEST_DIR --agent sddu-docs --auto` **方案 B（独立进程）**，利用 `--dir` 切换进程工作目录实现真正的上下文隔离，Agent 仅看到测试项目的 `.sddu/specs-tree-root/`；B6/B8 断言验证方法 + 可行性表同步更新 | 2026-07-05 | SDDU Plan Agent |
 | v2.3 | **§10.3.1 步骤 5 二次修正** — v2.2 使用 `--dir` 切换工作目录，但 `--dir` 只设置 Agent CWD 不改变 opencode 插件加载路径；`install.sh` 已将 SDDU 插件安装到 `$TEST_DIR`，opencode 必须从 `$TEST_DIR` 启动（`cd "$TEST_DIR"`）才能加载该目录下的 `.opencode/plugins/sddu/` 和 `opencode.json`；步骤 5 说明文字补充「插件加载路径 vs 工作目录」区别；可行性表同步更新 | 2026-07-05 | SDDU Plan Agent |
 | v2.4 | **§10.3.1 步骤 2/7 修正** — 步骤 2：TEST_DIR 由 `mktemp -d /tmp/sddu-docs-test-XXXXXX`（随机后缀，用户无法定位）改为固定路径 `"/tmp/sddu-validate-docs-$(date +%Y%m%d-%H%M%S)"`，用时间戳避免多实例冲突；步骤 7：移除 `rm -rf "$TEST_DIR"` 自动删除，补充说明验证完成后保留目录供用户手动复核产物内容 | 2026-07-05 | SDDU Plan Agent |
+| v2.5 | **模板自声明输出文件名** — §3.1 模板由两部分改为三部分（新增元数据头，含 `> **输出文件名**`）；§3.2 新增设计原则：每个模板自声明输出文件名，Agent 渲染时按声明命名，不硬编码映射；§3.1 示例模板补充 `> **输出文件名**` 元数据行；§3.3 模板清单表新增「输出文件名」列（T1~T20 映射）；§6.1 标注 20 模板各 +1 行元数据（+20 行） | 2026-07-05 | SDDU Plan Agent |
+| v2.6 | **澄清「输出文件名」列语义** — §3.1 元数据头行补充两种文件名形式（固定字符串 / 模板表达式）及示例；§3.1 示例模板 `> **输出文件名**` 改为 T1 具体值 `docs-overview.md`；新增 §3.2.1 定义 `<<entity_name>>` 变量来源（LLM 语义提取 → kebab-case 标准化）、约束（仅 `[a-z0-9-]`、≤64 字符）和 Agent 5 步解析流程；§3.3 表后新增「输出文件名」列说明块，区分固定字符串（T1/T18/T19）与模板表达式（T2~T17/T20，表中 `{实体名}` 对应模板元数据的 Handlebars `<<entity_name>>`） | 2026-07-05 | SDDU Plan Agent |
+| v2.7 | **重构「输出文件名」命名体系** — 将 `<<entity_name>>`（实体名，仅适用于对象级）更名为 `<<doc_subject>>`（文档主题），覆盖系统/域/模块/对象四级；重写 §3.2.1：界定语义定义（docs-tree 节点名称）、修正来源（不依赖单一 spec.md，改由 LLM 构建 docs-tree 时确定）、更新回退规则（父级+序号）、新增"为什么不用「实体名」"前置说明块；§3.3 模板清单表将 `{实体名}` 占位符改为 `{主题}`，列说明块对应更新为 `<<doc_subject>>`；§3.1 示例模板同步变量名 | 2026-07-05 | SDDU Plan Agent |
+| v2.8 | **§3.3 模板定位说明语义修正** — 去掉「单个」「一个」等数量限定词（T2），将「含...的文档」改为直接描述模板能呈现的信息类型（T3~T12），T13「含命令树的文档」改为「命令列表文档」（区分 T20 命令树），T20「该命令组」改为「命令树」泛化表述；所有 `#each` 遍历模板自然地按多条目语义描述 | 2026-07-05 | SDDU Plan Agent |
+| v2.9 | **§2.7/§2.8 docs-tree-xxx 命名混乱修正** — ① §2.7 标题从「docs-tree-xxx 目录规范」改为「docs-tree-root 目录规范」，新增「命名约定」说明 docs-tree-xxx 是泛指占位符而非目录命名规则；② 模板占位符 `{业务名称}/` → `{LLM聚类业务域名}/`、`{子模块目录}/` → `{子级业务目录}/`，与 §2.8.3 示例对齐；③ 新增 §2.7「产物禁止事项」：X1 禁止原文照搬 spec/plan/ADR、X2 禁止以 Feature 目录名作为子目录名、X3 根级入口固定 docs-overview.md；④ 新增 §2.8.2「子目录命名规则」（N1 业务语义命名、N2 禁止泄漏 Feature 目录名、N3 层级自相似、N4 版本号不参与、N5 首次聚类持久化）；⑤ 原 §2.8.2~§2.8.3 顺延为 §2.8.3~§2.8.5，修复 §2.8.3 标题重复问题；⑥ 修正 §3.3 跨引用 §2.8.1 D2 → §2.8.5 D2 | 2026-07-05 | SDDU Plan Agent |

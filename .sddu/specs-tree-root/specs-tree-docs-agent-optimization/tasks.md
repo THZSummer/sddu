@@ -4,10 +4,10 @@
 > **前置依赖**: plan.md（技术方案）、spec.md（需求规范）  
 > **创建人**: SDDU Tasks Agent  
 > **创建时间**: 2026-07-05  
-> **版本**: v1.0  
+> **版本**: v2.0  
 > **更新人**: SDDU Tasks Agent  
 > **更新时间**: 2026-07-05  
-> **更新说明**: 初始创建 — 基于 plan v1.9 分解为 8 个任务、4 个波次
+> **更新说明**: v2.0 — 增量任务：基于 plan v2.9 新约束（模板自声明输出文件名、`<<entity_name>>`→`<<doc_subject>>` 重命名、定位声明去限定词、子目录命名规则 N1~N5、禁止事项 X1~X3），新增 5 个任务、3 个波次
 
 ## 1. 依赖拓扑总览
 > 任务依赖关系和执行顺序
@@ -466,9 +466,480 @@ print('PASS: state.json validated')
 **关键路径**: TASK-001~004 → TASK-005 → TASK-006 → TASK-008
 > TASK-007（构建验证）可在 TASK-006 完成后与 TASK-008 并行，不阻塞关键路径
 
+---
+
+## 5. 增量任务（plan v2.9 约束对齐）
+
+> 以下为 plan v1.9→v2.9 迭代中新增的 7 类设计约束所对应的增量任务。前置任务 TASK-001~008 已完成，20 个模板 + Agent 模板均已就位。增量任务聚焦于修改现有文件，不新增模板。
+
+### 5.1 增量依赖拓扑总览
+
+```
+Wave 1 ─── (无依赖，全部并行)
+  TASK-009 [M]  模板 T1~T10 三合一改造（输出文件名 + 变量重命名 + 定位去限定词）
+  TASK-010 [M]  模板 T11~T20 三合一改造（输出文件名 + 变量重命名 + 定位去限定词）
+  TASK-011 [M]  Agent 模板 §5 步骤 3（N1~N5 命名规则）+ §8（X1~X3 禁止事项）
+
+Wave 2 ─── (依赖 TASK-009, TASK-010)
+  TASK-012 [S]  Agent 模板 §6.2 表定位声明同步
+
+Wave 3 ─── (依赖 Wave 1 + Wave 2)
+  TASK-013 [S]  构建验证 + 交叉一致性校验 + 版本升级
+```
+
+### 5.2 增量任务列表
+
+---
+
+#### TASK-009: 模板 T1~T10 三合一改造
+> 对前 10 个输出模板施加 3 类变更：输出文件名元数据、变量重命名、定位声明去限定词
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | M |
+| **前置依赖** | 无（Wave 1 并行） |
+| **执行波次** | Wave 1 |
+| **对应 FR** | FR-002, FR-003, FR-008 |
+| **状态** | ✅ completed |
+
+**描述**: 
+根据 plan v2.5（模板自声明输出文件名）、v2.7（`<<entity_name>>`→`<<doc_subject>>` 重命名）、v2.8（定位声明去限定词）三项设计约束，对模板 T1~T10（`sddu-docs-overview` / `object` / `api` / `data` / `page` / `flow` / `config` / `integration` / `deploy` / `security`）执行以下 3 类修改：
+
+**变更 A — 添加 `> **输出文件名**` 元数据行**（10 个文件各 +1 行）：
+在 `> **文档定位**` 行后插入 `> **输出文件名**: xxx` 行。固定文件名（T1: `docs-overview.md`）直接写死；模板表达式（T2~T10: `<<doc_subject>>.md` / `<<doc_subject>>-api.md` / 等）使用 Handlebars 变量。
+
+**变更 B — `<<entity_name>>` → `<<doc_subject>>` 全局替换**（8 个文件含此变量）：
+- `overview.md.hbs`（标题）：`# <<entity_name>> — 全景入口` → `# <<doc_subject>> — 全景入口`
+- `object.md.hbs`（标题 + 属性表）：`# <<entity_name>>` + `| **对象名称** | <<entity_name>> |`
+- `flow.md.hbs`（概述表）：`| **本流程涉及业务对象** | \`<<entity_name>>\` |`
+- `config.md.hbs`（标题 + 概述）：`` # <<entity_name>> — 配置项 `` + `记录<<entity_name>>涉及的所有可配置项`
+- `integration.md.hbs`（标题 + 概述）：`` # <<entity_name>> — 第三方集成 `` + `记录<<entity_name>>依赖和提供的...`
+- `deploy.md.hbs`（标题 + 概述）：`` # <<entity_name>> — 部署信息 `` + `记录<<entity_name>>的部署拓扑...`
+- `security.md.hbs`（标题 + 概述）：`` # <<entity_name>> — 安全模型 `` + `记录<<entity_name>>的认证授权体系...`
+- `api.md.hbs` + `data.md.hbs` + `page.md.hbs`：不含 `<<entity_name>>`，仅变更 A/C
+
+**变更 C — 定位声明去限定词**（7 个文件含旧模式）：
+按 plan v2.8 §3.3 要求，模板定位声明改为集合语义：
+- T2 `object`: `描述单个业务实体的职责...` → `描述业务实体的职责、属性、关联关系和生命周期`（去「单个」）
+- T3 `api`: `含 API 路由的文档，描述 REST...` → `API 路由文档 — REST 端点、请求/响应 Schema、状态码`
+- T4 `data`: `含数据模型的文档，描述表结构...` → `数据模型文档 — 表结构、字段、索引、关联关系`
+- T5 `page`: `含前端页面的文档，描述路由信息...` → `前端页面文档 — 路由、组件树、交互流程`
+- T6 `flow`: `含业务流程的文档，描述状态机...` → `业务流程文档 — 状态机、流转规则、异常路径`
+- T7 `config`: `含配置项的文档，记录环境变量...` → `配置项文档 — 环境变量、功能开关、参数说明`
+- T8 `integration`: `含第三方集成的文档，记录外部服务...` → `第三方集成文档 — 外部服务、回调、认证方式`
+- T9 `deploy`: `含部署信息的文档，记录部署拓扑...` → `部署信息文档 — 拓扑、资源、CI/CD`
+- T10 `security`: `含安全策略的文档，记录认证流程...` → `安全策略文档 — 认证流程、授权矩阵、安全边界`
+- T1 `overview`: 定位声明无需修改（已是集合语义）
+
+**涉及文件**:
+
+| 操作 | 文件路径 | 变更 |
+|:--:|------|------|
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-overview.md.hbs` | A+B |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-object.md.hbs` | A+B+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-api.md.hbs` | A+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-data.md.hbs` | A+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-page.md.hbs` | A+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-flow.md.hbs` | A+B+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-config.md.hbs` | A+B+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-integration.md.hbs` | A+B+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-deploy.md.hbs` | A+B+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-security.md.hbs` | A+B+C |
+
+**验收标准**:
+- [x] T1~T10 每个模板元数据头含 `> **输出文件名**: ...` 行（位于 `> **文档定位**` 之后）
+- [x] T1 输出文件名为固定值 `docs-overview.md`
+- [x] T2~T10 输出文件名为模板表达式（如 `<<doc_subject>>-api.md`），与 plan §3.3 表一致
+- [x] 8 个含 `<<entity_name>>` 的模板全部替换为 `<<doc_subject>>`，无残留
+- [x] T2~T10 定位声明中无「含...的文档」「单个」等限定词
+- [x] `api.md.hbs` + `data.md.hbs` + `page.md.hbs` 不含 `<<entity_name>>`（原始即无，变更 A+C 后验证仍无残留）
+- [x] 所有 `#each`/`#if` 块配对完好（变更前后计数一致）
+
+**验证命令**:
+```bash
+# 验证输出文件名元数据存在（T1~T10 各 1 行）
+for f in overview object api data page flow config integration deploy security; do
+  grep -q '输出文件名' "src/templates/outputs/docs/sddu-docs-${f}.md.hbs" && echo "PASS: $f has output filename" || echo "FAIL: $f missing output filename"
+done
+
+# 验证无 <<entity_name>> 残留
+grep -rn 'entity_name' src/templates/outputs/docs/sddu-docs-{overview,object,api,data,page,flow,config,integration,deploy,security}.md.hbs \
+  && echo "FAIL: entity_name residue found" || echo "PASS: entity_name cleared"
+
+# 验证 <<doc_subject>> 存在（至少 8 个文件含此变量）
+count=$(grep -l 'doc_subject' src/templates/outputs/docs/sddu-docs-{overview,object,flow,config,integration,deploy,security}.md.hbs 2>/dev/null | wc -l)
+test $count -ge 7 && echo "PASS: doc_subject in $count files" || echo "WARN: doc_subject in $count files"
+
+# 验证 T1 输出文件名固定
+grep -q '输出文件名.*docs-overview.md' src/templates/outputs/docs/sddu-docs-overview.md.hbs && echo "PASS: T1 fixed filename"
+
+# 验证定位声明去限定词
+! grep -q '含.*的文档' src/templates/outputs/docs/sddu-docs-{api,data,page,flow,config,integration,deploy,security}.md.hbs 2>/dev/null \
+  && echo "PASS: no '含X的文档' pattern" || echo "FAIL: old pattern found"
+! grep -q '单个' src/templates/outputs/docs/sddu-docs-object.md.hbs \
+  && echo "PASS: no '单个' in T2" || echo "FAIL: '单个' found in T2"
+```
+
+---
+
+#### TASK-010: 模板 T11~T20 三合一改造
+> 对后 10 个输出模板施加 3 类变更：输出文件名元数据、变量重命名、定位声明去限定词
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | M |
+| **前置依赖** | 无（Wave 1 并行） |
+| **执行波次** | Wave 1 |
+| **对应 FR** | FR-002, FR-003, FR-008 |
+| **状态** | ✅ completed |
+
+**描述**: 
+对模板 T11~T20（`sddu-docs-event` / `export` / `command` / `relation-deps` / `relation-flow` / `relation-sequence` / `relation-matrix` / `adr-index` / `source` / `command-tree`）执行与 TASK-009 相同的 3 类修改。
+
+**变更 A — 添加 `> **输出文件名**` 元数据行**（10 个文件各 +1 行）：
+- T11 `event`: `<<doc_subject>>-event.md`
+- T12 `export`: `<<doc_subject>>-export.md`
+- T13 `command`: `<<doc_subject>>-command.md`
+- T14 `relation-deps`: `<<doc_subject>>-deps.md`
+- T15 `relation-flow`: `<<doc_subject>>-dataflow.md`
+- T16 `relation-sequence`: `<<doc_subject>>-sequence.md`
+- T17 `relation-matrix`: `<<doc_subject>>-matrix.md`
+- T18 `adr-index`: `adr-index.md`（固定值）
+- T19 `source`: `source.md`（固定值）
+- T20 `command-tree`: `<<doc_subject>>-command-tree.md`
+
+**变更 B — `<<entity_name>>` → `<<doc_subject>>` 全局替换**（7 个文件含此变量）：
+- `export.md.hbs`（标题 + 概述）：`` # <<entity_name>> — 导出符号表 `` + `记录<<entity_name>>对外暴露的...`
+- `relation-deps.md.hbs`（标题）：`` # <<entity_name>> — 依赖关系 ``
+- `relation-flow.md.hbs`（标题）：`` # <<entity_name>> — 数据流 ``
+- `relation-sequence.md.hbs`（标题）：`` # <<entity_name>> — 时序关系 ``
+- `relation-matrix.md.hbs`（标题）：`` # <<entity_name>> — 关系矩阵 ``
+- `adr-index.md.hbs`（标题）：`` # <<entity_name>> — ADR 索引 ``
+- `source.md.hbs`（标题）：`` # <<entity_name>> — 产物溯源 ``
+- `event.md.hbs` + `command.md.hbs` + `command-tree.md.hbs`：不含 `<<entity_name>>`，仅变更 A/C
+
+**变更 C — 定位声明去限定词**（4 个文件含旧模式）：
+- T11 `event`: `含领域事件的文档，描述事件类型...` → `领域事件文档 — 事件类型、生产者、消费者、触发条件`
+- T12 `export`: `含导出符号表的文档，记录类型定义...` → `导出符号表文档 — 类型定义、公共接口、使用示例`
+- T13 `command`: `含命令的文档，描述命令名称...` → `命令列表文档 — 命令名称、参数说明、管道组合`
+- T20 `command-tree`: `该命令组的完整命令树结构，展示命令与子命令层级` → `命令树的完整层级结构`
+- T14~T19：定位声明为集合语义，无需修改
+
+**涉及文件**:
+
+| 操作 | 文件路径 | 变更 |
+|:--:|------|------|
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-event.md.hbs` | A+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-export.md.hbs` | A+B+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-command.md.hbs` | A+C |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-relation-deps.md.hbs` | A+B |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-relation-flow.md.hbs` | A+B |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-relation-sequence.md.hbs` | A+B |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-relation-matrix.md.hbs` | A+B |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-adr-index.md.hbs` | A+B |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-source.md.hbs` | A+B |
+| ✏️ MODIFY | `src/templates/outputs/docs/sddu-docs-command-tree.md.hbs` | A+C |
+
+**验收标准**:
+- [ ] T11~T20 每个模板元数据头含 `> **输出文件名**: ...` 行
+- [ ] T18 `adr-index`、T19 `source` 为固定文件名
+- [ ] T11~T17, T20 为模板表达式（含 `<<doc_subject>>`），与 plan §3.3 表一致
+- [ ] 7 个含 `<<entity_name>>` 的模板全部替换为 `<<doc_subject>>`，无残留
+- [ ] T11~T13, T20 定位声明无「含...的文档」「该命令组」等旧模式
+- [ ] 所有 `#each`/`#if` 块配对完好
+
+**验证命令**:
+```bash
+# 验证输出文件名元数据存在（T11~T20 各 1 行）
+for f in event export command relation-deps relation-flow relation-sequence relation-matrix adr-index source command-tree; do
+  grep -q '输出文件名' "src/templates/outputs/docs/sddu-docs-${f}.md.hbs" && echo "PASS: $f has output filename" || echo "FAIL: $f missing output filename"
+done
+
+# 验证无 <<entity_name>> 残留
+grep -rn 'entity_name' src/templates/outputs/docs/sddu-docs-{event,export,command,relation-deps,relation-flow,relation-sequence,relation-matrix,adr-index,source,command-tree}.md.hbs \
+  && echo "FAIL: entity_name residue found" || echo "PASS: entity_name cleared"
+
+# 验证 T18/T19 固定文件名
+grep -q '输出文件名.*adr-index.md' src/templates/outputs/docs/sddu-docs-adr-index.md.hbs && echo "PASS: T18 fixed filename"
+grep -q '输出文件名.*source.md' src/templates/outputs/docs/sddu-docs-source.md.hbs && echo "PASS: T19 fixed filename"
+
+# 验证定位声明去限定词
+! grep -q '含.*的文档' src/templates/outputs/docs/sddu-docs-{event,export,command}.md.hbs 2>/dev/null \
+  && echo "PASS: no '含X的文档' pattern" || echo "FAIL: old pattern found"
+! grep -q '该命令组' src/templates/outputs/docs/sddu-docs-command-tree.md.hbs \
+  && echo "PASS: no '该命令组' in T20" || echo "FAIL: '该命令组' found"
+```
+
+---
+
+#### TASK-011: Agent 模板新增 §5 步骤 3 命名规则 + §8 禁止事项
+> 在 Agent 指令模板中注入 plan v2.9 新增的子目录命名规则（N1~N5）和产物禁止事项（X1~X3）
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | M |
+| **前置依赖** | 无（Wave 1 并行，只读 plan v2.9 概念，不依赖模板文件） |
+| **执行波次** | Wave 1 |
+| **对应 FR** | FR-001, FR-002 |
+| **状态** | ✅ completed |
+
+**描述**: 
+在 Agent 指令模板 `src/templates/agents/sddu-docs.md.hbs` 的 §5（工作流程）和 §8（规则）中新增 plan v2.9 定义的两组约束，解决 E2E 验证发现的偏离（Agent 使用了 Feature 目录名作为子目录名、未使用模板渲染）。
+
+**变更 1 — §5 步骤 3「业务层级推导」追加子目录命名规则 N1~N5**（对齐 plan §2.8.2）：
+在步骤 3 第 2 条「LLM 语义聚类」之后、第 3 条「首次持久化」之前，插入子目录命名约束块（Markdown 表格）：
+
+| # | 规则 | 说明 |
+|---|------|------|
+| **N1** | **业务语义命名** | 子目录名是 LLM 语义聚类产生的业务域/模块名称。使用业务术语（如 `用户域/`、`订单域/`、`认证模块/`），语言由 Feature 产物中的主导语言决定 |
+| **N2** | **禁止泄漏 Feature 目录名** | 禁止直接拷贝 `specs-tree-root/` 下的 Feature 目录名（如 `feature-api/`）作为子目录名 |
+| **N3** | **层级自相似，固定入口文件命名** | 每级入口文件固定为 `docs-overview.md`。子目录命名与父级规则相同，不添加 `docs-tree-` 前缀 |
+| **N4** | **版本号不参与目录名** | 版本号降级为元数据行，不作为目录名（`用户域-v2/` 错误，`用户域/` 正确） |
+| **N5** | **首次聚类持久化** | 首次运行时的业务域分组结果写入根级 `docs-overview.md` Feature 索引表，后续增量仅调整变更 Feature 域归属 |
+
+**变更 2 — §8「规则」追加产物禁止事项 X1~X3**（对齐 plan §2.7）：
+在规则列表末尾（第 7 条之后）、§8.1 三 Agent 边界表之前，插入禁止事项块：
+
+| # | 禁止行为 | 说明 | 正确做法 |
+|---|---------|------|---------|
+| ❌ **X1** | **原文照搬 spec.md / plan.md / ADR** | 不得复制粘贴原始产物文件到 docs-tree-root | 使用 T19 模板标注出处链接 |
+| ❌ **X2** | **以 Feature 目录名作为子目录名** | 子目录名必须是业务语义名称 | 遵循 N1~N5 命名规则 |
+| ❌ **X3** | **更改根级入口文件名** | 根级入口固定命名为 `docs-overview.md` | 使用 T1 模板（输出文件名 `docs-overview.md`） |
+
+**变更 3 — 验证 §5 步骤 2/4 docs-tree-root 引用**（对齐 plan §2.7）：
+- 步骤 1 已正确使用 `.sddu/docs-tree-root/`
+- 步骤 2 使用 `stat -c %Y` 获取 mtime，路径引用正确
+- 步骤 4 使用 `.sddu/docs-tree-root/{业务域}/`，无需修改
+- 如发现 `docs-tree-xxx`（泛指占位符）误用为实际目录名，修正为 `docs-tree-root/` 或业务语义名称
+
+**涉及文件**:
+
+| 操作 | 文件路径 |
+|:--:|------|
+| ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs`（新增 ~45 行于 §5 步骤 3 + §8） |
+
+**验收标准**:
+- [ ] §5 步骤 3 第 2 条「LLM 语义聚类」之后含 N1~N5 命名规则表
+- [ ] §8 规则列表之后含 X1~X3 禁止事项表（位于 §8.1 三 Agent 边界表之前）
+- [ ] X1~X3 表包含「禁止行为」「说明」「正确做法」三列
+- [ ] N1~N5 表包含「规则」「说明」两列
+- [ ] §5 步骤 2/4 中不包含 `docs-tree-xxx` 泛指占位符作为目录引用（如存在则修正）
+- [ ] 变更不破坏现有步骤编号和 `→ 进入步骤 N+1` 跳转逻辑
+
+**验证命令**:
+```bash
+# 验证 N1~N5 规则存在
+for n in N1 N2 N3 N4 N5; do
+  grep -q "$n" src/templates/agents/sddu-docs.md.hbs && echo "PASS: $n present" || echo "FAIL: $n missing"
+done
+
+# 验证 X1~X3 禁止事项存在
+for x in X1 X2 X3; do
+  grep -q "$x" src/templates/agents/sddu-docs.md.hbs && echo "PASS: $x present" || echo "FAIL: $x missing"
+done
+
+# 验证禁止事项关键词
+grep -q '原文照搬.*spec.*plan.*ADR' src/templates/agents/sddu-docs.md.hbs && echo "PASS: X1 verbatim-copy rule"
+grep -q 'Feature 目录名.*子目录名' src/templates/agents/sddu-docs.md.hbs && echo "PASS: X2 feature-dir-name rule"
+grep -q '更改根级入口文件名' src/templates/agents/sddu-docs.md.hbs && echo "PASS: X3 root-entry-name rule"
+
+# 验证无 docs-tree-xxx 误用为目录引用（排除解释性说明）
+! grep -P 'docs-tree-(?!root\b)[a-z]+/' src/templates/agents/sddu-docs.md.hbs 2>/dev/null \
+  && echo "PASS: no docs-tree-xxx literal directory refs" || echo "WARN: check context"
+
+# 验证步骤编号连续性
+grep -c '### 步骤 [1-7]:' src/templates/agents/sddu-docs.md.hbs | xargs -I{} test {} -eq 7 && echo "PASS: 7 steps intact"
+```
+
+---
+
+#### TASK-012: Agent 模板 §6.2 表定位声明同步
+> 同步 Agent 指令模板中的模板清单表定位声明，使其与 TASK-009/010 更新后的模板实际定位一致
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | S |
+| **前置依赖** | TASK-009, TASK-010 |
+| **执行波次** | Wave 2 |
+| **对应 FR** | FR-003, FR-006 |
+
+**描述**: 
+Agent 指令模板 §6.2「模板清单与适用场景」表中的「定位声明」列，必须与模板文件 `.hbs` 中 `> **文档定位**: ...` 行的实际文本保持一致。TASK-009/010 更新了 20 个模板的定位声明后，本任务同步 §6.2 表中的对应行。
+
+**更新规则**（对齐 plan v2.8 §3.3）：
+- T2: `描述单个业务实体的职责...` → `描述业务实体的职责、属性、关联关系和生命周期`
+- T3: `含 API 路由的文档 — REST...` → `API 路由文档 — REST 端点、请求/响应 Schema、状态码`
+- T4: `含数据模型的文档 — 表结构...` → `数据模型文档 — 表结构、字段、索引、关联关系`
+- T5: `含前端页面的文档 — 路由...` → `前端页面文档 — 路由、组件树、交互流程`
+- T6: `含业务流程的文档 — 状态机...` → `业务流程文档 — 状态机、流转规则、异常路径`
+- T7: `含配置项的文档 — 环境变量...` → `配置项文档 — 环境变量、开关、参数说明`
+- T8: `含第三方集成的文档 — 外部服务...` → `第三方集成文档 — 外部服务、回调、认证方式`
+- T9: `含部署信息的文档 — 拓扑...` → `部署信息文档 — 拓扑、资源、CI/CD`
+- T10: `含安全策略的文档 — 认证流程...` → `安全策略文档 — 认证流程、授权矩阵、安全边界`
+- T11: `含领域事件的文档 — 事件类型...` → `领域事件文档 — 事件类型、生产者、消费者、触发条件`
+- T12: `含导出符号表的文档 — 类型定义...` → `导出符号表文档 — 类型定义、公共接口、使用示例`
+- T13: `含命令的文档 — 命令名称...` → `命令列表文档 — 命令名称、参数说明、管道组合`
+- T20: `命令树 — 命令组的完整层级结构` → `命令树 — 命令树的完整层级结构`
+- T1, T14~T19：定位声明无需修改（已为集合语义）
+
+**涉及文件**:
+
+| 操作 | 文件路径 |
+|:--:|------|
+| ✏️ MODIFY | `src/templates/agents/sddu-docs.md.hbs`（§6.2 表 13 行变更） |
+
+**验收标准**:
+- [ ] §6.2 表中 T2~T13, T20 的定位声明与对应 `.hbs` 模板文件的 `> **文档定位**` 行文本一致
+- [ ] 表中无「含...的文档」「单个」「该命令组」等旧模式
+- [ ] 表中行数仍为 20（T1~T20），无增删
+- [ ] 修订记录新增本次变更条目
+
+**验证命令**:
+```bash
+# 验证 §6.2 表定位声明与模板文件一致（抽样对比 T3, T10, T13）
+agent_t3=$(grep 'T3.*API' src/templates/agents/sddu-docs.md.hbs | head -1)
+template_t3=$(grep '文档定位' src/templates/outputs/docs/sddu-docs-api.md.hbs | head -1)
+echo "Agent T3: $agent_t3"
+echo "Template T3: $template_t3"
+
+# 验证旧模式已清除
+! grep -q '含.*的文档' src/templates/agents/sddu-docs.md.hbs && echo "PASS: no old pattern in agent"
+! grep -q '单个.*实体' src/templates/agents/sddu-docs.md.hbs && echo "PASS: no '单个' in agent"
+! grep -q '该命令组' src/templates/agents/sddu-docs.md.hbs && echo "PASS: no '该命令组' in agent"
+
+# 验证表行数
+grep -c '| T[0-9]' src/templates/agents/sddu-docs.md.hbs | xargs -I{} test {} -ge 20 && echo "PASS: >=20 T-rows"
+```
+
+---
+
+#### TASK-013: 构建验证 + 交叉一致性校验 + 版本升级
+> 运行构建流程，验证所有增量变更编译通过；执行交叉一致性校验；升级版本号
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | S |
+| **前置依赖** | TASK-009, TASK-010, TASK-011, TASK-012 |
+| **执行波次** | Wave 3 |
+| **对应 FR** | NFR-002, NFR-003 |
+
+**描述**: 
+在增量变更全部完成后执行三项收尾工作：
+
+**1. 构建验证**：
+- 运行 `node scripts/build-agents.cjs` 验证所有 Handlebars 模板编译通过
+- 重点验证：`<<doc_subject>>` 变量语法正确（出现在 `> **输出文件名**` 行时不破坏构建）、20 个模板全部复制到 `.opencode/plugins/sddu/templates/output/docs/`
+
+**2. 交叉一致性校验**：
+- Agent 模板 §6.2 引用的模板名 ↔ `src/templates/outputs/docs/` 实际文件 1:1 匹配
+- 所有 20 个模板均有 `> **输出文件名**` 元数据
+- 无 `<<entity_name>>` 残留于任何 `.hbs` 文件
+- 无「含...的文档」「单个」「该命令组」等旧模式残留
+- §5 步骤 3 含 N1~N5、§8 含 X1~X3
+- 所有 `#each`/`#if` 块完好闭合
+
+**3. 版本升级**：
+- tasks.md 版本 v2.0（已完成）
+- tasks.json `version` → `"v2.0"`，更新 `totalTasks`、`totalWaves`、`complexityDistribution`
+- state.json `phase` → `"tasked"`，新增 phaseHistory 条目
+
+**涉及文件**:
+
+| 操作 | 文件路径 |
+|:--:|------|
+| 🔍 VERIFY | `scripts/build-agents.cjs`（只运行，不修改） |
+| 🔍 VERIFY | `.opencode/plugins/sddu/templates/output/docs/`（构建产物） |
+| ✏️ MODIFY | `.sddu/specs-tree-root/specs-tree-docs-agent-optimization/tasks.json` |
+| ✏️ MODIFY | `.sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json` |
+
+**验收标准**:
+- [ ] `node scripts/build-agents.cjs` 执行返回 exit code 0
+- [ ] 构建输出中无 Handlebars 编译错误
+- [ ] `.opencode/plugins/sddu/templates/output/docs/` 下含 20 个 `.hbs` 文件
+- [ ] Agent 模板 §6.2 引用的模板名与实际文件 1:1 匹配
+- [ ] 全项目无 `<<entity_name>>` 残留
+- [ ] 全项目无「含...的文档」定位声明旧模式
+- [ ] tasks.json `version` = `"v2.0"`，`totalTasks` = 13，`totalWaves` = 7
+- [ ] state.json `phase` = `"tasked"`，phaseHistory 含新 `tasked` 条目
+
+**验证命令**:
+```bash
+# 构建验证
+node scripts/build-agents.cjs && echo "✓ Build passed"
+
+# 构建产物数量
+count=$(ls .opencode/plugins/sddu/templates/output/docs/*.hbs 2>/dev/null | wc -l)
+test $count -eq 20 && echo "PASS: 20 output templates in plugin dir" || echo "FAIL: expected 20, got $count"
+
+# 全局残留检查
+echo "=== entity_name residue ==="
+grep -rn 'entity_name' src/templates/outputs/docs/ src/templates/agents/sddu-docs.md.hbs || echo "PASS: zero residue"
+
+echo "=== Old positioning pattern ==="
+grep -rn '含.*的文档' src/templates/outputs/docs/ src/templates/agents/sddu-docs.md.hbs || echo "PASS: zero old pattern"
+
+# Handlebars 闭合检查
+for f in src/templates/outputs/docs/*.hbs src/templates/agents/sddu-docs.md.hbs; do
+  open=$(grep -c '#each' "$f" 2>/dev/null || echo 0)
+  close=$(grep -c '/each' "$f" 2>/dev/null || echo 0)
+  [ "$open" != "$close" ] && echo "MISMATCH each: $f ($open/$close)"
+  open=$(grep -c '#if' "$f" 2>/dev/null || echo 0)
+  close=$(grep -c '/if' "$f" 2>/dev/null || echo 0)
+  [ "$open" != "$close" ] && echo "MISMATCH if: $f ($open/$close)"
+done
+
+# state.json 验证
+python3 -c "
+import json
+with open('.sddu/specs-tree-root/specs-tree-docs-agent-optimization/state.json') as f:
+    s = json.load(f)
+assert s['phase'] == 'tasked', 'FAIL: phase not tasked'
+tasks_phases = [h['phase'] for h in s.get('phaseHistory', [])]
+assert 'tasked' in tasks_phases, 'FAIL: tasked not in phaseHistory'
+print('PASS: state.json validated')
+"
+```
+
+---
+
+### 5.3 增量任务汇总
+
+| 统计项 | 数值 |
+|--------|:--:|
+| 增量任务数 | 5 |
+| S 级 (简单) | 2 |
+| M 级 (中等) | 3 |
+| L 级 (复杂) | 0 |
+| 执行波次 | 3 |
+| 修改文件数 | 21（20 模板 + 1 Agent 模板 + 2 元数据文件） |
+
+### 5.4 增量执行策略
+
+| 波次 | 任务 | 策略 |
+|:--:|------|------|
+| 1 | TASK-009, TASK-010, TASK-011 | **并行执行** — TASK-009/010 各改 10 个模板（互不重叠），TASK-011 改 Agent 模板（§5+§8 与模板文件独立）。3 个任务可同时执行 |
+| 2 | TASK-012 | **阻塞执行** — 等待 TASK-009/010 完成。Agent §6.2 表需与更新后的模板定位声明一致 |
+| 3 | TASK-013 | **阻塞执行** — 等待所有变更完成。构建验证 + 交叉一致性 + 版本升级 |
+
+**关键路径**: TASK-009/010 → TASK-012 → TASK-013
+> TASK-011 与 TASK-009/010 并行，不阻塞关键路径
+
+### 5.5 合并后总体统计
+
+| 统计项 | 原 v1.0 | 增量 v2.0 | 合计 |
+|--------|:--:|:--:|:--:|
+| 总任务数 | 8 | +5 | 13 |
+| S 级 | 2 | +2 | 4 |
+| M 级 | 5 | +3 | 8 |
+| L 级 | 1 | +0 | 1 |
+| 波次数 | 4 | +3 | 7 |
+
+---
+
 ## 修订记录
 > 记录本文档的版本变更历史
 
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 基于 plan v1.9 分解为 8 个任务、4 个波次；覆盖 20 个模板（4 批）+ 1 个 Agent 指令模板（2 段）+ 2 个验证任务 | 2026-07-05 | SDDU Tasks Agent |
+| v2.0 | 增量任务 — 基于 plan v2.9 新约束（模板自声明输出文件名、`<<entity_name>>`→`<<doc_subject>>` 重命名、定位声明去限定词、子目录命名规则 N1~N5、禁止事项 X1~X3），新增 TASK-009~013 共 5 个任务、3 个波次；涉及 21 个文件的修改 | 2026-07-05 | SDDU Tasks Agent |

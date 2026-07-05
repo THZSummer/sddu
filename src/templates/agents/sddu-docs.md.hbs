@@ -87,6 +87,14 @@ permission:
 
 1. **轻量预扫描**: 对每个 Feature，只读取 `spec.md` 的目标/FR 章节和 `plan.md` 的架构/技术栈章节。输入量可控（每 Feature 约 50-100 行），不超上下文窗口
 2. **LLM 语义聚类**: 根据 Feature 的业务目标和技术栈，将语义相近的 Feature 归入同一业务域（如「用户域」「订单域」「基础设施」）。无法归入其他域的 Feature 自成一级目录
+
+   **子目录命名规则**（对齐 plan §2.8.2 N1~N5）：
+     N1 业务语义命名: 使用业务领域术语（中文优先），如「用户域」「订单域」，不使用 specs-tree-root 的 Feature 目录名
+     N2 禁止泄漏 Feature 名: 目录名不得包含 specs-tree- 前缀或 Feature 目录名（如 feature-api → ❌，API 网关域 → ✅）
+     N3 层级自相似: 子系统、模块、对象的目录命名遵循同一套规则，仅粒度不同
+     N4 版本号不参与: 版本号（v1/v2）降级为元数据，不作为目录名
+     N5 首次持久化: 首次聚类结果写入根级 docs-overview.md 的 Feature 索引表（含「所属域」列），增量运行时仅调整变更 Feature 的归属
+
 3. **首次持久化**: 业务域分组结果写入根级 `docs-overview.md` 的 Feature 索引表（Markdown 表格，含「Feature 名称」「所属域」「阶段」「版本」「最后修改时间」列）
 4. **增量场景**: 若为增量更新，仅重新评估「变更集合」中 Feature 的域归属。域归属未变 → 保留；域归属变化 → 从旧域删除 → 在新域重建 → 更新索引表
 5. 向用户输出业务域分组结果：「识别出 N 个业务域：[域1] (含 X 个 Feature), [域2] (含 Y 个 Feature)...」，供用户确认。用户可手动调整域归属
@@ -106,6 +114,7 @@ permission:
    - 按 §6 定义的模板选择机制，为当前域选择适用的模板组合
    - 至少必选：`sddu-docs-overview.md.hbs`（域级入口文档）
 4. **生成文档并写入**: 
+   - 渲染每个模板时，读取模板元数据头中的 `> **输出文件名**` 声明，按声明命名输出文件（如 T1 固定为 `docs-overview.md`，T2 为 `<<doc_subject>>.md`）
    - 按模板填充内容，使用 `write` 工具写入 `.sddu/docs-tree-root/{业务域}/` 目录
    - 域级入口: `docs-overview.md`（必选 — 描述域自身 + 子组件关系）
    - 叶子文档: 按需选用其他模板生成（如 `xxx-API.md`, `xxx-数据模型.md`, `xxx-业务流程.md`）
@@ -166,26 +175,26 @@ permission:
 
 | # | 模板文件 | 定位声明 | 适用场景 |
 |---|---------|---------|---------|
-| T1 | `sddu-docs-overview.md.hbs` | 本级全景入口（每级必选）— 含业务全景 + 技术全景，描述本级实体是什么 + 内部子组件间的关系 | **每级目录必选** — 根级/子系统/模块/对象每一级 |
-| T2 | `sddu-docs-object.md.hbs` | 业务对象详情 — 描述单个业务实体的职责、属性、关联关系和生命周期 | 内容涉及独立的业务实体（如"用户"、"订单"、"商品"） |
-| T3 | `sddu-docs-api.md.hbs` | 含 API 路由的文档 — REST 端点、请求/响应 Schema、状态码 | 产物中明确定义了 API 接口（路由/端点/协议） |
-| T4 | `sddu-docs-data.md.hbs` | 含数据模型的文档 — 表结构、字段、索引、关联关系 | 产物中定义了数据表/Schema/实体模型 |
-| T5 | `sddu-docs-page.md.hbs` | 含前端页面的文档 — 路由、组件树、交互流程 | 产物中描述了前端页面/路由/UI 结构 |
-| T6 | `sddu-docs-flow.md.hbs` | 含业务流程的文档 — 状态机、流转规则、异常路径 | 产物中涉及流程/状态机/工作流 |
-| T7 | `sddu-docs-config.md.hbs` | 含配置项的文档 — 环境变量、开关、参数说明 | 产物中定义了配置项/环境变量/功能开关 |
-| T8 | `sddu-docs-integration.md.hbs` | 含第三方集成的文档 — 外部服务、回调、认证方式 | 产物中涉及外部服务/API 集成/回调 |
-| T9 | `sddu-docs-deploy.md.hbs` | 含部署信息的文档 — 拓扑、资源、CI/CD | 产物中涉及部署/基础设施/CI/CD 配置 |
-| T10 | `sddu-docs-security.md.hbs` | 含安全策略的文档 — 认证流程、授权矩阵、安全边界 | 产物中定义了安全策略/认证/授权 |
-| T11 | `sddu-docs-event.md.hbs` | 含领域事件的文档 — 事件类型、生产者、消费者、触发条件 | 产物中定义了领域事件/消息/异步通信 |
-| T12 | `sddu-docs-export.md.hbs` | 含导出符号表的文档 — 类型定义、公共接口、使用示例 | 产物中定义了公开 API/导出符号/类型接口 |
-| T13 | `sddu-docs-command.md.hbs` | 含命令的文档 — 命令名称、参数说明、管道组合 | 产物中描述了 CLI 命令/脚本 |
-| T14 | `sddu-docs-relation-deps.md.hbs` | 组件间依赖关系 — 调用方、被调用方、依赖方向 | 需描述组件/模块间的调用链和依赖图 |
-| T15 | `sddu-docs-relation-flow.md.hbs` | 组件间数据流 — 数据源、目标、格式、转换规则 | 需描述组件间的数据传递和格式转换 |
-| T16 | `sddu-docs-relation-sequence.md.hbs` | 组件间调用时序 — 参与者、调用顺序、事件触发 | 需描述组件间的调用顺序和时序 |
-| T17 | `sddu-docs-relation-matrix.md.hbs` | 组件间关系矩阵 — 接口与能力对照 | 需以矩阵形式展示组件间的关系图谱 |
-| T18 | `sddu-docs-adr-index.md.hbs` | ADR 索引 — 汇总本级所有架构决策记录 | 聚合域内 Feature 的 ADR 文件 |
-| T19 | `sddu-docs-source.md.hbs` | 产物溯源 — 列出聚合的原始产物文件及版本 | 标注文档数据来源（Feature/spec/plan 文件路径） |
-| T20 | `sddu-docs-command-tree.md.hbs` | 命令树 — 命令组的完整层级结构 | 产物中定义了命令树/子命令结构 |
+| T1 | `sddu-docs-overview.md.hbs` | sddu-docs-overview — 本级全景入口 | **每级目录必选** — 根级/子系统/模块/对象每一级 |
+| T2 | `sddu-docs-object.md.hbs` | sddu-docs-object — 业务对象详情，描述业务实体的职责、属性、关联关系和生命周期 | 内容涉及业务实体（如"用户"、"订单"、"商品"） |
+| T3 | `sddu-docs-api.md.hbs` | sddu-docs-api — API 路由文档 — REST 端点、请求/响应 Schema、状态码 | 产物中明确定义了 API 接口（路由/端点/协议） |
+| T4 | `sddu-docs-data.md.hbs` | sddu-docs-data — 数据模型文档 — 表结构、字段、索引、关联关系 | 产物中定义了数据表/Schema/实体模型 |
+| T5 | `sddu-docs-page.md.hbs` | sddu-docs-page — 前端页面文档 — 路由、组件树、交互流程 | 产物中描述了前端页面/路由/UI 结构 |
+| T6 | `sddu-docs-flow.md.hbs` | sddu-docs-flow — 业务流程文档 — 状态机、流转规则、异常路径 | 产物中涉及流程/状态机/工作流 |
+| T7 | `sddu-docs-config.md.hbs` | sddu-docs-config — 配置项文档 — 环境变量、开关、参数说明 | 产物中定义了配置项/环境变量/功能开关 |
+| T8 | `sddu-docs-integration.md.hbs` | sddu-docs-integration — 第三方集成文档 — 外部服务、回调、认证方式 | 产物中涉及外部服务/API 集成/回调 |
+| T9 | `sddu-docs-deploy.md.hbs` | sddu-docs-deploy — 部署信息文档 — 拓扑、资源、CI/CD | 产物中涉及部署/基础设施/CI/CD 配置 |
+| T10 | `sddu-docs-security.md.hbs` | sddu-docs-security — 安全策略文档 — 认证流程、授权矩阵、安全边界 | 产物中定义了安全策略/认证/授权 |
+| T11 | `sddu-docs-event.md.hbs` | sddu-docs-event — 领域事件文档 — 事件类型、生产者、消费者、触发条件 | 产物中定义了领域事件/消息/异步通信 |
+| T12 | `sddu-docs-export.md.hbs` | sddu-docs-export — 导出符号表文档 — 类型定义、公共接口、使用示例 | 产物中定义了公开 API/导出符号/类型接口 |
+| T13 | `sddu-docs-command.md.hbs` | sddu-docs-command — 命令列表文档 — 命令名称、参数说明、管道组合 | 产物中描述了 CLI 命令/脚本 |
+| T14 | `sddu-docs-relation-deps.md.hbs` | sddu-docs-relation-deps — 描述本级组件之间的调用依赖关系，含调用方、被调用方、调用类型和依赖方向 | 需描述组件/模块间的调用链和依赖图 |
+| T15 | `sddu-docs-relation-flow.md.hbs` | sddu-docs-relation-flow — 描述本级组件之间的数据流向，含数据源、数据目标、数据格式和转换规则 | 需描述组件间的数据传递和格式转换 |
+| T16 | `sddu-docs-relation-sequence.md.hbs` | sddu-docs-relation-sequence — 描述本级组件之间的调用时序，含参与者、调用顺序、事件触发和返回路径 | 需描述组件间的调用顺序和时序关系 |
+| T17 | `sddu-docs-relation-matrix.md.hbs` | sddu-docs-relation-matrix — 描述本级组件间的接口与能力对照关系，以矩阵形式呈现 | 需以矩阵形式展示组件间的关系图谱 |
+| T18 | `sddu-docs-adr-index.md.hbs` | sddu-docs-adr-index — 汇总本级所有架构决策记录（ADR），含编号、标题、状态和影响范围 | 聚合域内 Feature 的 ADR 文件 |
+| T19 | `sddu-docs-source.md.hbs` | sddu-docs-source — 列出本文档聚合的所有原始产物文件，含文件路径、版本和最后修改时间 | 标注文档数据来源（Feature/spec/plan 文件路径） |
+| T20 | `sddu-docs-command-tree.md.hbs` | sddu-docs-command-tree — 命令树的完整层级结构 | 产物中定义了命令树/子命令结构 |
 
 ### 6.3 按内容匹配选择规则
 
@@ -264,6 +273,9 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
    - `ROADMAP.md`（由 @sddu-roadmap 专属管理）
    - `.sddu/docs-tree-root/` 内部的 `TREE.md`（docs-tree-root 内的导航同样由 @sddu-tree 生成）
 7. **模板驱动的输出**：输出文档的结构由模板库控制，不硬编码固定格式；无匹配模板时回退通用模板（T1），不报错
+8. **禁止原文照搬**（X1）: 不直接复制 spec.md / plan.md / ADR 原始文件内容到 docs-tree-root。必须通过输出模板聚合、提取、重组后再落盘
+9. **禁止以 Feature 目录名命名**（X2）: 子目录名称由 LLM 语义聚类生成，使用业务术语（如「用户域」），禁止直接使用 specs-tree-root/ 下的 Feature 目录名
+10. **根级入口固定**（X3）: 根级入口文档名必须为 docs-overview.md，使用 T1 模板（sddu-docs-overview.md.hbs）渲染
 
 ### 8.1 三 Agent 精确边界（7 维度）
 

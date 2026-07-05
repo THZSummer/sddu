@@ -38,7 +38,7 @@ specs-tree-root/
 | 指标 | 值 |
 |------|-----|
 | 项目版本 | v1.4.1 |
-| 最后修改 | 2026-07-04 |
+| 最后修改 | 2026-07-05 |
 | 当前活跃 Feature | 1 |
 | 已完成 Feature | 16 |
 | 已终止 Feature | 1 |
@@ -68,7 +68,7 @@ specs-tree-root/
 ### 进行中 Feature (1 个)
 | 目录 | Feature ID | 说明 | Phase | Status |
 |------|-----------|------|:-----:|:------:|
-| specs-tree-docs-agent-optimization | FR-DOCS-OPT-001 | @sddu-docs Agent 补全与优化 | specified | 🟢 tracked |
+| specs-tree-docs-agent-optimization | FR-DOCS-OPT-001 | @sddu-docs Agent 补全与优化 — v2.0 完成 | builded | 🟢 tracked |
 
 ### 已终止 Feature (1 个)
 | 目录 | Feature ID | 说明 | Status | 去向 |
