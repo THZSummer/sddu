@@ -1,11 +1,11 @@
 # SDDU 项目版本 Roadmap
 
-> **文档版本**: 11.0.0
-> **更新日期**: 2026-07-11 (新增 FR-FAST-001 — @sddu-fast 快速模式 Agent，竞品调研 + 用户战略决策)
+> **文档版本**: 12.0.0
+> **更新日期**: 2026-07-11 (新增 FR-SKILL-001 — 项目级业务 Skills，用户手写 + Agent 按需使用)
 > **状态**: 规划中 (v3.0.0 待启动)
 > **生成方式**: `@sddu-roadmap` 全量扫描 17 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估 + Superpowers 竞品调研导入
 > **当前项目版本**: v4.0.0
-> **全局状态**: 16 validated, 0 tracked, 1 terminated | 待处理项目: 46 | 新提案: 1 (FR-BUG-001) | 竞品借鉴: 5 🆕
+> **全局状态**: 16 validated, 0 tracked, 1 terminated | 待处理项目: 47 | 新提案: 2 (FR-BUG-001, FR-SKILL-001) | 竞品借鉴: 5 🆕
 
 ---
 
@@ -26,8 +26,8 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **已终止 (terminated/migrated)** | 1 |
 | **进行中 (tracked)** | **0** ⚠️ |
 | **搁置 (suspended)** | 0 |
-| **已知待解决问题** | **46 (A-F + H-I 核心 + BUG-001 + 5 竞品借鉴 + 32 审计发现)** |
-| **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (搁置，含 FAST-001 + RATIONAL-001), v4.1.0 (远期) |
+| **已知待解决问题** | **47 (A-F + H-I 核心 + BUG-001 + SKILL-001 + 5 竞品借鉴 + 32 审计发现)** |
+| **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (搁置，含 FAST-001 + RATIONAL-001 + SKILL-001), v4.1.0 (远期) |
 
 ### ⚠️ 关键警示
 
@@ -47,7 +47,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 |
 | **v3.1.0** | 工具链增强 | TBD | 💡 提议中 | FR-BUG-001 Bug 流程 + FR-WORKTREE-001 Git Worktree 隔离 |
 | **v3.2.0** | 项目知识基础设施 (H-I) | TBD | 💡 提议中 | 全局配置 + 知识沉淀 |
-| **v3.3.0** | Agent 行为强化 (延期汇入) | TBD | ⏸️ 搁置 | FR-RATIONAL-001 理性化对抗 + FR-FAST-001 快速模式 (竞品借鉴) |
+| **v3.3.0** | Agent 行为强化 (延期汇入) | TBD | ⏸️ 搁置 | FR-RATIONAL-001 理性化对抗 + FR-FAST-001 快速模式 (竞品借鉴) + FR-SKILL-001 项目级业务 Skills |
 | **v4.1.0** | 生态扩展 (远期) | TBD | 💡 远期 | 多平台适配 + 自动触发 (竞品借鉴 §5.3) |
 
 ### 本周优先事项 (2026-06-21 ~ 2026-06-28)
@@ -69,7 +69,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
 | 5 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
 
-> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成，FR-FRAMEWORK-ARCH-001 (架构重组) 已于 v4.0.0 完成交付，均不参与排名。🆕 FR-FAST-001 (v3.3.0, RICE 21.6) 为 2026-07-11 竞品调研 + 用户战略决策新纳入；FR-RATIONAL-001/FR-WORKTREE-001/FR-AUTOTRIGGER-001/FR-CROSSPLAT-001 为同期竞品调研新纳入。完整 RICE 排名见「跨版本 RICE 总排名」节。
+> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成，FR-FRAMEWORK-ARCH-001 (架构重组) 已于 v4.0.0 完成交付，均不参与排名。🆕 FR-FAST-001 (v3.3.0, RICE 21.6) 为 2026-07-11 竞品调研 + 用户战略决策新纳入；FR-RATIONAL-001/FR-WORKTREE-001/FR-AUTOTRIGGER-001/FR-CROSSPLAT-001 为同期竞品调研新纳入；FR-SKILL-001 (v3.3.0, RICE 7.9) 为用户战略决策新纳入。完整 RICE 排名见「跨版本 RICE 总排名」节。
 
 ### 关键 milestones
 
@@ -82,7 +82,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 2026-07-19 | v3.0.0 首批 P0 Feature validated | v3.0.0 |
 | 2026-08-30 | v3.0.0 全部 Feature 完成 | v3.0.0 |
 | 2026-Q4 | v3.1.0 FR-BUG-001 + FR-WORKTREE-001 discovery + v3.2.0 评估 | v3.1.0 / v3.2.0 |
-| 2027+ | v3.3.0 FR-RATIONAL-001 + FR-FAST-001 评估启动 / v4.1.0 远期生态扩展评估 | v3.3.0 / v4.1.0 |
+| 2027+ | v3.3.0 FR-RATIONAL-001 + FR-FAST-001 + FR-SKILL-001 评估启动 / v4.1.0 远期生态扩展评估 | v3.3.0 / v4.1.0 |
 
 ### 功能完成时间线
 
@@ -437,6 +437,91 @@ FR-FAST-001 (快速模式) ──启发自──→ Superpowers — 轻量对话
 
 ---
 
+#### 新增 Feature: FR-SKILL-001 — 项目级业务 Skills 🆕 (用户战略决策)
+
+> **来源**: 用户战略决策 (2026-07-11)，竞品调研启发 — Superpowers 的 skills 概念启发了这个设计，但 SDDU 的 skills 是业务化的、用户填充的
+> **加入日期**: 2026-07-11
+> **决策来源**: 用户确认设计决策（存放位置 / 内容格式 / 触发机制 / 版本归属）
+
+| 属性 | 值 |
+|------|-----|
+| **Feature ID** | FR-SKILL-001 |
+| **优先级** | 🥈 P1 (RICE 7.9) |
+| **Effort** | M (3-5 天) |
+| **来源** | 用户战略决策 — SDDU 需要项目级业务知识沉淀机制，让用户手写可复用执行流程，Agent 按需发现并加载 |
+| **归属** | v3.3.0 (搁置池，与 FR-FAST-001 + FR-RATIONAL-001 同版) |
+
+**背景**: 用户项目里某类事情的执行流程没有地方沉淀，每次新会话、新需求都要重新和 Agent 描述，低效繁琐。例如"接入新的支付渠道"这件事，每次都要重新解释路由在哪、验签怎么写、回调怎么处理、测试怎么跑。这不是配置问题（FR-KB-001 解决不了），也不是历史 Feature 文档聚合（FR-KB-002 解决不了），而是项目特有的、可复用的执行流程知识。
+
+当前生态里这个问题普遍存在：
+- **CLAUDE.md / AGENTS.md**: 静态全量加载，不按上下文触发，长了就爆 context
+- **Superpowers 的 skills**: 通用方法论（TDD、调试），不是项目业务知识
+- **Cursor 的 .cursorrules**: 规则约束，不是流程指引
+
+**与已有规划的本质区别**:
+| Feature | 类型 | 内容 | 定位 |
+|---------|------|------|------|
+| **FR-KB-001** (全局配置) | 声明式配置 | 技术栈、命名规范、代码风格 | 静态的「是什么」 |
+| **FR-KB-002** (知识沉淀) | 自动聚合 | Feature 产出物自动汇总 | 过去的「做了什么」 |
+| **FR-SKILL-001** (业务 Skills) | 用户手写流程 | 项目特有的可复用执行流程 | 未来的「怎么做某类事」 |
+
+三者本质不同，不应混并。
+
+**核心目标**: 提供一个项目级业务知识沉淀机制，用户填充可复用执行流程，SDDU Agent 在相关任务时自动发现并应用，避免每次新会话重复描述。
+
+**用户确认的设计决策（不可更改）**:
+
+1. **存放位置**: `.sddu/skills/`
+   - 与 Superpowers 的 skills 概念对齐，但内容是项目业务知识
+   - 和 specs-tree-root 平级，属于 SDDU 工作空间的一部分
+
+2. **内容格式**: 标准 skill 格式
+   - 结构化 Markdown + frontmatter (name / tags / when)
+   - 类似 Superpowers 的 SKILL.md 写法，用户可直接参考
+   - 不用 .hbs 模板引擎，纯用户手写
+
+3. **触发机制**: 混合模式
+   - Agent 工作时自动扫描 `.sddu/skills/` 目录
+   - 按关键词 / tags 匹配当前任务上下文
+   - 匹配到后推荐给用户，用户确认后才加载（避免误匹配）
+   - 不像 Superpowers 那样强制触发，也不像 CLAUDE.md 那样全量加载
+
+4. **版本归属**: v3.3.0（搁置池）
+   - 与 FR-FAST-001 / FR-RATIONAL-001 同版
+   - 启动条件: v3.0.0~v3.2.0 全部交付后启动
+
+**预期范围** (待 discovery 阶段细化):
+1. **Skills 目录结构** — `.sddu/skills/` 目录 + 标准 skill 文件规范（frontmatter：name / tags / when）
+2. **扫描与匹配引擎** — Agent 启动时扫描 `skills/`，按 tags 匹配当前任务上下文，生成推荐列表
+3. **用户确认机制** — 匹配后通过对话推荐给用户，用户选择加载后才注入 Agent 上下文
+4. **Agent 模板集成** — 在 `@sddu` coordinator 的 .hbs 模板中增加 skills 扫描与推荐逻辑
+5. **示例 Skills** — 提供 2-3 个示例 skill 文件帮助用户上手（如：接入支付渠道、部署检查清单、数据库迁移流程）
+
+**RICE 详细分析**:
+
+| 纬度 | 评分 | 依据 |
+|------|:---:|------|
+| Reach | **9** | 影响所有 SDDU 用户的所有项目，覆盖高频的「重复描述」场景 — 几乎所有复杂项目都需要沉淀执行流程 |
+| Impact | **8** | 显著提升效率，消除「每次重新描述」的摩擦；Agent 获得项目上下文后产出质量也提升；用户投资（手写 skill）有长期复用回报 |
+| Confidence | **55%** | 概念清晰（Superpowers skills 已验证），但混合触发的匹配准确率需验证；用户是否会主动填充 skills 需观察；推荐确认机制可能增加交互步数 |
+| Effort | **5** | 中等：skills 目录扫描逻辑 (1d) + frontmatter 解析 + 匹配推荐 (1.5d) + Agent 模板集成 (1d) + 示例 skills (0.5d) + discovery/spec (1d) |
+| **RICE** | **7.9** | **(9 × 8 × 0.55) / 5** |
+
+**与其他 Feature 的依赖关系**:
+
+```
+FR-SKILL-001 (业务 Skills) ──独立于──→ FR-KB-001 (全局配置) — Skills 是流程知识，不是声明式配置，不依赖 KB-001
+FR-SKILL-001 (业务 Skills) ──互补于──→ FR-KB-002 (知识沉淀) — KB-002 聚合「过去的」产出物，Skills 指导「未来的」执行
+FR-SKILL-001 (业务 Skills) ──借用──→ FR-TPL-001 (模板系统) — Coordinator 模板中增加 skills 扫描逻辑，共用 Handlebars 引擎
+FR-SKILL-001 (业务 Skills) ──独立于──→ 状态机 — Skills 由 Agent 按需加载，不经过 pipeline 流转
+FR-SKILL-001 (业务 Skills) ──无硬依赖──→ 可独立启动 (纯目录扫描 + 模板变更)
+FR-SKILL-001 (业务 Skills) ──启发自──→ Superpowers — skills 概念 + SKILL.md 格式参考，但内容为项目业务知识
+```
+
+**建议**: 推迟至 v3.3.0，等 v3.0.0~v3.2.0 全部交付后再启动。FR-SKILL-001 与 FR-FAST-001 + FR-RATIONAL-001 共同构成 v3.3.0 的三大支柱：Fast 解决「轻量入口」问题、Rational 解决「Agent 纪律」问题、Skills 解决「项目知识复用」问题。三者互补，无需串行依赖。
+
+---
+
 ### v4.1.0 — 生态扩展 (远期)
 
 **预计时间**: TBD (依赖 v4.0.0 架构基础 + 需求评估)
@@ -477,7 +562,7 @@ FR-FAST-001 (快速模式) ──启发自──→ Superpowers — 轻量对话
 
 ---
 
-### 跨版本 RICE 总排名 (全部 13 项: A-F + H-I + BUG-001 + FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
+### 跨版本 RICE 总排名 (全部 15 项: A-F + H-I + BUG-001 + FAST-001 + SKILL-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
 
 | 排名 | Feature | 归属 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
@@ -487,14 +572,15 @@ FR-FAST-001 (快速模式) ──启发自──→ Superpowers — 轻量对话
 | 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
 | 5 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
 | 6 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
-| 7 | **FR-AUTOTRIGGER-001**: 自动触发 🆕 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
-| 8 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
-| 9 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
-| 10 | **FR-WORKTREE-001**: Git Worktree 🆕 | v3.1.0 | 5 | 6 | 60% | 4 | **4.5** | P2 |
-| 11 | **FR-KB-002**: 项目知识沉淀 | v3.2.0 | 8 | 8 | 50% | 8 | **4.0** | P1 |
-| 12 | **FR-QUALITY-004**: 框架自验证 | v3.0.0 | 4 | 7 | 60% | 6 | **2.8** | P1 |
-| 13 | **FR-QUALITY-006**: coordinator 兼容 | v3.0.0 | 2 | 3 | 80% | 2 | **2.4** | P2 |
-| 14 | **FR-CROSSPLAT-001**: 多平台适配 🆕 | v4.1.0 | 9 | 8 | 40% | 12 | **2.4** | P3 |
+| 7 | **FR-SKILL-001**: 项目级业务 Skills 🆕 | v3.3.0 | 9 | 8 | 55% | 5 | **7.9** | P1 |
+| 8 | **FR-AUTOTRIGGER-001**: 自动触发 🆕 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
+| 9 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
+| 10 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
+| 11 | **FR-WORKTREE-001**: Git Worktree 🆕 | v3.1.0 | 5 | 6 | 60% | 4 | **4.5** | P2 |
+| 12 | **FR-KB-002**: 项目知识沉淀 | v3.2.0 | 8 | 8 | 50% | 8 | **4.0** | P1 |
+| 13 | **FR-QUALITY-004**: 框架自验证 | v3.0.0 | 4 | 7 | 60% | 6 | **2.8** | P1 |
+| 14 | **FR-QUALITY-006**: coordinator 兼容 | v3.0.0 | 2 | 3 | 80% | 2 | **2.4** | P2 |
+| 15 | **FR-CROSSPLAT-001**: 多平台适配 🆕 | v4.1.0 | 9 | 8 | 40% | 12 | **2.4** | P3 |
 
 ---
 
@@ -553,7 +639,8 @@ specs-tree-sdd-plugin-baseline ────────────────�
 
             ▼  ─── ⏸️ v3.3.0 搁置 ───
             ├── FR-RATIONAL-001 (理性化对抗) 🆕 — 竞品借鉴 §5.1.2 → v3.3.0
-            └── FR-FAST-001 (快速模式 Agent) 🆕 — 竞品借鉴 + 用户战略决策 → v3.3.0
+            ├── FR-FAST-001 (快速模式 Agent) 🆕 — 竞品借鉴 + 用户战略决策 → v3.3.0
+            └── FR-SKILL-001 (项目级业务 Skills) 🆕 — 用户战略决策 → v3.3.0
 
             ▼  ─── 💡 v4.1.0 远期 ───
             ├── FR-CROSSPLAT-001 (多平台适配) 🆕 — 竞品借鉴 §5.3.1 → v4.1.0
@@ -574,6 +661,10 @@ FR-RATIONAL-001 (理性化) ──借用──→ FR-TPL-001 (模板系统)  ←
 FR-FAST-001 (快速模式) 🆕 ──借用──→ FR-TPL-001 (模板系统)  ← 纯模板层变更，共用 Handlebars 引擎
 FR-FAST-001 (快速模式) 🆕 ──独立于──→ 状态机 (pipeline/)  ← 不走状态机，不依赖 state.json
 FR-FAST-001 (快速模式) 🆕 ──互补──→ SDDU 完整流程       ← 轻/重双入口，覆盖不同复杂度
+FR-SKILL-001 (业务 Skills) 🆕 ──独立于──→ FR-KB-001 (全局配置) ← Skills 是流程知识，不是声明式配置
+FR-SKILL-001 (业务 Skills) 🆕 ──互补于──→ FR-KB-002 (知识沉淀) ← KB-002 聚合过去产物，Skills 指导未来执行
+FR-SKILL-001 (业务 Skills) 🆕 ──借用──→ FR-TPL-001 (模板系统) ← Coordinator 模板中增加 skills 扫描逻辑
+FR-SKILL-001 (业务 Skills) 🆕 ──独立于──→ 状态机 (pipeline/) ← Skills 由 Agent 按需加载，不经过 pipeline 流转
 FR-QUALITY-001 (Build Wave) ──→ FR-QUALITY-003 (设计规划)    ← Wave 经验指导设计
 FR-QUALITY-002 (Validate E2E) ──→ FR-QUALITY-004 (框架自验)  ← E2E 能力支撑自验证
 FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
@@ -604,6 +695,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 ┌─ Wave 6 (v3.3.0 搁置) ────────────┐
 │ FR-RATIONAL-001 (理性化对抗) 🆕     │ ← 等 v3.0~v3.2 交付后启动
 │ FR-FAST-001 (快速模式 Agent) 🆕    │ ← 等 v3.0~v3.2 交付后启动，Effort 1-2d
+│ FR-SKILL-001 (项目级业务 Skills) 🆕 │ ← 等 v3.0~v3.2 交付后启动，Effort 3-5d
 └────────────────────────────────────┘
 ┌─ Wave 7 (v4.1.0 远期) ────────────┐
 │ FR-CROSSPLAT-001 (多平台) 🆕        │ ← 依赖 v4.0.0 adapters 基础
@@ -633,6 +725,10 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **FR-FAST-001 纯一次性无追溯** 🆕 | 🟡 中 | 🟡 中 | Fast 模式不产出任何文档或 state.json — 问题解决后无审计痕迹。缓解：通过 Agent prompt 建议用户对重要变更走完整流程；Fast 模式定位为"低风险快速任务"专用 |
 | **FR-FAST-001 Agent 边界判断不准** 🆕 | 🟡 中 | 🟡 中 | Agent 自行判断问题复杂度（Fast 还是完整流程）可能不准确。缓解：在 .hbs 模板中内置复杂度评估清单；允许用户显式选择路径（`@sddu-fast` vs `@sddu 开始`） |
 | **FR-FAST-001 与完整流程的割裂** 🆕 | 🟢 低 | 🟢 低 | 两种模式之间无数据互通，用户可能困惑何时用哪个。缓解：`@sddu` 入口增加智能路由提示；Fast Agent 检测到复杂问题时主动建议升级 |
+| **FR-SKILL-001 用户不主动填充 skills** 🆕 | 🔴 高 | 🟡 中 | Skills 的价值依赖用户持续填充 — 如果用户不写 skills，整个功能将成为空壳。缓解：&zero-width-space;(1) 提供初版示例 skills 降低上手门槛；(2) Agent 在发现重复操作模式时主动建议用户物化为 skill；(3) 在 v3.3.0 discovery 阶段设计技能发现 UI |
+| **FR-SKILL-001 混合触发匹配准确率低** 🆕 | 🟡 中 | 🟡 中 | 基于 keywords/tags 的自动匹配可能误推荐（不相关 skill）或漏推荐（相关 skill 未匹配）。缓解：&zero-width-space;(1) 使用关键词+语义双通道匹配；(2) 用户确认机制确保不误加载；(3) v3.3.0 discovery 阶段设计匹配度评分阈值 |
+| **FR-SKILL-001 Skills 冗余/过时管理** 🆕 | 🟡 中 | 🟢 低 | 随着项目演进，skills 可能过时或与代码实际行为不一致。缓解：&zero-width-space;(1) 每个 skill 记录 last-updated；(2) Agent 在相关任务后建议用户检查 skill 是否需更新 |
+| **v3.3.0 三大 Feature (FAST + RATIONAL + SKILL) 同时启动资源争抢** 🆕 | 🟡 中 | 🟢 低 | 三个 Feature 均为 v3.3.0 归属，若同时启动 discovery 可能分散注意力。缓解：&zero-width-space;FAST-001 Effort 仅 XS (1-2d) 可快速交付；SKILL-001 和 RATIONAL-001 Effort 均为 M (3-5d)，建议 FAST-001 先行作为速赢开路 |
 
 ---
 
@@ -652,7 +748,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
     - H-I → v3.2.0 (知识基础设施)
     - G → ✅ 已完成 (FR-TPL-001, v3.0.1)
     - **FR-FRAMEWORK-ARCH-001** → ✅ 已完成 (v4.0.0, 2026-06-21)
-    - **FR-RATIONAL-001 (理性化对抗)** + **FR-FAST-001 (快速模式)** 🆕 → v3.3.0 (搁置，等前置版本交付)
+    - **FR-RATIONAL-001 (理性化对抗)** + **FR-FAST-001 (快速模式)** + **FR-SKILL-001 (项目级业务 Skills)** 🆕 → v3.3.0 (搁置，等前置版本交付)
     - **FR-CROSSPLAT-001 + FR-AUTOTRIGGER-001** 🆕 → v4.1.0 (远期)
     - 是否需要调整归属？
 
@@ -672,11 +768,12 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 
 ### 🔵 远期行动 (季度回顾)
 
-10. 每季度回顾竞品借鉴项 (FR-FAST-001 / FR-RATIONAL-001 / FR-CROSSPLAT-001 / FR-AUTOTRIGGER-001) 是否达到启动条件
+10. 每季度回顾竞品借鉴项 (FR-FAST-001 / FR-RATIONAL-001 / FR-SKILL-001 / FR-CROSSPLAT-001 / FR-AUTOTRIGGER-001) 是否达到启动条件
 11. FR-RATIONAL-001 启动条件: v3.0.0~v3.2.0 全部交付 + 用户反馈 Agent 偷懒/走形式问题频发
 12. FR-FAST-001 启动条件: v3.0.0~v3.2.0 全部交付 + 用户反馈 "简单功能也要走完整流程太繁琐" 成为痛点（RICE 21.6 全榜第一，一旦 v3.2.0 交付应优先启动）
-13. FR-CROSSPLAT-001 启动条件: OpenCode 之外的主流 AI Agent 平台明确需求 + adapters/ 架构成熟
-14. FR-AUTOTRIGGER-001 启动条件: 用户反馈 "忘记调用 @sddu" 成为痛点
+13. FR-SKILL-001 启动条件: v3.0.0~v3.2.0 全部交付 + 用户反馈 "每次新会话都要重复描述项目流程" 成为痛点，或项目 `.sddu/skills/` 目录已有至少 2-3 个手写 skill（证明用户有填充意愿）
+14. FR-CROSSPLAT-001 启动条件: OpenCode 之外的主流 AI Agent 平台明确需求 + adapters/ 架构成熟
+15. FR-AUTOTRIGGER-001 启动条件: 用户反馈 "忘记调用 @sddu" 成为痛点
 
 ---
 
@@ -715,12 +812,12 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | 类别 | 数量 | 说明 |
 |------|:----:|------|
 | 🐛 Bug / 质量问题 | 10 | A-F + 4 预存测试失败 |
-| ✨ 增强特性 | 16 | H-I + BUG-001 + FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 |
+| ✨ 增强特性 | 17 | H-I + BUG-001 + SKILL-001 + FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 |
 | 🔧 技术债务 | 9 | deprecated 类型、旧 schema、stale spec.json、仪表盘 TS 化、缺集成测试等 |
-| 📄 文档/配置 | 6 | TREE.md 过时、冗余 wave1 文件、路径引用错误等 |
+| 📄 文档/配置 | 7 | TREE.md 过时、冗余 wave1 文件、路径引用错误、ROADMAP 结构混乱等 |
 | ⏸️ 搁置但需关注 | 4 | ETD 独立仓库、Skills/TUI/MCP 持续延期 |
 
-**总计: 46 个待处理项目** (↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
+**总计: 47 个待处理项目** (↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001；↑1: FR-SKILL-001 新提案)
 
 ### 🐛 一、待修复 Bug / 质量问题 (10 项)
 
@@ -736,13 +833,14 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **T2** | wf-state-optimization phaseHistory 重复 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | state.json | phaseHistory 中有重复条目（从 tasked 回退到 specified 又回到 tasked），数据虽不影响功能但混淆调试 |
 | **T3** | agent-output-templating spec.json state 过期 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | spec.json | `"phase": "planned", "state": "specified"` — 实际 feature 早已 validated，spec.json 未同步更新 |
 
-### ✨ 二、待实现的增强特性 (17 项)
+### ✨ 二、待实现的增强特性 (18 项)
 
 | # | 名称 | 类型 | Effort | 优先级 | 归属 | 描述 |
 |:--|------|:----:|:------:|:------:|:-----|------|
 | **I** | 全局项目配置文件 | ✨ Enhancement | M (3-5d) | **P0** | v3.2.0 | `.sddu/project.json` — 技术栈、命名规范、代码风格等全局配置，RICE 15.8 排名第二 |
 | **BUG-001** | Bug 追踪与修复流程框架化 | ✨ Enhancement | M (3-5d) | **P0** | v3.1.0 | Bug 模板 + 轻/重修复规则 + 跨项目跟随。当前 bug 目录为临时方案，需提升为框架级能力。RICE 10.5 排名第三 |
 | **FAST-001** 🆕 | @sddu-fast 快速模式 Agent | ✨ Enhancement | XS (1-2d) | **P0** | v3.3.0 | 竞品借鉴 + 用户战略 — 零摩擦轻量入口，无状态机、纯对话、不留痕。覆盖 60-70% 日常简单任务。RICE 21.6 全榜第一 |
+| **SKILL-001** 🆕 | 项目级业务 Skills | ✨ Enhancement | M (3-5d) | **P1** | v3.3.0 | 用户战略 — `.sddu/skills/` 目录，用户手写可复用执行流程，Agent 按 tags 匹配后推荐加载。与 FR-KB-001 (声明式配置) / FR-KB-002 (自动聚合) 本质不同。RICE 7.9 |
 | **H** | 项目级知识自动沉淀 | ✨ Enhancement | L (7-10d) | **P1** | v3.2.0 | 聚合 Feature 产出物为项目总览文档 (依赖 I: 全局配置) |
 | **S1** | FR-014: 模板校验工具命令 | ✨ Enhancement | M (3-5d) | **P2** | Could Have | `@sddu-validate-template` 命令，用户可提前验证模板正确性 (spec 中标记 "未来") |
 | **S2** | FR-015: 多套内置模板风格 | ✨ Enhancement | M (3-5d) | **P3** | Could Have | 简洁版/详细版等多套模板风格，通过配置切换 (spec 中标记 "未来") |
@@ -804,27 +902,28 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | 🥉 | **BUG-001** | Bug 追踪与修复流程框架化 | ✨ | v3.1.0 | M | 10.5 | **P0** |
 | 4 | **A** | Build Wave 一体化 | 🐛 | v3.0.0 | L | 9.6 | **P0** |
 | 5 | **RATIONAL-001** 🆕 | Agent 理性化对抗 | ✨ | v3.3.0 | M | 9.6 | **P1** |
-| 5 | **C** | Validate Agent E2E | 🐛 | v3.0.0 | L | 8.4 | **P0** |
-| 6 | **AUTOTRIGGER-001** 🆕 | Agent 自动触发 | ✨ | v4.1.0 | S | 7.5 | **P3** |
-| 7 | **F** | Review/Validate 设计规划 | 🐛 | v3.0.0 | M | 5.3 | **P1** |
-| 8 | **B** | auto-updater 修复 | 🐛 | v3.0.0 | S | 4.8 | **P2** |
-| 9 | **WORKTREE-001** 🆕 | Git Worktree 隔离 | ✨ | v3.1.0 | M | 4.5 | **P2** |
-| 10 | **H** | 项目知识沉淀 | ✨ | v3.2.0 | L | 4.0 | **P1** |
-| 11 | **E** | 框架自验证 | 🐛 | v3.0.0 | L | 2.8 | **P1** |
-| 12 | **D** | coordinator 兼容 | 🐛 | v3.0.0 | XS | 2.4 | **P3** |
-| 13 | **CROSSPLAT-001** 🆕 | 多平台适配 | ✨ | v4.1.0 | XL | 2.4 | **P3** |
-| 14 | **S8** | FeatureStateEnum 清理 | ✨ | v3.1.0 | XS | — | **P1** |
-| 15 | **T1** | 预存测试修复 | 🐛 | — | S | — | **P2** |
-| 16 | **TD1** | 仪表盘 TS 化 | 🔧 | — | M | — | **P2** |
-| 17 | **TD2** | consistency-checker 集成测试 | 🔧 | — | S | — | **P2** |
-| 18 | **DOC1** | TREE.md sdd→sddu | 📄 | — | XS | — | **P2** |
-| 19 | **DOC2** | Wave1 冗余文件归档 | 📄 | — | XS | — | **P2** |
-| 20 | **S4** | Skills 系统 | ✨ | v3.1.0 | L | — | **P2** |
-| 17 | **S7** | 文件命名标准化 | ✨ | — | S | — | **P2** |
-| 18 | **TD8** | AI Agent 行为验证 | 🔧 | — | M | — | **P2** |
-| 19 | **S1** | 模板校验工具 | ✨ | Could Have | M | — | **P2** |
-| 20 | **DOC3-6** | 路径/数量修正 | 📄 | — | XS×4 | — | **P3** |
-| 20 | **TD3** | schema-v1.2.5 清理 | 🔧 | — | XS | — | **P3** |
+| 6 | **C** | Validate Agent E2E | 🐛 | v3.0.0 | L | 8.4 | **P0** |
+| 7 | **SKILL-001** 🆕 | 项目级业务 Skills | ✨ | v3.3.0 | M | **7.9** | **P1** |
+| 8 | **AUTOTRIGGER-001** 🆕 | Agent 自动触发 | ✨ | v4.1.0 | S | 7.5 | **P3** |
+| 9 | **F** | Review/Validate 设计规划 | 🐛 | v3.0.0 | M | 5.3 | **P1** |
+| 10 | **B** | auto-updater 修复 | 🐛 | v3.0.0 | S | 4.8 | **P2** |
+| 11 | **WORKTREE-001** 🆕 | Git Worktree 隔离 | ✨ | v3.1.0 | M | 4.5 | **P2** |
+| 12 | **H** | 项目知识沉淀 | ✨ | v3.2.0 | L | 4.0 | **P1** |
+| 13 | **E** | 框架自验证 | 🐛 | v3.0.0 | L | 2.8 | **P1** |
+| 14 | **D** | coordinator 兼容 | 🐛 | v3.0.0 | XS | 2.4 | **P3** |
+| 15 | **CROSSPLAT-001** 🆕 | 多平台适配 | ✨ | v4.1.0 | XL | 2.4 | **P3** |
+| 16 | **S8** | FeatureStateEnum 清理 | ✨ | v3.1.0 | XS | — | **P1** |
+| 17 | **T1** | 预存测试修复 | 🐛 | — | S | — | **P2** |
+| 18 | **TD1** | 仪表盘 TS 化 | 🔧 | — | M | — | **P2** |
+| 19 | **TD2** | consistency-checker 集成测试 | 🔧 | — | S | — | **P2** |
+| 20 | **DOC1** | TREE.md sdd→sddu | 📄 | — | XS | — | **P2** |
+| 21 | **DOC2** | Wave1 冗余文件归档 | 📄 | — | XS | — | **P2** |
+| 22 | **S4** | Skills 系统 | ✨ | v3.1.0 | L | — | **P2** |
+| 23 | **S7** | 文件命名标准化 | ✨ | — | S | — | **P2** |
+| 24 | **TD8** | AI Agent 行为验证 | 🔧 | — | M | — | **P2** |
+| 25 | **S1** | 模板校验工具 | ✨ | Could Have | M | — | **P2** |
+| 26 | **DOC3-6** | 路径/数量修正 | 📄 | — | XS×4 | — | **P3** |
+| 27 | **TD3** | schema-v1.2.5 清理 | 🔧 | — | XS | — | **P3** |
 
 ### 🗺️ 推荐执行顺序
 
@@ -858,6 +957,7 @@ Phase 4 — 🟢 后续 (v3.1.0/v3.2.0)
 Phase 5 — ⏸️ 搁置 (v3.3.0)
 ├── FR-FAST-001 (快速模式 Agent) 🆕 — RICE 21.6，Effort XS，等 v3.2.0 交付后优先启动
 ├── FR-RATIONAL-001 (理性化对抗) 🆕 — RICE 9.6，与 FAST-001 同期启动
+├── FR-SKILL-001 (项目级业务 Skills) 🆕 — RICE 7.9，Effort M，等 v3.2.0 交付后与 FAST-001/RATIONAL-001 统筹启动
 ├── S5 (TUI) + S6 (MCP) — 持续延期，无明确需求
 ├── SUS3 (wf-state 缺 review/validation) — 历史 feature，不需要补
 └── TD3/TD4 (旧 schema) + TD5-7/TD9 (stale spec.json) — 低优先级清理
@@ -891,4 +991,4 @@ Phase 5 — ⏸️ 搁置 (v3.3.0)
 
 > **生成信息**: 本文档由 `@sddu-roadmap` Agent 于 2026-06-21 重大更新 (v9.0.0)，反映 FR-FRAMEWORK-ARCH-001 (v4.0.0) 已完成交付——从「规划中」移至「已交付」，并更新全局状态、优先级排序、依赖图、风险评估、下一步行动。FR-BUG-001 仍为新提案待处理。扫描范围覆盖 `.sddu/specs-tree-root/` 下 17 个 Feature 目录的全部 state.json / spec.md / tasks.md / spec.json / validation-report.md 以及 `.sddu/docs/` / `.sddu/TREE.md` / 架构 ADR 目录。
 > 
-> **最近更新 (v11.0.0)**: 2026-07-11 — 新增 FR-FAST-001 (@sddu-fast 快速模式 Agent)，源自 Superpowers 竞品调研 + 用户战略决策（轻重双模演进）。FR-FAST-001 以 RICE 21.6 位列全榜第一，归属于 v3.3.0 搁置池，与 FR-RATIONAL-001 同版。更新内容：RICE 排名表、优先级 Top 5、版本总览、v3.3.0 版本节、依赖图谱、风险评估、远期行动、附录 B 全量清单、分类统计。
+> **最近更新 (v12.0.0)**: 2026-07-11 — 新增 FR-SKILL-001 (项目级业务 Skills)，源自用户战略决策 — `.sddu/skills/` 目录，用户手写可复用执行流程，Agent 按 tags 匹配后推荐加载。FR-SKILL-001 以 RICE 7.9 位列全榜第 7，归属于 v3.3.0 搁置池，与 FR-FAST-001 + FR-RATIONAL-001 同版。更新内容：RICE 排名表、版本总览、v3.3.0 版本节（新增 FR-SKILL-001 完整规划，含与 FR-KB-001/KB-002 的本质区别说明）、依赖图谱、风险评估（新增 4 项 FR-SKILL-001 相关风险）、远期行动（新增 FR-SKILL-001 启动条件）、附录 B 全量清单（17→18 增强特性，46→47 待处理项目）。同时修正全量优先级总排名表中重复编号问题。
