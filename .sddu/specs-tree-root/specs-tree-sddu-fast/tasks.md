@@ -60,17 +60,17 @@ Wave 1 ─── (无依赖，5 个任务可全部并行 — 各自修改不同�
 | NEW | `src/templates/agents/sddu-fast.md.hbs` |
 
 **验收标准**:
-- [ ] 文件 `src/templates/agents/sddu-fast.md.hbs` 存在且包含有效 Handlebars frontmatter（`---` 分隔）
-- [ ] Frontmatter 中 `mode` 为 `subagent`，`permission` 含 `edit: allow` 和 `bash: allow`
-- [ ] 模板全文**不含** `phase`、`status`、`state.json` 写入指令（允许在禁止清单中提及）
-- [ ] 模板全文**不含**"写入文档"或"创建 Feature 目录"的指令
-- [ ] 模板包含"升级阈值"表（至少含文件数 ≥5、API 签名变更、跨模块 ≥2 三项阈值）
-- [ ] 模板包含"禁止行为清单"（至少 8 项禁止项）
-- [ ] 模板包含"任务边界对照表"（至少列明适合/不适合/边界模糊三类各 3 条）
-- [ ] 模板包含 welcome 消息，说明 Fast 模式定位（"适合 X 类任务，不适合 Y 类任务"）
-- [ ] 模板包含错误处理策略（至少覆盖文件读取失败、命令执行错误、上下文模糊 3 种场景）
-- [ ] 模板包含 EC-001~EC-009 各边界情况的处理逻辑
-- [ ] 文件总行数 ≥ 180 行（基于 spec 定义的 12 个核心章节 + 详细内容）
+- [x] 文件 `src/templates/agents/sddu-fast.md.hbs` 存在且包含有效 Handlebars frontmatter（`---` 分隔）
+- [x] Frontmatter 中 `mode` 为 `subagent`，`permission` 含 `edit: allow` 和 `bash: allow`
+- [x] 模板全文**不含** `phase`、`status`、`state.json` 写入指令（允许在禁止清单中提及）
+- [x] 模板全文**不含**"写入文档"或"创建 Feature 目录"的指令
+- [x] 模板包含"升级阈值"表（至少含文件数 ≥5、API 签名变更、跨模块 ≥2 三项阈值）
+- [x] 模板包含"禁止行为清单"（至少 8 项禁止项）
+- [x] 模板包含"任务边界对照表"（至少列明适合/不适合/边界模糊三类各 3 条）
+- [x] 模板包含 welcome 消息，说明 Fast 模式定位（"适合 X 类任务，不适合 Y 类任务"）
+- [x] 模板包含错误处理策略（至少覆盖文件读取失败、命令执行错误、上下文模糊 3 种场景）
+- [x] 模板包含 EC-001~EC-009 各边界情况的处理逻辑
+- [x] 文件总行数 ≥ 180 行（基于 spec 定义的 12 个核心章节 + 详细内容）
 
 **验证命令**:
 ```bash
@@ -128,11 +128,11 @@ test $lines -ge 180 && echo "PASS: $lines 行" || echo "FAIL: 仅 $lines 行（�
 | MODIFY | `src/adapters/opencode/agents/sddu-agents.ts` |
 
 **验收标准**:
-- [ ] `builtinAgents[]` 数组末尾附近存在 `name: 'sddu-fast'` 的条目
-- [ ] 该条目含 `mode: 'subagent'` 和 `promptFile: '.opencode/agents/sddu-fast.md'`
-- [ ] `agentToPhaseMap` 中**不含** `sddu-fast`（Fast 无阶段）
-- [ ] 新增条目未破坏现有 11 个 Agent 的注册（数组其他条目不变）
-- [ ] TypeScript 编译无新增类型错误（`npx tsc --noEmit` 通过）
+- [x] `builtinAgents[]` 数组末尾附近存在 `name: 'sddu-fast'` 的条目
+- [x] 该条目含 `mode: 'subagent'` 和 `promptFile: '.opencode/agents/sddu-fast.md'`
+- [x] `agentToPhaseMap` 中**不含** `sddu-fast`（Fast 无阶段）
+- [x] 新增条目未破坏现有 11 个 Agent 的注册（数组其他条目不变）
+- [x] TypeScript 编译无新增类型错误（`npx tsc --noEmit` 通过）
 
 **验证命令**:
 ```bash
@@ -172,12 +172,12 @@ npx tsc --noEmit 2>&1 | grep -v "node_modules" | grep -q "error" && echo "FAIL: 
 | MODIFY | `src/adapters/opencode/templates/opencode.json.hbs` |
 
 **验收标准**:
-- [ ] `agent:{}` 块中新增 `"sddu-fast"` 条目
-- [ ] `model` 字段值为 `"opencode/deepseek-v4-flash-free"`
-- [ ] `prompt` 字段值为 `"{file:.opencode/agents/sddu-fast.md}"`
-- [ ] `description` 字段说明快速定位（"SDDU 快速模式 - 轻量任务直接解决"）
-- [ ] JSON 格式有效（`python3 -m json.tool` 可解析）
-- [ ] 原有 11 个 Agent 条目未被意外修改
+- [x] `agent:{}` 块中新增 `"sddu-fast"` 条目
+- [x] `model` 字段值为 `"opencode/deepseek-v4-flash-free"`
+- [x] `prompt` 字段值为 `"{file:.opencode/agents/sddu-fast.md}"`
+- [x] `description` 字段说明快速定位（"SDDU 快速模式 - 轻量任务直接解决"）
+- [x] JSON 格式有效（`python3 -m json.tool` 可解析）
+- [x] 原有 11 个 Agent 条目未被意外修改
 
 **验证命令**:
 ```bash
@@ -232,14 +232,14 @@ grep -c '"sddu-[a-z]' src/adapters/opencode/templates/opencode.json.hbs | xargs 
 | MODIFY | `src/templates/agents/sddu.md.hbs` |
 
 **验收标准**:
-- [ ] §3 路由目标表含 `@sddu-fast` 行，阶段列为 `—`，说明列为 `快速解决（轻量任务）`
-- [ ] 存在 `§5.4`（或等效的简单任务调度章节），位于 §5.3 之后
-- [ ] §5.4 含关键词匹配规则（至少列出"修复"、"改一下"、"review" 三个轻量动词示例）
-- [ ] §5.4 含保守策略声明（"不确定时不调度"）
-- [ ] §5.4 明确声明调度到 Fast 不触发 phase 流转
-- [ ] §11 示例对话含 `@sddu "修复..."` → 路由到 `@sddu-fast` 的示例
-- [ ] `@sddu` 核心路由约束（"只路由不设计"）未被破坏
-- [ ] `@sddu` 原有 9 个路由目标全部保留（无丢失）
+- [x] §3 路由目标表含 `@sddu-fast` 行，阶段列为 `—`，说明列为 `快速解决（轻量任务）`
+- [x] 存在 `§5.4`（或等效的简单任务调度章节），位于 §5.3 之后
+- [x] §5.4 含关键词匹配规则（至少列出"修复"、"改一下"、"review" 三个轻量动词示例）
+- [x] §5.4 含保守策略声明（"不确定时不调度"）
+- [x] §5.4 明确声明调度到 Fast 不触发 phase 流转
+- [x] §11 示例对话含 `@sddu "修复..."` → 路由到 `@sddu-fast` 的示例
+- [x] `@sddu` 核心路由约束（"只路由不设计"）未被破坏
+- [x] `@sddu` 原有 9 个路由目标全部保留（无丢失）
 
 **验证命令**:
 ```bash
@@ -294,11 +294,11 @@ grep -qiP '修复.*拼写|路由.*sddu-fast' src/templates/agents/sddu.md.hbs &&
 | MODIFY | `README.md` |
 
 **验收标准**:
-- [ ] README 含 `@sddu-fast` 的提及
-- [ ] 存在双模对比说明（`@sddu` vs `@sddu-fast` 的定位差异）
-- [ ] 含至少 2 个场景示例（修拼写用 Fast / 设计模块走完整流程）
-- [ ] 用户读完能自行判断选哪个入口
-- [ ] Agent 数量统计已更新为 12 个
+- [x] README 含 `@sddu-fast` 的提及
+- [x] 存在双模对比说明（`@sddu` vs `@sddu-fast` 的定位差异）
+- [x] 含至少 2 个场景示例（修拼写用 Fast / 设计模块走完整流程）
+- [x] 用户读完能自行判断选哪个入口
+- [x] Agent 数量统计已更新为 12 个
 
 **验证命令**:
 ```bash

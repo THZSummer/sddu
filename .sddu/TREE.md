@@ -7,7 +7,7 @@
 ```
 .sddu/
 ├── TREE.md                                     # 本文件 - 目录导航
-├── ROADMAP.md                                  # 版本路线图 (v3.0.0 ~ v3.2.0 规划)
+├── ROADMAP.md                                  # 版本路线图 (v14.0.0 — 项目版本 v4.0.0)
 ├── COMPLETION_CERTIFICATE.json                 # SDD→SDDU 迁移完成证书
 ├── review-report-plugin-rename-sddu.json       # 插件改名审查报告
 ├── docs/                                       # 工具文档目录 (30 个文档)
@@ -33,7 +33,7 @@
 ## 文件说明
 | 文件 | 说明 | 状态 |
 |------|------|------|
-| ROADMAP.md | SDDU 版本路线图 v9.0.0 — v3.0.0 ~ v3.2.0 全量规划 | ✅ 存在 |
+| ROADMAP.md | SDDU 版本路线图 v14.0.0 — 项目版本 v4.0.0，含 46 待处理项目 + 5 竞品借鉴 + 2 新提案 | ✅ 存在 |
 | COMPLETION_CERTIFICATE.json | SDD→SDDU 迁移完成证书 (T-004, T-018) | ✅ 存在 |
 | review-report-plugin-rename-sddu.json | 插件改名 SDDU 审查报告 | ✅ 存在 |
 
@@ -62,8 +62,8 @@
 - 采用 kebab-case：`specs-tree-my-feature`
 - SDDU 支持更深嵌套层次和更丰富域名结构
 
-## SDDU 7 阶段工作流
+## SDDU 8 阶段工作流 (v3.0.0)
 ```
-discovery → spec → plan → tasks → build → review → validate
-(阶段 0)    (阶段 1)  (阶段 2)  (阶段 3)  (阶段 4)  (阶段 5)  (阶段 6)
+registered → discovered → specified → planned → tasked → builded → reviewed → validated
+  (注册)      (阶段 0)     (阶段 1)   (阶段 2)  (阶段 3)  (阶段 4)   (阶段 5)   (阶段 6)
 ```

@@ -12,6 +12,7 @@ specs-tree-sdd-multi-module/
 ├── tasks.md                         # 任务分解 (阶段 3)
 ├── review.md                        # 代码审查 (阶段 5)
 ├── validation.md                    # 功能验证 (阶段 6)
+├── TASK-250-003.completed           # TASK-250-003 完成标记
 └── state.json                       # 状态文件
 ```
 
@@ -23,6 +24,7 @@ specs-tree-sdd-multi-module/
 | tasks.md | 任务分解 — 模块化开发任务 | ✅ 存在 |
 | review.md | 代码审查 — 多模块审查结果 | ✅ 存在 |
 | validation.md | 功能验证 — 并行开发验证 | ✅ 存在 |
+| TASK-250-003.completed | TASK-250-003 完成标记 — 跨 Feature 状态同步 | ✅ 完成 |
 | state.json | Feature 状态 — phase: validated, status: completed | ✅ 已完成 |
 
 ## Feature 状态
@@ -33,6 +35,7 @@ specs-tree-sdd-multi-module/
 | Status | ✅ completed |
 | Priority | P0 |
 | 完成日期 | 2026-04-05 |
+| 任务总数 | 15 (TASK-001~009 + TASK-250-001~006) |
 
 ## 上级目录
 - [返回上级](../TREE.md)

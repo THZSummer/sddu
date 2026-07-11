@@ -130,6 +130,13 @@ const builtinAgents: AgentMetadata[] = [
     description: 'SDDU 目录导航生成器 - 扫描目录结构生成 README 导航',
     mode: 'subagent',
     promptFile: '.opencode/agents/sddu-docs.md'
+  },
+  // 快速模式: 轻量任务直接解决
+  {
+    name: 'sddu-fast',
+    description: 'SDDU 快速模式 - 轻量任务直接解决（无状态、零产物）',
+    mode: 'subagent',
+    promptFile: '.opencode/agents/sddu-fast.md'
   }
 ];
 

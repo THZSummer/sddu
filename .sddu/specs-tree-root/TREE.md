@@ -39,7 +39,7 @@ specs-tree-root/
 | 指标 | 值 |
 |------|-----|
 | 项目版本 | v1.4.1 |
-| 最后修改 | 2026-07-11 |
+| 最后修改 | 2026-07-12 |
 | 当前活跃 Feature | 1 |
 | 已完成 Feature | 17 |
 | 已终止 Feature | 1 |
@@ -65,12 +65,12 @@ specs-tree-root/
 | specs-tree-sddu-status-enhancement | FR-STATUS-001 | 特性状态增强 v3.0.0 | validated | ✅ completed |
 | specs-tree-template-quality-unification | FR-TPL-001 | 模板质量统一 v3.0.1 | validated | ✅ completed |
 | specs-tree-framework-architecture | FR-FRAMEWORK-ARCH-001 | SDDU 框架源码架构重组 | validated | ✅ completed |
-| specs-tree-docs-agent-optimization | FR-DOCS-OPT-001 | @sddu-docs Agent 补全与优化 — v4.0 最终验证 | validated | ✅ completed |
+| specs-tree-docs-agent-optimization | FR-DOCS-OPT-001 | @sddu-docs Agent 补全与优化 — v4.0 最终验证通过 | validated | ✅ completed |
 
 ### 进行中 Feature (1 个)
 | 目录 | Feature ID | 说明 | Phase | Status |
 |------|-----------|------|:-----:|:------:|
-| specs-tree-sddu-fast | FR-FAST-001 | @sddu-fast 快速模式 Agent — spec 阶段完成 | specified | 🟢 tracked |
+| specs-tree-sddu-fast | FR-FAST-001 | @sddu-fast 快速模式 Agent — reviewed 阶段 (1/5 任务完成) | reviewed | 🟢 tracked |
 
 ### 已终止 Feature (1 个)
 | 目录 | Feature ID | 说明 | Status | 去向 |
