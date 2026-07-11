@@ -10,12 +10,15 @@
 ├── ROADMAP.md                                  # 版本路线图 (v3.0.0 ~ v3.2.0 规划)
 ├── COMPLETION_CERTIFICATE.json                 # SDD→SDDU 迁移完成证书
 ├── review-report-plugin-rename-sddu.json       # 插件改名审查报告
-├── docs/                                       # 工具文档目录 (29 个文档)
+├── docs/                                       # 工具文档目录 (30 个文档)
 │   ├── TREE.md                                 # docs 目录导航
 │   ├── faq.md                                  # 常见问题解答
 │   ├── migration-guide.md                       # SDD→SDDU 迁移指南
 │   ├── containerization-faq.md                  # 容器化 FAQ
-│   └── migration-*.md                           # 迁移状态系列文档 (25 个)
+│   └── migration-*.md                           # 迁移状态系列文档 (26 个)
+├── docs-tree-root/                              # 项目全景产物目录 (5 大领域)
+│   ├── TREE.md                                  # docs-tree-root 导航
+│   └── [5 个子目录]/                             # Agent体系/工作流引擎/插件工程架构/模板体系/项目结构管理
 └── specs-tree-root/                             # 规范文件根目录
     ├── TREE.md                                  # specs-tree-root 目录导航
     ├── state.json                               # 全局状态文件 (v1.4.1)
@@ -24,7 +27,7 @@
     │   └── adr/                                 # ADR 文档集合
     │       ├── TREE.md                          # ADR 目录导航
     │       └── ADR-001.md ~ ADR-017.md          # 主 ADR 集合 (17 篇)
-    └── specs-tree-[feature]/                    # 标准化 Feature 目录 (18 个)
+    └── specs-tree-[feature]/                    # 标准化 Feature 目录 (19 个)
 ```
 
 ## 文件说明
@@ -37,18 +40,19 @@
 ## 子目录
 | 目录 | 说明 | 状态 |
 |------|------|------|
-| docs/ | SDDU 文档资源 — FAQ、迁移指南、迁移状态记录 (29 个文档) | ✅ 存在 |
-| specs-tree-root/ | 规范文件根目录 — 18 个 Feature 目录 + 架构 ADR | ✅ 存在 |
+| docs/ | SDDU 文档资源 — FAQ、迁移指南、迁移状态记录 (30 个文档) | ✅ 存在 |
+| docs-tree-root/ | 项目全景产物目录 — 5 大领域全景文档 (Agent体系/工作流引擎/插件工程架构/模板体系/项目结构管理) | ✅ 存在 |
+| specs-tree-root/ | 规范文件根目录 — 19 个 Feature 目录 + 架构 ADR | ✅ 存在 |
 
 ## 统计
 | 指标 | 值 |
 |------|-----|
-| Feature 总数 | 18 |
-| 已完成 (completed) | 16 |
-| 已终止 (terminated) | 1 |
+| Feature 总数 | 19 |
+| 已完成 (completed) | 17 |
 | 进行中 (tracked) | 1 |
+| 已终止 (terminated) | 1 |
 | 架构 ADR | 17 篇 (ADR-001 ~ ADR-017) |
-| 文档资源 | 29 个 .md 文件 |
+| 文档资源 | 30 个 .md 文件 |
 
 ## 上级目录
 - [返回首页](../TREE.md)

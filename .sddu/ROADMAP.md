@@ -1,11 +1,11 @@
 # SDDU 项目版本 Roadmap
 
-> **文档版本**: 13.0.0
-> **更新日期**: 2026-07-11 (ROADMAP 审计整改 — FR-QUALITY-002/006 + Issue C/D + DOC1/4/5/6 + T1 删除)
+> **文档版本**: 14.0.0
+> **更新日期**: 2026-07-11 (FR-KB-002 标记完成 — 由 @sddu-docs 实现)
 > **状态**: 规划中 (v3.0.0 待启动)
 > **生成方式**: `@sddu-roadmap` 全量扫描 17 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估 + Superpowers 竞品调研导入
 > **当前项目版本**: v4.0.0
-> **全局状态**: 16 validated, 0 tracked, 1 terminated | 待处理项目: 47 | 新提案: 2 (FR-BUG-001, FR-SKILL-001) | 竞品借鉴: 5 🆕
+> **全局状态**: 16 validated, 0 tracked, 1 terminated | 待处理项目: 46 | 新提案: 2 (FR-BUG-001, FR-SKILL-001) | 竞品借鉴: 5 🆕
 
 ---
 
@@ -15,7 +15,7 @@
 
 SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范驱动工作流框架。通过 11 个专业化 Agent 协同工作，覆盖从问题挖掘 (discovery)、需求定义 (spec)、技术设计 (plan)、任务分解 (tasks)、实施构建 (build)、审查 (review) 到验证 (validate) 的完整开发生命周期。项目自 2026 年 3 月启动，已迭代至 v4.0.0，完成 16 个核心 Feature，当前聚焦 v3.0.0 质量与工作流改进。
 
-项目的长期愿景是成为 AI 辅助软件工程的标准工作流框架 — 让 AI Agent 不仅能写代码，更能通过规范化流程保证交付质量、沉淀项目知识、持续自我演进。v3.0.0 系列将重点解决框架自身的质量闭环问题（Build Wave 一体化、Validate E2E 能力、框架级自验证），v3.2.0 将引入项目知识基础设施（全局配置 + 知识自动沉淀）。v4.0.0 已完成三域分层架构重组，为 SDDU 的跨平台扩展奠定基础。
+项目的长期愿景是成为 AI 辅助软件工程的标准工作流框架 — 让 AI Agent 不仅能写代码，更能通过规范化流程保证交付质量、沉淀项目知识、持续自我演进。v3.0.0 系列将重点解决框架自身的质量闭环问题（Build Wave 一体化、Validate E2E 能力、框架级自验证），v3.2.0 将引入项目知识基础设施（全局配置 FR-KB-001；知识自动沉淀 FR-KB-002 已由 @sddu-docs 提前实现）。v4.0.0 已完成三域分层架构重组，为 SDDU 的跨平台扩展奠定基础。
 
 ### 项目状态速览
 
@@ -26,7 +26,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **已终止 (terminated/migrated)** | 1 |
 | **进行中 (tracked)** | **0** ⚠️ |
 | **搁置 (suspended)** | 0 |
-| **已知待解决问题** | **47 (A-F + H-I 核心 + BUG-001 + SKILL-001 + 5 竞品借鉴 + 32 审计发现)** |
+| **已知待解决问题** | **46 (A-F + I 核心 + BUG-001 + SKILL-001 + 5 竞品借鉴 + 32 审计发现)** |
 | **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (搁置，含 FAST-001 + RATIONAL-001 + SKILL-001), v4.1.0 (远期) |
 
 ### ⚠️ 关键警示
@@ -46,7 +46,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **v4.0.0** | 源码架构重组 🆕 | 2026-06-21 | ✅ | FR-FRAMEWORK-ARCH-001 三域分层 + 平台适配器隔离 |
 | **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 |
 | **v3.1.0** | 工具链增强 | TBD | 💡 提议中 | FR-BUG-001 Bug 流程 + FR-WORKTREE-001 Git Worktree 隔离 |
-| **v3.2.0** | 项目知识基础设施 (H-I) | TBD | 💡 提议中 | 全局配置 + 知识沉淀 |
+| **v3.2.0** | 项目知识基础设施 (H・I) | TBD | 🔄 部分完成 | FR-KB-001 全局配置 (💡 提议中) + FR-KB-002 知识沉淀 (✅ 已完成 — @sddu-docs) |
 | **v3.3.0** | Agent 行为强化 (延期汇入) | TBD | ⏸️ 搁置 | FR-RATIONAL-001 理性化对抗 + FR-FAST-001 快速模式 (竞品借鉴) + FR-SKILL-001 项目级业务 Skills |
 | **v4.1.0** | 生态扩展 (远期) | TBD | 💡 远期 | 多平台适配 + 自动触发 (竞品借鉴 §5.3) |
 
@@ -54,7 +54,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 
 - [x] ~~**🟡 重要**: 评审 G 问题 (模板质量)，确认 scope 边界~~ → ✅ 已完成 (FR-TPL-001, v3.0.1)
 - [ ] **🔴 紧急**: 启动首个 v3.0.0 Feature (建议 FR-QUALITY-001 / FR-KB-001 / FR-BUG-001) 的 discovery 流程
-- [ ] **🟡 重要**: 评审 H/I 新增问题，确认 scope 边界
+- [ ] **🟡 重要**: 评审 I 问题 (全局配置)，确认 scope 边界；H (知识沉淀) 已由 @sddu-docs 完成
 - [ ] **🟡 重要**: 决定 v3.0.0 / v3.1.0 / v3.2.0 的 Feature 归属和启动顺序
 - [ ] **🟢 日常**: 运行残留检查脚本，确保无回归
 - [ ] **⚡ 速赢**: 执行 5 项速赢任务 (~2h)：TREE.md 路径修正、FeatureStateEnum 清理、stale spec.json 同步、COMPLETION_CERTIFICATE 修正、phaseHistory 去重
@@ -69,7 +69,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
 | 5 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
 
-> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成，FR-FRAMEWORK-ARCH-001 (架构重组) 已于 v4.0.0 完成交付，均不参与排名。🆕 FR-FAST-001 (v3.3.0, RICE 21.6) 为 2026-07-11 竞品调研 + 用户战略决策新纳入；FR-RATIONAL-001/FR-WORKTREE-001/FR-AUTOTRIGGER-001/FR-CROSSPLAT-001 为同期竞品调研新纳入；FR-SKILL-001 (v3.3.0, RICE 7.9) 为用户战略决策新纳入。完整 RICE 排名见「跨版本 RICE 总排名」节。
+> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成；Issue H (知识沉淀 FR-KB-002) 已由 @sddu-docs 完成；FR-FRAMEWORK-ARCH-001 (架构重组) 已于 v4.0.0 完成交付，均不参与排名。🆕 FR-FAST-001 (v3.3.0, RICE 21.6) 为 2026-07-11 竞品调研 + 用户战略决策新纳入；FR-RATIONAL-001/FR-WORKTREE-001/FR-AUTOTRIGGER-001/FR-CROSSPLAT-001 为同期竞品调研新纳入；FR-SKILL-001 (v3.3.0, RICE 7.9) 为用户战略决策新纳入。完整 RICE 排名见「跨版本 RICE 总排名」节。
 
 ### 关键 milestones
 
@@ -298,21 +298,21 @@ FR-WORKTREE-001 (Worktree) ──受益于──→ FR-KB-001 (全局配置) —
 ### v3.2.0 — 项目知识基础设施
 
 **预计时间**: TBD (依赖 v3.1.0 部分完成)
-**状态**: 💡 提议中
-**新增问题**: H (知识沉淀), I (全局配置)
+**状态**: 🔄 部分完成 (FR-KB-002 已由 @sddu-docs 提前实现)
+**新增问题**: I (全局配置); H (知识沉淀) — ✅ 已完成
 **注意**: FR-FRAMEWORK-ARCH-001 (v4.0.0) 已完成的三域分层架构为 KB-001 的配置格式设计提供了清晰的平台无关性参考。
 
 | Feature | 覆盖 | 优先级 | Effort | 说明 |
 |---------|:----:|:------:|--------|------|
 | **FR-KB-001**: 全局项目配置文件 | I | 🥇 P0 | 3-5 天 | `.sddu/project.json` — 技术栈、命名规范、代码风格等 |
-| **FR-KB-002**: 项目级知识自动沉淀 | H | 🥈 P1 | 7-10 天 | 聚合 Feature 产出物为项目总览文档 (依赖 KB-001) |
+| **FR-KB-002**: 项目级知识自动沉淀 | H | ✅ 已完成 | — | ✅ 由 `@sddu-docs` Agent 实现 — 扫描 specs-tree-root 下 Feature 过程产物，聚合为项目全景（这正是本需求的核心目标） |
 
-**RICE 分析 (H-I 问题)**:
+**RICE 分析 (问题 I)**:
 
 | 排名 | Feature | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:-----:|:------:|:-----:|:------:|:--------:|:------:|
 | 🥇 | FR-KB-001 (全局配置) | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 🥈 | FR-KB-002 (知识沉淀) | 8 | 8 | 50% | 8 | **4.0** | P1 |
+| — | ~~FR-KB-002 (知识沉淀)~~ | — | — | — | — | — | ✅ 已完成 |
 
 ---
 
@@ -460,7 +460,7 @@ FR-FAST-001 (快速模式) ──启发自──→ Superpowers — 轻量对话
 | Feature | 类型 | 内容 | 定位 |
 |---------|------|------|------|
 | **FR-KB-001** (全局配置) | 声明式配置 | 技术栈、命名规范、代码风格 | 静态的「是什么」 |
-| **FR-KB-002** (知识沉淀) | 自动聚合 | Feature 产出物自动汇总 | 过去的「做了什么」 |
+| **FR-KB-002** (知识沉淀) ✅ | 自动聚合 | Feature 产出物自动汇总 (已由 @sddu-docs 实现) | 过去的「做了什么」 |
 | **FR-SKILL-001** (业务 Skills) | 用户手写流程 | 项目特有的可复用执行流程 | 未来的「怎么做某类事」 |
 
 三者本质不同，不应混并。
@@ -575,7 +575,7 @@ FR-SKILL-001 (业务 Skills) ──启发自──→ Superpowers — skills 概
 | 9 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
 | 10 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
 | 11 | **FR-WORKTREE-001**: Git Worktree 🆕 | v3.1.0 | 5 | 6 | 60% | 4 | **4.5** | P2 |
-| 12 | **FR-KB-002**: 项目知识沉淀 | v3.2.0 | 8 | 8 | 50% | 8 | **4.0** | P1 |
+| 12 | ~~**FR-KB-002**: 项目知识沉淀~~ | ~~v3.2.0~~ | — | — | — | — | — | ✅ 已完成 (@sddu-docs) |
 | 13 | **FR-QUALITY-004**: 框架自验证 | v3.0.0 | 4 | 7 | 60% | 6 | **2.8** | P1 |
 | 14 | **FR-QUALITY-006**: coordinator 兼容 | v3.0.0 | 2 | 3 | 80% | 2 | **2.4** | P2 |
 | 15 | **FR-CROSSPLAT-001**: 多平台适配 🆕 | v4.1.0 | 9 | 8 | 40% | 12 | **2.4** | P3 |
@@ -633,7 +633,7 @@ specs-tree-sdd-plugin-baseline ────────────────�
             ├── FR-BUG-001 (Bug 流程框架化) — 新提案 → v3.1.0
             ├── FR-WORKTREE-001 (Git Worktree 隔离) 🆕 — 竞品借鉴 §5.2.1 → v3.1.0
             ├── FR-KB-001 (全局项目配置) — Issue I → v3.2.0
-            └── FR-KB-002 (项目知识沉淀) — Issue H → v3.2.0 (依赖 KB-001)
+            └── FR-KB-002 (项目知识沉淀) — Issue H → ✅ 已完成 (@sddu-docs)
 
             ▼  ─── ⏸️ v3.3.0 搁置 ───
             ├── FR-RATIONAL-001 (理性化对抗) 🆕 — 竞品借鉴 §5.1.2 → v3.3.0
@@ -650,7 +650,7 @@ specs-tree-solo-team-flow (ETD-001) ──────────── 🚫 te
 #### 执行依赖分析
 
 ```
-FR-KB-001 (全局配置) ──→ FR-KB-002 (知识沉淀)         ← 配置是知识沉淀的前提
+FR-KB-001 (全局配置) ──→ ~~FR-KB-002 (知识沉淀)~~ ✅ 已完成       ← 配置是知识沉淀的前提 (已实现)
 FR-BUG-001 (Bug 流程) ──受益于──→ FR-KB-001 (全局配置)   ← 全局配置可定义 bug 严重度等级
 FR-BUG-001 (Bug 流程) ──借用──→ FR-TPL-001 (模板系统)   ← 共用 Handlebars 模板引擎
 FR-WORKTREE-001 (Worktree) ──受益于──→ FR-MULTI-001 (多模块) ← Worktree 为子 Feature 提供物理隔离
@@ -688,7 +688,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 │ FR-QUALITY-004 (框架自验证)        │ ← 依赖 Wave 2 Validate E2E
 └────────────────────────────────────┘
 ┌─ Wave 5 (v3.2.0) ─────────────────┐
-│ FR-KB-002 (知识沉淀)               │ ← 依赖 KB-001
+│ ~~FR-KB-002 (知识沉淀)~~            │ ← ✅ 已完成 (@sddu-docs)
 └────────────────────────────────────┘
 ┌─ Wave 6 (v3.3.0 搁置) ────────────┐
 │ FR-RATIONAL-001 (理性化对抗) 🆕     │ ← 等 v3.0~v3.2 交付后启动
@@ -715,7 +715,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | Build Wave 一体化改动大 | 🟡 中 | 🟡 中 | 提前原型验证 build agent 的 multi-wave 能力 |
 | Validate E2E 设计复杂度高 | 🟡 中 | 🟡 中 | 分两步：最小可行 E2E runner → 完整框架 |
 | Skills/TUI/MCP 持续延期 | 🟢 低 | 🔴 高 | v4.0.0 三域分层架构已完成，Skills/MCP 可基于新架构评估 |
-| KB-002 (知识沉淀) scope 不明确 | 🟡 中 | 🔴 高 | 依赖 KB-001 先落地；discovery 阶段详细界定 |
+| ~~**KB-002 (知识沉淀) scope 不明确**~~ | — | — | ✅ 已解决 — 通过 `@sddu-docs` Agent 实现，scope 已收缩为「扫描 specs-tree-root 下 Feature 过程产物，聚合为项目全景」 |
 | KB-001 (全局配置) schema 争议 | 🟡 中 | 🟡 中 | 参考主流框架实践；充分收拢需求再设计；v4.0.0 三域分层提供平台无关性参考 |
 | **FR-WORKTREE-001 嵌套 worktree 检测** 🆕 | 🟡 中 | 🟡 中 | 参考 Superpowers Step 0 检测逻辑；增加环境变量标记避免嵌套 |
 | **FR-WORKTREE-001 平台兼容性** 🆕 | 🟢 低 | 🟡 中 | 优先走平台原生工具 → 降级 git worktree add；E2E 测试覆盖多平台 |
@@ -743,7 +743,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 2. **确认 Feature 归属版本** — 当前方案:
     - A-F → v3.0.0 (质量与工作流改进)
     - **FR-BUG-001 (Bug 流程框架化)** + **FR-WORKTREE-001 (Git Worktree 隔离)** 🆕 → v3.1.0 (工具链增强)
-    - H-I → v3.2.0 (知识基础设施)
+     - H → ✅ 已完成 (FR-KB-002, 由 @sddu-docs 实现)；I → v3.2.0 (知识基础设施)
     - G → ✅ 已完成 (FR-TPL-001, v3.0.1)
     - **FR-FRAMEWORK-ARCH-001** → ✅ 已完成 (v4.0.0, 2026-06-21)
     - **FR-RATIONAL-001 (理性化对抗)** + **FR-FAST-001 (快速模式)** + **FR-SKILL-001 (项目级业务 Skills)** 🆕 → v3.3.0 (搁置，等前置版本交付)
@@ -762,7 +762,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 
 7. 完成 v3.0.0 全部 P0 级 Feature
 8. 评估 v3.1.0 Feature (FR-BUG-001 + FR-WORKTREE-001) 是否启动
-9. 为 FR-KB-001 / FR-KB-002 收拢需求，基于 v4.0.0 三域分层架构协同设计
+9. 为 FR-KB-001 收拢需求，基于 v4.0.0 三域分层架构协同设计 (FR-KB-002 已由 @sddu-docs 提前完成)
 
 ### 🔵 远期行动 (季度回顾)
 
@@ -815,7 +815,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | 📄 文档/配置 | 7 | TREE.md 过时、冗余 wave1 文件、路径引用错误、ROADMAP 结构混乱等 |
 | ⏸️ 搁置但需关注 | 4 | ETD 独立仓库、Skills/TUI/MCP 持续延期 |
 
-**总计: 47 个待处理项目** (↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001；↑1: FR-SKILL-001 新提案)
+**总计: 46 个待处理项目** (↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↓1: Issue H (FR-KB-002) 已由 @sddu-docs 完成；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001；↑1: FR-SKILL-001 新提案)
 
 ### 🐛 一、待修复 Bug / 质量问题 (10 项)
 
@@ -830,7 +830,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **T2** | wf-state-optimization phaseHistory 重复 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | state.json | phaseHistory 中有重复条目（从 tasked 回退到 specified 又回到 tasked），数据虽不影响功能但混淆调试 |
 | **T3** | agent-output-templating spec.json state 过期 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | spec.json | `"phase": "planned", "state": "specified"` — 实际 feature 早已 validated，spec.json 未同步更新 |
 
-### ✨ 二、待实现的增强特性 (18 项)
+### ✨ 二、待实现的增强特性 (17 项)
 
 | # | 名称 | 类型 | Effort | 优先级 | 归属 | 描述 |
 |:--|------|:----:|:------:|:------:|:-----|------|
@@ -838,7 +838,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **BUG-001** | Bug 追踪与修复流程框架化 | ✨ Enhancement | M (3-5d) | **P0** | v3.1.0 | Bug 模板 + 轻/重修复规则 + 跨项目跟随。当前 bug 目录为临时方案，需提升为框架级能力。RICE 10.5 排名第三 |
 | **FAST-001** 🆕 | @sddu-fast 快速模式 Agent | ✨ Enhancement | XS (1-2d) | **P0** | v3.3.0 | 竞品借鉴 + 用户战略 — 零摩擦轻量入口，无状态机、纯对话、不留痕。覆盖 60-70% 日常简单任务。RICE 21.6 全榜第一 |
 | **SKILL-001** 🆕 | 项目级业务 Skills | ✨ Enhancement | M (3-5d) | **P1** | v3.3.0 | 用户战略 — `.sddu/skills/` 目录，用户手写可复用执行流程，Agent 按 tags 匹配后推荐加载。与 FR-KB-001 (声明式配置) / FR-KB-002 (自动聚合) 本质不同。RICE 7.9 |
-| **H** | 项目级知识自动沉淀 | ✨ Enhancement | L (7-10d) | **P1** | v3.2.0 | 聚合 Feature 产出物为项目总览文档 (依赖 I: 全局配置) |
+| **H** | ✅ 项目级知识自动沉淀 (FR-KB-002) | ✨ Enhancement | — | **P1** | ✅ 已完成 | ✅ 由 `@sddu-docs` Agent 实现 — 扫描 specs-tree-root，聚合 Feature 过程产物为项目全景文档 |
 | **S1** | FR-014: 模板校验工具命令 | ✨ Enhancement | M (3-5d) | **P2** | Could Have | `@sddu-validate-template` 命令，用户可提前验证模板正确性 (spec 中标记 "未来") |
 | **S2** | FR-015: 多套内置模板风格 | ✨ Enhancement | M (3-5d) | **P3** | Could Have | 简洁版/详细版等多套模板风格，通过配置切换 (spec 中标记 "未来") |
 | **S3** | FR-016: 模板版本管理 | ✨ Enhancement | M (3-5d) | **P3** | Could Have | 模板版本管理，与 Agent 版本对应 (spec 中标记 "未来") |
@@ -853,7 +853,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **CROSSPLAT-001** 🆕 | 多平台适配支持 | ✨ Enhancement | XL (>10d) | **P3** | v4.1.0 | 竞品借鉴 §5.3.1 — 基于 adapters/ 扩展到非 OpenCode 平台 |
 | **AUTOTRIGGER-001** 🆕 | Agent 自动触发机制 | ✨ Enhancement | S (1-2d) | **P3** | v4.1.0 | 竞品借鉴 §5.3.2 — 会话启动注入 @sddu 入口指令 |
 
-> **注**: ~~G: 预置输出模板质量统一~~ 已于 2026-06-19 通过 FR-TPL-001 (v3.0.1) 完成。全 22 FR + 3 NFR 100% 通过，17 个模板 + 11 个 Agent 职责边界声明全部到位。
+> **注**: ~~G: 预置输出模板质量统一~~ 已于 2026-06-19 通过 FR-TPL-001 (v3.0.1) 完成。~~H (FR-KB-002): 项目级知识自动沉淀~~ 已于 2026-07-11 由 @sddu-docs Agent 完成。全 22 FR + 3 NFR 100% 通过，17 个模板 + 11 个 Agent 职责边界声明全部到位。
 
 ### 🔧 三、技术债务 (9 项)
 
@@ -905,7 +905,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | 9 | **F** | Review/Validate 设计规划 | 🐛 | v3.0.0 | M | 5.3 | **P1** |
 | 10 | **B** | auto-updater 修复 | 🐛 | v3.0.0 | S | 4.8 | **P2** |
 | 11 | **WORKTREE-001** 🆕 | Git Worktree 隔离 | ✨ | v3.1.0 | M | 4.5 | **P2** |
-| 12 | **H** | 项目知识沉淀 | ✨ | v3.2.0 | L | 4.0 | **P1** |
+| 12 | **H** | ✅ 项目知识沉淀 (FR-KB-002) | ✨ | ✅ 已完成 | — | 4.0 | **P1** |
 | 13 | **E** | 框架自验证 | 🐛 | v3.0.0 | L | 2.8 | **P1** |
 | 14 | **D** | coordinator 兼容 | 🐛 | v3.0.0 | XS | 2.4 | **P3** |
 | 15 | **CROSSPLAT-001** 🆕 | 多平台适配 | ✨ | v4.1.0 | XL | 2.4 | **P3** |
@@ -942,7 +942,7 @@ Phase 2 — 🟡 第二周
 
 Phase 3 — 🟡 第三~四周
 ├── 🟡 P1: FR-QUALITY-004 (框架自验证) — 依赖 Validate E2E
-├── 🟡 P1: FR-KB-002 (知识沉淀) — 依赖 KB-001
+├── ~~FR-KB-002 (知识沉淀)~~ → ✅ 已完成 (@sddu-docs)
 └── 📄 P2: DOC2 (Wave1 文件归档) + TD1 (仪表盘 TS 化)
 
 Phase 4 — 🟢 后续 (v3.1.0/v3.2.0)
@@ -988,4 +988,4 @@ Phase 5 — ⏸️ 搁置 (v3.3.0)
 
 > **生成信息**: 本文档由 `@sddu-roadmap` Agent 于 2026-06-21 重大更新 (v9.0.0)，反映 FR-FRAMEWORK-ARCH-001 (v4.0.0) 已完成交付——从「规划中」移至「已交付」，并更新全局状态、优先级排序、依赖图、风险评估、下一步行动。FR-BUG-001 仍为新提案待处理。扫描范围覆盖 `.sddu/specs-tree-root/` 下 17 个 Feature 目录的全部 state.json / spec.md / tasks.md / spec.json / validation-report.md 以及 `.sddu/docs/` / `.sddu/TREE.md` / 架构 ADR 目录。
 > 
-> **最近更新 (v12.0.0)**: 2026-07-11 — 新增 FR-SKILL-001 (项目级业务 Skills)，源自用户战略决策 — `.sddu/skills/` 目录，用户手写可复用执行流程，Agent 按 tags 匹配后推荐加载。FR-SKILL-001 以 RICE 7.9 位列全榜第 7，归属于 v3.3.0 搁置池，与 FR-FAST-001 + FR-RATIONAL-001 同版。更新内容：RICE 排名表、版本总览、v3.3.0 版本节（新增 FR-SKILL-001 完整规划，含与 FR-KB-001/KB-002 的本质区别说明）、依赖图谱、风险评估（新增 4 项 FR-SKILL-001 相关风险）、远期行动（新增 FR-SKILL-001 启动条件）、附录 B 全量清单（17→18 增强特性，46→47 待处理项目）。同时修正全量优先级总排名表中重复编号问题。
+> **最近更新 (v14.0.0)**: 2026-07-11 — FR-KB-002 (Issue H: 项目级知识自动沉淀) 标记为已完成，由 `@sddu-docs` Agent 实现。更新内容：全局状态行 (47→46)、版本总览表 v3.2.0 行（状态 → 🔄 部分完成）、v3.2.0 版本节（FR-KB-002 标记 ✅ 已完成 + @sddu-docs 注解）、跨版本 RICE 总排名表（FR-KB-002 划删除线）、依赖关系分析（移除 FR-KB-002 活跃依赖）、风险评估（KB-002 scope 风险标记已解决）、执行摘要问题计数（47→46）、附录 B 增强特性数（18→17）+ Issue H 条目标记完成。
