@@ -1,11 +1,11 @@
 # SDDU 项目版本 Roadmap
 
-> **文档版本**: 10.0.0
-> **更新日期**: 2026-07-11 (竞品调研导入 — 新增 FR-WORKTREE-001 / FR-RATIONAL-001 / FR-CROSSPLAT-001 / FR-AUTOTRIGGER-001)
+> **文档版本**: 11.0.0
+> **更新日期**: 2026-07-11 (新增 FR-FAST-001 — @sddu-fast 快速模式 Agent，竞品调研 + 用户战略决策)
 > **状态**: 规划中 (v3.0.0 待启动)
 > **生成方式**: `@sddu-roadmap` 全量扫描 17 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估 + Superpowers 竞品调研导入
 > **当前项目版本**: v4.0.0
-> **全局状态**: 16 validated, 0 tracked, 1 terminated | 待处理项目: 44 | 新提案: 1 (FR-BUG-001) | 竞品借鉴: 4 🆕
+> **全局状态**: 16 validated, 0 tracked, 1 terminated | 待处理项目: 46 | 新提案: 1 (FR-BUG-001) | 竞品借鉴: 5 🆕
 
 ---
 
@@ -26,8 +26,8 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **已终止 (terminated/migrated)** | 1 |
 | **进行中 (tracked)** | **0** ⚠️ |
 | **搁置 (suspended)** | 0 |
-| **已知待解决问题** | **45 (A-F + H-I 核心 + BUG-001 + 4 竞品借鉴 + 32 审计发现)** |
-| **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (搁置), v4.1.0 (远期) |
+| **已知待解决问题** | **46 (A-F + H-I 核心 + BUG-001 + 5 竞品借鉴 + 32 审计发现)** |
+| **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (搁置，含 FAST-001 + RATIONAL-001), v4.1.0 (远期) |
 
 ### ⚠️ 关键警示
 
@@ -47,7 +47,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 |
 | **v3.1.0** | 工具链增强 | TBD | 💡 提议中 | FR-BUG-001 Bug 流程 + FR-WORKTREE-001 Git Worktree 隔离 |
 | **v3.2.0** | 项目知识基础设施 (H-I) | TBD | 💡 提议中 | 全局配置 + 知识沉淀 |
-| **v3.3.0** | Agent 行为强化 (延期汇入) | TBD | ⏸️ 搁置 | FR-RATIONAL-001 理性化对抗 (竞品借鉴 §5.1.2) |
+| **v3.3.0** | Agent 行为强化 (延期汇入) | TBD | ⏸️ 搁置 | FR-RATIONAL-001 理性化对抗 + FR-FAST-001 快速模式 (竞品借鉴) |
 | **v4.1.0** | 生态扩展 (远期) | TBD | 💡 远期 | 多平台适配 + 自动触发 (竞品借鉴 §5.3) |
 
 ### 本周优先事项 (2026-06-21 ~ 2026-06-28)
@@ -63,13 +63,13 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 
 | 排名 | 功能 | 版本 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
-| 🥇 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 🥈 | **FR-BUG-001**: Bug 流程框架化 | v3.1.0 | 8 | 7 | 75% | 4 | **10.5** | P0 |
-| 🥉 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 4 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
-| 5 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
+| 🥇 | **FR-FAST-001**: 快速模式 Agent 🆕 | v3.3.0 | 9 | 8 | 60% | 2 | **21.6** | P0 |
+| 🥈 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
+| 🥉 | **FR-BUG-001**: Bug 流程框架化 | v3.1.0 | 8 | 7 | 75% | 4 | **10.5** | P0 |
+| 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
+| 5 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
 
-> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成，FR-FRAMEWORK-ARCH-001 (架构重组) 已于 v4.0.0 完成交付，均不参与排名。🆕 FR-RATIONAL-001/FR-WORKTREE-001/FR-AUTOTRIGGER-001/FR-CROSSPLAT-001 为 2026-07-11 竞品调研新纳入。完整 RICE 排名见「跨版本 RICE 总排名」节。
+> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成，FR-FRAMEWORK-ARCH-001 (架构重组) 已于 v4.0.0 完成交付，均不参与排名。🆕 FR-FAST-001 (v3.3.0, RICE 21.6) 为 2026-07-11 竞品调研 + 用户战略决策新纳入；FR-RATIONAL-001/FR-WORKTREE-001/FR-AUTOTRIGGER-001/FR-CROSSPLAT-001 为同期竞品调研新纳入。完整 RICE 排名见「跨版本 RICE 总排名」节。
 
 ### 关键 milestones
 
@@ -82,7 +82,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 2026-07-19 | v3.0.0 首批 P0 Feature validated | v3.0.0 |
 | 2026-08-30 | v3.0.0 全部 Feature 完成 | v3.0.0 |
 | 2026-Q4 | v3.1.0 FR-BUG-001 + FR-WORKTREE-001 discovery + v3.2.0 评估 | v3.1.0 / v3.2.0 |
-| 2027+ | v3.3.0 FR-RATIONAL-001 评估启动 / v4.1.0 远期生态扩展评估 | v3.3.0 / v4.1.0 |
+| 2027+ | v3.3.0 FR-RATIONAL-001 + FR-FAST-001 评估启动 / v4.1.0 远期生态扩展评估 | v3.3.0 / v4.1.0 |
 
 ### 功能完成时间线
 
@@ -369,6 +369,74 @@ FR-RATIONAL-001 (理性化对抗) ──无硬依赖──→ 可独立启动 (�
 
 ---
 
+#### 延期 Feature: FR-FAST-001 — @sddu-fast 快速模式 Agent 🆕 (竞品借鉴 + 用户战略决策)
+
+> **来源**: Superpowers 竞品调研 — Superpowers 的核心优势是"轻"：无状态机、无编译、纯 Markdown skill 自动触发、对话式推进
+> **加入日期**: 2026-07-11
+> **决策来源**: 用户战略确认（轻重双模演进方向）
+
+| 属性 | 值 |
+|------|-----|
+| **Feature ID** | FR-FAST-001 |
+| **优先级** | 🥇 P0 (RICE 21.6，跨版本第 1 位) |
+| **Effort** | XS (1-2 天) |
+| **来源** | 竞品调研 — Superpowers 的轻量性：纯 Markdown、无状态机、无编译、对话式推进 + 用户战略决策 |
+| **归属** | v3.3.0 (搁置池，与 FR-RATIONAL-001 同版) |
+
+**背景**: Superpowers 的核心竞争力在于"轻"—用户说"实现登录功能"，Agent 自动从 brainstorming 开始，轻量对话式推进，用户几乎无感。SDDU 的 8 阶段状态机对复杂 Feature 是质量保障，但对简单任务（bug 修复、小功能、配置调整等 60-70% 的日常工作）是过度工程。SDDU 当前缺少"轻量入口"，用户要么走完整 8 阶段，要么不用 SDDU，没有中间地带。这是 SDDU 从"重型框架"向"轻重双模"演进的关键一步。
+
+**核心目标**: 提供一个零摩擦的轻量入口，让用户在不值得走完整 8 阶段流程时也能享受 SDDU Agent 的能力。Fast 模式不追求文档可追溯，核心在于快速解决问题。
+
+**用户确认的设计决策（不可更改）**:
+
+1. **Agent 形态**: `@sddu-fast` 独立 Agent
+   - 有自己的 .hbs 模板和职责定义
+   - 独立注册到 OpenCode subagent 系统
+   - 不走状态机，不依赖 SDDU 核心状态管理
+
+2. **内部流程**: 无阶段，纯对话
+   - 理解问题 → 直接解决 → 验证结果
+   - 零中间产物，不产出 discovery.md / spec.md / plan.md 等
+
+3. **升级路径**: 纯一次性
+   - 解决完就结束，不留痕
+   - 不写 state.json，不进 specs-tree-root
+   - 如果 Fast 发现问题复杂，Agent 可建议用户切换到 `@sddu 开始` 走完整流程（仅建议，不自动升级）
+
+4. **版本归属**: v3.3.0（搁置池）
+   - 与 FR-RATIONAL-001 同属 v3.3.0
+   - 启动条件: v3.0.0~v3.2.0 全部交付后启动
+
+**预期范围** (待 discovery 阶段细化):
+1. `@sddu-fast` Agent 模板（.hbs）— 定义快速模式的行为约束和对话策略
+2. Agent 注册 — 独立注册到 OpenCode subagent，不走状态机
+3. 智能边界判断 — Agent 评估问题复杂度，如发现复杂建议升级到 `@sddu 开始`
+4. 可选的 TDD / 调试能力引入 — 按需引入 Superpowers 式的轻量技能（先写测试再写代码、根因分析等），但不是必须
+
+**RICE 详细分析**:
+
+| 维度 | 评分 | 依据 |
+|------|:---:|------|
+| Reach | **9** | 影响所有 SDDU 用户，覆盖 60-70% 日常工作场景（bug 修复、小功能、配置调整等） |
+| Impact | **8** | 显著降低使用门槛，从"重型框架"变"轻重双模"；零摩擦入口消除用户对 SDDU 的抵触心理 |
+| Confidence | **60%** | 概念清晰且有 Superpowers 成功验证；但纯一次性无追溯的效果需验证，Agent 边界判断能力待评估 |
+| Effort | **2** | 极低：一个 .hbs 模板 (0.5d) + Agent 注册 (0.3d) + 基础验证 (0.5d) + discovery (0.2d) |
+| **RICE** | **21.6** | **(9 × 8 × 0.6) / 2** |
+
+**与其他 Feature 的依赖关系**:
+
+```
+FR-FAST-001 (快速模式) ──借用──→ FR-TPL-001 (模板系统) — 共用 Handlebars 模板引擎生成 .hbs
+FR-FAST-001 (快速模式) ──独立于──→ 状态机 — 不走 StateMachine，不依赖 pipeline/ 模块
+FR-FAST-001 (快速模式) ──互补──→ SDDU 完整流程 — 轻/重双入口，覆盖不同复杂度场景
+FR-FAST-001 (快速模式) ──无硬依赖──→ 可独立启动 (仅模板 + Agent 注册)
+FR-FAST-001 (快速模式) ──启发自──→ Superpowers — 轻量对话式、无状态机、无编译
+```
+
+**建议**: 推迟至 v3.3.0，等 v3.0.0~v3.2.0 全部交付后再启动。Effort 极低 (1-2d)，可与 FR-RATIONAL-001 同期启动。二者互补：理性化对抗强化重型流程的 Agent 纪律，Fast 模式开辟轻量入口 — 共同构成 SDDU "轻重双模"的完整 Agent 体系。
+
+---
+
 ### v4.1.0 — 生态扩展 (远期)
 
 **预计时间**: TBD (依赖 v4.0.0 架构基础 + 需求评估)
@@ -409,23 +477,24 @@ FR-RATIONAL-001 (理性化对抗) ──无硬依赖──→ 可独立启动 (�
 
 ---
 
-### 跨版本 RICE 总排名 (全部 12 项: A-F + H-I + BUG-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
+### 跨版本 RICE 总排名 (全部 13 项: A-F + H-I + BUG-001 + FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
 
 | 排名 | Feature | 归属 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
-| 🥇 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 🥈 | **FR-BUG-001**: Bug 流程框架化 | v3.1.0 | 8 | 7 | 75% | 4 | **10.5** | P0 |
-| 🥉 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 4 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
-| 5 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
-| 6 | **FR-AUTOTRIGGER-001**: 自动触发 🆕 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
-| 7 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
-| 8 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
-| 9 | **FR-WORKTREE-001**: Git Worktree 🆕 | v3.1.0 | 5 | 6 | 60% | 4 | **4.5** | P2 |
-| 10 | **FR-KB-002**: 项目知识沉淀 | v3.2.0 | 8 | 8 | 50% | 8 | **4.0** | P1 |
-| 11 | **FR-QUALITY-004**: 框架自验证 | v3.0.0 | 4 | 7 | 60% | 6 | **2.8** | P1 |
-| 12 | **FR-QUALITY-006**: coordinator 兼容 | v3.0.0 | 2 | 3 | 80% | 2 | **2.4** | P2 |
-| 13 | **FR-CROSSPLAT-001**: 多平台适配 🆕 | v4.1.0 | 9 | 8 | 40% | 12 | **2.4** | P3 |
+| 🥇 | **FR-FAST-001**: 快速模式 Agent 🆕 | v3.3.0 | 9 | 8 | 60% | 2 | **21.6** | P0 |
+| 🥈 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
+| 🥉 | **FR-BUG-001**: Bug 流程框架化 | v3.1.0 | 8 | 7 | 75% | 4 | **10.5** | P0 |
+| 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
+| 5 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
+| 6 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
+| 7 | **FR-AUTOTRIGGER-001**: 自动触发 🆕 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
+| 8 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
+| 9 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
+| 10 | **FR-WORKTREE-001**: Git Worktree 🆕 | v3.1.0 | 5 | 6 | 60% | 4 | **4.5** | P2 |
+| 11 | **FR-KB-002**: 项目知识沉淀 | v3.2.0 | 8 | 8 | 50% | 8 | **4.0** | P1 |
+| 12 | **FR-QUALITY-004**: 框架自验证 | v3.0.0 | 4 | 7 | 60% | 6 | **2.8** | P1 |
+| 13 | **FR-QUALITY-006**: coordinator 兼容 | v3.0.0 | 2 | 3 | 80% | 2 | **2.4** | P2 |
+| 14 | **FR-CROSSPLAT-001**: 多平台适配 🆕 | v4.1.0 | 9 | 8 | 40% | 12 | **2.4** | P3 |
 
 ---
 
@@ -483,7 +552,8 @@ specs-tree-sdd-plugin-baseline ────────────────�
             └── FR-KB-002 (项目知识沉淀) — Issue H → v3.2.0 (依赖 KB-001)
 
             ▼  ─── ⏸️ v3.3.0 搁置 ───
-            └── FR-RATIONAL-001 (理性化对抗) 🆕 — 竞品借鉴 §5.1.2 → v3.3.0
+            ├── FR-RATIONAL-001 (理性化对抗) 🆕 — 竞品借鉴 §5.1.2 → v3.3.0
+            └── FR-FAST-001 (快速模式 Agent) 🆕 — 竞品借鉴 + 用户战略决策 → v3.3.0
 
             ▼  ─── 💡 v4.1.0 远期 ───
             ├── FR-CROSSPLAT-001 (多平台适配) 🆕 — 竞品借鉴 §5.3.1 → v4.1.0
@@ -501,6 +571,9 @@ FR-BUG-001 (Bug 流程) ──借用──→ FR-TPL-001 (模板系统)   ← �
 FR-WORKTREE-001 (Worktree) ──受益于──→ FR-MULTI-001 (多模块) ← Worktree 为子 Feature 提供物理隔离
 FR-WORKTREE-001 (Worktree) ──受益于──→ FR-KB-001 (全局配置) ← 全局配置可定义默认 worktree 行为
 FR-RATIONAL-001 (理性化) ──借用──→ FR-TPL-001 (模板系统)  ← 纯模板层变更，共用 Handlebars 引擎
+FR-FAST-001 (快速模式) 🆕 ──借用──→ FR-TPL-001 (模板系统)  ← 纯模板层变更，共用 Handlebars 引擎
+FR-FAST-001 (快速模式) 🆕 ──独立于──→ 状态机 (pipeline/)  ← 不走状态机，不依赖 state.json
+FR-FAST-001 (快速模式) 🆕 ──互补──→ SDDU 完整流程       ← 轻/重双入口，覆盖不同复杂度
 FR-QUALITY-001 (Build Wave) ──→ FR-QUALITY-003 (设计规划)    ← Wave 经验指导设计
 FR-QUALITY-002 (Validate E2E) ──→ FR-QUALITY-004 (框架自验)  ← E2E 能力支撑自验证
 FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
@@ -530,6 +603,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 └────────────────────────────────────┘
 ┌─ Wave 6 (v3.3.0 搁置) ────────────┐
 │ FR-RATIONAL-001 (理性化对抗) 🆕     │ ← 等 v3.0~v3.2 交付后启动
+│ FR-FAST-001 (快速模式 Agent) 🆕    │ ← 等 v3.0~v3.2 交付后启动，Effort 1-2d
 └────────────────────────────────────┘
 ┌─ Wave 7 (v4.1.0 远期) ────────────┐
 │ FR-CROSSPLAT-001 (多平台) 🆕        │ ← 依赖 v4.0.0 adapters 基础
@@ -556,6 +630,9 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **FR-WORKTREE-001 嵌套 worktree 检测** 🆕 | 🟡 中 | 🟡 中 | 参考 Superpowers Step 0 检测逻辑；增加环境变量标记避免嵌套 |
 | **FR-WORKTREE-001 平台兼容性** 🆕 | 🟢 低 | 🟡 中 | 优先走平台原生工具 → 降级 git worktree add；E2E 测试覆盖多平台 |
 | **v3.3.0/v4.1.0 前瞻 Feature 过早承诺** 🆕 | 🟢 低 | 🟡 中 | 标记为 "远期"，不进入近期执行计划；每季度回顾一次是否启动评估 |
+| **FR-FAST-001 纯一次性无追溯** 🆕 | 🟡 中 | 🟡 中 | Fast 模式不产出任何文档或 state.json — 问题解决后无审计痕迹。缓解：通过 Agent prompt 建议用户对重要变更走完整流程；Fast 模式定位为"低风险快速任务"专用 |
+| **FR-FAST-001 Agent 边界判断不准** 🆕 | 🟡 中 | 🟡 中 | Agent 自行判断问题复杂度（Fast 还是完整流程）可能不准确。缓解：在 .hbs 模板中内置复杂度评估清单；允许用户显式选择路径（`@sddu-fast` vs `@sddu 开始`） |
+| **FR-FAST-001 与完整流程的割裂** 🆕 | 🟢 低 | 🟢 低 | 两种模式之间无数据互通，用户可能困惑何时用哪个。缓解：`@sddu` 入口增加智能路由提示；Fast Agent 检测到复杂问题时主动建议升级 |
 
 ---
 
@@ -575,7 +652,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
     - H-I → v3.2.0 (知识基础设施)
     - G → ✅ 已完成 (FR-TPL-001, v3.0.1)
     - **FR-FRAMEWORK-ARCH-001** → ✅ 已完成 (v4.0.0, 2026-06-21)
-    - **FR-RATIONAL-001 (理性化对抗)** 🆕 → v3.3.0 (搁置，等前置版本交付)
+    - **FR-RATIONAL-001 (理性化对抗)** + **FR-FAST-001 (快速模式)** 🆕 → v3.3.0 (搁置，等前置版本交付)
     - **FR-CROSSPLAT-001 + FR-AUTOTRIGGER-001** 🆕 → v4.1.0 (远期)
     - 是否需要调整归属？
 
@@ -595,10 +672,11 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 
 ### 🔵 远期行动 (季度回顾)
 
-10. 每季度回顾竞品借鉴项 (FR-RATIONAL-001 / FR-CROSSPLAT-001 / FR-AUTOTRIGGER-001) 是否达到启动条件
+10. 每季度回顾竞品借鉴项 (FR-FAST-001 / FR-RATIONAL-001 / FR-CROSSPLAT-001 / FR-AUTOTRIGGER-001) 是否达到启动条件
 11. FR-RATIONAL-001 启动条件: v3.0.0~v3.2.0 全部交付 + 用户反馈 Agent 偷懒/走形式问题频发
-12. FR-CROSSPLAT-001 启动条件: OpenCode 之外的主流 AI Agent 平台明确需求 + adapters/ 架构成熟
-13. FR-AUTOTRIGGER-001 启动条件: 用户反馈 "忘记调用 @sddu" 成为痛点
+12. FR-FAST-001 启动条件: v3.0.0~v3.2.0 全部交付 + 用户反馈 "简单功能也要走完整流程太繁琐" 成为痛点（RICE 21.6 全榜第一，一旦 v3.2.0 交付应优先启动）
+13. FR-CROSSPLAT-001 启动条件: OpenCode 之外的主流 AI Agent 平台明确需求 + adapters/ 架构成熟
+14. FR-AUTOTRIGGER-001 启动条件: 用户反馈 "忘记调用 @sddu" 成为痛点
 
 ---
 
@@ -637,12 +715,12 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | 类别 | 数量 | 说明 |
 |------|:----:|------|
 | 🐛 Bug / 质量问题 | 10 | A-F + 4 预存测试失败 |
-| ✨ 增强特性 | 15 | H-I + BUG-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 |
+| ✨ 增强特性 | 16 | H-I + BUG-001 + FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 |
 | 🔧 技术债务 | 9 | deprecated 类型、旧 schema、stale spec.json、仪表盘 TS 化、缺集成测试等 |
 | 📄 文档/配置 | 6 | TREE.md 过时、冗余 wave1 文件、路径引用错误等 |
 | ⏸️ 搁置但需关注 | 4 | ETD 独立仓库、Skills/TUI/MCP 持续延期 |
 
-**总计: 45 个待处理项目** (↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↑1: FR-BUG-001 新提案；↑4: 竞品借鉴 — WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
+**总计: 46 个待处理项目** (↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
 
 ### 🐛 一、待修复 Bug / 质量问题 (10 项)
 
@@ -658,12 +736,13 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **T2** | wf-state-optimization phaseHistory 重复 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | state.json | phaseHistory 中有重复条目（从 tasked 回退到 specified 又回到 tasked），数据虽不影响功能但混淆调试 |
 | **T3** | agent-output-templating spec.json state 过期 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | spec.json | `"phase": "planned", "state": "specified"` — 实际 feature 早已 validated，spec.json 未同步更新 |
 
-### ✨ 二、待实现的增强特性 (16 项)
+### ✨ 二、待实现的增强特性 (17 项)
 
 | # | 名称 | 类型 | Effort | 优先级 | 归属 | 描述 |
 |:--|------|:----:|:------:|:------:|:-----|------|
-| **I** | 全局项目配置文件 | ✨ Enhancement | M (3-5d) | **P0** | v3.2.0 | `.sddu/project.json` — 技术栈、命名规范、代码风格等全局配置，RICE 15.8 排名第一 |
-| **BUG-001** | Bug 追踪与修复流程框架化 | ✨ Enhancement | M (3-5d) | **P0** | v3.1.0 | Bug 模板 + 轻/重修复规则 + 跨项目跟随。当前 bug 目录为临时方案，需提升为框架级能力。RICE 10.5 排名第二 |
+| **I** | 全局项目配置文件 | ✨ Enhancement | M (3-5d) | **P0** | v3.2.0 | `.sddu/project.json` — 技术栈、命名规范、代码风格等全局配置，RICE 15.8 排名第二 |
+| **BUG-001** | Bug 追踪与修复流程框架化 | ✨ Enhancement | M (3-5d) | **P0** | v3.1.0 | Bug 模板 + 轻/重修复规则 + 跨项目跟随。当前 bug 目录为临时方案，需提升为框架级能力。RICE 10.5 排名第三 |
+| **FAST-001** 🆕 | @sddu-fast 快速模式 Agent | ✨ Enhancement | XS (1-2d) | **P0** | v3.3.0 | 竞品借鉴 + 用户战略 — 零摩擦轻量入口，无状态机、纯对话、不留痕。覆盖 60-70% 日常简单任务。RICE 21.6 全榜第一 |
 | **H** | 项目级知识自动沉淀 | ✨ Enhancement | L (7-10d) | **P1** | v3.2.0 | 聚合 Feature 产出物为项目总览文档 (依赖 I: 全局配置) |
 | **S1** | FR-014: 模板校验工具命令 | ✨ Enhancement | M (3-5d) | **P2** | Could Have | `@sddu-validate-template` 命令，用户可提前验证模板正确性 (spec 中标记 "未来") |
 | **S2** | FR-015: 多套内置模板风格 | ✨ Enhancement | M (3-5d) | **P3** | Could Have | 简洁版/详细版等多套模板风格，通过配置切换 (spec 中标记 "未来") |
@@ -719,10 +798,11 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 
 | 排名 | ID | 名称 | 类型 | 归属 | Effort | RICE | 优先级 |
 |:----:|----|------|:----:|------|:------:|:----:|:------:|
-| 🥇 | **I** | 全局项目配置文件 | ✨ | v3.2.0 | M | 15.8 | **P0** |
-| 🥈 | **BUG-001** | Bug 追踪与修复流程框架化 | ✨ | v3.1.0 | M | 10.5 | **P0** |
-| 🥉 | **A** | Build Wave 一体化 | 🐛 | v3.0.0 | L | 9.6 | **P0** |
-| 4 | **RATIONAL-001** 🆕 | Agent 理性化对抗 | ✨ | v3.3.0 | M | 9.6 | **P1** |
+| 🥇 | **FAST-001** 🆕 | @sddu-fast 快速模式 Agent | ✨ | v3.3.0 | XS | **21.6** | **P0** |
+| 🥈 | **I** | 全局项目配置文件 | ✨ | v3.2.0 | M | 15.8 | **P0** |
+| 🥉 | **BUG-001** | Bug 追踪与修复流程框架化 | ✨ | v3.1.0 | M | 10.5 | **P0** |
+| 4 | **A** | Build Wave 一体化 | 🐛 | v3.0.0 | L | 9.6 | **P0** |
+| 5 | **RATIONAL-001** 🆕 | Agent 理性化对抗 | ✨ | v3.3.0 | M | 9.6 | **P1** |
 | 5 | **C** | Validate Agent E2E | 🐛 | v3.0.0 | L | 8.4 | **P0** |
 | 6 | **AUTOTRIGGER-001** 🆕 | Agent 自动触发 | ✨ | v4.1.0 | S | 7.5 | **P3** |
 | 7 | **F** | Review/Validate 设计规划 | 🐛 | v3.0.0 | M | 5.3 | **P1** |
@@ -774,7 +854,9 @@ Phase 4 — 🟢 后续 (v3.1.0/v3.2.0)
 ├── TD8 (AI Agent 行为验证) + S1 (模板校验工具)
 └── 📄 DOC3-6 (路径/引用修正，批量处理)
 
-Phase 5 — ⏸️ 搁置
+Phase 5 — ⏸️ 搁置 (v3.3.0)
+├── FR-FAST-001 (快速模式 Agent) 🆕 — RICE 21.6，Effort XS，等 v3.2.0 交付后优先启动
+├── FR-RATIONAL-001 (理性化对抗) 🆕 — RICE 9.6，与 FAST-001 同期启动
 ├── S5 (TUI) + S6 (MCP) — 持续延期，无明确需求
 ├── SUS3 (wf-state 缺 review/validation) — 历史 feature，不需要补
 └── TD3/TD4 (旧 schema) + TD5-7/TD9 (stale spec.json) — 低优先级清理
@@ -807,3 +889,5 @@ Phase 5 — ⏸️ 搁置
 > **文档维护**: 本 Roadmap 是动态文档。建议每季度回顾更新，或每当一个 Feature 完成 validated 阶段时运行 `@sddu-roadmap` 刷新状态。
 
 > **生成信息**: 本文档由 `@sddu-roadmap` Agent 于 2026-06-21 重大更新 (v9.0.0)，反映 FR-FRAMEWORK-ARCH-001 (v4.0.0) 已完成交付——从「规划中」移至「已交付」，并更新全局状态、优先级排序、依赖图、风险评估、下一步行动。FR-BUG-001 仍为新提案待处理。扫描范围覆盖 `.sddu/specs-tree-root/` 下 17 个 Feature 目录的全部 state.json / spec.md / tasks.md / spec.json / validation-report.md 以及 `.sddu/docs/` / `.sddu/TREE.md` / 架构 ADR 目录。
+> 
+> **最近更新 (v11.0.0)**: 2026-07-11 — 新增 FR-FAST-001 (@sddu-fast 快速模式 Agent)，源自 Superpowers 竞品调研 + 用户战略决策（轻重双模演进）。FR-FAST-001 以 RICE 21.6 位列全榜第一，归属于 v3.3.0 搁置池，与 FR-RATIONAL-001 同版。更新内容：RICE 排名表、优先级 Top 5、版本总览、v3.3.0 版本节、依赖图谱、风险评估、远期行动、附录 B 全量清单、分类统计。
