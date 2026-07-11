@@ -774,7 +774,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **TD8** | 实际 AI Agent 行为验证缺失 | 🔧 Tech-Debt | M (3-5d) | **P2** | 建议在实际 opencode 环境中执行 `@sddu 状态` 并对比预期效果与模板描述是否一致 |
 | **TD9** | agent-output-templating plan.md 改进项 | 🔧 Tech-Debt | XS (<1d) | **P3** | 审查报告的改进项 #2：plan.md 示例路径引用，非阻塞 |
 
-### 📄 四、文档/配置类 (6 项)
+### 📄 四、文档/配置类 (7 项)
 
 | # | 名称 | 类型 | Effort | 优先级 | 描述 |
 |:--|------|:----:|:------:|:------:|------|
@@ -784,6 +784,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **DOC4** | `.sddu/README.md` 列出可能不存在的命令 | 📄 Doc | XS (<1d) | **P3** | 列出 `@sddu-help` 命令但需确认是否实际存在 |
 | **DOC5** | architecture/README.md ADR 数量过时 | 📄 Doc | XS (<1d) | **P3** | 说"ADR-002 ~ ADR-017"，实际有 ADR-001 ~ ADR-020（含子 Feature 的 ADR-018/019/020） |
 | **DOC6** | `.sddu/docs/README.md` 未包含 v3.0.0 Roadmap | 📄 Doc | XS (<1d) | **P3** | docs 导航未引用 v3.0.0 质量改进计划 |
+| **DOC7** | ROADMAP 文档结构混乱，目录格式不可读 🆕 | 📄 Doc | S (1-2d) | **P2** | ROADMAP.md 当前 800+ 行，用户反馈"目录格式看不懂，乱七八糟的"。来源: 用户反馈 2026-07-11 |
 
 ### ⏸️ 五、搁置但需关注 (4 项)
 
