@@ -1,7 +1,7 @@
 # SDDU 项目版本 Roadmap
 
-> **文档版本**: 12.0.0
-> **更新日期**: 2026-07-11 (新增 FR-SKILL-001 — 项目级业务 Skills，用户手写 + Agent 按需使用)
+> **文档版本**: 13.0.0
+> **更新日期**: 2026-07-11 (ROADMAP 审计整改 — FR-QUALITY-002/006 + Issue C/D + DOC1/4/5/6 + T1 删除)
 > **状态**: 规划中 (v3.0.0 待启动)
 > **生成方式**: `@sddu-roadmap` 全量扫描 17 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估 + Superpowers 竞品调研导入
 > **当前项目版本**: v4.0.0
@@ -167,8 +167,8 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 |----|------|----------|:------:|
 | **A** | **sddu-build wave 间衔接断裂** — build agent 被多次调用，理想应一次完成全部 wave | `sddu-build` agent | 🔴 高 |
 | **B** | **auto-updater 可能提前设 phase** — Wave 1 完成时就出现 `phase: "builded"`，推断顺序有误 | `auto-updater.ts` | 🟡 中 |
-| **C** | **validate agent 不做真正 E2E 测试** — 当前只做静态合规检查，不执行端到端行为验证 | `sddu-validate` agent | 🔴 高 |
-| **D** | **sddu coordinator 尝试调用 bash 工具失败** — opencode 环境中 bash 工具可能不可用 (已自愈) | `sddu` coordinator | 🟢 低 |
+| **C** | ✅ **validate agent E2E 能力已完成** — v3.0.5 模板已重写为动手验证模式（测试覆盖、接口验证、构建验证、性能边界、漂移检测），ROADMAP 审计确认 (2026-07-11) | `sddu-validate` agent | 🟢 已解决 |
+| **D** | ✅ **sddu coordinator bash 工具问题已修复** — coordinator 模板已 `bash: deny`，opencode 环境已自愈。同时 sddu-roadmap.md.hbs 已同步 deny (2026-07-11) | `sddu` coordinator | 🟢 已解决 |
 | **E** | **SDDU 缺少框架级系统验证层** — 框架 Feature 需要验证"SDDU 本身还能正常工作"，无标准化流程 | SDDU 框架设计 | 🟡 中 |
 | **F** | **review/validate 阶段未经设计规划** — build 阶段经历设计规划产出质量高，review/validate 未经历 | SDDU 工作流设计 | 🟡 中 |
 
@@ -177,28 +177,26 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | Feature | 覆盖 | 优先级 | Effort | 说明 |
 |---------|:----:|:------:|--------|------|
 | **FR-QUALITY-001**: Build Agent Wave 一体化 | A | 🥇 P0 | 3-5 天 | 重构 build agent 为单次调用完成全部 wave |
-| **FR-QUALITY-002**: Validate Agent E2E 能力增强 | C | 🥇 P0 | 5-7 天 | 实现端到端行为验证引擎 |
+| **FR-QUALITY-002**: Validate Agent E2E 能力增强 | C | ✅ 已完成 | — | v3.0.5 模板已重写为动手验证模式。ROADMAP 审计确认，从 v3.0.0 待办列表移除 |
 | **FR-QUALITY-003**: Review/Validate 阶段设计规划 | F | 🥈 P1 | 3-5 天 | 为 review/validate 引入设计规划阶段 |
 | **FR-QUALITY-004**: 框架级自验证流程 | E | 🥈 P1 | 5-7 天 | 建立标准化框架自验证流程 |
 | **FR-QUALITY-005**: Auto-updater Phase 推断修复 | B | P2 | 1-2 天 | 修复 phase 推断顺序 |
-| **FR-QUALITY-006**: Coordinator 工具兼容性 | D | P2 | 1-2 天 | 增强 coordinator 工具兼容性 |
+| **FR-QUALITY-006**: Coordinator 工具兼容性 | D | ✅ 已完成 | — | coordinator 模板已 `bash: deny`，sddu-roadmap.md.hbs 同步修复。ROADMAP 审计确认，从 v3.0.0 待办列表移除 |
 
 #### RICE 优先级分析 (v3.0.0 内部)
 
 | 排名 | Feature | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:-----:|:------:|:-----:|:------:|:--------:|:------:|
-| 🥇 | FR-QUALITY-002 (Validate E2E) | 8 | 9 | 70% | 6 | **8.4** | P0 |
-| 🥈 | FR-QUALITY-001 (Build Wave) | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 🥉 | FR-QUALITY-003 (Review/Validate 设计) | 5 | 7 | 60% | 4 | **5.3** | P1 |
-| 4 | FR-QUALITY-005 (auto-updater) | 3 | 4 | 80% | 2 | **4.8** | P2 |
-| 5 | FR-QUALITY-004 (框架自验证) | 4 | 7 | 60% | 6 | **2.8** | P1 |
-| 6 | FR-QUALITY-006 (coordinator) | 2 | 3 | 80% | 2 | **2.4** | P2 |
+| 🥇 | FR-QUALITY-001 (Build Wave) | 6 | 8 | 80% | 4 | **9.6** | P0 |
+| 🥈 | FR-QUALITY-003 (Review/Validate 设计) | 5 | 7 | 60% | 4 | **5.3** | P1 |
+| 🥉 | FR-QUALITY-005 (auto-updater) | 3 | 4 | 80% | 2 | **4.8** | P2 |
+| 4 | FR-QUALITY-004 (框架自验证) | 4 | 7 | 60% | 6 | **2.8** | P1 |
 
 **推荐启动顺序**:
 1. **FR-QUALITY-001** (Build Wave) — RICE 9.6，独立性好，改动集中
-2. **FR-QUALITY-002** (Validate E2E) — RICE 8.4，影响范围大，需充分设计
-3. **FR-QUALITY-005 + FR-QUALITY-006** — 快速修复，可穿插进行
-4. **FR-QUALITY-003 → FR-QUALITY-004** — 两者可串行，先设计后实施
+2. **FR-QUALITY-003** (Review/Validate 设计) — RICE 5.3
+3. **FR-QUALITY-005** (auto-updater) — 快速修复，可穿插进行
+4. **FR-QUALITY-004** (框架自验证) — RICE 2.8
 
 ---
 
@@ -829,7 +827,6 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **D** | Coordinator 调用 bash 工具失败 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | E2E | opencode 环境中 bash 工具可能不可用，`invalid [tool=bash]` 错误（已自愈） |
 | **E** | 框架级系统验证层缺失 | 🐛 Bug | 🟡 中 | L (5-7d) | **P1** | E2E | 框架 Feature 需要验证"SDDU 本身还能正常工作"，当前无标准化流程 |
 | **F** | Review/Validate 阶段缺设计规划 | 🐛 Bug | 🟡 中 | M (3-5d) | **P1** | E2E | build 阶段经历设计规划产出质量高，同为实施阶段的 review/validate 未经历 |
-| **T1** | 预存测试失败 × 4 | 🐛 Bug | 🟡 中 | S (1-2d) | **P2** | status-enhancement | 396/400 通过，4 失败为预存问题：2 timeout、1 断言失败、1 OOM。非本次引入但需修复 |
 | **T2** | wf-state-optimization phaseHistory 重复 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | state.json | phaseHistory 中有重复条目（从 tasked 回退到 specified 又回到 tasked），数据虽不影响功能但混淆调试 |
 | **T3** | agent-output-templating spec.json state 过期 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | spec.json | `"phase": "planned", "state": "specified"` — 实际 feature 早已 validated，spec.json 未同步更新 |
 
@@ -876,12 +873,12 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 
 | # | 名称 | 类型 | Effort | 优先级 | 描述 |
 |:--|------|:----:|:------:|:------:|------|
-| **DOC1** | `.sddu/TREE.md` 仍引用 `.sdd` 目录 | 📄 Doc | XS (<1d) | **P2** | 项目已迁移到 `.sddu/`，TREE.md 全篇仍使用 `.sdd/` 路径，需全局替换 |
+| **DOC1** | ✅ `.sddu/TREE.md` 路径引用已修复 | 📄 Doc | — | ✅ 已完成 | TREE.md 已全局替换为 `.sddu/` 路径。ROADMAP 审计确认 |
 | **DOC2** | `.sddu/docs/` 冗余 Wave1 迁移文件 (17+) | 📄 Doc | XS (<1d) | **P2** | 17+ 个 `migration-status-achieved-wave1-*-verified-final-...` 文件，大量冗余可归档 |
 | **DOC3** | `COMPLETION_CERTIFICATE.json` 路径引用过时 | 📄 Doc | XS (<1d) | **P3** | 第 47 行 `"file": ".sdd/specs-tree-root/..."` 仍引用 `.sdd/` |
-| **DOC4** | `.sddu/README.md` 列出可能不存在的命令 | 📄 Doc | XS (<1d) | **P3** | 列出 `@sddu-help` 命令但需确认是否实际存在 |
-| **DOC5** | architecture/README.md ADR 数量过时 | 📄 Doc | XS (<1d) | **P3** | 说"ADR-002 ~ ADR-017"，实际有 ADR-001 ~ ADR-020（含子 Feature 的 ADR-018/019/020） |
-| **DOC6** | `.sddu/docs/README.md` 未包含 v3.0.0 Roadmap | 📄 Doc | XS (<1d) | **P3** | docs 导航未引用 v3.0.0 质量改进计划 |
+| **DOC4** | `.sddu/TREE.md` 可能列出不存在命令 | 📄 Doc | XS (<1d) | **P3** | 原描述引用 `.sddu/README.md`（文件已不存在），实际导航文件为 TREE.md。需确认 TREE.md 中的命令引用是否有效 |
+| **DOC5** | `architecture/TREE.md` ADR 数量未含 Feature 目录下的 ADR-018~020 | 📄 Doc | XS (<1d) | **P3** | TREE.md 记录 17 篇 ADR，全项目实际共 20 篇（Feature 目录下有 ADR-018/019/020）。原描述引用的 README.md 已不存在 |
+| **DOC6** | `.sddu/docs/` 导航未包含 v3.0.0 Roadmap | 📄 Doc | XS (<1d) | **P3** | 原描述引用 `.sddu/docs/README.md`（文件已不存在），实际导航文件为 `docs/TREE.md`，未提及 v3.0.0 |
 | **DOC7** | ROADMAP 文档结构混乱，目录格式不可读 🆕 | 📄 Doc | S (1-2d) | **P2** | ROADMAP.md 当前 800+ 行，用户反馈"目录格式看不懂，乱七八糟的"。来源: 用户反馈 2026-07-11 |
 
 ### ⏸️ 五、搁置但需关注 (4 项)
