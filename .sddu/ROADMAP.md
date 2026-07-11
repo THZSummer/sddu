@@ -1,11 +1,11 @@
 # SDDU 项目版本 Roadmap
 
-> **文档版本**: 9.0.0
-> **更新日期**: 2026-06-21 (重大更新 — FR-FRAMEWORK-ARCH-001 已完成 validated，从规划移至已交付)
+> **文档版本**: 10.0.0
+> **更新日期**: 2026-07-11 (竞品调研导入 — 新增 FR-WORKTREE-001 / FR-RATIONAL-001 / FR-CROSSPLAT-001 / FR-AUTOTRIGGER-001)
 > **状态**: 规划中 (v3.0.0 待启动)
-> **生成方式**: `@sddu-roadmap` 全量扫描 17 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估
+> **生成方式**: `@sddu-roadmap` 全量扫描 17 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估 + Superpowers 竞品调研导入
 > **当前项目版本**: v4.0.0
-> **全局状态**: 16 validated, 0 tracked, 1 terminated | 待处理项目: 40 | 新提案: 1 (FR-BUG-001)
+> **全局状态**: 16 validated, 0 tracked, 1 terminated | 待处理项目: 44 | 新提案: 1 (FR-BUG-001) | 竞品借鉴: 4 🆕
 
 ---
 
@@ -26,8 +26,8 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **已终止 (terminated/migrated)** | 1 |
 | **进行中 (tracked)** | **0** ⚠️ |
 | **搁置 (suspended)** | 0 |
-| **已知待解决问题** | **41 (A-F + H-I 核心 + BUG-001 新提案 + 32 审计发现)** |
-| **规划中版本** | v3.0.0, v3.1.0, v3.2.0 |
+| **已知待解决问题** | **45 (A-F + H-I 核心 + BUG-001 + 4 竞品借鉴 + 32 审计发现)** |
+| **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (搁置), v4.1.0 (远期) |
 
 ### ⚠️ 关键警示
 
@@ -45,8 +45,10 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **v3.0.1** | 模板质量统一 | 2026-06-19 | ✅ | 17 模板格式统一 + 11 Agent 职责边界 |
 | **v4.0.0** | 源码架构重组 🆕 | 2026-06-21 | ✅ | FR-FRAMEWORK-ARCH-001 三域分层 + 平台适配器隔离 |
 | **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 |
-| **v3.1.0** | 工具链增强 | TBD | 💡 提议中 | FR-BUG-001 Bug 流程 + Skills/TUI/MCP |
+| **v3.1.0** | 工具链增强 | TBD | 💡 提议中 | FR-BUG-001 Bug 流程 + FR-WORKTREE-001 Git Worktree 隔离 |
 | **v3.2.0** | 项目知识基础设施 (H-I) | TBD | 💡 提议中 | 全局配置 + 知识沉淀 |
+| **v3.3.0** | Agent 行为强化 (延期汇入) | TBD | ⏸️ 搁置 | FR-RATIONAL-001 理性化对抗 (竞品借鉴 §5.1.2) |
+| **v4.1.0** | 生态扩展 (远期) | TBD | 💡 远期 | 多平台适配 + 自动触发 (竞品借鉴 §5.3) |
 
 ### 本周优先事项 (2026-06-21 ~ 2026-06-28)
 
@@ -64,10 +66,10 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 🥇 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
 | 🥈 | **FR-BUG-001**: Bug 流程框架化 | v3.1.0 | 8 | 7 | 75% | 4 | **10.5** | P0 |
 | 🥉 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 4 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
-| 5 | **FR-QUALITY-003**: Review/Validate 设计规划 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
+| 4 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
+| 5 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
 
-> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成，FR-FRAMEWORK-ARCH-001 (架构重组) 已于 v4.0.0 完成交付，均不参与排名。完整 RICE 排名见「跨版本 RICE 总排名」节。
+> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成，FR-FRAMEWORK-ARCH-001 (架构重组) 已于 v4.0.0 完成交付，均不参与排名。🆕 FR-RATIONAL-001/FR-WORKTREE-001/FR-AUTOTRIGGER-001/FR-CROSSPLAT-001 为 2026-07-11 竞品调研新纳入。完整 RICE 排名见「跨版本 RICE 总排名」节。
 
 ### 关键 milestones
 
@@ -79,7 +81,8 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 2026-07-05 | 首个 v3.0.0 Feature spec + plan 完成 | v3.0.0 |
 | 2026-07-19 | v3.0.0 首批 P0 Feature validated | v3.0.0 |
 | 2026-08-30 | v3.0.0 全部 Feature 完成 | v3.0.0 |
-| 2026-Q4 | v3.1.0 FR-BUG-001 discovery + v3.2.0 评估 | v3.1.0 / v3.2.0 |
+| 2026-Q4 | v3.1.0 FR-BUG-001 + FR-WORKTREE-001 discovery + v3.2.0 评估 | v3.1.0 / v3.2.0 |
+| 2027+ | v3.3.0 FR-RATIONAL-001 评估启动 / v4.1.0 远期生态扩展评估 | v3.3.0 / v4.1.0 |
 
 ### 功能完成时间线
 
@@ -249,6 +252,51 @@ FR-BUG-001 (Bug 流程) ──与模板系统对齐──→ FR-TPL-001 (v3.0.1)
 
 ---
 
+#### 新增 Feature: FR-WORKTREE-001 — Git Worktree Feature 隔离 🆕 (竞品借鉴)
+
+> **来源**: [Superpowers 竞品调研 §5.2.1](../../docs/research/superpowers-competitor-analysis.md#521-git-worktree-隔离)
+> **加入日期**: 2026-07-11
+
+| 属性 | 值 |
+|------|-----|
+| **Feature ID** | FR-WORKTREE-001 |
+| **优先级** | 🥉 P2 (RICE 4.5) |
+| **Effort** | M (3-5 天) |
+| **来源** | 竞品调研 — Superpowers 的 `using-git-worktrees` + `finishing-a-development-branch` |
+| **归属** | v3.1.0 工具链增强 |
+
+**背景**: Superpowers 为每个 Feature 开发创建隔离的 Git Worktree，含完整生命周期管理（创建→初始化→基线验证→收尾/清理）。SDDU 当前无 worktree 管理，Feature 开发直接在当前分支进行，有交叉污染风险。SDDU 的树形 Feature 嵌套（差异化优势）如果加上 worktree 隔离会更强大。
+
+**核心目标**: 新增 Git Worktree 隔离能力，为每个 Feature 创建独立工作区，完整的生命周期管理。
+
+**预期范围** (待 discovery 阶段细化):
+1. **Worktree 创建** — 检测是否已在隔离环境（避免嵌套）、优先平台原生工具、降级 `git worktree add`
+2. **项目初始化** — 自动检测项目类型并安装依赖、验证测试基线
+3. **收尾管理** — merge / PR / keep / discard 四选项 + worktree 清理
+4. **与树形 Feature 集成** — 子 Feature 可在独立 worktree 中开发，主分支不受影响
+
+**RICE 详细分析**:
+
+| 维度 | 评分 | 依据 |
+|------|:---:|------|
+| Reach | **5** | 影响需要使用隔离环境开发复杂 Feature 的用户，非所有 SDDU 用户都需要 |
+| Impact | **6** | 显著降低主分支污染风险，提升大型 Feature 开发体验 |
+| Confidence | **60%** | Git Worktree 是成熟技术，但集成到 SDDU 工作流需仔细设计；Superpowers 提供了参考实现 |
+| Effort | **4** | 中等：worktree 创建/检测逻辑 (1.5d) + 项目初始化/基线验证 (1d) + 收尾管理 (1d) + discovery/spec (0.5d) |
+| **RICE** | **4.5** | **(5 × 6 × 0.6) / 4** |
+
+**与其他 Feature 的依赖关系**:
+
+```
+FR-WORKTREE-001 (Worktree) ──无硬依赖──→ 可独立启动
+FR-WORKTREE-001 (Worktree) ──受益于──→ FR-MULTI-001 (树形多模块) — Worktree 为子 Feature 提供物理隔离支撑
+FR-WORKTREE-001 (Worktree) ──受益于──→ FR-KB-001 (全局配置) — 全局配置可定义默认 worktree 行为
+```
+
+**建议**: FR-WORKTREE-001 无硬依赖，Effort 中等 (3-5d)。建议在 FR-BUG-001 之后启动，v3.1.0 两个 M 级 Feature（Bug + Worktree）并行推荐。
+
+---
+
 ### v3.2.0 — 项目知识基础设施
 
 **预计时间**: TBD (依赖 v3.1.0 部分完成)
@@ -270,21 +318,114 @@ FR-BUG-001 (Bug 流程) ──与模板系统对齐──→ FR-TPL-001 (v3.0.1)
 
 ---
 
-### 跨版本 RICE 总排名 (全部 9 项: A-F + H-I + BUG-001)
+### v3.3.0 — Agent 行为强化 (延期汇入)
 
-> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成，FR-FRAMEWORK-ARCH-001 (架构重组) 已通过 v4.0.0 交付，不再参与排名。FR-BUG-001 为新提案。
+**预计时间**: TBD (依赖 v3.0.0 ~ v3.2.0 全部交付)
+**状态**: ⏸️ 搁置
+**注意**: 本版本为延期 Feature 的汇入点，待前置版本交付后再启动 discovery。
+
+#### 延期 Feature: FR-RATIONAL-001 — Agent 理性化对抗 🆕 (竞品借鉴)
+
+> **来源**: [Superpowers 竞品调研 §5.1.2](../../docs/research/superpowers-competitor-analysis.md#512-理性化对抗-rationalization-bulletproofing)
+> **加入日期**: 2026-07-11
+
+| 属性 | 值 |
+|------|-----|
+| **Feature ID** | FR-RATIONAL-001 |
+| **优先级** | 🥈 P1 (RICE 9.6) |
+| **Effort** | M (3-4 天) |
+| **来源** | 竞品调研 — Superpowers 的 Common Rationalizations 表 + Red Flags + `<HARD-GATE>` 标签 |
+| **归属** | v3.3.0 (推迟汇入) |
+
+**背景**: Superpowers 在每个纪律性 skill 中内置 Common Rationalizations 表（借口 vs 现实）+ Red Flags - STOP 列表 + `<HARD-GATE>` 标签强化关键约束。SDDU 当前仅有"不跳步""不越界"等基础约束，缺乏系统性的 Agent 理性化对抗。SDDU 的代码级状态机（PhaseReversalError）能堵住显式违规，但堵不住隐式偷懒（如 review 走形式、validate 不真跑）。理性化对抗是 Prompt 层的免疫系统，和代码层的状态机形成双重防线。
+
+**核心目标**: 为所有核心阶段 Agent 模板增加理性化对抗表，提升 Agent 执行纪律性。
+
+**预期范围** (待 discovery 阶段细化):
+1. **Common Rationalizations 表** — 为 spec/plan/build/review/validate 各阶段定义 Agent 常见借口 + 反驳
+2. **Red Flags — STOP 列表** — 每个阶段的"出现以下情况立即停止并报告用户"的硬条件
+3. **`<HARD-GATE>` 等价标签** — 关键指令的权威性标注（不改变 Markdown 渲染）
+4. **模板标准化** — 类似 FR-TPL-001 (v3.0.1)，纯模板内容变更，不改运行时代码
+
+**RICE 详细分析**:
+
+| 维度 | 评分 | 依据 |
+|------|:---:|------|
+| Reach | **8** | 影响全部核心 Agent 的每次调用，覆盖所有用户 |
+| Impact | **6** | 显著降低 Agent "自作主张"（跳步、偷懒、走形式）的发生率 |
+| Confidence | **70%** | 纯模板内容变更，与 FR-TPL-001 模式一致；实际效果依赖 AI 对自然语言指令的遵从度 |
+| Effort | **3.5** | 中等：设计 6 阶段 Rationalizations 表 (1.5d) + 模板写入 (1d) + 验证 (0.5d) + discovery (0.5d) |
+| **RICE** | **9.6** | **(8 × 6 × 0.7) / 3.5** |
+
+**与其他 Feature 的依赖关系**:
+
+```
+FR-RATIONAL-001 (理性化对抗) ──借用──→ FR-TPL-001 (模板系统) — 共用 Handlebars 模板引擎
+FR-RATIONAL-001 (理性化对抗) ──互补──→ 状态机 (PhaseReversalError) — Prompt 层 + 代码层双重防线
+FR-RATIONAL-001 (理性化对抗) ──无硬依赖──→ 可独立启动 (仅模板内容变更)
+```
+
+**建议**: 推迟至 v3.3.0，等 v3.0.0~v3.2.0 全部交付后再启动。纯模板层改动，启动后 Effort 仅 3-4d，可作为 v3.3.0 首个 Feature 快速交付。
+
+---
+
+### v4.1.0 — 生态扩展 (远期)
+
+**预计时间**: TBD (依赖 v4.0.0 架构基础 + 需求评估)
+**状态**: 💡 远期
+**注意**: v4.0.0 的三域分层架构已为跨平台扩展奠定基础 (adapters/ 目录)。本版本的两个 Feature 为长线竞争力投资。
+
+#### FR-CROSSPLAT-001 — 多平台适配支持 🆕 (竞品借鉴)
+
+> **来源**: [Superpowers 竞品调研 §5.3.1](../../docs/research/superpowers-competitor-analysis.md#531-多平台支持)
+
+| 属性 | 值 |
+|------|-----|
+| **Feature ID** | FR-CROSSPLAT-001 |
+| **优先级** | P3 (RICE 2.4) |
+| **Effort** | XL (>10 天) |
+| **来源** | 竞品调研 — Superpowers 支持 11+ 平台，SDDU 仅支持 OpenCode |
+| **归属** | v4.1.0 远期 |
+
+**核心目标**: 将 SDDU 扩展到 OpenCode 之外的 AI Agent 平台（Claude Code、Codex、Cursor 等），基于 v4.0.0 的 adapters/ 架构实现平台适配器模式。
+
+**RICE**: Reach 9 × Impact 8 × Confidence 40% / Effort 12 = **2.4** | P3
+
+#### FR-AUTOTRIGGER-001 — Agent 自动触发机制 🆕 (竞品借鉴)
+
+> **来源**: [Superpowers 竞品调研 §5.3.2](../../docs/research/superpowers-competitor-analysis.md#532-技能自动触发-automatic-skill-triggering)
+
+| 属性 | 值 |
+|------|-----|
+| **Feature ID** | FR-AUTOTRIGGER-001 |
+| **优先级** | P3 (RICE 7.5) |
+| **Effort** | S (1-2 天) |
+| **来源** | 竞品调研 — Superpowers 的 `using-superpowers` 会话启动注入 + "1% 可能就触发"策略 |
+| **归属** | v4.1.0 远期 |
+
+**核心目标**: 实现会话启动时自动注入 `@sddu` 入口指令，提升 Agent 主动性。注意需谨慎评估——Superpowers 的强制注入可能干扰非 SDDU 场景的用户交互。
+
+**RICE**: Reach 6 × Impact 5 × Confidence 50% / Effort 2 = **7.5** | P3 (战略降级)
+
+---
+
+### 跨版本 RICE 总排名 (全部 12 项: A-F + H-I + BUG-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
 
 | 排名 | Feature | 归属 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
 | 🥇 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
 | 🥈 | **FR-BUG-001**: Bug 流程框架化 | v3.1.0 | 8 | 7 | 75% | 4 | **10.5** | P0 |
 | 🥉 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 4 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
-| 5 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
-| 6 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
-| 7 | **FR-KB-002**: 项目知识沉淀 | v3.2.0 | 8 | 8 | 50% | 8 | **4.0** | P1 |
-| 8 | **FR-QUALITY-004**: 框架自验证 | v3.0.0 | 4 | 7 | 60% | 6 | **2.8** | P1 |
-| 9 | **FR-QUALITY-006**: coordinator 兼容 | v3.0.0 | 2 | 3 | 80% | 2 | **2.4** | P2 |
+| 4 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
+| 5 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
+| 6 | **FR-AUTOTRIGGER-001**: 自动触发 🆕 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
+| 7 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
+| 8 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
+| 9 | **FR-WORKTREE-001**: Git Worktree 🆕 | v3.1.0 | 5 | 6 | 60% | 4 | **4.5** | P2 |
+| 10 | **FR-KB-002**: 项目知识沉淀 | v3.2.0 | 8 | 8 | 50% | 8 | **4.0** | P1 |
+| 11 | **FR-QUALITY-004**: 框架自验证 | v3.0.0 | 4 | 7 | 60% | 6 | **2.8** | P1 |
+| 12 | **FR-QUALITY-006**: coordinator 兼容 | v3.0.0 | 2 | 3 | 80% | 2 | **2.4** | P2 |
+| 13 | **FR-CROSSPLAT-001**: 多平台适配 🆕 | v4.1.0 | 9 | 8 | 40% | 12 | **2.4** | P3 |
 
 ---
 
@@ -337,8 +478,16 @@ specs-tree-sdd-plugin-baseline ────────────────�
             ▼  ─── 💡 v3.1.0 / v3.2.0 提议中 ───
             ├── FR-TPL-001 (模板质量统一) — Issue G → ✅ v3.0.1 已完成
             ├── FR-BUG-001 (Bug 流程框架化) — 新提案 → v3.1.0
+            ├── FR-WORKTREE-001 (Git Worktree 隔离) 🆕 — 竞品借鉴 §5.2.1 → v3.1.0
             ├── FR-KB-001 (全局项目配置) — Issue I → v3.2.0
             └── FR-KB-002 (项目知识沉淀) — Issue H → v3.2.0 (依赖 KB-001)
+
+            ▼  ─── ⏸️ v3.3.0 搁置 ───
+            └── FR-RATIONAL-001 (理性化对抗) 🆕 — 竞品借鉴 §5.1.2 → v3.3.0
+
+            ▼  ─── 💡 v4.1.0 远期 ───
+            ├── FR-CROSSPLAT-001 (多平台适配) 🆕 — 竞品借鉴 §5.3.1 → v4.1.0
+            └── FR-AUTOTRIGGER-001 (自动触发) 🆕 — 竞品借鉴 §5.3.2 → v4.1.0
 
 specs-tree-solo-team-flow (ETD-001) ──────────── 🚫 terminated → 独立仓库
 ```
@@ -349,9 +498,14 @@ specs-tree-solo-team-flow (ETD-001) ──────────── 🚫 te
 FR-KB-001 (全局配置) ──→ FR-KB-002 (知识沉淀)         ← 配置是知识沉淀的前提
 FR-BUG-001 (Bug 流程) ──受益于──→ FR-KB-001 (全局配置)   ← 全局配置可定义 bug 严重度等级
 FR-BUG-001 (Bug 流程) ──借用──→ FR-TPL-001 (模板系统)   ← 共用 Handlebars 模板引擎
+FR-WORKTREE-001 (Worktree) ──受益于──→ FR-MULTI-001 (多模块) ← Worktree 为子 Feature 提供物理隔离
+FR-WORKTREE-001 (Worktree) ──受益于──→ FR-KB-001 (全局配置) ← 全局配置可定义默认 worktree 行为
+FR-RATIONAL-001 (理性化) ──借用──→ FR-TPL-001 (模板系统)  ← 纯模板层变更，共用 Handlebars 引擎
 FR-QUALITY-001 (Build Wave) ──→ FR-QUALITY-003 (设计规划)    ← Wave 经验指导设计
 FR-QUALITY-002 (Validate E2E) ──→ FR-QUALITY-004 (框架自验)  ← E2E 能力支撑自验证
 FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
+FR-CROSSPLAT-001 (多平台) ──依赖──→ FR-FRAMEWORK-ARCH-001 (v4.0.0) ← 基于 adapters/ 架构
+FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 
 推荐并行组合:
 ┌─ Wave 1 (v3.0.0) ─────────────────┐
@@ -363,6 +517,7 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 │ FR-QUALITY-002 (Validate E2E)      │ ← RICE 8.4, 依赖 Wave 1 经验
 │ FR-KB-001 (全局配置)               │ ← RICE 15.8, 独立
 │ FR-BUG-001 (Bug 流程)              │ ← RICE 10.5, 无硬依赖，可随时启动
+│ FR-WORKTREE-001 (Git Worktree) 🆕   │ ← RICE 4.5, 无硬依赖，可独立启动
 └────────────────────────────────────┘
 ┌─ Wave 3 (v3.0.0 收尾) ────────────┐
 │ FR-QUALITY-003 (Review/Validate)   │ ← 依赖 Wave 1 完成
@@ -372,7 +527,13 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 └────────────────────────────────────┘
 ┌─ Wave 5 (v3.2.0) ─────────────────┐
 │ FR-KB-002 (知识沉淀)               │ ← 依赖 KB-001
-│ Skills / TUI / MCP (重新评估)      │ ← 基于 v4.0.0 三域分层架构评估
+└────────────────────────────────────┘
+┌─ Wave 6 (v3.3.0 搁置) ────────────┐
+│ FR-RATIONAL-001 (理性化对抗) 🆕     │ ← 等 v3.0~v3.2 交付后启动
+└────────────────────────────────────┘
+┌─ Wave 7 (v4.1.0 远期) ────────────┐
+│ FR-CROSSPLAT-001 (多平台) 🆕        │ ← 依赖 v4.0.0 adapters 基础
+│ FR-AUTOTRIGGER-001 (自动触发) 🆕    │ ← 无硬依赖
 └────────────────────────────────────┘
 ```
 
@@ -392,6 +553,9 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | Skills/TUI/MCP 持续延期 | 🟢 低 | 🔴 高 | v4.0.0 三域分层架构已完成，Skills/MCP 可基于新架构评估 |
 | KB-002 (知识沉淀) scope 不明确 | 🟡 中 | 🔴 高 | 依赖 KB-001 先落地；discovery 阶段详细界定 |
 | KB-001 (全局配置) schema 争议 | 🟡 中 | 🟡 中 | 参考主流框架实践；充分收拢需求再设计；v4.0.0 三域分层提供平台无关性参考 |
+| **FR-WORKTREE-001 嵌套 worktree 检测** 🆕 | 🟡 中 | 🟡 中 | 参考 Superpowers Step 0 检测逻辑；增加环境变量标记避免嵌套 |
+| **FR-WORKTREE-001 平台兼容性** 🆕 | 🟢 低 | 🟡 中 | 优先走平台原生工具 → 降级 git worktree add；E2E 测试覆盖多平台 |
+| **v3.3.0/v4.1.0 前瞻 Feature 过早承诺** 🆕 | 🟢 低 | 🟡 中 | 标记为 "远期"，不进入近期执行计划；每季度回顾一次是否启动评估 |
 
 ---
 
@@ -406,12 +570,14 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
    - **如优先框架级质量能力**: 启动 `FR-BUG-001 (Bug 流程框架化)` — RICE 10.5，无硬依赖，Effort 仅 3-5d，可快速交付
 
 2. **确认 Feature 归属版本** — 当前方案:
-   - A-F → v3.0.0 (质量与工作流改进)
-   - **FR-BUG-001 (Bug 流程框架化)** → v3.1.0 (轻量改进，可提前交付)
-   - H-I → v3.2.0 (知识基础设施)
-   - G → ✅ 已完成 (FR-TPL-001, v3.0.1)
-   - **FR-FRAMEWORK-ARCH-001** → ✅ 已完成 (v4.0.0, 2026-06-21)
-   - 是否需要调整归属？
+    - A-F → v3.0.0 (质量与工作流改进)
+    - **FR-BUG-001 (Bug 流程框架化)** + **FR-WORKTREE-001 (Git Worktree 隔离)** 🆕 → v3.1.0 (工具链增强)
+    - H-I → v3.2.0 (知识基础设施)
+    - G → ✅ 已完成 (FR-TPL-001, v3.0.1)
+    - **FR-FRAMEWORK-ARCH-001** → ✅ 已完成 (v4.0.0, 2026-06-21)
+    - **FR-RATIONAL-001 (理性化对抗)** 🆕 → v3.3.0 (搁置，等前置版本交付)
+    - **FR-CROSSPLAT-001 + FR-AUTOTRIGGER-001** 🆕 → v4.1.0 (远期)
+    - 是否需要调整归属？
 
 3. **运行残留检查**: `bash scripts/check-sdd-residue.sh`
 
@@ -424,8 +590,15 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 ### 🟢 中期行动 (1 个月内)
 
 7. 完成 v3.0.0 全部 P0 级 Feature
-8. 评估 v3.1.0 Feature (FR-BUG-001) 是否启动
+8. 评估 v3.1.0 Feature (FR-BUG-001 + FR-WORKTREE-001) 是否启动
 9. 为 FR-KB-001 / FR-KB-002 收拢需求，基于 v4.0.0 三域分层架构协同设计
+
+### 🔵 远期行动 (季度回顾)
+
+10. 每季度回顾竞品借鉴项 (FR-RATIONAL-001 / FR-CROSSPLAT-001 / FR-AUTOTRIGGER-001) 是否达到启动条件
+11. FR-RATIONAL-001 启动条件: v3.0.0~v3.2.0 全部交付 + 用户反馈 Agent 偷懒/走形式问题频发
+12. FR-CROSSPLAT-001 启动条件: OpenCode 之外的主流 AI Agent 平台明确需求 + adapters/ 架构成熟
+13. FR-AUTOTRIGGER-001 启动条件: 用户反馈 "忘记调用 @sddu" 成为痛点
 
 ---
 
@@ -464,12 +637,12 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | 类别 | 数量 | 说明 |
 |------|:----:|------|
 | 🐛 Bug / 质量问题 | 10 | A-F + 4 预存测试失败 |
-| ✨ 增强特性 | 11 | H-I + BUG-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 |
+| ✨ 增强特性 | 15 | H-I + BUG-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 |
 | 🔧 技术债务 | 9 | deprecated 类型、旧 schema、stale spec.json、仪表盘 TS 化、缺集成测试等 |
 | 📄 文档/配置 | 6 | TREE.md 过时、冗余 wave1 文件、路径引用错误等 |
 | ⏸️ 搁置但需关注 | 4 | ETD 独立仓库、Skills/TUI/MCP 持续延期 |
 
-**总计: 41 个待处理项目** (↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↑1: FR-BUG-001 新提案)
+**总计: 45 个待处理项目** (↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↑1: FR-BUG-001 新提案；↑4: 竞品借鉴 — WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
 
 ### 🐛 一、待修复 Bug / 质量问题 (10 项)
 
@@ -485,7 +658,7 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | **T2** | wf-state-optimization phaseHistory 重复 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | state.json | phaseHistory 中有重复条目（从 tasked 回退到 specified 又回到 tasked），数据虽不影响功能但混淆调试 |
 | **T3** | agent-output-templating spec.json state 过期 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | spec.json | `"phase": "planned", "state": "specified"` — 实际 feature 早已 validated，spec.json 未同步更新 |
 
-### ✨ 二、待实现的增强特性 (12 项)
+### ✨ 二、待实现的增强特性 (16 项)
 
 | # | 名称 | 类型 | Effort | 优先级 | 归属 | 描述 |
 |:--|------|:----:|:------:|:------:|:-----|------|
@@ -501,6 +674,10 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | **S7** | 文件命名标准化 | ✨ Enhancement | S (1-2d) | **P2** | v2.7.0 遗留 | 统一 validate.md / validation.md / validation-report.md 等命名不一致 |
 | **S8** | FeatureStateEnum 清理 | ✨ Enhancement | XS (<1d) | **P1** | v3.1.0 遗留 | 移除 `@deprecated` 的 `FeatureStateEnum` 类型别名 (status-enhancement 延后) |
 | **S9** | docs Agent 输出模板化 | ✨ Enhancement | S (1-2d) | **P3** | 未来 | agent-output-templating 只覆盖 6 主流程 Agent，docs/roadmap/help 辅助 Agent 待模板化 |
+| **WORKTREE-001** 🆕 | Git Worktree Feature 隔离 | ✨ Enhancement | M (3-5d) | **P2** | v3.1.0 | 竞品借鉴 §5.2.1 — Worktree 创建/初始化/收尾全生命周期 |
+| **RATIONAL-001** 🆕 | Agent 理性化对抗 | ✨ Enhancement | M (3-4d) | **P1** | v3.3.0 | 竞品借鉴 §5.1.2 — Common Rationalizations 表 + Red Flags + HARD-GATE |
+| **CROSSPLAT-001** 🆕 | 多平台适配支持 | ✨ Enhancement | XL (>10d) | **P3** | v4.1.0 | 竞品借鉴 §5.3.1 — 基于 adapters/ 扩展到非 OpenCode 平台 |
+| **AUTOTRIGGER-001** 🆕 | Agent 自动触发机制 | ✨ Enhancement | S (1-2d) | **P3** | v4.1.0 | 竞品借鉴 §5.3.2 — 会话启动注入 @sddu 入口指令 |
 
 > **注**: ~~G: 预置输出模板质量统一~~ 已于 2026-06-19 通过 FR-TPL-001 (v3.0.1) 完成。全 22 FR + 3 NFR 100% 通过，17 个模板 + 11 个 Agent 职责边界声明全部到位。
 
@@ -545,19 +722,23 @@ FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 | 🥇 | **I** | 全局项目配置文件 | ✨ | v3.2.0 | M | 15.8 | **P0** |
 | 🥈 | **BUG-001** | Bug 追踪与修复流程框架化 | ✨ | v3.1.0 | M | 10.5 | **P0** |
 | 🥉 | **A** | Build Wave 一体化 | 🐛 | v3.0.0 | L | 9.6 | **P0** |
-| 4 | **C** | Validate Agent E2E | 🐛 | v3.0.0 | L | 8.4 | **P0** |
-| 5 | **F** | Review/Validate 设计规划 | 🐛 | v3.0.0 | M | 5.3 | **P1** |
-| 6 | **B** | auto-updater 修复 | 🐛 | v3.0.0 | S | 4.8 | **P2** |
-| 7 | **H** | 项目知识沉淀 | ✨ | v3.2.0 | L | 4.0 | **P1** |
-| 8 | **E** | 框架自验证 | 🐛 | v3.0.0 | L | 2.8 | **P1** |
-| 9 | **D** | coordinator 兼容 | 🐛 | v3.0.0 | XS | 2.4 | **P3** |
-| 10 | **S8** | FeatureStateEnum 清理 | ✨ | v3.1.0 | XS | — | **P1** |
-| 11 | **T1** | 预存测试修复 | 🐛 | — | S | — | **P2** |
-| 12 | **TD1** | 仪表盘 TS 化 | 🔧 | — | M | — | **P2** |
-| 13 | **TD2** | consistency-checker 集成测试 | 🔧 | — | S | — | **P2** |
-| 14 | **DOC1** | TREE.md sdd→sddu | 📄 | — | XS | — | **P2** |
-| 15 | **DOC2** | Wave1 冗余文件归档 | 📄 | — | XS | — | **P2** |
-| 16 | **S4** | Skills 系统 | ✨ | v3.1.0 | L | — | **P2** |
+| 4 | **RATIONAL-001** 🆕 | Agent 理性化对抗 | ✨ | v3.3.0 | M | 9.6 | **P1** |
+| 5 | **C** | Validate Agent E2E | 🐛 | v3.0.0 | L | 8.4 | **P0** |
+| 6 | **AUTOTRIGGER-001** 🆕 | Agent 自动触发 | ✨ | v4.1.0 | S | 7.5 | **P3** |
+| 7 | **F** | Review/Validate 设计规划 | 🐛 | v3.0.0 | M | 5.3 | **P1** |
+| 8 | **B** | auto-updater 修复 | 🐛 | v3.0.0 | S | 4.8 | **P2** |
+| 9 | **WORKTREE-001** 🆕 | Git Worktree 隔离 | ✨ | v3.1.0 | M | 4.5 | **P2** |
+| 10 | **H** | 项目知识沉淀 | ✨ | v3.2.0 | L | 4.0 | **P1** |
+| 11 | **E** | 框架自验证 | 🐛 | v3.0.0 | L | 2.8 | **P1** |
+| 12 | **D** | coordinator 兼容 | 🐛 | v3.0.0 | XS | 2.4 | **P3** |
+| 13 | **CROSSPLAT-001** 🆕 | 多平台适配 | ✨ | v4.1.0 | XL | 2.4 | **P3** |
+| 14 | **S8** | FeatureStateEnum 清理 | ✨ | v3.1.0 | XS | — | **P1** |
+| 15 | **T1** | 预存测试修复 | 🐛 | — | S | — | **P2** |
+| 16 | **TD1** | 仪表盘 TS 化 | 🔧 | — | M | — | **P2** |
+| 17 | **TD2** | consistency-checker 集成测试 | 🔧 | — | S | — | **P2** |
+| 18 | **DOC1** | TREE.md sdd→sddu | 📄 | — | XS | — | **P2** |
+| 19 | **DOC2** | Wave1 冗余文件归档 | 📄 | — | XS | — | **P2** |
+| 20 | **S4** | Skills 系统 | ✨ | v3.1.0 | L | — | **P2** |
 | 17 | **S7** | 文件命名标准化 | ✨ | — | S | — | **P2** |
 | 18 | **TD8** | AI Agent 行为验证 | 🔧 | — | M | — | **P2** |
 | 19 | **S1** | 模板校验工具 | ✨ | Could Have | M | — | **P2** |
