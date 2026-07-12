@@ -29,18 +29,10 @@ try {
   console.log('❌ 3. SDDU Agent 系统导出异常:', error.message);
 }
 
-// 测试 4: 检查命令模块
-try {
-  const { SddMigrateSchemaCommand } = require('./dist/commands/sdd-migrate-schema.js');
-  console.log('✅ 4. SDDU 命令系统导出正常');
-} catch (error) {
-  console.log('❌ 4. SDDU 命令系统导出异常:', error.message);
-}
-
-// 测试 5: 检查状态机
+// 测试 4: 检查状态机
 try {
   const { StateMachine } = require('./dist/state/machine.js');
-  console.log('✅ 5. SDDU 状态机导出正常');
+  console.log('✅ 4. SDDU 状态机导出正常');
 } catch (error) {
   console.log('❌ 5. SDDU 状态机导出异常:', error.message);
 }

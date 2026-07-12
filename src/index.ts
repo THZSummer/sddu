@@ -103,9 +103,6 @@ export {
 // Schema legacy
 export { StateV2_0_0, StateV2_1_0 } from './state';
 
-// Migration
-export { migrateState, MigrationResult } from './state';
-
 // Discovery — 需求挖掘阶段逻辑
 export {
   DiscoveryWorkflowEngine,
@@ -165,7 +162,7 @@ export type {
 // ============================================================================
 // OpenCode 平台适配层
 // ============================================================================
-export { SDDUPlugin, SdduMigrateSchemaCommand } from './adapters/opencode';
+export { SDDUPlugin } from './adapters/opencode';
 
 // 默认导出（向后兼容）
 import { SDDUPlugin as _SDDUPlugin } from './adapters/opencode';

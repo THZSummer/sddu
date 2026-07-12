@@ -40,10 +40,6 @@ import {
 import { ParentStateManager } from '../../state';
 import { TreeStateValidator } from '../../state';
 import { AutoUpdater } from '../../state';
-import { migrateState, MigrationResult } from '../../state';
-
-// 命令
-import { SdduMigrateSchemaCommand } from './commands/sddu-migrate-schema';
 
 import { StateV2_0_0, StateV2_1_0 } from '../../state';
 
@@ -587,11 +583,6 @@ export {
   TransitionResult,
   HistoryEntry,
   FeatureWithFullHistory,
-
-  // Migration
-  SdduMigrateSchemaCommand,
-  migrateState,
-  MigrationResult,
 };
 
 export default SDDUPlugin;
