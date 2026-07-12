@@ -2,7 +2,7 @@
   "feature": "specs-tree-docs-agent-optimization",
   "name": "@sddu-docs Agent 补全与优化",
   "version": "v3.0.0",
-  "phase": "validated",
+  "phase": 7,
   "status": "completed",
   "depth": 1,
   "phaseHistory": [
@@ -42,7 +42,7 @@
       "triggeredBy": "sddu-review-agent"
     },
     {
-      "phase": "validated",
+      "phase": 7,
       "timestamp": "2026-07-05T13:30:00.000Z",
       "triggeredBy": "sddu-validate-agent",
       "note": "v2.0 re-validation: Layer A 10/10 + Layer B 7/8 (B5 low/deviation, B8 medium/deviation - EC-001 fallback behavior)"
@@ -84,7 +84,7 @@
       "note": "v2.0 second-round review: plan v2.9 incremental changes (TASK-009~013) — <<entity_name>> zero residue, output filename metadata all 20 present, N1~N5/X1~X3 clear and executable, positioning declarations consistent with plan §3.3, build passes. 18 passed, 2 improvements, 0 blocking"
     },
     {
-      "phase": "validated",
+      "phase": 7,
       "timestamp": "2026-07-05T15:30:00.000Z",
       "triggeredBy": "sddu-validate-agent",
       "note": "v3.0 final validation (completed): Layer A 15/15 (10 base + 5 v2.9 specific) all pass; Layer B 7/8 assertions pass — docs-overview.md root entry ✅ + business semantic subdirectory names (商品管理域/认证域/订单域) ✅ + template-rendered content (no raw copy) ✅ + legacy Feature annotation ✅ + T1 template structure ✅ + incremental mode only rewrites changed subtree ✅. Previous 3 blocking issues all resolved. Test dir: /tmp/sddu-validate-docs-20260705-150621"
@@ -126,7 +126,7 @@
       "note": "v3.0 third-round review: plan v3.3 dual-mode + conflict detection incremental changes (TASK-014~021) — 6 review focuses all pass: YAML description contradiction resolved, trigger phrase routing correct, code scanning 5 steps complete, C1~C4 classification reasonable, rule/EC numbering continuous, no coupling with specs-tree mode. 13 passed, 4 improvements, 0 blocking"
     },
     {
-      "phase": "validated",
+      "phase": 7,
       "status": "completed",
       "timestamp": "2026-07-05T18:00:00.000Z",
       "triggeredBy": "sddu-validate-agent",
