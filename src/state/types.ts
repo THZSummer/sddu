@@ -1,6 +1,6 @@
 // State module type exports
 //
-// v3.0.0 (current — active schema):
+// v3.0.0 (current - active schema):
 export {
   Phase,
   FeatureStatus,
@@ -23,12 +23,3 @@ export {
 } from './schema-v3.0.0';
 
 export type { ValidationResult } from './schema-v3.0.0';
-
-// v2.x (legacy — retained for reference and migration; not used in active flows)
-/** @deprecated Use `StateV3_0_0` instead. This schema is retained for migration reference only. */
-export {
-  WorkflowStatus,
-  PhaseHistory,
-  StateV2_0_0,
-  validateState,
-} from './schema-v2.0.0';

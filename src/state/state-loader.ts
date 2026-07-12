@@ -2,7 +2,6 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { constants as fsConstants } from 'fs';
 import { scanTreeStructure } from './tree-scanner';
-import { TreeStateValidator } from './tree-state-validator';  // Static import
 import {
   StateV3_0_0, Phase, FeatureStatus, PhaseHistoryEntry,
   validateStateV3, VALID_STATUSES,

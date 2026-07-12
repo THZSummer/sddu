@@ -4,7 +4,7 @@
 
 import { tool } from '@opencode-ai/plugin';
 
-// 业务域 — 通过域级 index.ts 引用（遵守 ADR-006 R-API-02）
+// 业务域 - 通过域级 index.ts 引用（遵守 ADR-006 R-API-02）
 import {
   Phase, FeatureStatus, StateV3_0_0,
   VALID_PHASES, VALID_STATUSES,
@@ -12,36 +12,16 @@ import {
   SuspendedInfo, MergedInfo,
 } from '../../state';
 import { scanTreeStructure, resolveDisplayContext, FeatureTreeNode } from '../../state';
-import { ConsistencyChecker, ConsistencyAnomaly } from '../../state';
-
-// Discovery 域
-import {
-  DiscoveryWorkflowEngine,
-  CoachingLevel,
-  CoachingConfig,
-  CoachingModeEngine,
-  DiscoveryStateValidator,
-  DISCOVERY_WORKFLOW,
-  DiscoveryConfig,
-} from '../../discovery';
 
 // State 管理
 import {
   StateMachine,
   DependencyChecker,
   StateLoader,
-  FeatureStateEnum,
-  FeatureState,
-  TransitionResult,
-  HistoryEntry,
-  FeatureWithFullHistory,
 } from '../../state';
 
 import { ParentStateManager } from '../../state';
-import { TreeStateValidator } from '../../state';
 import { AutoUpdater } from '../../state';
-
-import { StateV2_0_0, StateV2_1_0 } from '../../state';
 
 // 全局实例存储，以确保在会话生命周期内保持单例
 let globalAutoUpdater: AutoUpdater | null = null;
@@ -552,37 +532,6 @@ export const SDDUPlugin = async ({ project, client, $, directory, worktree }) =>
       globalStateMachine = null;
     }
   };
-};
-
-// 导出所有公共 API
-export {
-  // Discovery
-  DISCOVERY_WORKFLOW,
-  DiscoveryWorkflowEngine,
-  CoachingLevel,
-  CoachingConfig,
-  CoachingModeEngine,
-  DiscoveryStateValidator,
-  DiscoveryConfig,
-
-  // State Management
-  AutoUpdater,
-  StateMachine,
-  DependencyChecker,
-  StateLoader,
-  ParentStateManager,
-  TreeStateValidator,
-
-  // Schema (v2.x — legacy, deprecated)
-  StateV2_0_0,
-  StateV2_1_0,
-
-  // Types (backward-compatible)
-  FeatureStateEnum,
-  FeatureState,
-  TransitionResult,
-  HistoryEntry,
-  FeatureWithFullHistory,
 };
 
 export default SDDUPlugin;
