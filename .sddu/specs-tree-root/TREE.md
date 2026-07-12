@@ -70,7 +70,7 @@ specs-tree-root/
 ### 进行中 Feature (1 个)
 | 目录 | Feature ID | 说明 | Phase | Status |
 |------|-----------|------|:-----:|:------:|
-| specs-tree-sddu-fast | FR-FAST-001 | @sddu-fast 快速模式 Agent — reviewed 阶段 (1/5 任务完成) | reviewed | 🟢 tracked |
+| specs-tree-sddu-fast | FR-FAST-001 | @sddu-fast 快速模式 Agent — reviewed 阶段 (6/6 任务完成，review + validate 已通过) | reviewed | 🟢 tracked |
 
 ### 已终止 Feature (1 个)
 | 目录 | Feature ID | 说明 | Status | 去向 |
