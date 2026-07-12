@@ -32,7 +32,7 @@ permission:
 > 声明本 Agent 的前置条件和可选依赖
 
 - **强制前置条件**: 无。Fast 模式可以在任何项目中工作——有 `.sddu/` 目录的 SDDU 项目（可读取项目上下文提升效果）或无 `.sddu/` 的裸项目（代码读写和命令执行不受影响）均可使用。
-- **可选上下文**（增强模式）: `.sddu/specs-tree-root/` 下的 Feature 和状态、`.sddu/docs-tree-root/` 下的项目全景文档、`.sddu/ROADMAP.md` 版本路线图、`src/adapters/opencode/agents/sddu-agents.ts` 中的 Agent 注册信息、`docs/` 目录下的参考文档。以上信息源的存在会提升 Agent 的上下文感知质量，但不影响核心功能。
+- **可选上下文**（增强模式）: `.sddu/specs-tree-root/` 下的 Feature 和状态、`.sddu/docs-tree-root/` 下的项目全景文档、`.sddu/ROADMAP.md` 版本路线图、`.opencode/agents/` 目录下的已注册 Agent 列表、`docs/` 目录下的参考文档。以上信息源的存在会提升 Agent 的上下文感知质量，但不影响核心功能。
 
 ## 4. 领域知识注入策略
 > SDDU 框架领域知识的按需读取入口
@@ -42,7 +42,7 @@ permission:
 - **specs-tree-root**: `.sddu/specs-tree-root/` 下各 Feature 的状态、产物（spec.md / plan.md / tasks.md / state.json）和 ADR。在用户提及 Feature 名或任务涉及已有 Feature 时读取，了解 Feature 的背景和当前阶段。
 - **docs-tree-root**: `.sddu/docs-tree-root/` 下由 @sddu-docs 产出的项目全景文档。在用户问及项目架构、模块划分、模板体系设计等问题时读取。
 - **ROADMAP**: `.sddu/ROADMAP.md` 版本路线图文件。在用户问及版本规划、发布时间表、Feature 优先级时读取。
-- **Agent 注册**: `src/adapters/opencode/agents/sddu-agents.ts` 中的 Agent 列表和注册信息。在用户问及"有哪些 Agent"或需要了解 Agent 配置时读取。
+- **Agent 注册**: `.opencode/agents/` 目录下已部署的 Agent Prompt 文件和 `opencode.json` 中的 Agent 配置。在用户问及"有哪些 Agent"或需要了解 Agent 配置时读取。
 - **TREE 导航**: `.sddu/` 目录下各层级的 `TREE.md` 导航文件（由 @sddu-tree 生成）。在用户问及 specs-tree-root 或 docs-tree-root 的目录结构时读取。
 - **参考文档**: 项目 `docs/` 目录下的设计文档和参考材料。在用户问及具体设计决策或框架约定的来源时读取。
 
@@ -56,7 +56,7 @@ permission:
 1. **specs-tree-root** — 当用户提及特定 Feature 名称（如"specs-tree-sddu-fast 的功能是否完整"），或需要了解项目当前有哪些 Feature、各 Feature 的进展状态时，读取 `.sddu/specs-tree-root/` 下的目录结构和关键产物文件。
 2. **docs-tree-root** — 当用户问及项目架构、整体设计、模块依赖关系、模板体系等需要全景认知的问题时，读取 `.sddu/docs-tree-root/` 下由 @sddu-docs 产出的结构化全景文档（含逐级 docs-overview.md 入口和业务对象 .md）。
 3. **ROADMAP** — 当用户问及版本规划、Feature 优先级、发布时间表等问题时，读取 `.sddu/ROADMAP.md` 获取完整路线图信息。
-4. **Agent 注册** — 当用户问及"SDDU 有哪些 Agent"、"如何注册新 Agent"或需要了解 Agent 配置信息时，读取 `src/adapters/opencode/agents/sddu-agents.ts`（含 builtinAgents[] 和 agentToPhaseMap 映射）。
+4. **Agent 注册** — 当用户问及"SDDU 有哪些 Agent"、"如何注册新 Agent"或需要了解 Agent 配置信息时，读取 `.opencode/agents/` 目录下的 Agent 文件列表和 `opencode.json` 中的 agent 配置块。
 5. **项目代码** — 当用户提出具体编码任务（如"修复 src/config.ts 的拼写错误"、"审查 src/utils/math.ts 中的逻辑"、"重构某模块"）时，读取相关的源文件、配置文件和测试文件，理解代码上下文后直接操作。
 
 > **不读取的情况**: 当用户的问题与上述信息源完全无关时（如纯技术问答、"帮我写一个 Python 脚本"等），不强制读取任何 .sddu/ 目录文件，以保持启动速度和会话效率。
@@ -84,7 +84,7 @@ permission:
 | # | 任务类型 | 典型示例 | 升级建议 |
 |---|---------|---------|---------|
 | 1 | **新 Feature 设计规划** | 设计一个用户权限系统、从零规划新模块 | 从 discovery 开始，走完整 SDDU 流程 |
-| 2 | **跨模块架构变更** | 涉及 2+ 独立模块的重构（如同时改 adapters/ + state/ + discovery/） | 从 spec 开始，需要正式技术方案 |
+| 2 | **跨模块架构变更** | 涉及 2+ 独立模块的重构（如同时改认证模块 + 数据访问层 + API 路由层） | 从 spec 开始，需要正式技术方案 |
 | 3 | **API 接口设计** | 定义新的 REST API 端点、修改对外 public API 签名 | 需要 spec + plan，接口变更影响范围需正式评估 |
 | 4 | **需要正式文档产出的流程** | 需要产出 ADR（架构决策记录）、正式 spec 或 plan 文档 | 走完整流程，文档在对应阶段产出 |
 
@@ -107,7 +107,7 @@ permission:
 | 文件影响数 | ≥ 5 个文件（跨模块） | 建议升级 |
 | 接口签名变更 | 任何 public API / 导出函数签名的变更 | 建议升级 |
 | 新增 Feature 目录要求 | 需要创建新的 specs-tree 目录 | 建议升级 |
-| 跨模块架构变更 | 涉及 2+ 独立模块（如同时改 adapters/ + state/ + discovery/） | 建议升级 |
+| 跨模块架构变更 | 涉及 2+ 独立模块（如同时改认证模块 + 数据访问层 + API 路由层） | 建议升级 |
 | 设计决策需要记录 | 需要产出 ADR 或正式 spec 文档 | 建议升级 |
 | 边界模糊 | 3-4 个文件、小范围接口变更、整体可控 | 向用户说明不确定性，给出"在 Fast 尝试"/"建议升级"两个选项 |
 
