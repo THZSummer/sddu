@@ -135,7 +135,7 @@ const builtinAgents: AgentMetadata[] = [
   {
     name: 'sddu-fast',
     description: 'SDDU 快速模式 - 轻量任务直接解决（无状态、零产物）',
-    mode: 'subagent',
+    mode: 'all',
     promptFile: '.opencode/agents/sddu-fast.md'
   }
 ];
