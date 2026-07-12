@@ -319,8 +319,32 @@ try {
     // Only update plugin list to SDDU (remove old SDD references)
     existingConfig.plugin = newConfig.plugin;
     
-    // Replace all agent definitions with SDDU versions (clean slate update)
-    existingConfig.agent = newConfig.agent; 
+    // Merge SDDU agent definitions (preserve user's custom agents and model overrides)
+    if (!existingConfig.agent) {
+        existingConfig.agent = {};
+    }
+    const sdduAgentKeys = Object.keys(newConfig.agent || {}).filter(k => k.startsWith('sddu') || k === 'sddu');
+    let updatedCount = 0;
+    let modelPreserved = 0;
+    for (const key of sdduAgentKeys) {
+        const newAgent = newConfig.agent[key];
+        const oldAgent = existingConfig.agent[key];
+        if (oldAgent && oldAgent.model) {
+            // User has customized the model — keep it, update everything else
+            existingConfig.agent[key] = { ...newAgent, model: oldAgent.model };
+            modelPreserved++;
+        } else {
+            existingConfig.agent[key] = newAgent;
+        }
+        updatedCount++;
+    }
+    // Remove old SDD agent entries (sdd-* without 'u') if present
+    for (const key of Object.keys(existingConfig.agent)) {
+        if (key.startsWith('sdd-') || key === 'sdd') {
+            delete existingConfig.agent[key];
+            console.log('REMOVED_OLD_AGENT:' + key);
+        }
+    }
     
     // Also update permissions to be secure by default
     existingConfig.permission = newConfig.permission;
@@ -334,9 +358,13 @@ try {
     fs.writeFileSync('${OPENCODE_JSON_PATH}', JSON.stringify(existingConfig, null, 2));
     
     // Count changes
-    const allAgents = Object.keys(newConfig.agent || {});
+    const allAgents = Object.keys(existingConfig.agent || {});
+    const userAgents = allAgents.filter(k => !k.startsWith('sddu') && k !== 'sddu');
     console.log('PLUGINS_UPDATED_SDDU:1');
     console.log('AGENTS_TOTAL:' + allAgents.length);
+    console.log('SDDU_UPDATED:' + updatedCount);
+    console.log('MODEL_PRESERVED:' + modelPreserved);
+    console.log('USER_PRESERVED:' + userAgents.length);
     
 } catch (error) {
     console.error('UPDATE_ERROR:', error.message);
@@ -347,9 +375,19 @@ try {
         # Extract results from the output
         PLUGINS_UPDATED=$(grep "PLUGINS_UPDATED_SDDU:" /tmp/sddu_update_result.txt | cut -d':' -f2)
         AGENTS_TOTAL=$(grep "AGENTS_TOTAL:" /tmp/sddu_update_result.txt | cut -d':' -f2)
+        SDDU_UPDATED=$(grep "SDDU_UPDATED:" /tmp/sddu_update_result.txt | cut -d':' -f2)
+        MODEL_PRESERVED=$(grep "MODEL_PRESERVED:" /tmp/sddu_update_result.txt | cut -d':' -f2)
+        USER_PRESERVED=$(grep "USER_PRESERVED:" /tmp/sddu_update_result.txt | cut -d':' -f2)
         
         print_color "${GREEN}✅ Plugins updated: SDDU plugin configured${NC}"
-        print_color "${GREEN}✅ Agents configured: $AGENTS_TOTAL agents available${NC}"
+        print_color "${GREEN}✅ SDDU agents updated: ${SDDU_UPDATED}${NC}"
+        if [ "${MODEL_PRESERVED}" -gt 0 ] 2>/dev/null; then
+            print_color "${GREEN}✅ User model overrides preserved: ${MODEL_PRESERVED}${NC}"
+        fi
+        if [ "${USER_PRESERVED}" -gt 0 ] 2>/dev/null; then
+            print_color "${GREEN}✅ User custom agents preserved: ${USER_PRESERVED}${NC}"
+        fi
+        print_color "${GREEN}✅ Total agents: ${AGENTS_TOTAL}${NC}"
     
     else
         # If update fails, backup original and copy new SDDU config
