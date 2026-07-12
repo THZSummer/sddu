@@ -1,0 +1,81 @@
+{
+  "feature": "specs-tree-sddu-fast",
+  "featureId": "FR-FAST-001",
+  "name": "@sddu-fast 快速模式 Agent",
+  "version": "v3.3.0",
+  "status": "completed",
+  "phase": 6,
+  "depth": 1,
+  "isParent": false,
+  "phaseHistory": [
+    {
+      "phase": 0,
+      "status": "discovered",
+      "timestamp": "2026-07-11T00:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent"
+    },
+    {
+      "phase": 1,
+      "status": "specified",
+      "timestamp": "2026-07-11T00:00:00.000Z",
+      "triggeredBy": "sddu-spec-agent"
+    },
+    {
+      "phase": 2,
+      "status": "planned",
+      "timestamp": "2026-07-11T00:00:00.000Z",
+      "triggeredBy": "sddu-plan-agent"
+    },
+    {
+      "phase": 3,
+      "status": "tasked",
+      "timestamp": "2026-07-12T00:00:00.000Z",
+      "triggeredBy": "sddu-tasks-agent"
+    },
+    {
+      "phase": 4,
+      "status": "builded",
+      "timestamp": "2026-07-12T00:00:00.000Z",
+      "triggeredBy": "sddu-build-agent"
+    },
+    {
+      "phase": 5,
+      "status": "reviewed",
+      "timestamp": "2026-07-12T00:00:00.000Z",
+      "triggeredBy": "sddu-review-agent"
+    },
+    {
+      "phase": 6,
+      "status": "validated",
+      "timestamp": "2026-07-12T00:00:00.000Z",
+      "triggeredBy": "sddu-validate-agent"
+    }
+  ],
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "tasks": "tasks.md",
+    "build": "build.md",
+    "review": "review.md",
+    "validation": "validation-report.md"
+  },
+  "tasks": {
+    "total": 6,
+    "completed": 6,
+    "items": {
+      "TASK-001": "completed",
+      "TASK-002": "completed",
+      "TASK-003": "completed",
+      "TASK-004": "completed",
+      "TASK-005": "completed",
+      "TASK-006": "completed"
+    }
+  },
+  "dependencies": {
+    "on": ["FR-TPL-001"],
+    "blocking": []
+  },
+  "createdAt": "2026-07-11T00:00:00.000Z",
+  "updatedAt": "2026-07-12T00:00:00.000Z"
+}

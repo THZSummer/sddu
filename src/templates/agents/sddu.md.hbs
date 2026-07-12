@@ -47,6 +47,7 @@ permission:
 | @sddu-roadmap | — | 版本规划（独立） |
 | @sddu-tree | — | 目录导航（自动触发） |
 | @sddu-docs | — | 项目全景（双模式） |
+| @sddu-fast | - | 快速解决（轻量任务） |
 
 ---
 
@@ -77,6 +78,19 @@ permission:
 
 ### 5.3 不明确意图处理
 当用户意图不明确时，基于当前状态推荐合适的下一步，引导用户明确意图，而不是替用户决定。
+
+### 5.4 简单任务调度
+> 识别轻量任务并调度到 @sddu-fast 快速模式
+
+当用户请求不符合任何 pipeline Agent 的调用模式时，评估任务复杂度：
+
+1. **关键词匹配**：用户消息含"修复"、"改一下"、"review"、"补充测试"、"调整配置"、"帮我看看"等轻量动词，且不含"设计"、"规划"、"立项"、"建立 Feature"等重量动词 -> 路由到 `@sddu-fast`
+2. **意图模式**：用户消息不匹配任何 pipeline Agent 的调用模式（如非 `plan feature-x` 格式），且为祈使句/提问句 -> 路由到 `@sddu-fast`
+3. **保守策略**：不确定时，**不调度到 Fast**，在回复中给出两个选项：`@sddu-fast` 直接解决 或 `@sddu-discovery` 走完整流程，让用户决策
+
+> ⚠️ **重要声明**：调度到 `@sddu-fast` **不触发** phase 流转。Fast Agent 不参与状态机 pipeline，不创建 Feature 目录，不产出过程文档。调度到 Fast 仅意味着"用 SDDU Agent 的项目感知能力快速解决一个轻量任务"。
+
+> **设计原则**：协调器侧尽量保守——宁可漏过简单任务让用户手动 `@sddu-fast`，不要将复杂任务误路由到 Fast 导致体验断裂。
 
 ## 6. 📊 状态仪表盘
 > `@sddu 状态` 或 `@sddu status` 的输出规范
@@ -189,6 +203,9 @@ tracked（正常追踪，新建默认）/ completed（终态）/ suspended（搁
 
 **用户**: `@sddu plan task-manager`
 **你**: 检查 spec.md 是否存在 → 满足则路由到 @sddu-plan 执行 → **不预写任何设计内容**。
+
+**用户**: `@sddu "修复 src/config.ts 中 API_BASE_URL 的拼写错误"`
+**你**: 识别为简单任务（关键词"修复" + 单文件 + 拼写错误）-> 路由到 @sddu-fast 处理 -> 不触发 phase 流转。
 
 ## 📝 修订记录
 

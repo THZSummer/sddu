@@ -1,0 +1,166 @@
+{
+  "feature": "specs-tree-sddu-fast",
+  "featureId": "FR-FAST-001",
+  "name": "@sddu-fast 快速模式 Agent",
+  "createdAt": "2026-07-12T00:00:00.000Z",
+  "totalTasks": 5,
+  "waves": 1,
+  "complexity": {
+    "S": 3,
+    "M": 1,
+    "L": 1
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "创建 sddu-fast Agent 行为模板",
+      "complexity": "L",
+      "dependencies": [],
+      "wave": 1,
+      "correspondingFR": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-010"],
+      "correspondingNFR": ["NFR-002"],
+      "files": [
+        {"action": "NEW", "path": "src/templates/agents/sddu-fast.md.hbs"}
+      ],
+      "acceptanceCriteria": [
+        "文件存在且包含有效 Handlebars frontmatter",
+        "mode 为 subagent，permission 含 edit:allow + bash:allow",
+        "模板不含 phase/status/state.json 写入指令",
+        "模板不含'写入文档'或'创建 Feature 目录'指令",
+        "包含升级阈值表（文件数>=5、API 签名变更、跨模块>=2）",
+        "包含禁止行为清单（至少 8 项）",
+        "包含任务边界对照表（适合/不适合/边界模糊各 3 条）",
+        "包含 welcome 消息说明 Fast 定位",
+        "包含错误处理策略（3 种场景）",
+        "包含 EC-001~EC-009 处理逻辑",
+        "总行数 >= 180 行"
+      ],
+      "verificationCommands": [
+        "test -f src/templates/agents/sddu-fast.md.hbs && test -s src/templates/agents/sddu-fast.md.hbs",
+        "test $(grep -c '^---$' src/templates/agents/sddu-fast.md.hbs) -ge 2",
+        "grep -q 'mode:.*subagent' src/templates/agents/sddu-fast.md.hbs",
+        "lines=$(wc -l < src/templates/agents/sddu-fast.md.hbs); test $lines -ge 180"
+      ]
+    },
+    {
+      "id": "TASK-002",
+      "name": "注册 sddu-fast 到 TypeScript Agent 注册表",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "correspondingFR": ["FR-001"],
+      "correspondingNFR": ["NFR-006"],
+      "files": [
+        {"action": "MODIFY", "path": "src/adapters/opencode/agents/sddu-agents.ts"}
+      ],
+      "acceptanceCriteria": [
+        "builtinAgents[] 含 name: 'sddu-fast' 条目",
+        "条目含 mode: 'subagent' 和 promptFile: '.opencode/agents/sddu-fast.md'",
+        "agentToPhaseMap 不含 sddu-fast",
+        "未破坏现有 11 个 Agent 的注册",
+        "npx tsc --noEmit 无新增错误"
+      ],
+      "verificationCommands": [
+        "grep -q \"name: 'sddu-fast'\" src/adapters/opencode/agents/sddu-agents.ts",
+        "! grep -A100 'agentToPhaseMap' src/adapters/opencode/agents/sddu-agents.ts | grep -q \"'sddu-fast'\"",
+        "count=$(grep -c \"name: 'sddu-\" src/adapters/opencode/agents/sddu-agents.ts); test $count -ge 12"
+      ]
+    },
+    {
+      "id": "TASK-003",
+      "name": "注册 sddu-fast 到 OpenCode JSON 配置",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "correspondingFR": ["FR-001"],
+      "correspondingNFR": ["NFR-006"],
+      "files": [
+        {"action": "MODIFY", "path": "src/adapters/opencode/templates/opencode.json.hbs"}
+      ],
+      "acceptanceCriteria": [
+        "agent:{} 块含 sddu-fast 条目",
+        "model 为 opencode/deepseek-v4-flash-free",
+        "prompt 为 {file:.opencode/agents/sddu-fast.md}",
+        "JSON 格式有效",
+        "原有 11 个 Agent 条目未被修改"
+      ],
+      "verificationCommands": [
+        "grep -A5 '\"sddu-fast\"' src/adapters/opencode/templates/opencode.json.hbs | grep -q 'opencode/deepseek-v4-flash-free'",
+        "grep -A5 '\"sddu-fast\"' src/adapters/opencode/templates/opencode.json.hbs | grep -q '.opencode/agents/sddu-fast.md'",
+        "sed 's/{{[^}]*}}/\"__TMP__\"/g' src/adapters/opencode/templates/opencode.json.hbs | python3 -m json.tool > /dev/null 2>&1"
+      ]
+    },
+    {
+      "id": "TASK-004",
+      "name": "扩展 @sddu 协调器路由与调度逻辑",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "correspondingFR": ["FR-001", "FR-009"],
+      "files": [
+        {"action": "MODIFY", "path": "src/templates/agents/sddu.md.hbs"}
+      ],
+      "acceptanceCriteria": [
+        "§3 路由表含 @sddu-fast 行（阶段 '—'，说明 '快速解决（轻量任务）'）",
+        "存在 §5.4 简单任务调度章节",
+        "含关键词匹配规则（修复/改一下/review 等）",
+        "含保守策略声明",
+        "明确声明调度到 Fast 不触发 phase 流转",
+        "§11 示例对话含 Fast 调度示例",
+        "@sddu 核心原则'只路由不设计'未被破坏",
+        "原有 9 个路由目标全部保留"
+      ],
+      "verificationCommands": [
+        "grep -q '@sddu-fast.*—.*快速解决' src/templates/agents/sddu.md.hbs",
+        "grep -qP '##\\s+\\d+\\.\\d+\\s+(简单任务调度|Fast|快速模式)' src/templates/agents/sddu.md.hbs",
+        "grep -qiP '(不触发|不做).*(phase|阶段|状态).*(流转|变更|更新)' src/templates/agents/sddu.md.hbs",
+        "for agent in sddu-discovery sddu-spec sddu-plan sddu-tasks sddu-build sddu-review sddu-validate sddu-roadmap sddu-tree sddu-docs; do grep -q \"@$agent\" src/templates/agents/sddu.md.hbs || echo \"FAIL: $agent\"; done"
+      ]
+    },
+    {
+      "id": "TASK-005",
+      "name": "更新 README 双模架构说明",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "correspondingFR": ["FR-010"],
+      "correspondingQP": ["QP-002"],
+      "files": [
+        {"action": "MODIFY", "path": "README.md"}
+      ],
+      "acceptanceCriteria": [
+        "README 含 @sddu-fast 提及",
+        "存在双模对比说明",
+        "含至少 2 个场景示例",
+        "用户读完能自行判断选哪个入口",
+        "Agent 数量统计已更新为 12 个"
+      ],
+      "verificationCommands": [
+        "grep -qi 'sddu-fast' README.md",
+        "grep -qiP '(双模|两种模式|两个入口|快速模式.*完整流程)' README.md",
+        "grep -qiP '(修.*拼写|fix.*typo|设计.*模块|design.*module|不确定.*先.*fast)' README.md",
+        "grep -q '12.*Agent' README.md"
+      ]
+    }
+  ],
+  "executionStrategy": {
+    "wave1": {
+      "strategy": "parallel",
+      "tasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
+      "note": "5 tasks modify 5 different files with zero code-level dependencies",
+      "recommendedOrder": "TASK-001 (core template) → TASK-004 (coordinator) → TASK-002 + TASK-003 + TASK-005 (parallel cleanup)"
+    }
+  },
+  "frCoverage": {
+    "FR-001": ["TASK-001", "TASK-002", "TASK-003", "TASK-004"],
+    "FR-002": ["TASK-001"],
+    "FR-003": ["TASK-001"],
+    "FR-004": ["TASK-001"],
+    "FR-005": ["TASK-001"],
+    "FR-006": ["TASK-001"],
+    "FR-007": ["TASK-001"],
+    "FR-008": ["TASK-001"],
+    "FR-009": ["TASK-004"],
+    "FR-010": ["TASK-001", "TASK-005"]
+  }
+}
