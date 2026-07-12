@@ -8,14 +8,14 @@
 #   or: ./install.sh <TargetDir>
 #
 # 执行步骤:
-#   [1/8] 清理旧的构建产物 (npm run clean)
-#   [2/8] 安装依赖 (npm install)
-#   [3/8] 构建 agents (npm run build:agents)
-#   [4/8] 构建 TypeScript (npm run build:ts)
-#   [5/8] 打包 (npm run package)
-#   [6/8] 创建目标目录 (.opencode/, .sddu/ 等)
-#   [7/8] 复制插件文件到目标项目
-#   [8/8] 配置 opencode.json 和工作空间
+#   [1/8] 检查源码 (package.json 存在性)
+#   [2/8] 清理并重新构建 (clean + npm install + build agents + build TS + package)
+#   [3/8] 定位 SDDU 分发文件 (dist/sddu/)
+#   [4/8] 创建目标目录 (.opencode/, .sddu/ 等)
+#   [5/8] 复制插件文件到目标项目
+#   [6/8] 版本检测
+#   [7/8] 配置 opencode.json
+#   [8/8] 初始化 SDDU 工作空间目录
 #
 # 注意：必须使用 bash 运行，不能使用 sh
 

@@ -92,7 +92,7 @@
     "newCommands": [
       "@sddu", "@sddu-discovery", "@sddu-spec", "@sddu-plan",
       "@sddu-tasks", "@sddu-build", "@sddu-review", "@sddu-validate",
-      "@sddu-roadmap", "@sddu-help", "@sddu-docs"
+      "@sddu-roadmap", "@sddu-docs"
     ],
     "backwardCompatible": [
       "@sdd", "@sdd-discovery", "@sdd-spec", "@sdd-plan",

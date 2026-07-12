@@ -34,7 +34,7 @@ async function packageSddu() {
       if (!itemsToKeep.includes(item)) {
         const itemPath = path.join(distDir, item);
         await fs.remove(itemPath);
-        console.log(`  🗑️  删除：${item}`);
+        console.log(`  🧹 清理中间构建产物: ${item}`);
       }
     }
     
@@ -115,7 +115,7 @@ async function packageSingleVersion(distDir, version, packageName) {
         
         await fs.writeFile(outputPath, content, 'utf8');
       } else {
-        // 靠制非模板文件
+        // 复制非模板文件
         await fs.copy(templatePath, outputPath);
       }
     }
@@ -140,15 +140,6 @@ async function packageSingleVersion(distDir, version, packageName) {
     description: 'Specification-Driven Development Ultimate plugin for OpenCode (V2 Exclusive - No SDD Compatibility)',
     scripts: {
       ...originalPkg.scripts,
-      'sddu-spec': 'node ./dist/commands/sdd-spec.js',
-      'sddu-plan': 'node ./dist/commands/sdd-plan.js', 
-      'sddu-tasks': 'node ./dist/commands/sdd-tasks.js',
-      'sddu-build': 'node ./dist/commands/sdd-build.js',
-      'sddu-review': 'node ./dist/commands/sdd-review.js',
-      'sddu-validate': 'node ./dist/commands/sdd-validate.js',
-      'sddu-docs': 'node ./dist/commands/sdd-docs.js',
-      'sddu-roadmap': 'node ./dist/commands/sdd-roadmap.js',
-      'sddu-help': 'node ./dist/commands/sdd-help.js',
     },
     files: [
       'dist/sddu/**/*',
