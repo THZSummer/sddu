@@ -304,8 +304,14 @@ if (Test-Path $OpencodeDestPath) {
         # Create backup
         Copy-Item -Path $OpencodeDestPath -Destination "$OpencodeDestPath.backup" -Force
         
-        # Update plugin list to SDDU
-        $existingConfig.plugin = $newConfig.plugin
+        # Merge plugin arrays: preserve user's existing plugins, add SDDU, remove old SDD
+        $existingPlugins = @()
+        if ($existingConfig.plugin) { $existingPlugins = @($existingConfig.plugin) }
+        $newPlugins = @()
+        if ($newConfig.plugin) { $newPlugins = @($newConfig.plugin) }
+        $userPlugins = $existingPlugins | Where-Object { $_ -ne 'opencode-sdd-plugin' -and $_ -ne 'opencode-sddu-plugin' }
+        $mergedPlugins = ($newPlugins + $userPlugins) | Select-Object -Unique
+        $existingConfig.plugin = $mergedPlugins
         
         # Merge SDDU agent definitions (preserve user's custom agents and model overrides)
         $existingAgentHash = @{}

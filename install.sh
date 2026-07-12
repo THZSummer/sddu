@@ -316,8 +316,11 @@ try {
     // Create backup
     fs.writeFileSync('${OPENCODE_JSON_PATH}.backup', JSON.stringify(existingConfig, null, 2));
     
-    // Only update plugin list to SDDU (remove old SDD references)
-    existingConfig.plugin = newConfig.plugin;
+    // Merge plugin arrays: preserve user's existing plugins, add SDDU, remove old SDD
+    const existingPlugins = Array.isArray(existingConfig.plugin) ? existingConfig.plugin : [];
+    const newPlugins = Array.isArray(newConfig.plugin) ? newConfig.plugin : [];
+    const userPlugins = existingPlugins.filter(p => p !== 'opencode-sdd-plugin' && p !== 'opencode-sddu-plugin');
+    existingConfig.plugin = [...new Set([...newPlugins, ...userPlugins])];
     
     // Merge SDDU agent definitions (preserve user's custom agents and model overrides)
     if (!existingConfig.agent) {
