@@ -8,14 +8,14 @@
 #   or: ./install.ps1 <TargetDir>
 #
 # 执行步骤:
-#   [1/8] 清理旧的构建产物 (Remove-Item dist)
-#   [2/8] 安装依赖 (npm install)
-#   [3/8] 构建 agents (node build-agents.cjs)
-#   [4/8] 构建 TypeScript (tsc)
-#   [5/8] 打包 (node scripts/package.cjs)
-#   [6/8] 创建目标目录 (.opencode/, .sddu/ 等)
-#   [7/8] 复制插件文件到目标项目
-#   [8/8] 配置 opencode.json 和工作空间
+#   [1/8] 检查源码 (package.json 存在性)
+#   [2/8] 清理并重新构建 (clean + npm install + build agents + build TS + package)
+#   [3/8] 定位 SDDU 分发文件 (dist/sddu/)
+#   [4/8] 创建目标目录 (.opencode/, .sddu/ 等)
+#   [5/8] 复制插件文件到目标项目
+#   [6/8] 版本检测
+#   [7/8] 配置 opencode.json
+#   [8/8] 初始化 SDDU 工作空间目录
 #
 # 注意：必须使用 PowerShell 运行
 
@@ -23,6 +23,8 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$TargetDir
 )
+
+$TargetDir = $TargetDir.TrimEnd('\').TrimEnd('/')  # Remove trailing slash to avoid double-slash in paths
 
 $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -238,8 +240,8 @@ if (Test-Path (Join-Path $DistSdduDir "agents")) {
     Copy-Item -Path (Join-Path $DistSdduDir "agents\*") -Destination (Join-Path $TargetDir ".opencode\agents\") -Recurse -Force
 }
 
-# Count agents copied
-$AgentCount = (Get-ChildItem -Path (Join-Path $TargetDir ".opencode\agents") -File | Measure-Object).Count
+# Count agents copied (only .md files are agent definitions)
+$AgentCount = (Get-ChildItem -Path (Join-Path $TargetDir ".opencode\agents") -Filter "*.md" -File | Measure-Object).Count
 Write-Host "[OK] Total agents copied: $AgentCount" -ForegroundColor Green
 
 
@@ -305,8 +307,46 @@ if (Test-Path $OpencodeDestPath) {
         # Update plugin list to SDDU
         $existingConfig.plugin = $newConfig.plugin
         
-        # Replace all agent definitions with SDDU versions
-        $existingConfig.agent = $newConfig.agent
+        # Merge SDDU agent definitions (preserve user's custom agents and model overrides)
+        $existingAgentHash = @{}
+        if ($existingConfig.agent) {
+            foreach ($p in $existingConfig.agent.PSObject.Properties) {
+                $existingAgentHash[$p.Name] = $p.Value
+            }
+        }
+        $newAgentHash = @{}
+        foreach ($p in $newConfig.agent.PSObject.Properties) {
+            $newAgentHash[$p.Name] = $p.Value
+        }
+        
+        $updatedCount = 0
+        $modelPreserved = 0
+        
+        # Update/add SDDU agents (preserve user's model if customized)
+        foreach ($key in @($newAgentHash.Keys | Where-Object { $_ -like 'sddu*' })) {
+            if ($existingAgentHash.ContainsKey($key) -and $existingAgentHash[$key].model) {
+                # Deep copy new agent and preserve user's model
+                $merged = $newAgentHash[$key] | ConvertTo-Json -Depth 5 -Compress | ConvertFrom-Json
+                $merged.model = $existingAgentHash[$key].model
+                $existingAgentHash[$key] = $merged
+                $modelPreserved++
+            } else {
+                $existingAgentHash[$key] = $newAgentHash[$key]
+            }
+            $updatedCount++
+        }
+        
+        # Remove old SDD agent entries (sdd-* without 'u')
+        foreach ($key in @($existingAgentHash.Keys | Where-Object { $_ -like 'sdd-*' -or $_ -eq 'sdd' })) {
+            $existingAgentHash.Remove($key)
+        }
+        
+        # Rebuild agent as PSCustomObject
+        $agentPSC = [PSCustomObject]@{}
+        foreach ($key in $existingAgentHash.Keys) {
+            $agentPSC | Add-Member -MemberType NoteProperty -Name $key -Value $existingAgentHash[$key]
+        }
+        $existingConfig.agent = $agentPSC
         
         # Update permissions
         $existingConfig.permission = $newConfig.permission
@@ -319,9 +359,17 @@ if (Test-Path $OpencodeDestPath) {
         # Write updated config
         $existingConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $OpencodeDestPath
         
-        $agentsTotal = ($newConfig.agent | Get-Member -MemberType NoteProperty).Count
+        $agentsTotal = $existingAgentHash.Count
+        $userPreserved = @($existingAgentHash.Keys | Where-Object { $_ -notlike 'sddu*' }).Count
         Write-Host "✅ Plugins updated: SDDU plugin configured" -ForegroundColor Green
-        Write-Host "✅ Agents configured: $agentsTotal agents available" -ForegroundColor Green
+        Write-Host "✅ SDDU agents updated: $updatedCount" -ForegroundColor Green
+        if ($modelPreserved -gt 0) {
+            Write-Host "✅ User model overrides preserved: $modelPreserved" -ForegroundColor Green
+        }
+        if ($userPreserved -gt 0) {
+            Write-Host "✅ User custom agents preserved: $userPreserved" -ForegroundColor Green
+        }
+        Write-Host "✅ Total agents: $agentsTotal" -ForegroundColor Green
     }
     catch {
         Write-Host "[WARN] Config update failed, copying SDDU config and backing up original" -ForegroundColor Yellow
@@ -361,7 +409,6 @@ Write-Host ""
 Write-Host "Agents installed ($AgentCount total):" -ForegroundColor Cyan
 Write-Host "  SDDU Standard Agents:" -ForegroundColor White
 Write-Host "    @sddu              - Smart entry point"
-Write-Host "    @sddu-help         - Help assistant"
 Write-Host "    @sddu-discovery    - Requirement Discovery"
 Write-Host "    @sddu-spec         - Specification"
 Write-Host "    @sddu-plan         - Technical Planning"
@@ -370,7 +417,9 @@ Write-Host "    @sddu-build        - Implementation"
 Write-Host "    @sddu-review       - Code Review"
 Write-Host "    @sddu-validate     - Validation"
 Write-Host "    @sddu-roadmap      - Roadmap planning"
+Write-Host "    @sddu-tree         - Directory navigation (TREE generator)"
 Write-Host "    @sddu-docs         - Project panorama generation"
+Write-Host "    @sddu-fast         - Quick mode (stateless, lightweight tasks)"
 Write-Host ""
 Write-Host "Quick Start:" -ForegroundColor Cyan
 Write-Host "  cd '$TargetDir'"
