@@ -38,21 +38,6 @@ export {
 // 业务域 — SDDU 方法论核心
 // ============================================================================
 
-// Pipeline — 管线定义与工作流阶段流转
-export {
-  PipelineStageConfig,
-  PipelineWorkflowStatus,
-  PipelineContext,
-  PipelineExecutionRecord,
-  PipelineValidationResult,
-  PipelineWorkflowEngine,
-  CoachingLevel,
-  CoachingConfig,
-  COACHING_CONFIGS,
-  CoachingModeEngine,
-  PipelineStateValidator,
-} from './pipeline';
-
 // State — 状态追踪与 Schema 管理
 export {
   Phase,
@@ -151,13 +136,13 @@ export {
   getIncompleteTasks,
   areDependenciesSatisfied,
   parseTask,
-} from './pipeline';
+} from './shared';
 
 export type {
   ParsedTask,
   ParallelGroup,
   ExecutionWave,
-} from './pipeline';
+} from './shared';
 
 // ============================================================================
 // OpenCode 平台适配层

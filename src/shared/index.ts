@@ -5,3 +5,4 @@ export * from './types';
 export * from './errors';
 export * from './platform-adapter';
 export * from './dependency-notifier';
+export * from './tasks-parser';

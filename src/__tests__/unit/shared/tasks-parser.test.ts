@@ -7,7 +7,7 @@ import {
   getReadyTasks,
   ParsedTask,
   ParallelGroup
-} from '../../../pipeline/tasks-parser';
+} from '../../../shared/tasks-parser';
 
 describe('tasks-parser', () => {
   describe('parseTask', () => {
