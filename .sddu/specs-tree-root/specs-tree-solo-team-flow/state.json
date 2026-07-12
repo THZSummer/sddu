@@ -3,8 +3,8 @@
   "productFullName": "Expert Tree Design",
   "productTagline": "AI执行 × 人类看护",
   "featureId": "ETD-001",
-  "state": "terminated",
   "status": "terminated",
+  "phase": 7,
   "terminatedDate": "2026-06-12",
   "migration": {
     "status": "terminated-and-migrated",
@@ -22,6 +22,7 @@
   "createdDate": "2026-04-18",
   "priority": "P0",
   "isParent": true,
+  "depth": 1,
   "children": [],
   "cleanupNote": "ETD sub-features (expert-node-registry, expert-workbench, task-dispatcher) physically removed on 2026-06-13 as ETD is an independent project",
   "estimatedEffort": "Large",

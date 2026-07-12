@@ -3,7 +3,7 @@
   "featureId": "FR-FRAMEWORK-ARCH-001",
   "name": "SDDU 框架源码架构重组",
   "version": "v4.0.0",
-  "status": "validated",
+  "status": "completed",
   "phase": 6,
   "depth": 1,
   "isParent": false,
@@ -46,7 +46,7 @@
     },
     {
       "phase": 6,
-      "status": "validated",
+      "status": "completed",
       "timestamp": "2026-06-21T10:26:43.310Z",
       "triggeredBy": "sddu-validate-agent"
     }
