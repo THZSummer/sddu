@@ -28,13 +28,13 @@ graph TD
 | Agent | 模板文件 | 阶段 | mode | temperature |
 |-------|---------|------|------|------------|
 | sddu（路由调度） | `sddu.md.hbs` | 入口 | primary | 0.5 |
-| sddu-discovery（问题挖掘） | `sddu-discovery.md.hbs` | 0/6 | all | 0.4 |
-| sddu-spec（需求定义） | `sddu-spec.md.hbs` | 1/6 | all | 0.3 |
-| sddu-plan（技术设计） | `sddu-plan.md.hbs` | 2/6 | all | 0.2 |
-| sddu-tasks（任务排布） | `sddu-tasks.md.hbs` | 3/6 | all | 0.1 |
-| sddu-build（实施构建） | `sddu-build.md.hbs` | 4/6 | all | 0.3 |
-| sddu-review（产物审查） | `sddu-review.md.hbs` | 5/6 | all | 0.2 |
-| sddu-validate（产物验证） | `sddu-validate.md.hbs` | 6/6 | all | 0.1 |
+| sddu-discovery（问题挖掘） | `sddu-discovery.md.hbs` | 1/7 | all | 0.4 |
+| sddu-spec（需求定义） | `sddu-spec.md.hbs` | 2/7 | all | 0.3 |
+| sddu-plan（技术设计） | `sddu-plan.md.hbs` | 3/7 | all | 0.2 |
+| sddu-tasks（任务排布） | `sddu-tasks.md.hbs` | 4/7 | all | 0.1 |
+| sddu-build（实施构建） | `sddu-build.md.hbs` | 5/7 | all | 0.3 |
+| sddu-review（产物审查） | `sddu-review.md.hbs` | 6/7 | all | 0.2 |
+| sddu-validate（产物验证） | `sddu-validate.md.hbs` | 7/7 | all | 0.1 |
 | sddu-roadmap（版本规划） | `sddu-roadmap.md.hbs` | 独立 | subagent | 0.4 |
 | sddu-tree（目录导航） | `sddu-tree.md.hbs` | 触发 | subagent | 0.2 |
 | sddu-docs（项目全景） | `sddu-docs.md.hbs` | 触发 | subagent | 0.3 |

@@ -221,7 +221,7 @@ SDDU 有独立的 7 步 Discovery 子工作流，Superpowers 的 brainstorming �
 
 #### 3.2.3 树形 Feature 嵌套
 
-SDDU 支持 Feature 下拆子 Feature，每个子 Feature 独立走完整 6 阶段：
+SDDU 支持 Feature 下拆子 Feature，每个子 Feature 独立走完整 7 阶段：
 - `tree-scanner.ts` / `tree-state-validator.ts` / `parent-state-manager.ts`
 - Superpowers 的 `brainstorming` 提到 "decompose into sub-projects" 但无结构化支持
 

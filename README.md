@@ -74,13 +74,13 @@ opencode
 ```mermaid
 sequenceDiagram
     participant U as 👤 你
-    participant D as 🔍 Discovery (0/6)
-    participant S as 📝 Spec (1/6)
-    participant P as 🛠️ Plan (2/6)
-    participant T as 📌 Tasks (3/6)
-    participant B as 💻 Build (4/6)
-    participant R as 👁️ Review (5/6)
-    participant V as ✅ Validate (6/6)
+    participant D as 🔍 Discovery (1/7)
+    participant S as 📝 Spec (2/7)
+    participant P as 🛠️ Plan (3/7)
+    participant T as 📌 Tasks (4/7)
+    participant B as 💻 Build (5/7)
+    participant R as 👁️ Review (6/7)
+    participant V as ✅ Validate (7/7)
 
     U->>D: @sddu 开始 登录功能
     D->>S: discovery.md（问题清单）
@@ -98,17 +98,17 @@ sequenceDiagram
 
 ## 🤖 Agent 速览
 
-### 主流程（6 阶段）
+### 主流程（7 阶段）
 
 | Agent | 阶段 | 输入 | 输出 |
 |-------|:--:|------|------|
-| `@sddu-discovery` | 0/6 | 模糊想法 | `discovery.md` — 问题清单 |
-| `@sddu-spec` | 1/6 | 问题清单 | `spec.md` — 需求规范 |
-| `@sddu-plan` | 2/6 | 需求规范 | `plan.md` — 技术方案 + ADR |
-| `@sddu-tasks` | 3/6 | 技术方案 | `tasks.md` — 原子任务 |
-| `@sddu-build` | 4/6 | 任务列表 | 源代码 + `build.md` |
-| `@sddu-review` | 5/6 | 代码 + 规范 | `review.md` — 审查报告 |
-| `@sddu-validate` | 6/6 | 审查报告 | `validation.md` — 验证结果 |
+| `@sddu-discovery` | 1/7 | 模糊想法 | `discovery.md` — 问题清单 |
+| `@sddu-spec` | 2/7 | 问题清单 | `spec.md` — 需求规范 |
+| `@sddu-plan` | 3/7 | 需求规范 | `plan.md` — 技术方案 + ADR |
+| `@sddu-tasks` | 4/7 | 技术方案 | `tasks.md` — 原子任务 |
+| `@sddu-build` | 5/7 | 任务列表 | 源代码 + `build.md` |
+| `@sddu-review` | 6/7 | 代码 + 规范 | `review.md` — 审查报告 |
+| `@sddu-validate` | 7/7 | 审查报告 | `validation.md` — 验证结果 |
 
 ### 辅助 Agent
 
@@ -166,7 +166,7 @@ SDDU 将每个 Feature 的工作产物组织在 `.sddu/specs-tree-root/` 下：
         └── state.json         # 状态文件（phase + status）
 ```
 
-支持**树形嵌套**：Feature 下可拆分子 Feature，每个子 Feature 独立走完整 6 阶段工作流。
+支持**树形嵌套**：Feature 下可拆分子 Feature，每个子 Feature 独立走完整 7 阶段工作流。
 
 ---
 

@@ -157,7 +157,7 @@ stateDiagram-v2
 
 ## 子 Feature 并行支持
 
-大型 Feature 可拆分为**子 Feature**，每个子 Feature 独立进行 6 阶段状态流转（不含 Discovery）。
+大型 Feature 可拆分为**子 Feature**，每个子 Feature 独立进行 7 阶段状态流转（不含 Discovery）。
 
 ### 执行规则
 

@@ -35,13 +35,13 @@
 - **特点**：
   - 通常只包含需求文档（discovery.md, spec.md）和项目管理文档（README.md）
   - `state.json` 中包含 `childrens` 数组，引用子 Feature
-  - 不走完整的 6 阶段实现流程
+  - 不走完整的 7 阶段实现流程
   - 深度(depth)较低
 
 ### 叶子 Feature（Leaf）
 - **职责**：承担具体的开发实现工作
 - **特点**：  
-  - 走完整的 6 阶段工作流（discovery ~ validate）
+  - 走完整的 7 阶段工作流（discovery ~ validate）
   - 包含完整的 6 个阶段文档
   - 实现具体业务逻辑
   - 在父级的 `childrens` 数组中被引用
@@ -55,10 +55,10 @@ parent-ecommerce/
 ├── spec.md  
 ├── state.json (depth=0)
 └── specs-tree-frontend/        # 叶子 Feature
-    ├── ...完整的 6 阶段...
+    ├── ...完整的 7 阶段...
     └── state.json (depth=1) 
 └── specs-tree-backend/         # 叶子 Feature  
-    ├── ...完整的 6 阶段...
+    ├── ...完整的 7 阶段...
     └── state.json (depth=1)
 ```
 
@@ -68,13 +68,13 @@ parent-mobile-app/
 ├── spec.md
 ├── state.json (depth=0)
 └── specs-tree-ios/            # 叶子 Feature
-    ├── ...完整的 6 阶段...
+    ├── ...完整的 7 阶段...
     └── state.json (depth=1)
 └── specs-tree-android/        # 叶子 Feature
-    ├── ...完整的 6 阶段...
+    ├── ...完整的 7 阶段...
     └── state.json (depth=1)
 └── specs-tree-web/            # 叶子 Feature
-    ├── ...完整的 6 阶段...
+    ├── ...完整的 7 阶段...
     └── state.json (depth=1)
 ```
 
@@ -83,11 +83,11 @@ parent-mobile-app/
 parent-ecommerce-platform/
 ├── state.json
 └── specs-tree-auth/           # 叶子 Feature
-    ├── ...完整的 6 阶段...
+    ├── ...完整的 7 阶段...
 └── specs-tree-order/          # 叶子 Feature  
-    ├── ...完整的 6 阶段...
+    ├── ...完整的 7 阶段...
 └── specs-tree-payment/        # 叶子 Feature
-    ├── ...完整的 6 阶段...
+    ├── ...完整的 7 阶段...
 ```
 
 ### 4.4 管理后台+用户端
@@ -95,9 +95,9 @@ parent-ecommerce-platform/
 parent-content-system/
 ├── state.json
 └── specs-tree-admin/          # 管理端 Feature
-    ├── ...完整的 6 阶段...  
+    ├── ...完整的 7 阶段...  
 └── specs-tree-user-app/       # 用户端 Feature
-    ├── ...完整的 6 阶段...
+    ├── ...完整的 7 阶段...
 ```
 
 ## 5. 拆分示例

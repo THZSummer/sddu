@@ -70,7 +70,7 @@ generate_verification_summary() {
     
     cat << EOF
 ### 📊 验证摘要
-- **完成的开发阶段**: $phases_completed/6 ($(expr $phases_completed '*' 100 / 6))%
+- **完成的开发阶段**: $phases_completed/7 ($(expr $phases_completed '*' 100 / 7))%
 - **核心配置文件**: $core_completed/2 ($(expr $core_completed '*' 100 / 2))%
 EOF
     
@@ -330,7 +330,7 @@ generate_verification_summary() {
     local percentage=$((total_complete * 100 / total_core))
     
     echo "### 📊 验证摘要"
-    echo "- **完成的开发阶段**: $phases_completed/6 ($((phases_completed * 100 / 6))%)"
+    echo "- **完成的开发阶段**: $phases_completed/7 ($((phases_completed * 100 / 7))%)"
     echo "- **核心配置文件**: $core_completed/2 ($((core_completed * 100 / 2))%)"
     
     if [ $percentage -ge 90 ]; then

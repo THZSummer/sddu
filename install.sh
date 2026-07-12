@@ -62,7 +62,7 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-TARGET_DIR="$1"
+TARGET_DIR="${1%/}"  # Remove trailing slash to avoid double-slash in paths
 
 echo ""
 print_color "${CYAN}=== SDDU Plugin Installer ===${NC}"
