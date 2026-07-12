@@ -260,8 +260,8 @@ if [ -d "${SCRIPT_DIR}/dist/sddu/agents" ]; then
     cp "${SCRIPT_DIR}/dist/sddu/agents/"* "${TARGET_DIR}/.opencode/agents/" 2>/dev/null || print_color "${GRAY}  SDDU agents not found, continuing...${NC}"
 fi
 
-# Count agents copied
-AGENT_COUNT=$(find "${TARGET_DIR}/.opencode/agents" -type f | wc -l)
+# Count agents copied (only .md files are agent definitions)
+AGENT_COUNT=$(find "${TARGET_DIR}/.opencode/agents" -name "*.md" -type f | wc -l)
 print_color "${GREEN}[OK] Total agents copied: $AGENT_COUNT${NC}"
 
 # Step 6: Version Detection
@@ -386,7 +386,6 @@ echo "  🚀 New Feature: 8-Stage Workflow is now available!"
 print_color "${CYAN}Agents installed ($AGENT_COUNT total):${NC}"
 echo "  SDDU Standard Agents:"
 echo "    @sddu              - Smart entry point"
-echo "    @sddu-help         - Help assistant"
 echo "    @sddu-discovery    - Requirement Discovery"
 echo "    @sddu-spec         - Specification"
 echo "    @sddu-plan         - Technical Planning"
@@ -395,7 +394,9 @@ echo "    @sddu-build        - Implementation"
 echo "    @sddu-review       - Code Review"
 echo "    @sddu-validate     - Validation"
 echo "    @sddu-roadmap      - Roadmap planning"
+echo "    @sddu-tree         - Directory navigation (TREE generator)"
 echo "    @sddu-docs         - Project panorama generation"
+echo "    @sddu-fast         - Quick mode (stateless, lightweight tasks)"
 echo ""
 print_color "${CYAN}Quick Start:${NC}"
 echo "  cd '${TARGET_DIR}'"
