@@ -1,7 +1,7 @@
 # Directory: .sddu/specs-tree-root/
 
 ## 目录简介
-SDDU 规范文件根目录，存放 19 个 Feature 的完整 SDDU 工作流产物（discovery → spec → plan → tasks → build → review → validate）以及架构决策记录。
+SDDU 规范文件根目录，存放 20 个 Feature 的完整 SDDU 工作流产物（discovery → spec → plan → tasks → build → review → validate）以及架构决策记录。
 
 ## 目录结构
 ```
@@ -27,6 +27,7 @@ specs-tree-root/
 ├── specs-tree-sdd-tools-optimization/                # 工具系统优化
 ├── specs-tree-sdd-workflow-state-optimization/       # 工作流状态优化
 ├── specs-tree-sddu-fast/                             # @sddu-fast 快速模式 Agent ⚡
+├── specs-tree-skill-system/                          # FR-SKILL-001 Skill 系统（双重定位）
 ├── specs-tree-sddu-status-enhancement/               # 特性状态增强 v3.0.0
 ├── specs-tree-solo-team-flow/                        # ETD — 已终止
 ├── specs-tree-template-quality-unification/          # 模板质量统一 v3.0.1
@@ -39,8 +40,8 @@ specs-tree-root/
 | 指标 | 值 |
 |------|-----|
 | 项目版本 | v1.4.1 |
-| 最后修改 | 2026-07-12 |
-| 当前活跃 Feature | 1 |
+| 最后修改 | 2026-07-19 |
+| 当前活跃 Feature | 2 |
 | 已完成 Feature | 17 |
 | 已终止 Feature | 1 |
 
@@ -67,10 +68,11 @@ specs-tree-root/
 | specs-tree-framework-architecture | FR-FRAMEWORK-ARCH-001 | SDDU 框架源码架构重组 | validated | ✅ completed |
 | specs-tree-docs-agent-optimization | FR-DOCS-OPT-001 | @sddu-docs Agent 补全与优化 — v4.0 最终验证通过 | validated | ✅ completed |
 
-### 进行中 Feature (1 个)
+### 进行中 Feature (2 个)
 | 目录 | Feature ID | 说明 | Phase | Status |
 |------|-----------|------|:-----:|:------:|
 | specs-tree-sddu-fast | FR-FAST-001 | @sddu-fast 快速模式 Agent — reviewed 阶段 (6/6 任务完成，review + validate 已通过) | reviewed | 🟢 tracked |
+| specs-tree-skill-system | FR-SKILL-001 | SDDU Skill 系统（双重定位：用户级 + 框架级）— discovery v2.0 扩充：引入框架级 Skills 轻量扩展机制，P1→P0，RICE 7.9→17.5 | discovered | 🟢 tracked |
 
 ### 已终止 Feature (1 个)
 | 目录 | Feature ID | 说明 | Status | 去向 |

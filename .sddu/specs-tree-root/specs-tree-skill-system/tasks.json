@@ -1,0 +1,251 @@
+{
+  "feature": "FR-SKILL-001",
+  "name": "SDDU Skill 系统（双重定位：用户级 + 框架级）",
+  "version": "1.0",
+  "createdAt": "2026-07-19",
+  "summary": {
+    "totalTasks": 10,
+    "waves": 4,
+    "complexity": { "S": 7, "M": 3, "L": 0 }
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "创建 sddu-skill-discovery SKILL.md（三阶段渐进披露模型）",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-025"],
+      "files": [
+        { "op": "NEW", "path": "src/skills/sddu-skill-discovery/SKILL.md" }
+      ],
+      "acceptance": [
+        "SKILL.md 存在于 src/skills/sddu-skill-discovery/ 目录下",
+        "frontmatter 包含 name: sddu-skill-discovery 和 description",
+        "body 明确描述三阶段渐进披露流程",
+        "body 包含两个源目录路径",
+        "body 描述命名空间规则",
+        "body 不超过 500 行"
+      ],
+      "verify": "test -f src/skills/sddu-skill-discovery/SKILL.md && grep -q 'Stage 1' src/skills/sddu-skill-discovery/SKILL.md && grep -q '.sddu/skills' src/skills/sddu-skill-discovery/SKILL.md && grep -q '.opencode/plugins/sddu/skills' src/skills/sddu-skill-discovery/SKILL.md"
+    },
+    {
+      "id": "TASK-002",
+      "name": "创建 sddu-skill-creator SKILL.md（对话式引导创建 Skill）",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-008", "FR-009", "FR-010"],
+      "files": [
+        { "op": "NEW", "path": "src/skills/sddu-skill-creator/SKILL.md" }
+      ],
+      "acceptance": [
+        "SKILL.md 存在于 src/skills/sddu-skill-creator/ 目录下",
+        "frontmatter 包含 name: sddu-skill-creator 和触发级 description",
+        "body 包含 5 步对话式引导工作流",
+        "body 包含 description 撰写指导",
+        "body 包含 Progressive Disclosure 原则说明",
+        "body 包含自举闭环说明",
+        "body 不超过 500 行"
+      ],
+      "verify": "test -f src/skills/sddu-skill-creator/SKILL.md && grep -q '对话式\\|引导\\|Progressive Disclosure' src/skills/sddu-skill-creator/SKILL.md && grep -q '自举\\|bootstrapp' src/skills/sddu-skill-creator/SKILL.md"
+    },
+    {
+      "id": "TASK-003",
+      "name": "创建 sddu-skill-sync SKILL.md（源→实际目录同步逻辑）",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-028", "FR-020"],
+      "files": [
+        { "op": "NEW", "path": "src/skills/sddu-skill-sync/SKILL.md" }
+      ],
+      "acceptance": [
+        "SKILL.md 存在于 src/skills/sddu-skill-sync/ 目录下",
+        "frontmatter 包含 name: sddu-skill-sync 和触发级 description",
+        "body 包含 5 步同步流程（扫描→检测→拷贝→清理→报告）",
+        "body 描述管辖标识机制（.sddu-manifest.txt）",
+        "body 描述命名冲突处理（框架级优先）",
+        "body 描述实际目录路径检测（通用措辞）",
+        "body 包含用户触发语义示例",
+        "body 不超过 500 行"
+      ],
+      "verify": "test -f src/skills/sddu-skill-sync/SKILL.md && grep -q '扫描源目录\\|实际目录\\|全量拷贝' src/skills/sddu-skill-sync/SKILL.md && grep -q 'sddu-manifest\\|管辖' src/skills/sddu-skill-sync/SKILL.md"
+    },
+    {
+      "id": "TASK-004",
+      "name": "修改 12 个 Agent .hbs 模板 — 新增「Skill 发现与同步」章节",
+      "complexity": "M",
+      "dependencies": ["TASK-001"],
+      "wave": 2,
+      "fr": ["FR-026", "G-008"],
+      "files": [
+        { "op": "MODIFY", "path": "src/templates/agents/sddu.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-discovery.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-spec.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-plan.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-tasks.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-build.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-review.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-validate.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-roadmap.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-tree.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-fast.md.hbs" }
+      ],
+      "acceptance": [
+        "全部 12 个 Agent 模板包含 Skill 发现与同步章节",
+        "每个模板的三阶段文本措辞一致",
+        "仅硬编码 sddu-skill-discovery 引用",
+        "插入位置在「规则」与「修订记录」之间",
+        "节号正确（coordinator §14，其余按原最大节号 +1）"
+      ],
+      "verify": "for f in src/templates/agents/sddu*.hbs; do grep -q 'Skill 发现与同步' \"$f\" && echo \"PASS: $f\" || echo \"FAIL: $f\"; done"
+    },
+    {
+      "id": "TASK-005",
+      "name": "修改 package.cjs — 新增 src/skills/ 拷贝逻辑",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 2,
+      "fr": ["FR-002"],
+      "files": [
+        { "op": "MODIFY", "path": "scripts/package.cjs" }
+      ],
+      "acceptance": [
+        "package.cjs 新增约 10 行拷贝逻辑",
+        "拷贝源为 src/skills/，目标为 dist/sddu/skills/",
+        "不破坏现有构建流程",
+        "构建完成后 dist/sddu/skills/ 包含 3 个 Skill 目录"
+      ],
+      "verify": "npm run build && npm run package && test -d dist/sddu/skills/sddu-skill-discovery && test -d dist/sddu/skills/sddu-skill-creator && test -d dist/sddu/skills/sddu-skill-sync"
+    },
+    {
+      "id": "TASK-006",
+      "name": "验证 opencode.json.hbs — 确认 skill: \"allow\" 权限已启用",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 2,
+      "fr": ["FR-006"],
+      "files": [
+        { "op": "MODIFY", "path": "src/adapters/opencode/templates/opencode.json.hbs" }
+      ],
+      "acceptance": [
+        "permission 块包含 skill: allow",
+        "无 Agent 配置中 tools.skill 设为 false"
+      ],
+      "verify": "grep -A1 '\"skill\"' src/adapters/opencode/templates/opencode.json.hbs | grep -q 'allow' && echo 'PASS: skill allow' || echo 'FAIL: skill needs fix'"
+    },
+    {
+      "id": "TASK-007",
+      "name": "修改 install.sh — 创建 .sddu/skills/ 目录 + 同步提示",
+      "complexity": "S",
+      "dependencies": ["TASK-005"],
+      "wave": 3,
+      "fr": ["FR-020", "G-009"],
+      "files": [
+        { "op": "MODIFY", "path": "install.sh" }
+      ],
+      "acceptance": [
+        "Step 4 创建 .sddu/skills/ 空目录",
+        "Step 8 打印同步提示",
+        "Step 5 继续拷贝框架源到 .opencode/plugins/sddu/",
+        "install.sh 中不存在旧的 Skill 拷贝逻辑"
+      ],
+      "verify": "grep -q '.sddu/skills' install.sh && grep -q 'sddu-skill-sync\\|同步' install.sh && echo 'PASS' || echo 'FAIL'"
+    },
+    {
+      "id": "TASK-008",
+      "name": "更新 README.md — 新增 Skill 系统章节",
+      "complexity": "S",
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003"],
+      "wave": 3,
+      "fr": ["FR-018"],
+      "files": [
+        { "op": "MODIFY", "path": "README.md" }
+      ],
+      "acceptance": [
+        "README.md 新增 Skill 系统章节",
+        "章节包含三元自举闭环说明",
+        "章节包含双层架构和两套发现流程说明",
+        "章节包含「同步 SDDU Skills」使用提示",
+        "安装指南部分包含首次同步提示"
+      ],
+      "verify": "grep -q 'Skill 系统' README.md && grep -q 'sddu-skill-discovery' README.md && grep -q '源目录\\|实际目录' README.md && echo 'PASS' || echo 'FAIL'"
+    },
+    {
+      "id": "TASK-009",
+      "name": "构建验证 — npm run build + npm run package",
+      "complexity": "M",
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008"],
+      "wave": 4,
+      "fr": ["FR-002", "FR-025", "FR-026", "FR-028"],
+      "files": [],
+      "acceptance": [
+        "npm run build 执行成功",
+        "npm run package 执行成功",
+        "dist/sddu/skills/ 包含 3 个 Skill 目录",
+        "dist/sddu/agents/ 中 12 个 Agent 全部含 Skill 发现章节",
+        "dist/sddu/opencode.json permission.skill = allow",
+        "dist/sddu/install.sh 中包含 .sddu/skills/ 创建 + 同步提示"
+      ],
+      "verify": "npm run build && npm run package && test -d dist/sddu/skills && for f in dist/sddu/agents/*.hbs; do grep -q 'Skill 发现与同步' \"$f\" || exit 1; done"
+    },
+    {
+      "id": "TASK-010",
+      "name": "E2E 验证计划 — sddu-skill-sync 全链路可达性 + Skill Doctor 诊断覆盖度",
+      "complexity": "M",
+      "dependencies": ["TASK-009"],
+      "wave": 4,
+      "fr": ["FR-005", "FR-020", "FR-025", "FR-028"],
+      "files": [],
+      "acceptance": [
+        "sddu-skill-sync 全链路可达性分析报告完成",
+        "sddu skill doctor 诊断覆盖度矩阵完成（EC-008 7 场景）",
+        "验证计划文档明确标注供 validate 阶段执行"
+      ],
+      "verify": "echo 'Manual verification — see tasks.md TASK-010 for checklist'"
+    }
+  ],
+  "waves": [
+    {
+      "wave": 1,
+      "tasks": ["TASK-001", "TASK-002", "TASK-003"],
+      "strategy": "parallel",
+      "description": "三个框架级 Skill SKILL.md 互不依赖，可同时创建。均为纯 Markdown 文件，S 级复杂度。"
+    },
+    {
+      "wave": 2,
+      "tasks": ["TASK-004", "TASK-005", "TASK-006"],
+      "strategy": "parallel",
+      "description": "TASK-004 依赖 TASK-001（三阶段文本已定义），TASK-005 和 TASK-006 独立。可并行执行。"
+    },
+    {
+      "wave": 3,
+      "tasks": ["TASK-007", "TASK-008"],
+      "strategy": "parallel",
+      "description": "install.sh 和 README.md 改动互不干扰。依赖 Wave 2 构建体系就绪。"
+    },
+    {
+      "wave": 4,
+      "tasks": ["TASK-009", "TASK-010"],
+      "strategy": "sequential",
+      "description": "TASK-009 先完成构建验证，TASK-010 基于构建产物准备验证计划。"
+    }
+  ],
+  "frCoverage": {
+    "FR-002": ["TASK-005", "TASK-009"],
+    "FR-005": ["TASK-010"],
+    "FR-006": ["TASK-006"],
+    "FR-008": ["TASK-002"],
+    "FR-009": ["TASK-002"],
+    "FR-010": ["TASK-002"],
+    "FR-018": ["TASK-008"],
+    "FR-020": ["TASK-003", "TASK-007", "TASK-010"],
+    "FR-025": ["TASK-001", "TASK-009", "TASK-010"],
+    "FR-026": ["TASK-004", "TASK-009"],
+    "FR-028": ["TASK-003", "TASK-009", "TASK-010"],
+    "G-008": ["TASK-004"],
+    "G-009": ["TASK-003", "TASK-007"]
+  }
+}

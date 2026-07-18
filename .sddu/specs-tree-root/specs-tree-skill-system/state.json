@@ -1,0 +1,54 @@
+{
+  "feature": "FR-SKILL-001",
+  "name": "SDDU Skill 系统（双重定位：用户级 + 框架级）",
+  "phase": "tasked",
+  "status": "tracked",
+  "depth": 0,
+  "childrens": [],
+  "createdAt": "2026-07-18",
+  "updatedAt": "2026-07-19T23:59:59Z",
+  "priority": "P0",
+  "version": "3.3.0-early",
+  "riceUpdated": true,
+  "rice": {
+    "reach": 10,
+    "impact": 10,
+    "confidence": 70,
+    "effort": 4,
+    "score": 17.5
+  },
+  "description": "双重定位：(1) 用户级 Skills — 利用 OpenCode 原生 skill 机制，为 SDDU 用户提供项目级业务知识沉淀能力；(2) 框架级 Skills — SDDU 框架自身的轻量化扩展机制，替代部分「新增 Agent」需求。引入三元自举闭环（sddu-skill-discovery + sddu-skill-creator + sddu-skill-sync）。Spec v2.3.1 落地同步机制重构——sync 从 install.sh 全量拷贝改为 sddu-skill-sync Skill 按需同步（用户最终设计决策）。28 FR / 8 NFR / 10 EC / 15 OP。Plan v2.0 重写 ADR-002（sync 机制），更新 3 个 ADR，方案对比 4 维，文件影响 NEW 7 / MODIFY 17 / DELETE 0。",
+  "planOutput": {
+    "adrCount": 5,
+    "newFiles": 3,
+    "modifyFiles": 16,
+    "deleteFiles": 0,
+    "adrs": [
+      "ADR-001: 源目录 + 实际目录双层架构 (ACCEPTED，不变)",
+      "ADR-002: 同步机制——sddu-skill-sync Skill 按需同步 (PROPOSED，完全重写 v2.0)",
+      "ADR-003: Skill 发现流程——sddu-skill-discovery Skill (PROPOSED，更新三元闭环引用)",
+      "ADR-004: Agent 模板引用方式——自然语言指令 (PROPOSED，更新措辞含 sync 引用)",
+      "ADR-005: 框架级 Skill 源码路径——src/skills/ (PROPOSED，不变)"
+    ],
+    "keyDecisions": {
+      "copySync": "sddu-skill-sync Skill 按需同步（Skill body 描述同步逻辑，用户对话触发）— v2.3.1 核心变更",
+      "discovery": "sddu-skill-discovery Skill 统一描述 + 12 Agent 模板引用",
+      "syncMechanism": "sddu-skill-sync Skill — 源目录扫描 → 实际目录检测 → 全量拷贝 + 管辖标识 → 残留清理 → 同步报告（管辖标识 .sddu-manifest.txt 为运行时产物，不列入 plan 文件影响）",
+      "bootstrappingCycle": "三元闭环：discovery（发现）+ creator（创建）+ sync（同步）",
+      "referenceWording": "自然语言指令（非 tool call），章节名「Skill 发现与同步」",
+      "sourcePath": "src/skills/ → dist/sddu/skills/ → .opencode/plugins/sddu/skills/",
+      "installShChange": "移除拷贝逻辑，仅初始化目录 + 提示用户运行 sddu-skill-sync"
+    }
+  },
+  "lastChange": "tasks v1.0 — 基于 plan v2.0.1 分解 10 个原子任务，4 个波次（S×7 / M×3 / L×0），覆盖 12 FR + 2 Goal。Wave 1: 3 个框架级 Skill SKILL.md 创建（并行）；Wave 2: 12 Agent 模板 + package.cjs + opencode.json.hbs 验证（并行）；Wave 3: install.sh + README.md 更新（并行）；Wave 4: 构建验证 + E2E 验证计划（顺序）。",
+  "tasksOutput": {
+    "taskCount": 10,
+    "waveCount": 4,
+    "complexity": { "S": 7, "M": 3, "L": 0 },
+    "frCovered": 12,
+    "goalCovered": 2,
+    "newFiles": 3,
+    "modifyFiles": 15,
+    "deleteFiles": 0
+  }
+}
