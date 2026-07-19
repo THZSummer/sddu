@@ -213,30 +213,22 @@ LINES=$(wc -l < src/skills/sddu-skill-sync/SKILL.md); [ "$LINES" -le 500 ] && ec
 | **对应 FR** | FR-026, G-008 |
 
 **描述**:
-为全部 12 个 Agent `.hbs` 模板新增 `## Skill 发现与同步` 章节。内容为三阶段渐进披露指令，仅硬编码 `sddu-skill-discovery` 引用——`sddu-skill-sync` 和 `sddu-skill-creator` 通过 discovery 间接发现。
+为全部 12 个 Agent `.hbs` 模板新增 `## Skill 发现` 章节。内容为引用式硬编码指令——引导 Agent 加载 `sddu-skill-discovery` Skill 获取完整发现流程（三阶段模型、边界情况、清单组织），冷启动时从源目录加载 `sddu-skill-sync` 执行同步。
 
 **标准化文本**（插入位置：`## N. 规则` 与 `## 修订记录` 之间）:
 
 ```markdown
-## N. Skill 发现与同步
-> 三阶段渐进披露模型 — 用 Skill 发现 Skill
+## Skill 发现
 
-### Stage 1 — 目录扫描（默认执行，零成本）
-每次会话启动时，使用 `ls`/`readdir` 类工具扫描以下源目录获取 Skill 目录名清单（仅目录名，不读文件内容）：
-- **用户级**：`.sddu/skills/`
-- **框架级**：`.opencode/plugins/sddu/skills/`
-返回：`sddu-skill-discovery/`, `sddu-skill-creator/`, `sddu-skill-sync/`, ...（目录名列表）
+当需要发现或使用 SDDU Skill 时，加载 `sddu-skill-discovery` Skill 获取完整指引 —— 该 Skill 描述了三阶段渐进披露模型（目录扫描 / frontmatter 读取 / 目录路径返回）、边界情况处理、可用清单组织，以及与 `sddu-skill-sync`、`sddu-skill-creator` 的协作关系。
 
-### Stage 2 — frontmatter 读取（按兴趣触发）
-根据当前任务语义，对感兴趣的 skill 读取其 `SKILL.md` 头部 YAML frontmatter（仅 name + description 字段），判断是否与任务相关。
-返回：name + description（约 100 tokens/skill）
+**源目录**（SDDU 管辖）：
+- 用户级：`.sddu/skills/`
+- 框架级：`.opencode/plugins/sddu/skills/`
 
-### Stage 3 — 目录路径引用（按需加载）
-确定使用某 skill 后，获取该 skill 的目录路径，进入目录按需读取 `SKILL.md` body 及 `references/`、`scripts/` 等资源，按指引执行。
-返回：目录路径（0 tokens context 占用）
+**实际目录**：`.opencode/skills/`（由 `sddu-skill-sync` 同步后，供 LLM Agent 原生机制加载）
 
-### 同步
-所有 Skill 的实际运行副本（LLM Agent 原生机制）位于当前 Agent 工具的实际目录（OpenCode → `.opencode/skills/`，Claude Code → `.claude/skills/`）。若 Stage 1 发现实际目录中无 SDDU Skill，则按 Stage 2→3 流程从源目录发现并加载 `sddu-skill-sync` 执行同步，将源目录 Skill 全量拷贝到实际目录。
+若实际目录中无 SDDU Skill，从源目录 `.opencode/plugins/sddu/skills/sddu-skill-sync/SKILL.md` 加载 `sddu-skill-sync` 执行同步。
 ```
 
 **节号映射**：sddu.md.hbs（coordinator）使用 §14，其他 11 个 Agent 按其现有最大节号 +1 编号（如 sddu-build 现有 §11，使用 §12）。
@@ -259,9 +251,10 @@ LINES=$(wc -l < src/skills/sddu-skill-sync/SKILL.md); [ "$LINES" -le 500 ] && ec
 | MODIFY | `src/templates/agents/sddu-fast.md.hbs` |
 
 **验收标准**:
-- [ ] 全部 12 个 Agent 模板包含 `## Skill 发现与同步` 或 `## N. Skill 发现与同步` 章节
-- [ ] 每个模板的三阶段文本措辞一致（可与 coordinator 模板对比验证）
-- [ ] 每个模板仅硬编码 `sddu-skill-discovery` 引用（不硬编码 sync 或 creator）
+- [ ] 全部 12 个 Agent 模板包含 `## Skill 发现` 章节（引用式硬编码）
+- [ ] 每个模板的引用式硬编码文本措辞一致（可与 coordinator 模板对比验证）
+- [ ] 每个模板硬编码 `sddu-skill-discovery` 引用（加载该 Skill 获取详细流程）
+- [ ] 每个模板在冷启动路径中硬编码 `sddu-skill-sync` 源路径（"若实际目录中无 SDDU Skill..."）
 - [ ] 插入位置正确——位于 `## 规则` 与 `## 修订记录` 之间
 - [ ] coordinator 模板（sddu.md.hbs）的节号对齐为 §14
 - [ ] 各模板的节号按各自原有最大节号 +1（如 sddu-build → §12）
@@ -277,26 +270,26 @@ for f in src/templates/agents/sddu*.hbs; do
   fi
 done
 
-# 检查只硬编码 discovery，不硬编码 sync/creator
+# 检查引用式硬编码：discovery 引用 + sync 冷启动路径
 for f in src/templates/agents/sddu*.hbs; do
   # 确认有 sddu-skill-discovery 引用
   grep -q "sddu-skill-discovery" "$f" && echo "OK discovery: $f" || echo "WARN: $f missing discovery ref"
-  # 确认三阶段文本中没有不必要的 sddu-skill-sync 或 sddu-skill-creator 直接引用（同步段除外）
-  # 同步段允许提及 sddu-skill-sync（作为间接发现示例）
+  # 确认有 sync 冷启动路径
+  grep -q "sddu-skill-sync" "$f" && echo "OK sync cold-start: $f" || echo "WARN: $f missing sync cold-start path"
 done
 
-# 检查三阶段关键词全覆盖
+# 确认旧内容硬编码无残留
 for f in src/templates/agents/sddu*.hbs; do
-  if grep -q "Stage 1" "$f" && grep -q "Stage 2" "$f" && grep -q "Stage 3" "$f"; then
-    echo "PASS: $f three-stage covered"
+  if grep -q "Stage 1\|Stage 2\|Stage 3" "$f"; then
+    echo "FAIL: $f has old content-hardcoding residue"
   else
-    echo "FAIL: $f missing stages"
+    echo "PASS: $f clean (no old Stage 1/2/3 hardcoding)"
   fi
 done
 
-# 验证 coordinator 一致性：对比 sddu.md.hbs 的 Skill 章节与 TASK-001 中的三阶段文本
-diff <(sed -n '/## .*Skill 发现与同步/,/^## /p' src/templates/agents/sddu.md.hbs | head -n -1) \
-     <(sed -n '/## .*Skill 发现与同步/,/^## /p' src/templates/agents/sddu-build.md.hbs | head -n -1) \
+# 验证 coordinator 一致性：对比 sddu.md.hbs 的 Skill 章节
+diff <(sed -n '/## Skill 发现/,/^## /p' src/templates/agents/sddu.md.hbs | head -n -1) \
+     <(sed -n '/## Skill 发现/,/^## /p' src/templates/agents/sddu-build.md.hbs | head -n -1) \
      && echo "PASS: wording consistency" || echo "WARN: wording difference (needs review)"
 ```
 

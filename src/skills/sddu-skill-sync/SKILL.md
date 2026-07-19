@@ -3,32 +3,51 @@ name: sddu-skill-sync
 description: "当需要将 SDDU Skill 从源目录同步到实际目录时加载。描述同步逻辑：扫描源目录→检测当前 LLM Agent 工具的实际目录路径→全量拷贝+管辖标识标记→清理残留→输出同步报告。适配不同 LLM Agent 工具（OpenCode/Codex/Claude Code 等）。"
 ---
 
-# sddu-skill-sync — SDDU Skill 同步器
+# sddu-skill-sync
 
-## 概述
+## 接口
 
-`sddu-skill-sync` 是 SDDU 框架内置的 Skill，负责将 Skill 从**源目录**（SDDU 管辖）同步到**实际目录**（LLM Agent 工具管辖）。本 Skill 是 SDDU Skill 三元自举闭环（discovery + creator + sync）的同步环节，以 Skill 形式承载同步逻辑——适配不同 LLM Agent 工具时只需更新本 Skill body（Markdown），无需修改安装脚本。
+阅读本章节即可使用本 Skill，无需阅读后续实现细节。
 
-### 何时触发
+### 参数
 
-- 用户说「同步 SDDU Skills」「更新 Skill」「刷新 Skill 列表」等语义
-- 首次安装 SDDU 后需要将框架级 Skill 部署到实际目录
-- 在源目录新增/修改/删除 Skill 后需要同步变更
-- SDDU Agent 在 Stage 1 扫描发现实际目录中无 SDDU Skill 时，自动引导加载本 Skill
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|:--:|------|
+| — | — | — | 无参数——加载本 Skill 即执行同步 |
 
-### 架构背景
+### 返回值
+```
+=== SDDU Skill 同步报告 ===
+同步时间：...
+实际目录：.opencode/skills/
 
-SDDU Skill 采用「源目录 + 实际目录」双层架构：
+新增：N 个（源目录有、实际目录无）
+更新：N 个（源目录版本更新）
+清理：N 个（源目录已删除的残留）
+冲突：N 个（命名冲突，框架级优先覆盖）
+```
 
-| 目录 | 路径 | 用途 |
-|------|------|------|
-| **用户级源目录** | `.sddu/skills/` | 用户手写、编辑、删除的 Skill（受 git 管理） |
-| **框架级源目录** | `.opencode/plugins/sddu/skills/` | SDDU 框架内置 Skill（随插件分发） |
-| **实际目录** | 取决于 LLM Agent 工具（见下文） | LLM Agent 运行时加载 Skill 的路径 |
+可能异常：
 
-SDDU Agent 扫描源目录发现 Skill（流程①），LLM Agent 从实际目录原生发现和加载 Skill（流程②）。两套流程互不影响，本 Skill 负责桥接——将源目录内容同步到实际目录。
+| 情况 | 结果 |
+|------|------|
+| 实际目录无写入权限 | 报告权限不足，建议在 `opencode.json` 中为 `sddu-skill-sync` 设置 `allow` |
+| 无法识别 LLM Agent 工具 | 提示用户手动指定实际目录路径 |
+| 源目录为空 | 报告无操作，跳过 |
 
-## 同步流程
+### 调用示例
+
+```
+用户："同步 SDDU Skills"
+→ 加载本 Skill
+→ 扫描源目录 → 检测实际目录 → 拷贝 → 管辖标识 → 清理 → 输出报告
+```
+
+---
+
+## 操作
+
+> 以下为接口的实现细节——LLM 按 ## 接口 中的参数调用即可。
 
 ### 步骤 1：扫描源目录
 
@@ -207,17 +226,6 @@ SDDU 管辖 Skill 总数：5 个
 
 > **跨 LLM Agent 工具注意事项**：不同 LLM Agent 工具提供的文件操作工具名称和权限模型可能不同（如 OpenCode 使用 `bash` 工具，Claude Code 使用 `Write`/`Edit` 工具）。本 Skill body 使用通用自然语言描述操作意图（如「拷贝文件」「删除目录」），Agent 应根据当前环境自行选择可用的工具执行。如果当前环境缺少必要的文件操作权限，Agent 应在同步报告中说明并建议用户手动授予权限。
 
-## 用户触发示例
-
-以下是可触发本 Skill 的典型用户对话：
-
-- 「同步 SDDU Skills」
-- 「更新所有 Skill 到最新版本」
-- 「把 Skill 同步到 .opencode/skills/」
-- 「刷新 Skill 列表」
-- 「我刚创建了一个新 Skill，帮我同步一下」
-- 「安装完 SDDU 了，同步一下 Skills」
-
 ## 诊断与排错
 
 ### 常见问题
@@ -234,7 +242,7 @@ SDDU 管辖 Skill 总数：5 个
 
 首次安装 SDDU 后，`sddu-skill-sync` 自身位于框架级源目录（`.opencode/plugins/sddu/skills/`），尚未同步到实际目录。此时用户使用 SDDU Agent（如 `@sddu` 或 `@sddu-fast`）时：
 
-1. SDDU Agent 通过模板中的三阶段渐进披露指令，扫描源目录发现 `sddu-skill-sync` 存在
+1. SDDU Agent 通过模板中的 Skill 发现指令，扫描源目录发现 `sddu-skill-sync` 存在
 2. Agent 提示用户：「检测到 SDDU Skill 尚未同步到实际目录，是否需要现在同步？」
 3. 用户确认后，Agent 加载本 Skill 并执行首次同步
 

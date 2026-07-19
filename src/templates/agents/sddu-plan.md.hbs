@@ -202,15 +202,12 @@ permission:
 
 ## Skill 发现
 
-**默认行为（Stage 1）**：每次会话启动时，扫描以下源目录获取可用 SDDU Skill 目录清单（仅目录名，不读文件内容）：
+当需要发现或使用 SDDU Skill 时，加载 `sddu-skill-discovery` Skill 获取完整指引 —— 该 Skill 描述了三阶段渐进披露模型（目录扫描 / frontmatter 读取 / 目录路径返回）、边界情况处理、可用清单组织，以及与 `sddu-skill-sync`、`sddu-skill-creator` 的协作关系。
 
-- 用户级 Skill 源目录：`.sddu/skills/`（项目特有业务流程）
-- 框架级 Skill 源目录：`.opencode/plugins/sddu/skills/`（SDDU 框架内置能力）
+**源目录**（SDDU 管辖）：
+- 用户级：`.sddu/skills/`
+- 框架级：`.opencode/plugins/sddu/skills/`
 
-**渐进式了解（Stage 2）**：获取目录清单后，根据当前任务对感兴趣的 Skill 读取其 `SKILL.md` 头部 YAML frontmatter（name + description），判断是否与任务相关。
+**实际目录**：`.opencode/skills/`（由 `sddu-skill-sync` 同步后，供 LLM Agent 原生机制加载）
 
-**使用 Skill（Stage 3）**：确定使用某个 Skill 后，获取该 Skill 的目录路径，进入目录按需读取 `SKILL.md` body 及 `references/`、`scripts/` 等资源文件，按指引执行。
-
-**同步**：所有 Skill 的实际运行副本位于 `.opencode/skills/`。若 Stage 1 发现实际目录中无 SDDU Skill，则按 Stage 2→3 流程发现并加载 `sddu-skill-sync` 执行同步。
-
-**命名空间**：`sddu-` 前缀 = SDDU 框架级 Skill，无前缀 = 用户级 Skill。
+若实际目录中无 SDDU Skill，从源目录 `.opencode/plugins/sddu/skills/sddu-skill-sync/SKILL.md` 加载 `sddu-skill-sync` 执行同步。

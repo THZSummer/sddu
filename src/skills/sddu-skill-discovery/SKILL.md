@@ -5,105 +5,125 @@ description: "当 SDDU Agent 需要发现可用的 SDDU Skill 时加载此 Skill
 
 # sddu-skill-discovery
 
-> **Skill 类型**：框架级（`sddu-` 前缀）
-> **定位**：用 Skill 发现 Skill — SDDU Agent 发现 SDDU Skill 的统一入口
-> **覆盖范围**：SDDU 源目录扫描流程（流程①），不涉及 LLM Agent 原生发现机制（流程②）
+## 接口
 
-## 核心概念
+阅读本章节即可使用本 Skill，无需阅读后续实现细节。
 
-### 两套发现流程（互不干扰）
+### 参数
 
-| 流程 | 扫描路径 | 用途 | 本 Skill 覆盖？ |
-|------|---------|------|:--:|
-| **流程① — SDDU Agent 发现** | 扫描**源目录** | SDDU Agent 自己管理 Skill 清单，与 LLM Agent 类型解耦 | ✅ 覆盖 |
-| **流程② — LLM Agent 原生发现** | 按 LLM Agent 工具原生逻辑（如 OpenCode 扫描 `.opencode/skills/`） | 用户手动 `@skill` 调用，LLM Agent 按语义匹配自动触发 | ❌ 不覆盖 |
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|:--:|------|
+| `action` | string | ✅ | `"list"` — 获取所有 Skill 目录名（会话初始、需要概览时）<br>`"summary"` — 读取指定 Skill 摘要（用户任务出现、需判断是否匹配时）<br>`"path"` — 获取指定 Skill 路径（确定使用、需加载 body 时） |
+| `name` | string | 条件 | `summary` 和 `path` 需要——Skill 目录名 |
 
-### 源目录（SDDU 管辖，本 Skill 的扫描范围）
+### 返回值
 
-| 层级 | 路径 | 维护者 |
-|------|------|--------|
-| 用户级 Skills | `.sddu/skills/` | 用户手写、编辑、删除 |
-| 框架级 Skills | `.opencode/plugins/sddu/skills/` | SDDU 框架，随插件分发 |
-
-### 命名空间规则
-
-- **`sddu-` 前缀**：框架级 Skill（如 `sddu-skill-creator`、`sddu-skill-sync`）
-- **无前缀**：用户级 Skill（如 `payment-integration`、`db-migration`）
-- 用户级 Skill **不应**使用 `sddu-` 前缀——该前缀为框架保留
-
-## 三阶段渐进披露模型
-
-本 Skill 采用三阶段渐进披露模型，确保 Agent 在 Skill 发现过程中最小化 context 消耗：
-
-### Stage 1 — 目录扫描（默认执行，零成本）
-
-**触发条件**：始终执行（Agent 会话启动时自动执行）
-
-**动作**：使用文件系统工具（如 `ls`、`readdir`）扫描以下两个源目录，仅获取**目录名**列表，不读取任何文件内容：
-
-- **用户级源目录**：`.sddu/skills/`
-- **框架级源目录**：`.opencode/plugins/sddu/skills/`
-
-**输出格式**：纯目录名列表，示例：
-
+**action = "list"** — 列出所有可用 Skill 目录名：
 ```
-sddu-skill-discovery/
-sddu-skill-creator/
-sddu-skill-sync/
-payment-integration/
-db-migration/
+["sddu-skill-discovery", "sddu-skill-creator", "sddu-skill-sync", "payment-integration"]
+```
+- 扫描 `.sddu/skills/`（用户级）+ `.opencode/plugins/sddu/skills/`（框架级）
+- 仅返回符合 `^[a-z0-9]+(-[a-z0-9]+)*$` 的目录名
+- 源目录不存在时跳过，不报错
+
+**action = "summary"** — 读取指定 Skill 的摘要信息：
+```
+{ "name": "payment-integration", "description": "...", "level": "user", "source": ".sddu/skills/payment-integration/" }
 ```
 
-**识别规则**：
-- 只列出符合命名规范（`^[a-z0-9]+(-[a-z0-9]+)*$`）的子目录
-- 不在此阶段判断目录是否包含有效的 `SKILL.md`（留给 Stage 2）
-- 不读取任何文件内容
+| 异常 | 返回值 |
+|------|--------|
+| 目录无 SKILL.md | `{ "error": "invalid", "reason": "missing SKILL.md" }` |
+| frontmatter 缺少必填字段 | `{ "error": "malformed", "reason": "missing name/description" }` |
 
-**成本**：~0 tokens（仅目录名，不读文件内容）
+**action = "path"** — 获取指定 Skill 的目录路径：
+```
+{ "path": ".sddu/skills/payment-integration/", "level": "user" }
+```
+- 拿到路径后 Agent 自行进入目录，按需读取 SKILL.md body 及 references/、scripts/ 等资源
 
-### Stage 2 — frontmatter 读取（按兴趣触发）
+### 调用示例
 
-**触发条件**：Agent 根据当前任务语义，对 Stage 1 获得的目录名清单中的某个 Skill 产生兴趣时触发
+```
+{ action: "list" }
+→ ["sddu-skill-discovery", "sddu-skill-creator", ...]
 
-**动作**：
-1. 进入感兴趣的 Skill 目录
-2. 验证该目录存在 `SKILL.md` 文件（不存在则标记为无效 Skill，从清单中移除）
-3. 读取 `SKILL.md` 的 YAML frontmatter，解析以下两个必填字段：
-   - `name`：Skill 名称（1-64 字符，`^[a-z0-9]+(-[a-z0-9]+)*$`）
-   - `description`：Skill 描述（1-1024 字符，描述何时触发、做什么）
+{ action: "summary", name: "payment-integration" }
+→ { name: "...", description: "...", level: "user", ... }
+或 → { error: "invalid", reason: "missing SKILL.md" }
 
-**输出**：每个感兴趣 Skill 的 name + description
+{ action: "path", name: "payment-integration" }
+→ { path: ".sddu/skills/payment-integration/", level: "user" }
+```
 
-**有效性判断**：
-- 目录包含 `SKILL.md` 且 frontmatter 含 `name` 和 `description` → 有效 Skill
-- 目录存在但无 `SKILL.md` → 忽略（不完整 Skill，不纳入可用清单）
-- `SKILL.md` 存在但 frontmatter 缺失必填字段 → 标记为格式错误，不纳入可用清单
+### 冷启动
 
-**命名空间判断**（基于 `name` 字段）：
-- `name` 以 `sddu-` 开头 → 框架级 Skill
-- `name` 不以 `sddu-` 开头 → 用户级 Skill
+若 `{ action: "list" }` 结果包含 `sddu-skill-sync` 但实际目录 `.opencode/skills/` 为空——从源目录 `.opencode/plugins/sddu/skills/sddu-skill-sync/SKILL.md` 加载 `sddu-skill-sync` 执行同步。
 
-**成本**：~100 tokens/skill（仅 frontmatter 的 name + description）
+---
 
-### Stage 3 — 目录路径返回（按需加载）
+## 操作
 
-**触发条件**：Agent 确定使用某个 Skill 时触发
+> 以下为接口的实现细节——LLM 按 ## 接口 中的参数调用即可，无需阅读本节。
 
-**动作**：
-1. 返回该 Skill 的**目录路径**（如 `.opencode/plugins/sddu/skills/sddu-skill-creator/`）
-2. Agent 自行进入该目录，按需读取以下资源：
-   - `SKILL.md` — 完整 Skill body
-   - `references/` — 参考文档（如存在）
-   - `scripts/` — 可执行脚本（如存在）
-   - `assets/` — 静态资源（如存在）
+### 操作 1：列出所有 Skill
 
-**输出**：Skill 目录路径
+**入参**：无
 
-**成本**：0（路径引用，不占 context）— Agent 后续按需读取的内容由 Agent 自行控制 context 消耗
+**出参**：
+```
+["sddu-skill-discovery", "sddu-skill-creator", "sddu-skill-sync", "payment-integration"]
+```
+
+**规则**：
+- 扫描 `.sddu/skills/`（用户级）和 `.opencode/plugins/sddu/skills/`（框架级）
+- 仅返回符合 `^[a-z0-9]+(-[a-z0-9]+)*$` 的目录名
+- 不判断目录内是否有有效 SKILL.md（交给操作 2）
+- 源目录不存在时跳过，不报错
+
+**开销**：低（`ls` 目录，不读文件内容）
+
+### 操作 2：读取 Skill 摘要
+
+**入参**：Skill 目录名（字符串，如 `payment-integration`）
+
+**出参**：
+```
+{ "name": "payment-integration", "description": "当用户需要接入支付渠道时...", "level": "user", "source": ".sddu/skills/payment-integration/" }
+```
+
+**规则**：
+- 在源目录中定位 `<name>/SKILL.md`，仅解析 frontmatter 的 `name` 和 `description`
+- `level` 判断：`name` 以 `sddu-` 开头 → `"framework"`，否则 → `"user"`
+- 可在操作 1 的结果上批量调用
+
+**异常**：
+
+| 情况 | 返回 |
+|------|------|
+| 目录无 SKILL.md | `{ "error": "invalid", "reason": "missing SKILL.md" }` |
+| frontmatter 缺失必填字段 | `{ "error": "malformed", "reason": "missing name/description" }` |
+
+**开销**：~100 tokens（仅 frontmatter）
+
+### 操作 3：获取 Skill 路径
+
+**入参**：Skill 目录名（字符串）
+
+**出参**：
+```
+{ "path": ".sddu/skills/payment-integration/", "level": "user" }
+```
+
+**后续**：Agent 自行进入该路径，按需读取 SKILL.md body 及 references/、scripts/ 等子目录。
+
+**开销**：无（路径拼接，零 token）
+
+---
 
 ## 可用 Skill 清单组织
 
-完成三阶段扫描后，Agent 应维护如下结构的可用 Skill 清单（内部变量，不输出给用户）：
+完成三轮操作后，Agent 应维护如下结构的可用 Skill 清单（内部变量，不输出给用户）：
 
 ```yaml
 framework_skills:                    # 框架级 Skill（sddu- 前缀）
@@ -128,16 +148,37 @@ invalid_skills:                      # 无效 Skill（供诊断参考）
     source: ".sddu/skills/broken-skill/"
 ```
 
+## 核心概念
+
+### 源目录
+
+| 层级 | 路径 | 维护者 |
+|------|------|--------|
+| 用户级 Skills | `.sddu/skills/` | 用户手写、编辑、删除 |
+| 框架级 Skills | `.opencode/plugins/sddu/skills/` | SDDU 框架，随插件分发 |
+
+### 命名空间规则
+
+- **`sddu-` 前缀**：框架级 Skill（基于 SKILL.md 的 `name` 字段判断）
+- **无前缀**：用户级 Skill
+- 用户级 Skill 不得使用 `sddu-` 前缀——该前缀为框架保留
+
+### 两套发现流程（互不干扰）
+
+- **流程①（本 Skill 覆盖）**：SDDU Agent 扫描源目录，管理自有 Skill 清单——与 LLM Agent 类型解耦
+- **流程②（不覆盖）**：LLM Agent 按原生逻辑扫描实际目录（`.opencode/skills/`），自动发现和加载
+
 ## 边界情况处理
 
 | 场景 | 处理方式 |
 |------|---------|
 | 源目录不存在（如用户未创建 `.sddu/skills/`） | 跳过该源目录，不报错——继续扫描其他源目录 |
-| Stage 2 发现 `SKILL.md` 格式错误（frontmatter 缺失必填字段） | 标记为无效 Skill，从可用清单中移除 |
-| Stage 1 目录名不符合命名规范（如包含大写字母或特殊字符） | 排除该目录，不进入 Stage 2 |
+| 操作 2 返回异常（frontmatter 缺失必填字段） | 将该项从可用清单中移除，归入 `invalid_skills` |
+| 操作 1 过滤：目录名不符合命名规范（如包含大写字母或特殊字符） | 排除该目录，不进入操作 2 |
+| 操作 2 返回异常（目录无 SKILL.md） | 将该项归入 `invalid_skills`，reason = "missing SKILL.md" |
 | 用户级 Skill 使用了 `sddu-` 前缀命名 | 标记警告——该类 Skill 视为命名不规范的用户级 Skill，同步时可能被框架级版本覆盖 |
 | 框架级 Skill 和用户级 Skill 非前缀部分重名 | 两个 Skill 均纳入可用清单——框架级优先规则由 `sddu-skill-sync` 在同步时执行，本 Skill 仅负责发现和报告 |
-| 某个源目录下存在非 Skill 的子目录或文件 | 忽略非目录项。对子目录按 Stage 2 流程判断有效性 |
+| 某个源目录下存在非 Skill 的子目录或文件 | 忽略非目录项。对子目录执行操作 2 判断有效性 |
 
 ## 与 sddu-skill-sync 的关系
 
@@ -145,16 +186,16 @@ invalid_skills:                      # 无效 Skill（供诊断参考）
 
 同步操作由框架级 Skill `sddu-skill-sync` 负责——将源目录的 Skill 同步到 LLM Agent 实际目录（如 `.opencode/skills/`），使 LLM Agent 原生机制可以加载这些 Skill。
 
-当本 Skill 发现源目录中存在 `sddu-skill-sync` 而实际目录中缺少 SDDU Skill 时，Agent 应加载 `sddu-skill-sync` Skill 执行同步。
+当本 Skill 发现源目录中存在 `sddu-skill-sync` 而实际目录中缺少 SDDU Skill 时，Agent 应从源目录 `.opencode/plugins/sddu/skills/sddu-skill-sync/SKILL.md` 直接读取 `sddu-skill-sync` 的 Skill body 并按其指引执行同步。注意：冷启动时 `skill()` 工具只能加载实际目录中已存在的 Skill，必须从源目录路径直接读取。
 
 ## 与 sddu-skill-creator 的关系
 
 本 Skill（`sddu-skill-discovery`）负责**发现**已有 Skill，`sddu-skill-creator` 负责**创建**新 Skill。
 
 当用户请求创建新 Skill 时，Agent 应：
-1. 使用本 Skill 完成 Stage 1→2 扫描，获取已有 Skill 清单
+1. 使用操作 1 + 操作 2 获取已有 Skill 清单
 2. 将清单传递给 `sddu-skill-creator`，供其做 description 交叉冲突检查
-3. 新 Skill 创建后，重新执行 Stage 1→2 更新可用清单
+3. 新 Skill 创建后，重新执行操作 1 + 操作 2 更新可用清单
 
 ## 自举闭环中的地位
 
