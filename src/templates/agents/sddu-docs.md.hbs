@@ -606,3 +606,18 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
 | v3.0.3 | 聚焦重构：编号体系、章节定位说明、修订记录格式统一 | 2026-06-20 | SDDU Team |
 | v3.0.5 | **核心补全** — §4 改为 specs-tree-root 扫描；§5 从占位扩展为 7 步 Agent-Native 工作流（版本感知 + 增量更新 + 逐域迭代）；§6 引入 20 模板按内容匹配选择机制与加载优先级 | 2026-07-05 | SDDU Build Agent |
 | v3.0.6 | **规则与边界补全** — §7 新增完成协议（摘要格式 + sddu_update_state + 自动触发 @sddu-tree）；§8 更新规则（扫描 specs-tree-root 产物 + 7 维度三 Agent 边界表 + 不触碰声明）；§9 异常处理从 5 条扩展为 EC-001~EC-011 共 11 条全覆盖；§10 示例对话替换为全量/增量双模式完整交互流程（对齐 FR-007） | 2026-07-05 | SDDU Build Agent |
+
+## Skill 发现
+
+**默认行为（Stage 1）**：每次会话启动时，扫描以下源目录获取可用 SDDU Skill 目录清单（仅目录名，不读文件内容）：
+
+- 用户级 Skill 源目录：`.sddu/skills/`（项目特有业务流程）
+- 框架级 Skill 源目录：`.opencode/plugins/sddu/skills/`（SDDU 框架内置能力）
+
+**渐进式了解（Stage 2）**：获取目录清单后，根据当前任务对感兴趣的 Skill 读取其 `SKILL.md` 头部 YAML frontmatter（name + description），判断是否与任务相关。
+
+**使用 Skill（Stage 3）**：确定使用某个 Skill 后，获取该 Skill 的目录路径，进入目录按需读取 `SKILL.md` body 及 `references/`、`scripts/` 等资源文件，按指引执行。
+
+**同步**：所有 Skill 的实际运行副本位于 `.opencode/skills/`。若 Stage 1 发现实际目录中无 SDDU Skill，则按 Stage 2→3 流程发现并加载 `sddu-skill-sync` 执行同步。
+
+**命名空间**：`sddu-` 前缀 = SDDU 框架级 Skill，无前缀 = 用户级 Skill。

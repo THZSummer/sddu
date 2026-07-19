@@ -61,12 +61,14 @@ description 字段明确标注「仅覆盖 SDDU 源目录扫描（流程①）�
 | NEW | `src/skills/sddu-skill-discovery/SKILL.md` |
 
 **验收标准**:
-- [ ] SKILL.md 存在于 `src/skills/sddu-skill-discovery/` 目录下
-- [ ] frontmatter 包含 name: `sddu-skill-discovery` 和 description（明确标注仅覆盖流程①）
-- [ ] body 明确描述三阶段渐进披露流程
-- [ ] body 包含两个源目录路径：`.sddu/skills/`（用户级）、`.opencode/plugins/sddu/skills/`（框架级）
-- [ ] body 描述命名空间规则：`sddu-` 前缀 = 框架级，无前缀 = 用户级
-- [ ] body 不超过 500 行（NFR-006）
+- [x] SKILL.md 存在于 `src/skills/sddu-skill-discovery/` 目录下
+- [x] frontmatter 包含 name: `sddu-skill-discovery` 和 description（明确标注仅覆盖流程①）
+- [x] body 明确描述三阶段渐进披露流程
+- [x] body 包含两个源目录路径：`.sddu/skills/`（用户级）、`.opencode/plugins/sddu/skills/`（框架级）
+- [x] body 描述命名空间规则：`sddu-` 前缀 = 框架级，无前缀 = 用户级
+- [x] body 不超过 500 行（NFR-006）
+
+**状态**: ✅ completed (2026-07-19)
 
 **验证命令**:
 ```bash
@@ -117,13 +119,13 @@ LINES=$(wc -l < src/skills/sddu-skill-discovery/SKILL.md); [ "$LINES" -le 500 ] 
 | NEW | `src/skills/sddu-skill-creator/SKILL.md` |
 
 **验收标准**:
-- [ ] SKILL.md 存在于 `src/skills/sddu-skill-creator/` 目录下
-- [ ] frontmatter 包含 name: `sddu-skill-creator` 和触发级 description
-- [ ] body 包含 5 步对话式引导工作流（用途→description→body→输出→测试）
-- [ ] body 包含 description 撰写指导（2-3 候选方案、避免重叠、自然语言）
-- [ ] body 包含 Progressive Disclosure 原则说明
-- [ ] body 包含自举闭环说明（用户级 vs 框架级产出路径差异）
-- [ ] body 不超过 500 行（NFR-006）
+- [x] SKILL.md 存在于 `src/skills/sddu-skill-creator/` 目录下
+- [x] frontmatter 包含 name: `sddu-skill-creator` 和触发级 description
+- [x] body 包含 5 步对话式引导工作流（用途→description→body→输出→测试）
+- [x] body 包含 description 撰写指导（2-3 候选方案、避免重叠、自然语言）
+- [x] body 包含 Progressive Disclosure 原则说明
+- [x] body 包含自举闭环说明（用户级 vs 框架级产出路径差异）
+- [x] body 不超过 500 行（NFR-006）✅ 244 行
 
 **验证命令**:
 ```bash
@@ -145,7 +147,7 @@ LINES=$(wc -l < src/skills/sddu-skill-creator/SKILL.md); [ "$LINES" -le 500 ] &&
 
 ---
 
-### TASK-003: 创建 sddu-skill-sync SKILL.md（源→实际目录同步逻辑）
+### TASK-003: 创建 sddu-skill-sync SKILL.md（源→实际目录同步逻辑） ✅ completed
 > 框架级 Skill 之三——用 Skill 实现按需同步，完成三元自举闭环
 
 | 属性 | 值 |
@@ -171,14 +173,14 @@ LINES=$(wc -l < src/skills/sddu-skill-creator/SKILL.md); [ "$LINES" -le 500 ] &&
 | NEW | `src/skills/sddu-skill-sync/SKILL.md` |
 
 **验收标准**:
-- [ ] SKILL.md 存在于 `src/skills/sddu-skill-sync/` 目录下
-- [ ] frontmatter 包含 name: `sddu-skill-sync` 和触发级 description
-- [ ] body 包含 5 步同步流程（a-e 全部覆盖）
-- [ ] body 描述管辖标识机制（`.sddu-manifest.txt`）
-- [ ] body 描述命名冲突处理（框架级优先）
-- [ ] body 描述实际目录路径检测（通用措辞，非硬编码）
-- [ ] body 包含用户触发语义示例（如「同步 SDDU Skills」）
-- [ ] body 不超过 500 行（NFR-006）
+- [x] SKILL.md 存在于 `src/skills/sddu-skill-sync/` 目录下
+- [x] frontmatter 包含 name: `sddu-skill-sync` 和触发级 description
+- [x] body 包含 5 步同步流程（a-e 全部覆盖）
+- [x] body 描述管辖标识机制（`.sddu-manifest.txt`）
+- [x] body 描述命名冲突处理（框架级优先）
+- [x] body 描述实际目录路径检测（通用措辞，非硬编码）
+- [x] body 包含用户触发语义示例（如「同步 SDDU Skills」）
+- [x] body 不超过 500 行（NFR-006）
 
 **验证命令**:
 ```bash
@@ -333,11 +335,13 @@ if (await fs.pathExists(skillsSourceDir)) {
 |:--:|------|
 | MODIFY | `scripts/package.cjs` |
 
+**状态**: ✅ completed (2026-07-19)
+
 **验收标准**:
-- [ ] package.cjs 新增约 10 行拷贝逻辑
-- [ ] 拷贝源为 `src/skills/`，目标为 `dist/sddu/skills/`
-- [ ] 不破坏现有构建流程（clean → install → build → package 完整链路可执行）
-- [ ] 构建完成后 `dist/sddu/skills/` 包含 3 个 Skill 目录
+- [x] package.cjs 新增约 10 行拷贝逻辑
+- [x] 拷贝源为 `src/skills/`，目标为 `dist/sddu/skills/`
+- [x] 不破坏现有构建流程（clean → install → build → package 完整链路可执行）
+- [x] 构建完成后 `dist/sddu/skills/` 包含 3 个 Skill 目录
 
 **验证命令**:
 ```bash
@@ -408,6 +412,8 @@ grep -n '"skill".*false' src/adapters/opencode/templates/opencode.json.hbs && ec
 | **执行波次** | 3 |
 | **对应 FR** | FR-020, G-009 |
 
+**状态**: ✅ completed (2026-07-19)
+
 **描述**:
 修改 `install.sh` 两个位置：
 
@@ -439,11 +445,11 @@ print_color "${GREEN}[OK] 提示：SDDU Skills（发现/创建/同步）安装�
 | MODIFY | `install.sh` |
 
 **验收标准**:
-- [ ] Step 4 创建 `.sddu/skills/` 空目录（`mkdir -p`，不报错）
-- [ ] Step 8 打印同步提示（「运行 @sddu 同步 SDDU Skills」）
-- [ ] Step 5 继续拷贝框架源到 `.opencode/plugins/sddu/`（不受影响）
-- [ ] install.sh 中不存在旧的 Skill 拷贝逻辑（如 `cp .../skills/`）
-- [ ] 执行 install.sh 后 `.opencode/skills/` 为空或仅有用户手动放置的 Skill
+- [x] Step 4 创建 `.sddu/skills/` 空目录（`mkdir -p`，不报错）
+- [x] Step 8 打印同步提示（「运行 @sddu 同步 SDDU Skills」）
+- [x] Step 5 继续拷贝框架源到 `.opencode/plugins/sddu/`（不受影响）
+- [x] install.sh 中不存在旧的 Skill 拷贝逻辑（如 `cp .../skills/`）
+- [x] 执行 install.sh 后 `.opencode/skills/` 为空或仅有用户手动放置的 Skill
 
 **验证命令**:
 ```bash
@@ -490,13 +496,15 @@ grep -n "cp.*skills\|copy.*skills\|拷贝.*skill" install.sh && echo "WARN: foun
 |:--:|------|
 | MODIFY | `README.md` |
 
+**状态**: ✅ completed (2026-07-19)
+
 **验收标准**:
-- [ ] README.md 新增 Skill 系统章节（`## 🧩 Skill 系统`）
-- [ ] 章节包含三元自举闭环说明（discovery + creator + sync）
-- [ ] 章节包含双层架构和两套发现流程说明
-- [ ] 章节包含「同步 SDDU Skills」使用提示
-- [ ] 安装指南部分包含首次同步提示
-- [ ] 不破坏现有 README.md 结构和章节组织
+- [x] README.md 新增 Skill 系统章节（`## 🧩 Skill 系统`）
+- [x] 章节包含三元自举闭环说明（discovery + creator + sync）
+- [x] 章节包含双层架构和两套发现流程说明
+- [x] 章节包含「同步 SDDU Skills」使用提示
+- [x] 安装指南部分包含首次同步提示
+- [x] 不破坏现有 README.md 结构和章节组织
 
 **验证命令**:
 ```bash
@@ -546,12 +554,14 @@ grep -q "同步.*sddu-skill-sync" README.md && echo "PASS: sync hint" || echo "F
 > 本任务不修改文件 — 仅运行构建命令并验证产出
 
 **验收标准**:
-- [ ] `npm run build` 执行成功（exit code 0）
-- [ ] `npm run package` 执行成功（exit code 0）
-- [ ] `dist/sddu/skills/` 包含 3 个 Skill 目录
-- [ ] `dist/sddu/agents/` 中 12 个 Agent 全部含 Skill 发现章节
-- [ ] `dist/sddu/opencode.json` permission.skill = "allow"
-- [ ] 构建过程无 error/warning
+- [x] `npm run build` 执行成功（exit code 0）
+- [x] `npm run package` 执行成功（exit code 0）
+- [x] `dist/sddu/skills/` 包含 3 个 Skill 目录
+- [x] `dist/sddu/agents/` 中 12 个 Agent 全部含 Skill 发现章节
+- [x] `dist/sddu/opencode.json` permission.skill = "allow"
+- [x] 构建过程无 error/warning
+
+**状态**: ✅ completed (2026-07-19)
 
 **验证命令**:
 ```bash

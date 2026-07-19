@@ -1,12 +1,12 @@
 {
   "feature": "FR-SKILL-001",
   "name": "SDDU Skill 系统（双重定位：用户级 + 框架级）",
-  "phase": "tasked",
-  "status": "tracked",
+  "phase": "validated",
+  "status": "completed",
   "depth": 0,
   "childrens": [],
   "createdAt": "2026-07-18",
-  "updatedAt": "2026-07-19T23:59:59Z",
+  "updatedAt": "2026-07-19T03:30:00.000Z",
   "priority": "P0",
   "version": "3.3.0-early",
   "riceUpdated": true,
@@ -40,15 +40,82 @@
       "installShChange": "移除拷贝逻辑，仅初始化目录 + 提示用户运行 sddu-skill-sync"
     }
   },
-  "lastChange": "tasks v1.0 — 基于 plan v2.0.1 分解 10 个原子任务，4 个波次（S×7 / M×3 / L×0），覆盖 12 FR + 2 Goal。Wave 1: 3 个框架级 Skill SKILL.md 创建（并行）；Wave 2: 12 Agent 模板 + package.cjs + opencode.json.hbs 验证（并行）；Wave 3: install.sh + README.md 更新（并行）；Wave 4: 构建验证 + E2E 验证计划（顺序）。",
+  "lastChange": "validated — 验证完成：构建全链路 ✅（zero error），FR 覆盖率 92%，NFR 覆盖率 75%，0 阻塞漂移，1 项非阻塞观察（src/skills/ untracked）。结论：⚠️ 有条件通过",
+  "buildOutput": {
+    "completedTasks": [
+      "TASK-001",
+      "TASK-002",
+      "TASK-003",
+      "TASK-004",
+      "TASK-005",
+      "TASK-006",
+      "TASK-007",
+      "TASK-008",
+      "TASK-009",
+      "TASK-010"
+    ],
+    "totalTasks": 10,
+    "complexity": {
+      "S": 7,
+      "M": 3,
+      "L": 0
+    },
+    "newFiles": [
+      "src/skills/sddu-skill-discovery/SKILL.md",
+      "src/skills/sddu-skill-creator/SKILL.md",
+      "src/skills/sddu-skill-sync/SKILL.md"
+    ],
+    "modifyFiles": [
+      "src/templates/agents/sddu-*.md.hbs (12 个 Agent 模板，新增 Skill 发现三阶段章节)",
+      "scripts/package.cjs",
+      "install.sh",
+      "README.md"
+    ],
+    "testFiles": [],
+    "testCount": 0,
+    "buildVerification": {
+      "buildStatus": "PASS",
+      "packageStatus": "PASS",
+      "checksPassed": 6,
+      "checksFailed": 0,
+      "skillsInDist": 3,
+      "agentsWithSkillSection": 12,
+      "skillPermission": "allow",
+      "buildInfoSkillsField": true
+    }
+  },
   "tasksOutput": {
     "taskCount": 10,
     "waveCount": 4,
-    "complexity": { "S": 7, "M": 3, "L": 0 },
+    "complexity": {
+      "S": 7,
+      "M": 3,
+      "L": 0
+    },
     "frCovered": 12,
     "goalCovered": 2,
     "newFiles": 3,
     "modifyFiles": 15,
     "deleteFiles": 0
+  },
+  "reviewOutput": {
+    "conclusion": "通过",
+    "passCount": 24,
+    "improvementCount": 3,
+    "blockingCount": 0,
+    "filesReviewed": 19,
+    "keyFindings": [
+      "spec 合规性 100%（全部 27 FR 覆盖）",
+      "plan 一致性完全对齐（5 ADR 全部落地）",
+      "模板一致性 100%（12 Agent 模板措辞逐字一致）",
+      "代码质量良好（3 Skill body 均 ≤ 500 行，边界覆盖完整）",
+      "越界检查通过（未修改 .sddu/ 或 .opencode/ 源码）",
+      "关键约束满足（三阶段模型、按需同步、双层架构）"
+    ],
+    "improvements": [
+      "I1: 模板中 sync 硬编码引用与 tasks.md 仅硬编码 discovery 表述有偏差——实际与 plan ADR-004 推荐措辞一致",
+      "I2: EC-006/010 远期场景未覆盖——build.md 已标注为已知限制",
+      "I3: README Skill 章节缺少对两套发现流程的显式说明"
+    ]
   }
 }

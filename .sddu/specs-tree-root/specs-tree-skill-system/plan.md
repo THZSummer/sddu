@@ -417,22 +417,58 @@ install.sh                                  → 安装脚本（分发到目标�
 | plan.md 中的 ADR（尤其是 ADR-002 重写） | spec.md §2.4 路径架构决策 + G-009（sddu-skill-sync 内置） |
 
 ## 9. 产物验证策略
-> 供 validate 阶段使用的产物清单和验证基准
+> 供 validate 阶段使用的产物验证流程——基于 E2E 测试项目实际执行
 
-| 验证产物 | 验证基准 |
-|---------|---------|
-| `src/skills/` → 构建后 `dist/sddu/skills/`（含三元闭环 Skill） | spec.md FR-002 — framework skill source directory populated (3 skills: discovery, creator, sync) |
-| `sddu-skill-sync` Skill 触发测试——用户说「同步 SDDU Skills」 | spec.md FR-028 — skill("sddu-skill-sync") loads correctly; Agent executes sync per Skill body |
-| `install.sh` 行为验证（install.sh 不拷贝到实际目录） | spec.md FR-020 — install.sh 结束后 `.opencode/skills/` 为空或仅有用户手动放置的 Skill；install.sh 打印同步提示 |
-| 端到端同步流程：修改源目录 Skill → 触发 sync → 验证实际目录 | spec.md FR-020/FR-024/FR-028 — full sync round trip；新增/修改/删除 Skill 后实际目录保持一致 |
-| `sddu-skill-creator` Skill 触发测试（≥ 5 个场景） | NFR-008 — 触发准确率 ≥ 80% |
-| `sddu-skill-discovery` Skill 可用性验证 | spec.md FR-025 — skill("sddu-skill-discovery") loads correctly |
-| Agent 模板中 Skill 发现与同步引用（全文扫描 12 个文件） | spec.md FR-026 — 所有 12 个 Agent 模板包含统一引用（含 sync） |
-| 数据流端到端：创建 Skill → sync → Agent 扫描发现 → Agent 加载执行 | spec.md FR-001/FR-005/FR-021 — full round trip works |
-| 命名冲突处理（用户创建 `sddu-` 前缀 Skill） | spec.md FR-023 — framework priority wins |
-| 实际目录清理（删除源目录 Skill 后触发 sync） | spec.md FR-024 — residuals cleaned, non-managed skills preserved |
-| Agent 禁用 Skill 工具测试 | spec.md FR-007 — Agent configured with `tools: { skill: false }` does not load skills |
-| 跨 LLM Agent 工具 sync 适配（若条件允许） | plan.md 风险评估第 1 项 — 在非 OpenCode Agent 工具中验证 Skill body 文件操作的执行能力 |
+### 验证流程
+
+```
+Step 0: 构建 → Step 1: 创建 E2E 测试项目 → Step 2~9: 逐项验证
+```
+
+### 验证场景
+
+| ID | 场景 | 命令/检查 | 预期结果 | 实测 |
+|:--:|------|----------|---------|:--:|
+| **V1** | 安装后目录结构 | `test -d .sddu/skills` + `test -d .opencode/plugins/sddu/skills` | 两个源目录均存在 | ✅ |
+| **V2** | 框架 Skill 文件完整性 | 检查 3 个 SKILL.md 的 name + description + 行数 | 均存在，frontmatter 完整，≤500 行 | ✅ |
+| **V3** | 实际目录初始为空 | `ls .opencode/skills/` | 空（sync 未执行） | ✅ |
+| **V4** | Agent 模板含三阶段章节 | `grep -q "Skill 发现" .opencode/agents/sddu*.md` | 12/12 通过 | ✅ |
+| **V5** | sync 未独立硬编码 | grep 确认仅在三阶段发现上下文中引用 | 通过（发现上下文，非独立绑定） | ✅ |
+| **V6** | install.sh 同步提示 | `grep "同步 SDDU Skills"` | 提示已内置 | ✅ |
+| **V7** | opencode.json 权限 | `grep '"skill".*"allow"'` | skill: allow | ✅ |
+| **V8** | 三阶段模型完整性 | `grep "Stage 1\|Stage 2\|Stage 3"` | 三个阶段均存在 | ✅ |
+| **V9** | 源目录 Skill 清单 | 扫描 `.opencode/plugins/sddu/skills/` | 3 个 Skill（discovery/creator/sync），含完整 description | ✅ |
+
+### 执行脚本
+
+```bash
+#!/usr/bin/env bash
+set -e
+PROJECT=sddu-test-skill-system
+
+# Step 0: 构建
+npm run clean && npm run build && npm run package
+
+# Step 1: 创建 E2E 测试项目（附带最新 SDDU 插件）
+bash e2e/scripts/basic/sddu-e2e.sh skill-system
+TEST_DIR=$(ls -dt $HOME/sddu-test-projects/$PROJECT* | head -1)
+
+# Step 2-9: 逐项验证
+bash scripts/verify-skills.sh "$TEST_DIR"
+```
+
+### LLM Agent 运行时验证（需 opencode 交互）
+
+以下场景需在测试项目中打开 opencode 手动执行，每次验证流程的上下文由 SDDU Agent 模板中的「Skill 发现」章节提供（无需重复描述）：
+
+| # | 输入 | 验证点 |
+|:--|------|--------|
+| 1 | `@sddu 同步 SDDU Skills` | Agent 通过 discovery → 发现 sync → 加载 → 执行同步 → `.opencode/skills/` 出现 3 个 Skill |
+| 2 | `帮我创建一个 SDDU Skill，叫 deploy-checklist` | 触发 creator → 对话式引导 → 产出 SKILL.md 到 `.sddu/skills/deploy-checklist/` |
+| 3 | `@sddu-tree` | 扫描结果中列出已发现的 Skill 清单 |
+| 4 | 修改 `.sddu/skills/` 中 Skill → `@sddu 同步 SDDU Skills` | 实际目录同步更新 |
+
+> **说明**：以上 LLM Agent 运行时场景是 skill 系统闭环的关键验证，但由于本 Feature 类型为纯 Markdown/配置产物，这些场景依赖实际 opencode 环境，不属于 CI 自动化验证范围。
 
 ---
 

@@ -287,6 +287,34 @@ bash e2e/scripts/fullstack/sddu-e2e-fullstack.sh
 
 ---
 
+## 🧩 Skill 系统
+
+SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 能力扩展的核心路径。
+
+### 三元自举闭环
+
+| Skill | 职责 |
+|-------|------|
+| `sddu-skill-discovery` | 发现 Skill — 三阶段渐进披露模型 |
+| `sddu-skill-creator` | 创建 Skill — 对话式引导工作流 |
+| `sddu-skill-sync` | 同步 Skill — 源目录到实际目录 |
+
+### Skill 存放
+
+| 层级 | 源目录 | 说明 |
+|------|--------|------|
+| 用户级 | `.sddu/skills/` | 项目特有业务流程，git 管理 |
+| 框架级 | `.opencode/plugins/sddu/skills/` | SDDU 内置，随插件分发 |
+| 实际运行 | `.opencode/skills/` | 通过 sddu-skill-sync 同步 |
+
+### 使用方式
+
+- 用户级 Skill：在 `.sddu/skills/` 下手写 SKILL.md，Agent 自动发现
+- 框架级 Skill：安装即就绪，通过 `sddu-skill-sync` 同步到实际目录
+- 创建新 Skill：加载 `sddu-skill-creator` Skill，对话式引导创建
+
+---
+
 ## 📋 版本历史
 
 | 版本 | 日期 | 说明 |

@@ -193,6 +193,15 @@ async function packageSingleVersion(distDir, version, packageName) {
     throw new Error('opencode.json 模板文件不存在');
   }
   
+  // 5.5. 复制 Skill 源文件到构建产物
+  const skillsSourceDir = path.join(__dirname, '..', 'src', 'skills');
+  const skillsTargetDir = path.join(distDir, 'skills');
+  if (await fs.pathExists(skillsSourceDir)) {
+    await fs.ensureDir(skillsTargetDir);
+    await fs.copy(skillsSourceDir, skillsTargetDir);
+    console.log('🔄 复制 Skill 源文件到 dist/sddu/skills/ ...');
+  }
+  
   // 6. 创建打包信息文件
   const packageInfo = {
     version: require('../package.json').version,
@@ -203,6 +212,7 @@ async function packageSingleVersion(distDir, version, packageName) {
     sourceDirStructure: {
       src: await fs.pathExists(path.join(distDir, 'src')),
       agents: await fs.pathExists(path.join(distDir, 'agents')),
+      skills: await fs.pathExists(path.join(distDir, 'skills')),
       packageJson: await fs.pathExists(path.join(distDir, 'package.json')),
       opencodeJson: await fs.pathExists(path.join(distDir, 'opencode.json'))
     }

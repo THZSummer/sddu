@@ -201,7 +201,7 @@ fi
 print_color "${CYAN}[4/${TOTAL_STEPS}] Creating SDDU directories...${NC}"
 
 # Support only SDDU directory structure for new installations
-for dir in "${TARGET_DIR}/.opencode/plugins/sddu" "${TARGET_DIR}/.opencode/agents" "${TARGET_DIR}/.sddu" "${TARGET_DIR}/.sddu/specs-tree-root"; do
+for dir in "${TARGET_DIR}/.opencode/plugins/sddu" "${TARGET_DIR}/.opencode/agents" "${TARGET_DIR}/.sddu" "${TARGET_DIR}/.sddu/specs-tree-root" "${TARGET_DIR}/.sddu/skills"; do
     if [ -d "$dir" ]; then
         print_color "${YELLOW}[INFO] Path exists: $dir${NC}"
     else
@@ -210,7 +210,7 @@ for dir in "${TARGET_DIR}/.opencode/plugins/sddu" "${TARGET_DIR}/.opencode/agent
     fi
 done
 
-# Step 5: Copy SDDU plugins only
+# Step 5: Copy SDDU plugins only (includes .opencode/plugins/sddu/skills/ framework Skills)
 print_color "${CYAN}[5/${TOTAL_STEPS}] Copying SDDU plugins from distribution directory...${NC}"
 SDDU_PLUGIN_DEST="${TARGET_DIR}/.opencode/plugins/sddu"
 
@@ -410,6 +410,13 @@ fi
 print_color "${CYAN}[8/${TOTAL_STEPS}] Initializing SDDU workspace directory...${NC}"
 
 print_color "${GREEN}[OK] .sddu/ directories ready${NC}"
+
+# 提示用户运行 sddu-skill-sync 同步 Skills
+print_color "${CYAN}[INFO] SDDU Skills 需要在首次使用前同步到实际目录${NC}"
+print_color "${YELLOW}👉 在 OpenCode 中运行以下命令同步 SDDU Skills：${NC}"
+echo "    @sddu 同步 SDDU Skills"
+echo ""
+print_color "${GREEN}[OK] 提示：SDDU Skills（发现/创建/同步）安装完成，使用前请先同步${NC}"
 
 # Done
 echo ""
