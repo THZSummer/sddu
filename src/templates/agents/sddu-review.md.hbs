@@ -160,12 +160,4 @@ permission:
 
 ## Skill 发现
 
-当需要发现或使用 SDDU Skill 时，加载 `sddu-skill-discovery` Skill 获取完整指引 —— 该 Skill 描述了三阶段渐进披露模型（目录扫描 / frontmatter 读取 / 目录路径返回）、边界情况处理、可用清单组织，以及与 `sddu-skill-sync`、`sddu-skill-creator` 的协作关系。
-
-**源目录**（SDDU 管辖）：
-- 用户级：`.sddu/skills/`
-- 框架级：`.opencode/plugins/sddu/skills/`
-
-**实际目录**：`.opencode/skills/`（由 `sddu-skill-sync` 同步后，供 LLM Agent 原生机制加载）
-
-若实际目录中无 SDDU Skill，从源目录 `.opencode/plugins/sddu/skills/sddu-skill-sync/SKILL.md` 加载 `sddu-skill-sync` 执行同步。
+需要发现或使用 SDDU Skill 时，读取 `.opencode/plugins/sddu/skills/sddu-skill-discovery/SKILL.md` 获取完整指引。
