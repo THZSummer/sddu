@@ -1,11 +1,11 @@
 # SDDU 项目版本 Roadmap
 
-> **文档版本**: 15.0.0
-> **更新日期**: 2026-07-19 (FR-SKILL-001 + FR-FAST-001 标记完成 — v3.3.0 提前交付 + Skill 化可行性评估)
+> **文档版本**: 16.0.0
+> **更新日期**: 2026-07-19 (FR-TREE-SKILL 新增 — @sddu-tree Agent 技能化评估)
 > **状态**: 规划中 (v3.0.0 待启动，v3.3.0 部分提前交付)
 > **生成方式**: `@sddu-roadmap` 全量扫描 19 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估 + Superpowers 竞品调研导入
 > **当前项目版本**: v4.0.0
-> **全局状态**: 18 validated, 0 tracked, 1 terminated | 待处理项目: 44 | 新提案: 1 (FR-BUG-001) | Skill 化候选: 2 (FR-BUG-001/FR-WORKTREE-001 → Skill 重评估) | 竞品借鉴: 3
+> **全局状态**: 18 validated, 0 tracked, 1 terminated | 待处理项目: 45 | 新提案: 2 (FR-BUG-001/FR-TREE-SKILL) | Skill 化候选: 3 (FR-BUG-001/FR-WORKTREE-001/FR-TREE-SKILL → Skill 重评估) | 竞品借鉴: 3
 
 ---
 
@@ -15,23 +15,23 @@
 
 SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范驱动工作流框架。通过 12 个专业化 Agent 协同工作（含快速模式 @sddu-fast），覆盖从问题挖掘 (discovery)、需求定义 (spec)、技术设计 (plan)、任务分解 (tasks)、实施构建 (build)、审查 (review) 到验证 (validate) 的完整开发生命周期。项目自 2026 年 3 月启动，已迭代至 v4.0.0，完成 18 个核心 Feature，当前聚焦 v3.0.0 质量与工作流改进。
 
-项目的长期愿景是成为 AI 辅助软件工程的标准工作流框架 — 让 AI Agent 不仅能写代码，更能通过规范化流程保证交付质量、沉淀项目知识、持续自我演进。v3.0.0 系列将重点解决框架自身的质量闭环问题（Build Wave 一体化、Validate E2E 能力、框架级自验证）。v3.3.0 的 FR-FAST-001（快速模式）和 FR-SKILL-001（Skill 系统）已提前交付，使 SDDU 正式进入「固定引擎 + 可扩展能力」的双层架构时代；Skill 系统的自举闭环（discovery + creator + sync）为后续 Feature 的 Skill 化降级提供了基础设施。v4.0.0 已完成三域分层架构重组，为 SDDU 的跨平台扩展奠定基础。
+项目的长期愿景是成为 AI 辅助软件工程的标准工作流框架 — 让 AI Agent 不仅能写代码，更能通过规范化流程保证交付质量、沉淀项目知识、持续自我演进。v3.0.0 系列将重点解决框架自身的质量闭环问题（Build Wave 一体化、Validate E2E 能力、框架级自验证）。v3.3.0 的 FR-FAST-001（快速模式）和 FR-SKILL-001（Skill 系统）已提前交付，使 SDDU 正式进入「固定引擎 + 可扩展能力」的双层架构时代；Skill 系统的自举闭环（discovery + creator + sync）为后续 Feature 的 Skill 化降级提供了基础设施。v4.0.0 已完成三域分层架构重组，为 SDDU 的跨平台扩展奠定基础。FR-TREE-SKILL（@sddu-tree Agent 技能化）是 Agent→Skill 降级模型的**首个实战验证案例**——将现有辅助 Agent 降级为框架级 Skill，减少 Agent 数量的同时保持甚至提升能力。
 
 ### 项目状态速览
 
 | 指标 | 值 |
 |------|-----|
-| **Feature 总数** | 19 |
+| **Feature 总数** | 19 (含 3 个提议中的 Skill 化候选: FR-BUG-001/FR-WORKTREE-001/FR-TREE-SKILL) |
 | **已完成 (completed)** | 18 |
 | **已终止 (terminated/migrated)** | 1 |
 | **进行中 (tracked)** | **0** ⚠️ |
 | **搁置 (suspended)** | 0 |
-| **已知待解决问题** | **44 (A-F + I 核心 + BUG-001 + 3 竞品借鉴 + 32 审计发现)** |
+| **已知待解决问题** | **45 (A-F + I 核心 + BUG-001 + TREE-SKILL + 3 竞品借鉴 + 32 审计发现)** |
 | **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (部分提前交付), v4.1.0 (远期) |
 
 ### ⚠️ 关键警示
 
-> **当前无活跃 Feature！** 自 2026-06-21 `specs-tree-framework-architecture` (FR-FRAMEWORK-ARCH-001) validated 后，项目处于无进行中 Feature 的空窗期。v3.0.0 的 6 个核心问题 (A-F) 已记录但尚未启动任何 Feature 的 discovery 流程。Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成。好消息是 FR-FAST-001 (快速模式 Agent) 和 FR-SKILL-001 (Skill 系统) 已提前交付（2026-07-12 / 2026-07-19），为后续 Feature 提供了「Skill 化降级」的新选项。
+> **当前无活跃 Feature！** 自 2026-06-21 `specs-tree-framework-architecture` (FR-FRAMEWORK-ARCH-001) validated 后，项目处于无进行中 Feature 的空窗期。v3.0.0 的 6 个核心问题 (A-F) 已记录但尚未启动任何 Feature 的 discovery 流程。Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成。好消息是 FR-FAST-001 (快速模式 Agent) 和 FR-SKILL-001 (Skill 系统) 已提前交付（2026-07-12 / 2026-07-19），为后续 Feature 提供了「Skill 化降级」的新选项。FR-TREE-SKILL（@sddu-tree Agent 技能化）是最纯粹的 Agent→Skill 降级案例——将现有辅助 Agent 的整体职责降级为框架级 Skill。
 
 ### 版本总览表
 
@@ -45,7 +45,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **v3.0.1** | 模板质量统一 | 2026-06-19 | ✅ | 17 模板格式统一 + 11 Agent 职责边界 |
 | **v4.0.0** | 源码架构重组 🆕 | 2026-06-21 | ✅ | FR-FRAMEWORK-ARCH-001 三域分层 + 平台适配器隔离 |
 | **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 |
-| **v3.1.0** | Skill 化降级验证 | TBD | 💡 提议中 | FR-BUG-001 → sddu-bug Skill 🔄 + FR-WORKTREE-001 → sddu-worktree Skill 🔄 |
+| **v3.1.0** | Skill 化降级验证 | TBD | 💡 提议中 | FR-BUG-001 → sddu-bug Skill 🔄 + FR-WORKTREE-001 → sddu-worktree Skill 🔄 + FR-TREE-SKILL → sddu-tree Skill 🆕 |
 | **v3.2.0** | 项目知识基础设施 (H・I) | TBD | 🔄 部分完成 | FR-KB-001 全局配置 (💡 提议中) + FR-KB-002 知识沉淀 (✅ 已完成 — @sddu-docs) |
 | **v3.3.0** | Agent 行为强化 + 轻量入口 | 2026-07-19 | 🔄 部分完成 | FR-FAST-001 ✅ (快速模式) + FR-SKILL-001 ✅ (Skill 系统) + FR-RATIONAL-001 (理性化对抗，待启动) |
 | **v4.1.0** | 生态扩展 (远期) | TBD | 💡 远期 | 多平台适配 + 自动触发 (竞品借鉴 §5.3) |
@@ -63,13 +63,13 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 
 | 排名 | 功能 | 版本 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
-| 🥇 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 🥈 | **FR-BUG-001**: Bug 流程框架化 | v3.1.0 | 8 | 7 | 75% | 4 | **10.5** | P0 |
-| 🥉 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 4 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
-| 5 | **FR-QUALITY-002**: Validate E2E (✅ v3.0.5 模板已重写) | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
+| 🥇 | **FR-BUG-001**: Bug 流程框架化 (→ sddu-bug Skill) | v3.1.0 | 8 | 7 | 75% | 2 | **21.0** | P0 |
+| 🥈 | **FR-TREE-SKILL**: @sddu-tree Agent 技能化 🆕 | v3.1.0 | 5 | 6 | 85% | 1.5 | **17.0** | P0 |
+| 🥉 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
+| 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
+| 5 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
 
-> **注**: FR-FAST-001 (RICE 21.6) 和 FR-SKILL-001 (RICE 17.5 更新后) 已于 2026-07 提前交付完成，不参与排名。FR-BUG-001 和 FR-WORKTREE-001 存在 Skill 化降级候选，RICE 将在 Skill 化评估后更新。
+> **注**: FR-FAST-001 (RICE 21.6) 和 FR-SKILL-001 (RICE 17.5 更新后) 已于 2026-07 提前交付完成，不参与排名。FR-BUG-001、FR-WORKTREE-001 和 FR-TREE-SKILL 已采纳 Skill 化降级路径——以上 RICE 分值均为 Skill 化后的评分（Effort 从 4d 降至 1.5~2d）。
 
 ### 关键 milestones
 
@@ -83,7 +83,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 2026-08-02 | 首个 v3.0.0 Feature spec + plan 完成 | v3.0.0 |
 | 2026-08-16 | v3.0.0 首批 P0 Feature validated | v3.0.0 |
 | 2026-09-30 | v3.0.0 全部 Feature 完成 | v3.0.0 |
-| 2026-Q4 | v3.1.0 FR-BUG-001 (Skill 化重评估) + FR-WORKTREE-001 (Skill 化候选) + v3.2.0 评估 | v3.1.0 / v3.2.0 |
+| 2026-Q4 | v3.1.0 FR-BUG-001 (sddu-bug Skill) + FR-WORKTREE-001 (sddu-worktree Skill) + FR-TREE-SKILL (sddu-tree Skill) 启动评估 | v3.1.0 |
 | 2027+ | v3.3.0 FR-RATIONAL-001 启动评估 / v4.1.0 远期生态扩展评估 | v3.3.0 / v4.1.0 |
 
 ### 功能完成时间线
@@ -301,6 +301,77 @@ FR-WORKTREE-001 (Worktree) ──受益于──→ FR-KB-001 (全局配置) —
 
 ---
 
+#### 新增 Feature: FR-TREE-SKILL — @sddu-tree Agent 技能化 🆕
+
+> **来源**: 用户提案 (2026-07-19) — SDDU 架构演进：Agent→Skill 降级
+> **加入日期**: 2026-07-19
+
+| 属性 | 值 |
+|------|-----|
+| **Feature ID** | FR-TREE-SKILL |
+| **优先级** | 🥈 P0 (RICE 17.0，跨版本第 2 位) |
+| **Effort** | S (1-2 天，Skill 化后) |
+| **来源** | 架构决策 — FR-SKILL-001 的 Agent→Skill 降级模型首个实战验证案例 |
+| **归属** | v3.1.0 Skill 化降级验证 |
+
+**背景**: `@sddu-tree` 是 SDDU 的目录导航辅助 Agent，职责为扫描 `.sddu/` 目录结构、在各层级生成/更新 `TREE.md` 导航文件。当前作为独立 subagent 注册在 `opencode.json` 中，8 个主流程 Agent 完成后自动触发。FR-SKILL-001 定义了 Agent 新增门禁——任何提议新增 Agent 的需求必须先证明「Skill 无法满足」；反之，**现有 Agent 如果可以用 Skill 替代，也应评估降级为 Skill**。`@sddu-tree` 的职责（扫描目录 → 检查缺失 TREE → 读取文件提取元数据 → 生成格式化导航）是典型的「可复用执行流程」，高度适合 Skill 化。
+
+**核心目标**: 将 `@sddu-tree` 从独立 Agent 降级为框架级 `sddu-tree` Skill，所有 Agent 通过 Skill 发现机制加载目录导航逻辑，而非通过独立的 subagent 调用。这是 FR-SKILL-001 定义的「Agent→Skill 降级模型」的**首个纯实战案例**——不同于 FR-BUG-001/WORKTREE-001（从未构建为 Agent，直接以 Skill 形态出现），FR-TREE-SKILL 是**拿现有 Agent 做降级手术**，能最直接地验证降级模型的可行性与收益。
+
+**Skill 化方案设计**:
+1. **Skill body 内容** — 将原 `sddu-tree.md.hbs` Agent 模板的核心逻辑（6 步工作流：扫描目录→检测缺失→读取文件→生成 TREE→验证已有→输出报告）迁移到 `sddu-tree` Skill 的 body 中，保持 Progressive Disclosure 设计
+2. **触发机制变更** — 原模式：8 个主流程 Agent 模板中硬编码「完成后自动触发 `@sddu-tree`」；新模式：Agent 模板的「## Skill 发现」章节加载 `sddu-tree` Skill，Agent 按 Skill 指引自行执行目录导航
+3. **Agent 注销** — 从 `opencode.json` 中移除 `sddu-tree` subagent 注册；从 Agent 模板中移除 `@sddu-tree` 调用指令
+4. **自举性质** — `sddu-tree` Skill 生成后，通过 `sddu-skill-sync` 同步到实际目录；各 Agent 通过 `sddu-skill-discovery` 按需加载
+5. **保留能力** — 用户仍可显式调用 Skill 进行目录导航（通过 Agent 的 Skill 加载机制，而非独立的 subagent）
+
+**与原 Agent 的差异对比**:
+
+| 维度 | 原 Agent 模式 | Skill 化后 |
+|------|-------------|-----------|
+| **注册方式** | opencode.json subagent + .hbs 模板 | 框架级 Skill (`.sddu/skills/sddu-tree/SKILL.md`) |
+| **触发方式** | 硬编码 `@sddu-tree` 调用（独立 subagent 启动） | Agent 按 Skill 发现机制加载，自行执行目录导航 |
+| **Token 成本** | 每次调用启动独立 subagent（含完整 Agent prompt） | Skill body 按需加载（Stage 3），不增加固定 prompt 开销 |
+| **Agent 数量** | +1 独立 subagent | 0（不增加 Agent 清单） |
+| **维护成本** | Agent 模板 + opencode.json 注册 + 所有引用模板的 `@sddu-tree` 调用 | 单一 Skill 文件，引用方仅需 Skill 发现声明（已在 FR-SKILL-001 中注入） |
+| **可扩展性** | 修改需更新 Agent 模板 | Skill body 独立更新，不需动 Agent 模板 |
+
+**RICE 详细分析**:
+
+| 维度 | 评分 | 依据 |
+|------|:---:|------|
+| Reach | **5** | 影响 8+ 主流程 Agent（discovery/spec/plan/tasks/build/review/validate/docs）和所有使用 `@sddu-tree` 的用户。但 TREE 导航是辅助功能，非核心业务 |
+| Impact | **6** | (1) 减少 Agent 数量 → 降低用户认知负担和 prompt 复杂度；(2) Agent→Skill 降级模型的首个完整验证 → 为后续降级（如 sddu-docs 是否也可 Skill 化）提供范本；(3) TREE 生成逻辑以 Skill 形式可独立迭代 |
+| Confidence | **85%** | 非常高 — TREE 职责边界清晰（6 步工作流已有完整定义），Skill 化方案明确（迁移 body + 注销 Agent + 更新引用），类似 FR-BUG-001/WORKTREE-001 的评估框架已验证可行 |
+| Effort | **1.5** | 小 (S)：Skill body 编写（迁移现有模板逻辑，0.5d）+ 更新 8+ Agent 模板引用（批量替换 `@sddu-tree` → Skill 发现指引，0.3d）+ 注销 Agent + 验证 + 同步（0.4d）+ discovery/spec（0.3d） |
+| **RICE** | **17.0** | **(5 × 6 × 0.85) / 1.5** |
+
+**与其他 Feature 的依赖关系**:
+
+```
+FR-TREE-SKILL (Tree Skill 化) ──强依赖──→ FR-SKILL-001 ✅ (Skill 基础设施: discovery/creator/sync)
+FR-TREE-SKILL (Tree Skill 化) ──影响──→ 8 个主流程 Agent 模板 (需移除 @sddu-tree 调用指令)
+FR-TREE-SKILL (Tree Skill 化) ──受益于──→ FR-BUG-001 / FR-WORKTREE-001 (共享 Skill 化降级模式经验)
+FR-TREE-SKILL (Tree Skill 化) ──与等同──→ FR-RATIONAL-001 (混合方案参考 — 部分 Skill 化 + 模板变更)
+```
+
+**Agent→Skill 降级模型验证价值**:
+
+FR-TREE-SKILL 区别于 FR-BUG-001/WORKTREE-001 的关键特征：它是 **Agent→Skill 降级**，而非 Feature→Skill 降级。这意味着：
+
+1. **最纯粹的降级案例**: `@sddu-tree` 已是成熟可用的 Agent，降级后须证明「Skill 形态不损失任何能力」
+2. **模板变更量最大**: 需要修改 8+ Agent 模板中的 `@sddu-tree` 调用 → 测试覆盖广
+3. **自举价值**: `sddu-tree` Skill 生成后，可立即用于自身的 Skill 文件目录导航（自举验证）
+4. **决策门槛**: 如果此次降级成功，将建立「辅助 Agent 优先考虑 Skill 化」的默认规则 — 类似 FR-SKILL-001 中的 Agent 新增门禁，但方向相反
+
+**建议**: FR-TREE-SKILL 建议作为 v3.1.0 的**首个启动项**（甚至可在 FR-BUG-001 之前启动），理由：
+- Effort 极低 (S, 1.5d)，可快速交付验证
+- 降级模型的首个实战案例 → 验证结果将直接影响 FR-BUG-001 和 FR-WORKTREE-001 的 Skill 化路径信心
+- 与 FR-BUG-001 和 FR-WORKTREE-001 无硬依赖，三者可并行或串行
+- 成功后直接减少 1 个 Agent → 立竿见影的架构收益
+
+---
+
 ### v3.2.0 — 项目知识基础设施
 
 **预计时间**: TBD (依赖 v3.1.0 部分完成)
@@ -414,13 +485,14 @@ FR-SKILL-001 的交付引入了「Skill 化降级」的新范式：原本规划�
 
 ##### Skill 化影响总结
 
-| Feature | 原归属 | Effort (原) | Skill 化后 Effort | 节省 | Skill 化建议 |
-|---------|:------:|:-----------:|:-----------------:|:----:|:-----------:|
-| FR-BUG-001 | v3.1.0 | M (4d) | S (~2d) | **~50%** | ✅ 强烈推荐 |
-| FR-WORKTREE-001 | v3.1.0 | M (4d) | S (~1.5d) | **~60%** | ✅ 推荐 |
-| FR-RATIONAL-001 | v3.3.0 | M (3.5d) | M (~3d) | ~15% | ⚠️ 混合方案 |
+| Feature | 原归属 | Effort (原) | Skill 化后 Effort | 节省 | Skill 化建议 | 类型 |
+|---------|:------:|:-----------:|:-----------------:|:----:|:-----------:|:----:|
+| FR-BUG-001 | v3.1.0 | M (4d) | S (~2d) | **~50%** | ✅ 强烈推荐 | Feature→Skill |
+| FR-WORKTREE-001 | v3.1.0 | M (4d) | S (~1.5d) | **~60%** | ✅ 推荐 | Feature→Skill |
+| FR-TREE-SKILL 🆕 | v3.1.0 | — (原为 Agent) | S (~1.5d) | **N/A** | ✅ 强烈推荐 | **Agent→Skill** (降级) |
+| FR-RATIONAL-001 | v3.3.0 | M (3.5d) | M (~3d) | ~15% | ⚠️ 混合方案 | Skill + 模板 |
 
-> **决策建议**: FR-BUG-001 和 FR-WORKTREE-001 从独立 Feature 降级为框架级 Skill（`sddu-bug` / `sddu-worktree`），可显著降低 v3.1.0 的交付负担——原 v3.1.0 总 Effort 约 8d (M×2)，Skill 化后降至约 3.5d (S×2)，降幅 56%。建议在 v3.1.0 discovery 阶段以 Skill 化路径启动，而非完整 Feature 流程。
+> **决策建议**: FR-BUG-001 和 FR-WORKTREE-001 从独立 Feature 降级为框架级 Skill（`sddu-bug` / `sddu-worktree`），可显著降低 v3.1.0 的交付负担。FR-TREE-SKILL 是新 Proposal，建议作为 v3.1.0 **首个启动项**——它是 Agent→Skill 降级的最纯粹验证案例，成功后将直接减少 1 个 Agent，并为后续 Agent 降级建立范本。原 v3.1.0 总 Effort 约 8d (M×2)，加入 FR-TREE-SKILL (S, 1.5d) 后总 Effort 约 5d (S×3)，仍远低于原规划。
 
 ---
 
@@ -474,27 +546,28 @@ FR-RATIONAL-001 是 v3.3.0 仅剩的未启动 Feature。纯模板层改动，无
 
 ---
 
-### 跨版本 RICE 总排名 (全部 15 项: A-F + H-I + BUG-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
+### 跨版本 RICE 总排名 (全部 16 项: A-F + H-I + BUG-001 + WORKTREE-001 + TREE-SKILL + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
 
 | 排名 | Feature | 归属 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
-| 🥇 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 🥈 | **FR-BUG-001**: Bug 流程框架化 🔄 | v3.1.0 | 8 | 7 | 75% | 4→2 | **10.5→21.0** | P0 |
-| 🥉 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 4 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
-| 5 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
-| 6 | **FR-AUTOTRIGGER-001**: 自动触发 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
-| 7 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
-| 8 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
-| 9 | **FR-WORKTREE-001**: Git Worktree 🔄 | v3.1.0 | 5 | 6 | 60% | 4→1.5 | **4.5→12.0** | P2 |
-| 10 | ~~**FR-FAST-001**: 快速模式 Agent~~ | ~~v3.3.0~~ | — | — | — | — | — | ✅ 已完成 |
-| 11 | ~~**FR-SKILL-001**: 项目级业务 Skills~~ | ~~v3.3.0~~ | — | — | — | — | — | ✅ 已完成 |
-| 12 | ~~**FR-KB-002**: 项目知识沉淀~~ | ~~v3.2.0~~ | — | — | — | — | — | ✅ 已完成 |
-| 13 | **FR-QUALITY-004**: 框架自验证 | v3.0.0 | 4 | 7 | 60% | 6 | **2.8** | P1 |
-| 14 | **FR-QUALITY-006**: coordinator 兼容 | v3.0.0 | 2 | 3 | 80% | 2 | **2.4** | P2 |
-| 15 | **FR-CROSSPLAT-001**: 多平台适配 | v4.1.0 | 9 | 8 | 40% | 12 | **2.4** | P3 |
+| 🥇 | **FR-BUG-001**: Bug 流程框架化 🔄 | v3.1.0 | 8 | 7 | 75% | 2 | **21.0** | P0 |
+| 🥈 | **FR-TREE-SKILL**: @sddu-tree 技能化 🆕 🔄 | v3.1.0 | 5 | 6 | 85% | 1.5 | **17.0** | P0 |
+| 🥉 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
+| 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
+| 5 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
+| 6 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
+| 7 | **FR-AUTOTRIGGER-001**: 自动触发 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
+| 8 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
+| 9 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
+| 10 | **FR-WORKTREE-001**: Git Worktree 🔄 | v3.1.0 | 5 | 6 | 60% | 1.5 | **12.0** | P2 |
+| 11 | ~~**FR-FAST-001**: 快速模式 Agent~~ | ~~v3.3.0~~ | — | — | — | — | — | ✅ 已完成 |
+| 12 | ~~**FR-SKILL-001**: 项目级业务 Skills~~ | ~~v3.3.0~~ | — | — | — | — | — | ✅ 已完成 |
+| 13 | ~~**FR-KB-002**: 项目知识沉淀~~ | ~~v3.2.0~~ | — | — | — | — | — | ✅ 已完成 |
+| 14 | **FR-QUALITY-004**: 框架自验证 | v3.0.0 | 4 | 7 | 60% | 6 | **2.8** | P1 |
+| 15 | **FR-QUALITY-006**: coordinator 兼容 | v3.0.0 | 2 | 3 | 80% | 2 | **2.4** | P2 |
+| 16 | **FR-CROSSPLAT-001**: 多平台适配 | v4.1.0 | 9 | 8 | 40% | 12 | **2.4** | P3 |
 
-> **注**: FR-BUG-001 和 FR-WORKTREE-001 标注 🔄 表示存在 Skill 化候选——原 Effort 4d → Skill 化后 2d/1.5d，RICE 显著提升。建议在 v3.1.0 discovery 阶段以 Skill 化路径评估。
+> **注**: FR-BUG-001、FR-WORKTREE-001 和 FR-TREE-SKILL 标注 🔄 表示采用 Skill 化路径——表中 Effort 和 RICE 均为 Skill 化后的值。FR-TREE-SKILL 是唯一的 **Agent→Skill 降级**案例（其余为 Feature→Skill 降级），建议作为 v3.1.0 首个启动项，为降级模型提供最纯粹的验证。
 
 ---
 
@@ -546,8 +619,9 @@ specs-tree-sdd-plugin-baseline ────────────────�
             │
             ▼  ─── 💡 v3.1.0 / v3.2.0 提议中 ───
             ├── FR-TPL-001 (模板质量统一) — Issue G → ✅ v3.0.1 已完成
-            ├── FR-BUG-001 (Bug 流程框架化) — 新提案 → v3.1.0
-            ├── FR-WORKTREE-001 (Git Worktree 隔离) 🆕 — 竞品借鉴 §5.2.1 → v3.1.0
+            ├── FR-BUG-001 (Bug 流程框架化 → sddu-bug Skill) — 新提案 → v3.1.0
+            ├── FR-WORKTREE-001 (Git Worktree 隔离 → sddu-worktree Skill) 🆕 — 竞品借鉴 §5.2.1 → v3.1.0
+            ├── FR-TREE-SKILL (@sddu-tree Agent 技能化 → sddu-tree Skill) 🆕 — 用户提案 → v3.1.0
             ├── FR-KB-001 (全局项目配置) — Issue I → v3.2.0
             └── FR-KB-002 (项目知识沉淀) — Issue H → ✅ 已完成 (@sddu-docs)
 
@@ -573,6 +647,10 @@ FR-BUG-001 (Bug 流程) ──Skill 化──→ FR-SKILL-001 ✅     ← 高度
 FR-WORKTREE-001 (Worktree) ──受益于──→ FR-MULTI-001 (多模块) ← Worktree 为子 Feature 提供物理隔离
 FR-WORKTREE-001 (Worktree) ──受益于──→ FR-KB-001 (全局配置) ← 全局配置可定义默认 worktree 行为
 FR-WORKTREE-001 (Worktree) ──Skill 化──→ FR-SKILL-001 ✅ ← 高度适合 Skill 降级为框架级 sddu-worktree Skill
+FR-TREE-SKILL (Tree Agent 技能化) ──强依赖──→ FR-SKILL-001 ✅ ← 纯 Agent→Skill 降级，依赖 Skill 基础设施 (discovery/creator/sync)
+FR-TREE-SKILL (Tree Agent 技能化) ──影响──→ 8 个主流程 Agent 模板 ← 需移除 @sddu-tree 调用指令
+FR-TREE-SKILL (Tree Agent 技能化) ──受益于──→ FR-BUG-001 / FR-WORKTREE-001 ← 共享 Skill 化降级模式经验
+FR-TREE-SKILL (Tree Agent 技能化) ──自举性质──→ @sddu-tree 自身 ← sddu-tree Skill 可导航自身的 Skill 文件目录
 FR-RATIONAL-001 (理性化) ──借用──→ FR-TPL-001 (模板系统)  ← 纯模板层变更，共用 Handlebars 引擎
 FR-RATIONAL-001 (理性化) ──部分 Skill 化──→ FR-SKILL-001 ✅ ← Rational 知识库以 Skill 承载，纪律约束硬编码模板
 FR-FAST-001 (快速模式) ✅ ──已完成──→ 2026-07-12         ← 轻量入口，无状态机，纯对话
@@ -592,8 +670,9 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 ┌─ Wave 2 (v3.0.0 + v3.1.0) ────────┐
 │ FR-QUALITY-002 (Validate E2E)      │ ← RICE 8.4, 依赖 Wave 1 经验
 │ FR-KB-001 (全局配置)               │ ← RICE 15.8, 独立
-│ FR-BUG-001 (Bug 流程)              │ ← RICE 10.5, 无硬依赖，可随时启动
-│ FR-WORKTREE-001 (Git Worktree) 🆕   │ ← RICE 4.5, 无硬依赖，可独立启动
+│ FR-BUG-001 (Bug 流程 → Skill)      │ ← RICE 21.0, 无硬依赖，可随时启动
+│ FR-WORKTREE-001 (Git Worktree → Skill) │ ← RICE 12.0, 无硬依赖，可独立启动
+│ FR-TREE-SKILL (Tree Agent → Skill) 🆕│ ← RICE 17.0, 建议首个启动 (Agent→Skill 降级验证) │
 └────────────────────────────────────┘
 ┌─ Wave 3 (v3.0.0 收尾) ────────────┐
 │ FR-QUALITY-003 (Review/Validate)   │ ← 依赖 Wave 1 完成
@@ -643,6 +722,9 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **FR-BUG-001 / FR-WORKTREE-001 Skill 化降级后 scope 漂移** 🆕 | 🟡 中 | 🟡 中 | Skill 化后 Feature 的 scope 边界可能模糊——"创建一个 Skill"是否还需要完整 SDDU 8 阶段流程？缓解：(1) 在 v3.1.0 discovery 阶段明确定义 Skill 化 Feature 的轻量流程；(2) FR-SKILL-001 的 skill-creator Skill 可作为创建过程的辅助工具 |
 | **FR-SKILL-001 框架级 Skill 与 Agent 新增门禁的实际执行力** 🆕 | 🟡 中 | 🟡 中 | FR-SKILL-001 定义的 Agent 新增门禁（「必须证明 Skill 无法满足」）目前是约定而非代码强制。缓解：在 FR-RATIONAL-001 中可将门禁规则纳入 Agent 模板的 HARD-GATE 约束，提升执行力 |
 | **v3.3.0 两 Feature 提前交付后的版本空窗** 🆕 | 🟡 中 | 🟢 低 | FR-FAST-001 和 FR-SKILL-001 提前交付后，v3.3.0 仅剩 FR-RATIONAL-001，版本定位从「三大 Feature 汇入」变为「单项收尾」。缓解：不影响 v3.0.0~v3.2.0 的优先级；FR-RATIONAL-001 可与前序版本 Feature 并行启动 |
+| **FR-TREE-SKILL Agent→Skill 降级后能力丢失** 🆕 | 🟡 中 | 🟢 低 | @sddu-tree 降级为 Skill 后，TREE 生成由各 Agent 自行执行（按 Skill 指引），可能产生「各 Agent 生成的 TREE 格式不一致」问题。缓解：(1) Skill body 中定义严格的 TREE 格式模板；(2) sddu-validate 可新增 TREE 一致性检查；(3) 降级后对比原 Agent 生成的 TREE 输出确保等价性 |
+| **FR-TREE-SKILL 模板引用更新遗漏** 🆕 | 🟡 中 | 🟡 中 | 8+ Agent 模板中散落 `@sddu-tree` 调用指令（既有自动触发声明，也有显式引用），批量替换时可能遗漏。缓解：(1) 全局 grep 审计 `@sddu-tree` 所有引用位置；(2) 替换后运行现有验证确保无回归；(3) FR-SKILL-001 的 Skill 发现声明已在各 Agent 中注入 → 可自然过渡 |
+| **FR-TREE-SKILL 用户依赖 @sddu-tree 手动调用** 🆕 | 🟢 低 | 🟡 中 | 用户可能习惯 `@sddu-tree` 显式调用目录导航。Skill 化后用户无法直接 `@sddu-tree`，需通过 Agent 的 Skill 加载机制间接使用。缓解：(1) 在 ROADMAP 和 CHANGELOG 中说明变更；(2) `@sddu` coordinator 指令中新增「目录导航：加载 sddu-tree Skill」说明；(3) 保持向后兼容 — 如频繁收到用户反馈，可考虑保留轻量别名 |
 
 ---
 
@@ -655,10 +737,11 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
    - **如优先解决架构基础**: 启动 `FR-KB-001 (全局项目配置)` — RICE 15.8，全局影响力最大
    - **如优先快速收益**: 同时启动 `FR-QUALITY-005 (auto-updater)` + `FR-QUALITY-006 (coordinator)` — 总 Effort 仅 2-4 天
    - **如优先框架级质量能力 + Skill 化验证**: 启动 `FR-BUG-001 (Bug 流程框架化)` — 以 Skill 化路径（sddu-bug Skill），验证 FR-SKILL-001 的 Skill 化降级模型实战效果
+   - **🔥 推荐首启**: `FR-TREE-SKILL (@sddu-tree Agent 技能化)` — RICE 17.0，Effort 仅 1.5d，是 Skill 化降级最纯粹验证案例。成功后直接减少 1 个 Agent，建立「辅助 Agent 优先 Skill 化」范本
 
 2. **确认 Feature 归属版本** — 当前方案:
     - A-F → v3.0.0 (质量与工作流改进)
-    - **FR-BUG-001 (Bug 流程框架化 → sddu-bug Skill 化)** + **FR-WORKTREE-001 (Git Worktree → sddu-worktree Skill 化)** → v3.1.0 (Skill 化降级验证)
+    - **FR-BUG-001 (Bug 流程框架化 → sddu-bug Skill 化)** + **FR-WORKTREE-001 (Git Worktree → sddu-worktree Skill 化)** + **FR-TREE-SKILL (@sddu-tree Agent 技能化 → sddu-tree Skill 化)** → v3.1.0 (Skill 化降级验证)
     - H → ✅ 已完成 (FR-KB-002)；I → v3.2.0 (知识基础设施)
     - G → ✅ 已完成 (FR-TPL-001, v3.0.1)
     - **FR-FRAMEWORK-ARCH-001** → ✅ 已完成 (v4.0.0)
@@ -675,13 +758,13 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 ### 🟡 短期行动 (2 周内)
 
 4. 对选中 Feature 执行完整 SDDU 工作流: `discovery → spec → plan → tasks`
-5. **对于 FR-BUG-001 / FR-WORKTREE-001**: 优先以 Skill 化路径启动 — 使用 `sddu-skill-creator` 创建框架级 Skill，通过 `sddu-skill-sync` 同步，验证 FR-SKILL-001 的降级模型实战效果
+5. **对于 FR-BUG-001 / FR-WORKTREE-001 / FR-TREE-SKILL**: 优先以 Skill 化路径启动 — 使用 `sddu-skill-creator` 创建框架级 Skill，通过 `sddu-skill-sync` 同步，验证 FR-SKILL-001 的降级模型实战效果。建议启动顺序：FR-TREE-SKILL (Agent→Skill 降级，最快验证) → FR-BUG-001 (Feature→Skill 降级，高价值) → FR-WORKTREE-001 (Feature→Skill 降级)
 6. 在首个 v3.0.0 Feature 的 discovery 阶段，收集更多上下文信息
 
 ### 🟢 中期行动 (1 个月内)
 
 7. 完成 v3.0.0 全部 P0 级 Feature
-8. 启动 v3.1.0 Feature — **优先以 Skill 化路径**（FR-BUG-001 → sddu-bug Skill, FR-WORKTREE-001 → sddu-worktree Skill），验证 Skill 化降级模型
+8. 启动 v3.1.0 Feature — **优先以 Skill 化路径**，建议启动顺序: **FR-TREE-SKILL (Agent→Skill 降级，最快 1.5d 交付)** → FR-BUG-001 (sddu-bug Skill) → FR-WORKTREE-001 (sddu-worktree Skill)，验证三种降级模型
 9. 为 FR-KB-001 收拢需求，基于 v4.0.0 三域分层架构协同设计 (FR-KB-002 已由 @sddu-docs 提前完成)
 
 ### 🔵 远期行动 (季度回顾)
@@ -731,12 +814,12 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | 类别 | 数量 | 说明 |
 |------|:----:|------|
 | 🐛 Bug / 质量问题 | 10 | A-F + 4 预存测试失败 |
-| ✨ 增强特性 | 17→15 | H-I + BUG-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 — SKILL-001 和 FAST-001 从待实现移至已完成 |
+| ✨ 增强特性 | 18→16 | H-I + BUG-001 + WORKTREE-001 + TREE-SKILL + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 — SKILL-001 和 FAST-001 从待实现移至已完成 |
 | 🔧 技术债务 | 9 | deprecated 类型、旧 schema、stale spec.json、仪表盘 TS 化、缺集成测试等 |
 | 📄 文档/配置 | 7 | TREE.md 过时、冗余 wave1 文件、路径引用错误、ROADMAP 结构混乱等 |
 | ⏸️ 搁置但需关注 | 4 | ETD 独立仓库、Skills/TUI/MCP 持续延期 |
 
-**总计: 44 个待处理项目** (↓2: FR-FAST-001 已于 2026-07-12 交付；↓2: FR-SKILL-001 已于 2026-07-19 交付；↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↓1: Issue H (FR-KB-002) 已由 @sddu-docs 完成；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001；↑1: FR-SKILL-001 新提案 → ✅；净变化 46→44)
+**总计: 45 个待处理项目** (↓2: FR-FAST-001 已于 2026-07-12 交付；↓2: FR-SKILL-001 已于 2026-07-19 交付；↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↓1: Issue H (FR-KB-002) 已由 @sddu-docs 完成；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001；↑1: FR-SKILL-001 新提案 → ✅；↑1: FR-TREE-SKILL 新提案；净变化 46→45)
 
 ### 🐛 一、待修复 Bug / 质量问题 (10 项)
 
@@ -758,6 +841,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **I** | 全局项目配置文件 | ✨ Enhancement | M (3-5d) | **P0** | v3.2.0 | `.sddu/project.json` — 技术栈、命名规范、代码风格等全局配置，RICE 15.8 排名第一 |
 | **BUG-001** | Bug 追踪与修复流程框架化 🔄 | ✨ Enhancement | S (~2d) | **P0** | v3.1.0 | 🔄 Skill 化候选 → `sddu-bug` Skill。Bug 模板 + 轻/重修复规则封装为框架级 Skill，Agent 按需加载。原 Effort M(4d) → S(2d) |
 | **WORKTREE-001** | Git Worktree Feature 隔离 🔄 | ✨ Enhancement | S (~1.5d) | **P2** | v3.1.0 | 🔄 Skill 化候选 → `sddu-worktree` Skill。Worktree 创建/初始化/收尾封装为框架级 Skill。原 Effort M(4d) → S(1.5d) |
+| **TREE-SKILL** 🆕 | @sddu-tree Agent 技能化 🔄 | ✨ Enhancement | S (~1.5d) | **P0** | v3.1.0 | 🔄 Agent→Skill 降级 → `sddu-tree` Skill。现有 Agent 降级为框架级 Skill，减少 Agent 数量 + 建立降级范本。最纯粹降级验证 |
 | **H** | ✅ 项目级知识自动沉淀 (FR-KB-002) | ✨ Enhancement | — | **P1** | ✅ 已完成 | ✅ 由 `@sddu-docs` Agent 实现 — 扫描 specs-tree-root，聚合 Feature 过程产物为项目全景文档 |
 | **FAST-001** | ✅ @sddu-fast 快速模式 Agent (FR-FAST-001) | ✨ Enhancement | — | **P0** | ✅ v3.3.0 | ✅ 已于 2026-07-12 完成交付 — 轻重双模入口 |
 | **SKILL-001** | ✅ SDDU Skill 系统 (FR-SKILL-001) | ✨ Enhancement | — | **P0** | ✅ v3.3.0-early | ✅ 已于 2026-07-19 完成交付 — 三元闭环 + 双层架构 + Agent 门禁 |
@@ -817,8 +901,9 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | 排名 | ID | 名称 | 类型 | 归属 | Effort | RICE | 优先级 |
 |:----:|----|------|:----:|------|:------:|:----:|:------:|
 | 🥇 | **I** | 全局项目配置文件 | ✨ | v3.2.0 | M | 15.8 | **P0** |
-| 🥈 | **BUG-001** 🔄 | Bug 流程框架化 (→ sddu-bug Skill) | ✨ | v3.1.0 | S | 21.0 | **P0** |
-| 🥉 | **A** | Build Wave 一体化 | 🐛 | v3.0.0 | L | 9.6 | **P0** |
+| 🥈 | **TREE-SKILL** 🆕 | @sddu-tree Agent 技能化 (→ sddu-tree Skill) | ✨ | v3.1.0 | S | 17.0 | **P0** |
+| 🥉 | **BUG-001** 🔄 | Bug 流程框架化 (→ sddu-bug Skill) | ✨ | v3.1.0 | S | 21.0 | **P0** |
+| 4 | **A** | Build Wave 一体化 | 🐛 | v3.0.0 | L | 9.6 | **P0** |
 | 4 | **RATIONAL-001** | Agent 理性化对抗 | ✨ | v3.3.0 | M | 9.6 | **P1** |
 | 5 | **C** | Validate Agent E2E | 🐛 | v3.0.0 | L | 8.4 | **P0** |
 | 6 | **AUTOTRIGGER-001** | Agent 自动触发 | ✨ | v4.1.0 | S | 7.5 | **P3** |
@@ -855,7 +940,8 @@ Phase 0 — ✅ 已完成 (v3.0.1, 2026-06-19)
 Phase 1 — 🔥 立即启动 (本周)
 ├── 🔴 P0: FR-QUALITY-001 (Build Wave 一体化) — RICE 9.6，独立性强
 ├── 🔴 P0: FR-KB-001 (全局项目配置) — RICE 15.8，全局影响力最大
-├── 🔴 P0: FR-BUG-001 → sddu-bug Skill — RICE 21.0 (Skill 化后)，验证降级模型
+├── 🔴 P0: FR-TREE-SKILL → sddu-tree Skill — RICE 17.0 (S, 1.5d)，Agent→Skill 降级最纯粹验证
+├── 🔴 P0: FR-BUG-001 → sddu-bug Skill — RICE 21.0 (Skill 化后)，验证 Feature→Skill 降级
 └── 🟢 快速穿插: D (coordinator) + B (auto-updater) — 合共 1-3 天
 
 Phase 2 — 🟡 第二周
@@ -914,13 +1000,12 @@ Phase 5 — 🔄 v3.3.0 部分交付 + 收尾
 
 > **生成信息**: 本文档由 `@sddu-roadmap` Agent 于 2026-06-21 重大更新 (v9.0.0)，反映 FR-FRAMEWORK-ARCH-001 (v4.0.0) 已完成交付。
 > 
-> **最近更新 (v15.0.0)**: 2026-07-19 — FR-SKILL-001 (SDDU Skill 系统) 和 FR-FAST-001 (快速模式 Agent) 标记为已完成。更新内容：
-> - **FR-SKILL-001 ✅**: 框架级 3 Skill（三元闭环 discovery/creator/sync）+ 12 Agent 模板 Skill 发现章节注入 + 「源目录 + 实际目录」双层架构 + Agent 新增门禁制度。Commit: `04d78a8`。全局状态 16→18 validated，待处理 46→44
-> - **FR-FAST-001 ✅**: @sddu-fast Agent 上线，SDDU 进入「轻重双模」时代
-> - **v3.3.0 状态**: ⏸️ 搁置 → 🔄 部分完成（FAST+SKILL 已交，RATIONAL 待启动）
-> - **Skill 化可行性评估**: FR-BUG-001 ⚡高度适合（Effort 4d→2d，降幅 50%），FR-WORKTREE-001 ⚡高度适合（Effort 4d→1.5d，降幅 60%），FR-RATIONAL-001 ⚠️部分适合（混合方案）
-> - **v3.1.0 定位调整**: 从「工具链增强」转变为「Skill 化降级验证」— 优先以 Skill 路径启动 BUG-001 和 WORKTREE-001
-> - **里程碑更新**: 新增 2026-07-12 (FAST-001) 和 2026-07-19 (SKILL-001) 交付里程碑
-> - **RICE 排名刷新**: 移除已完成 Feature，标注 Skill 化后 RICE 变化
-> - **风险评估更新**: 移除 FR-FAST-001 和 FR-SKILL-001 已解决风险，新增 Skill 化相关风险
-> - **v2.5.0 遗留 S4 (Skills 系统)**: 通过 FR-SKILL-001 实现标记为已解决
+> **最近更新 (v16.0.0)**: 2026-07-19 — FR-TREE-SKILL (@sddu-tree Agent 技能化) 新增。更新内容：
+> - **FR-TREE-SKILL 🆕**: @sddu-tree Agent 技能化提案 — RICE 17.0，Effort S(1.5d)，归属 v3.1.0。Agent→Skill 降级的最纯粹验证案例（区别于 FR-BUG-001/WORKTREE-001 的 Feature→Skill 降级）
+> - **v3.1.0 定位强化**: 从 2 个 Skill 化候选扩展到 3 个，新增 FR-TREE-SKILL 作为首个 Agent→Skill 降级验证
+> - **Skill 化影响总结**: 新增 FR-TREE-SKILL 行 + 「类型」列（Agent→Skill vs Feature→Skill），总 Effort 更新为 5d
+> - **RICE 排名刷新**: 插入 FR-TREE-SKILL (17.0, 🥈)；FR-BUG-001 Skill 化后 (21.0, 🥇)；FR-KB-001 降至 🥉
+> - **依赖关系更新**: 新增 FR-TREE-SKILL 依赖链（强依赖 FR-SKILL-001 + 影响 8 Agent 模板 + 自举性质）
+> - **风险评估更新**: 新增 3 项 FR-TREE-SKILL 专属风险（能力丢失、引用遗漏、用户依赖）
+> - **下一步行动更新**: FR-TREE-SKILL 推荐为首个 v3.1.0 启动项（最快验证，1.5d 交付）
+> - **统计数字变化**: 待处理项目 44→45，新提案 1→2，Skill 化候选 2→3

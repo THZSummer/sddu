@@ -1,0 +1,179 @@
+{
+  "feature": "FR-TREE-SKILL",
+  "name": "@sddu-tree Agent 技能化",
+  "version": "1.0",
+  "createdAt": "2026-07-19",
+  "summary": {
+    "totalTasks": 7,
+    "waves": 3,
+    "complexity": { "S": 5, "M": 2, "L": 0 }
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "创建 sddu-tree SKILL.md（原 Agent 265 行逻辑全量迁移）",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-001"],
+      "files": [
+        { "op": "NEW", "path": "src/skills/sddu-tree/SKILL.md" }
+      ],
+      "acceptance": [
+        "SKILL.md 存在于 src/skills/sddu-tree/ 目录下",
+        "frontmatter 包含 name: sddu-tree 和触发级 description",
+        "6 步工作流覆盖率 100%（对比原 Agent 模板）",
+        "5 条异常处理场景全部覆盖",
+        "phase + status 双字段状态标记规则完整",
+        "7 条行为规则全部迁移",
+        "弃用 Agent 专属骨架章节",
+        "Skill body 末尾含代理工具约束声明",
+        "篇幅 ≤300 行"
+      ],
+      "verify": "test -f src/skills/sddu-tree/SKILL.md && grep -q 'name:' src/skills/sddu-tree/SKILL.md && grep -q 'description:' src/skills/sddu-tree/SKILL.md && grep -c '扫描目录树\\|检测缺失\\|读取文件生成简介\\|生成 TREE\\|验证已有\\|输出报告' src/skills/sddu-tree/SKILL.md"
+    },
+    {
+      "id": "TASK-002",
+      "name": "验证 8 个 Agent 模板 Skill 发现章节已就绪",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-009"],
+      "files": [],
+      "acceptance": [
+        "8 个主流程 Agent 模板均包含 Skill 发现章节",
+        "章节内容正确引用 sddu-skill-discovery 路径",
+        "如有缺失，补充后再次验证通过"
+      ],
+      "verify": "for f in src/templates/agents/sddu-{discovery,spec,plan,tasks,build,review,validate,docs}.md.hbs; do grep -q 'Skill 发现' \"$f\" && echo \"PASS: $(basename $f)\" || echo \"FAIL: $(basename $f)\"; done"
+    },
+    {
+      "id": "TASK-003",
+      "name": "更新 coordinator 模板 Agent 清单表",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-010"],
+      "files": [
+        { "op": "MODIFY", "path": "src/templates/agents/sddu.md.hbs" }
+      ],
+      "acceptance": [
+        "coordinator 模板 Agent 清单表中无 @sddu-tree 行",
+        "Agent 数量描述更新为 10 个（如存在）",
+        "辅助 Agent 分类列已移除（如存在）",
+        "grep sddu-tree 仅返回修订记录历史引用"
+      ],
+      "verify": "grep -n 'sddu-tree' src/templates/agents/sddu.md.hbs | grep -v '修订记录\\|v[0-9]' && echo 'FAIL: residue' || echo 'PASS: clean'"
+    },
+    {
+      "id": "TASK-004",
+      "name": "替换 9 个 Agent 模板中 @sddu-tree 引用",
+      "complexity": "M",
+      "dependencies": ["TASK-001"],
+      "wave": 2,
+      "fr": ["FR-004", "FR-008"],
+      "files": [
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-discovery.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-spec.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-plan.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-tasks.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-build.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-review.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-validate.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-docs.md.hbs" },
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-fast.md.hbs" }
+      ],
+      "acceptance": [
+        "7 个主流程 Agent 的 @sddu-tree 调用已替换为 Skill 发现引用",
+        "sddu-docs.md.hbs 4 处引用全部更新",
+        "sddu-fast.md.hbs 文档引用已更新",
+        "grep @sddu-tree（排除修订记录）零匹配",
+        "无模板同时含有 @sddu-tree 调用和 Skill 发现声明（EC-003 防护）"
+      ],
+      "verify": "REMAINING=$(grep -rn '@sddu-tree' src/templates/agents/*.hbs | grep -v '修订记录\\|v[0-9]\\.' | wc -l); [ \"$REMAINING\" -eq 0 ] && echo 'PASS: zero residue' || echo \"FAIL: $REMAINING references\""
+    },
+    {
+      "id": "TASK-005",
+      "name": "移除 opencode.json.hbs 中 sddu-tree 注册条目",
+      "complexity": "S",
+      "dependencies": ["TASK-004"],
+      "wave": 2,
+      "fr": ["FR-002", "FR-008"],
+      "files": [
+        { "op": "MODIFY", "path": "src/adapters/opencode/templates/opencode.json.hbs" }
+      ],
+      "acceptance": [
+        "grep sddu-tree 在 opencode.json.hbs 中零匹配",
+        "JSON 语法有效（npm run build 不报错）",
+        "subagent 条目从 11 缩减为 10"
+      ],
+      "verify": "grep -n 'sddu-tree' src/adapters/opencode/templates/opencode.json.hbs && echo 'FAIL: still registered' || echo 'PASS: deregistered'"
+    },
+    {
+      "id": "TASK-006",
+      "name": "删除 sddu-tree.md.hbs Agent 模板",
+      "complexity": "S",
+      "dependencies": ["TASK-004"],
+      "wave": 2,
+      "fr": ["FR-003", "FR-008"],
+      "files": [
+        { "op": "DELETE", "path": "src/templates/agents/sddu-tree.md.hbs" }
+      ],
+      "acceptance": [
+        "src/templates/agents/sddu-tree.md.hbs 不存在",
+        "npm run build 后 dist/sddu/agents/sddu-tree.md 不存在",
+        "其他 Agent 模板构建不受影响"
+      ],
+      "verify": "test -f src/templates/agents/sddu-tree.md.hbs && echo 'FAIL: still exists' || echo 'PASS: deleted'"
+    },
+    {
+      "id": "TASK-007",
+      "name": "构建验证 + @sddu-tree 引用残留全量审计",
+      "complexity": "S",
+      "dependencies": ["TASK-004", "TASK-005", "TASK-006"],
+      "wave": 3,
+      "fr": ["FR-005", "EC-002"],
+      "files": [],
+      "acceptance": [
+        "npm run build && npm run package 成功",
+        "dist/sddu/skills/sddu-tree/SKILL.md 存在",
+        "dist/sddu/agents/sddu-tree.md 不存在",
+        "dist/sddu/agents/ 含 10 个 Agent",
+        "grep @sddu-tree src/ 仅返回修订记录",
+        "grep sddu-tree opencode.json.hbs 零匹配"
+      ],
+      "verify": "npm run build && npm run package && test -f dist/sddu/skills/sddu-tree/SKILL.md && test ! -f dist/sddu/agents/sddu-tree.md && echo 'PASS: build verified' || echo 'FAIL: build check'"
+    }
+  ],
+  "waves": [
+    {
+      "wave": 1,
+      "tasks": ["TASK-001", "TASK-002", "TASK-003"],
+      "strategy": "parallel",
+      "description": "FR-001/FR-009/FR-010 互不依赖，可同时执行。TASK-001 创建 SKILL.md（核心产物），TASK-002 验证发现章节（预期 0 修改），TASK-003 更新 coordinator 表格（1 文件 MODIFY）。"
+    },
+    {
+      "wave": 2,
+      "tasks": ["TASK-004", "TASK-005", "TASK-006"],
+      "strategy": "sequential-within-wave",
+      "description": "原子迁移 FR-008：TASK-004 先完成（替换 9 模板引用），TASK-005（注销注册）+ TASK-006（删除模板）随后并行执行。三任务同 commit，禁止分 commit 提交。"
+    },
+    {
+      "wave": 3,
+      "tasks": ["TASK-007"],
+      "strategy": "single",
+      "description": "依赖 Wave 2 全量完成。执行 npm run build + package 构建验证 + 全量 grep 审计，验证全部产物完整性。"
+    }
+  ],
+  "frCoverage": {
+    "FR-001": ["TASK-001"],
+    "FR-002": ["TASK-005"],
+    "FR-003": ["TASK-006"],
+    "FR-004": ["TASK-004"],
+    "FR-005": ["TASK-007"],
+    "FR-008": ["TASK-004", "TASK-005", "TASK-006"],
+    "FR-009": ["TASK-002"],
+    "FR-010": ["TASK-003"],
+    "EC-002": ["TASK-007"]
+  }
+}

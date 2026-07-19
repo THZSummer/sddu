@@ -1,0 +1,18 @@
+{
+  "phase": "tasked",
+  "status": "tracked",
+  "metadata": {
+    "featureId": "FR-TREE-SKILL",
+    "name": "@sddu-tree Agent 技能化",
+    "version": "v3.1.0",
+    "priority": "P0",
+    "rice": 17.0,
+    "effort": "S (1.5d)",
+    "type": "Agent→Skill 降级",
+    "createdAt": "2026-07-19",
+    "updatedAt": "2026-07-19T20:00:00",
+    "taskCount": 7,
+    "waveCount": 3,
+    "taskComplexity": { "S": 5, "M": 2, "L": 0 }
+  }
+}
