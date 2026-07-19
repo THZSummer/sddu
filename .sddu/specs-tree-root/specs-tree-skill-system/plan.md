@@ -441,34 +441,37 @@ Step 0: 构建 → Step 1: 创建 E2E 测试项目 → Step 2~9: 逐项验证
 
 ### 执行脚本
 
+验证脚本位于 `scripts/verify-skills.sh`，包含完整的 E2E 验证流程：
+
 ```bash
-#!/usr/bin/env bash
-set -e
-PROJECT=sddu-test-skill-system
-
-# Step 0: 构建
-npm run clean && npm run build && npm run package
-
-# Step 1: 创建 E2E 测试项目（附带最新 SDDU 插件）
-bash e2e/scripts/basic/sddu-e2e.sh skill-system
-TEST_DIR=$(ls -dt $HOME/sddu-test-projects/$PROJECT* | head -1)
-
-# Step 2-9: 逐项验证
-bash scripts/verify-skills.sh "$TEST_DIR"
+bash scripts/verify-skills.sh
 ```
 
-### LLM Agent 运行时验证（需 opencode 交互）
+**脚本结构**：
 
-以下场景需在测试项目中打开 opencode 手动执行，每次验证流程的上下文由 SDDU Agent 模板中的「Skill 发现」章节提供（无需重复描述）：
+| Step | 内容 | 方法 |
+|:--:|------|------|
+| 1 | `npm run build && npm run package` | 本地构建 |
+| 2 | `bash e2e/scripts/basic/sddu-e2e.sh` | 创建 E2E 测试项目（附带最新插件） |
+| 3-6 | V1-V9 文件级验证 | bash 直接检查 |
+| 7 | V10 sync 验证 | `opencode run --auto --agent sddu "同步 SDDU Skills"` |
+| 7 | V11 creator 验证 | `opencode run --auto --agent sddu "帮我创建一个 SDDU Skill..."` |
 
-| # | 输入 | 验证点 |
-|:--|------|--------|
-| 1 | `@sddu 同步 SDDU Skills` | Agent 通过 discovery → 发现 sync → 加载 → 执行同步 → `.opencode/skills/` 出现 3 个 Skill |
-| 2 | `帮我创建一个 SDDU Skill，叫 deploy-checklist` | 触发 creator → 对话式引导 → 产出 SKILL.md 到 `.sddu/skills/deploy-checklist/` |
-| 3 | `@sddu-tree` | 扫描结果中列出已发现的 Skill 清单 |
-| 4 | 修改 `.sddu/skills/` 中 Skill → `@sddu 同步 SDDU Skills` | 实际目录同步更新 |
+### LLM Agent 运行时验证（opencode run --auto）
 
-> **说明**：以上 LLM Agent 运行时场景是 skill 系统闭环的关键验证，但由于本 Feature 类型为纯 Markdown/配置产物，这些场景依赖实际 opencode 环境，不属于 CI 自动化验证范围。
+`opencode run --auto` 支持非交互式执行，关键参数：
+
+```bash
+cd <test-project>
+opencode run --auto --format json --agent sddu "同步 SDDU Skills"
+```
+
+| 验证项 | 命令 | 验收标准 | 实测 |
+|--------|------|---------|:--:|
+| **V10** | `opencode run --auto --agent sddu "同步 SDDU Skills"` | `.opencode/skills/` 出现 3 个 Skill + `.sddu-manifest.txt` | ✅ |
+| **V11** | `opencode run --auto --agent sddu "帮我创建一个 SDDU Skill，叫 deploy-checklist"` | `.sddu/skills/deploy-checklist/SKILL.md` 产出 | — |
+
+> ⚠️ `opencode run` 依赖 LLM 模型响应时间，单次执行可能需要 3-5 分钟。V10/V11 设置了 10 分钟超时，超时后脚本会检查文件系统确认任务是否已完成（LLM 可能已完成但 CLI 仍阻塞）。
 
 ---
 
