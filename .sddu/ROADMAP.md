@@ -1,11 +1,11 @@
 # SDDU 项目版本 Roadmap
 
-> **文档版本**: 14.0.0
-> **更新日期**: 2026-07-11 (FR-KB-002 标记完成 — 由 @sddu-docs 实现)
-> **状态**: 规划中 (v3.0.0 待启动)
-> **生成方式**: `@sddu-roadmap` 全量扫描 17 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估 + Superpowers 竞品调研导入
+> **文档版本**: 15.0.0
+> **更新日期**: 2026-07-19 (FR-SKILL-001 + FR-FAST-001 标记完成 — v3.3.0 提前交付 + Skill 化可行性评估)
+> **状态**: 规划中 (v3.0.0 待启动，v3.3.0 部分提前交付)
+> **生成方式**: `@sddu-roadmap` 全量扫描 19 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估 + Superpowers 竞品调研导入
 > **当前项目版本**: v4.0.0
-> **全局状态**: 16 validated, 0 tracked, 1 terminated | 待处理项目: 46 | 新提案: 2 (FR-BUG-001, FR-SKILL-001) | 竞品借鉴: 5 🆕
+> **全局状态**: 18 validated, 0 tracked, 1 terminated | 待处理项目: 44 | 新提案: 1 (FR-BUG-001) | Skill 化候选: 2 (FR-BUG-001/FR-WORKTREE-001 → Skill 重评估) | 竞品借鉴: 3
 
 ---
 
@@ -13,25 +13,25 @@
 
 ### 愿景陈述
 
-SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范驱动工作流框架。通过 11 个专业化 Agent 协同工作，覆盖从问题挖掘 (discovery)、需求定义 (spec)、技术设计 (plan)、任务分解 (tasks)、实施构建 (build)、审查 (review) 到验证 (validate) 的完整开发生命周期。项目自 2026 年 3 月启动，已迭代至 v4.0.0，完成 16 个核心 Feature，当前聚焦 v3.0.0 质量与工作流改进。
+SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范驱动工作流框架。通过 12 个专业化 Agent 协同工作（含快速模式 @sddu-fast），覆盖从问题挖掘 (discovery)、需求定义 (spec)、技术设计 (plan)、任务分解 (tasks)、实施构建 (build)、审查 (review) 到验证 (validate) 的完整开发生命周期。项目自 2026 年 3 月启动，已迭代至 v4.0.0，完成 18 个核心 Feature，当前聚焦 v3.0.0 质量与工作流改进。
 
-项目的长期愿景是成为 AI 辅助软件工程的标准工作流框架 — 让 AI Agent 不仅能写代码，更能通过规范化流程保证交付质量、沉淀项目知识、持续自我演进。v3.0.0 系列将重点解决框架自身的质量闭环问题（Build Wave 一体化、Validate E2E 能力、框架级自验证），v3.2.0 将引入项目知识基础设施（全局配置 FR-KB-001；知识自动沉淀 FR-KB-002 已由 @sddu-docs 提前实现）。v4.0.0 已完成三域分层架构重组，为 SDDU 的跨平台扩展奠定基础。
+项目的长期愿景是成为 AI 辅助软件工程的标准工作流框架 — 让 AI Agent 不仅能写代码，更能通过规范化流程保证交付质量、沉淀项目知识、持续自我演进。v3.0.0 系列将重点解决框架自身的质量闭环问题（Build Wave 一体化、Validate E2E 能力、框架级自验证）。v3.3.0 的 FR-FAST-001（快速模式）和 FR-SKILL-001（Skill 系统）已提前交付，使 SDDU 正式进入「固定引擎 + 可扩展能力」的双层架构时代；Skill 系统的自举闭环（discovery + creator + sync）为后续 Feature 的 Skill 化降级提供了基础设施。v4.0.0 已完成三域分层架构重组，为 SDDU 的跨平台扩展奠定基础。
 
 ### 项目状态速览
 
 | 指标 | 值 |
 |------|-----|
-| **Feature 总数** | 17 |
-| **已完成 (completed)** | 16 |
+| **Feature 总数** | 19 |
+| **已完成 (completed)** | 18 |
 | **已终止 (terminated/migrated)** | 1 |
 | **进行中 (tracked)** | **0** ⚠️ |
 | **搁置 (suspended)** | 0 |
-| **已知待解决问题** | **46 (A-F + I 核心 + BUG-001 + SKILL-001 + 5 竞品借鉴 + 32 审计发现)** |
-| **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (搁置，含 FAST-001 + RATIONAL-001 + SKILL-001), v4.1.0 (远期) |
+| **已知待解决问题** | **44 (A-F + I 核心 + BUG-001 + 3 竞品借鉴 + 32 审计发现)** |
+| **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (部分提前交付), v4.1.0 (远期) |
 
 ### ⚠️ 关键警示
 
-> **当前无活跃 Feature！** 自 2026-06-21 `specs-tree-framework-architecture` (FR-FRAMEWORK-ARCH-001) validated 后，项目处于无进行中 Feature 的空窗期。v3.0.0 的 6 个核心问题 (A-F) 已记录但尚未启动任何 Feature 的 discovery 流程。Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成。
+> **当前无活跃 Feature！** 自 2026-06-21 `specs-tree-framework-architecture` (FR-FRAMEWORK-ARCH-001) validated 后，项目处于无进行中 Feature 的空窗期。v3.0.0 的 6 个核心问题 (A-F) 已记录但尚未启动任何 Feature 的 discovery 流程。Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成。好消息是 FR-FAST-001 (快速模式 Agent) 和 FR-SKILL-001 (Skill 系统) 已提前交付（2026-07-12 / 2026-07-19），为后续 Feature 提供了「Skill 化降级」的新选项。
 
 ### 版本总览表
 
@@ -45,9 +45,9 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **v3.0.1** | 模板质量统一 | 2026-06-19 | ✅ | 17 模板格式统一 + 11 Agent 职责边界 |
 | **v4.0.0** | 源码架构重组 🆕 | 2026-06-21 | ✅ | FR-FRAMEWORK-ARCH-001 三域分层 + 平台适配器隔离 |
 | **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 |
-| **v3.1.0** | 工具链增强 | TBD | 💡 提议中 | FR-BUG-001 Bug 流程 + FR-WORKTREE-001 Git Worktree 隔离 |
+| **v3.1.0** | Skill 化降级验证 | TBD | 💡 提议中 | FR-BUG-001 → sddu-bug Skill 🔄 + FR-WORKTREE-001 → sddu-worktree Skill 🔄 |
 | **v3.2.0** | 项目知识基础设施 (H・I) | TBD | 🔄 部分完成 | FR-KB-001 全局配置 (💡 提议中) + FR-KB-002 知识沉淀 (✅ 已完成 — @sddu-docs) |
-| **v3.3.0** | Agent 行为强化 (延期汇入) | TBD | ⏸️ 搁置 | FR-RATIONAL-001 理性化对抗 + FR-FAST-001 快速模式 (竞品借鉴) + FR-SKILL-001 项目级业务 Skills |
+| **v3.3.0** | Agent 行为强化 + 轻量入口 | 2026-07-19 | 🔄 部分完成 | FR-FAST-001 ✅ (快速模式) + FR-SKILL-001 ✅ (Skill 系统) + FR-RATIONAL-001 (理性化对抗，待启动) |
 | **v4.1.0** | 生态扩展 (远期) | TBD | 💡 远期 | 多平台适配 + 自动触发 (竞品借鉴 §5.3) |
 
 ### 本周优先事项 (2026-06-21 ~ 2026-06-28)
@@ -63,13 +63,13 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 
 | 排名 | 功能 | 版本 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
-| 🥇 | **FR-FAST-001**: 快速模式 Agent 🆕 | v3.3.0 | 9 | 8 | 60% | 2 | **21.6** | P0 |
-| 🥈 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 🥉 | **FR-BUG-001**: Bug 流程框架化 | v3.1.0 | 8 | 7 | 75% | 4 | **10.5** | P0 |
-| 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 5 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
+| 🥇 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
+| 🥈 | **FR-BUG-001**: Bug 流程框架化 | v3.1.0 | 8 | 7 | 75% | 4 | **10.5** | P0 |
+| 🥉 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
+| 4 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
+| 5 | **FR-QUALITY-002**: Validate E2E (✅ v3.0.5 模板已重写) | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
 
-> **注**: Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成；Issue H (知识沉淀 FR-KB-002) 已由 @sddu-docs 完成；FR-FRAMEWORK-ARCH-001 (架构重组) 已于 v4.0.0 完成交付，均不参与排名。🆕 FR-FAST-001 (v3.3.0, RICE 21.6) 为 2026-07-11 竞品调研 + 用户战略决策新纳入；FR-RATIONAL-001/FR-WORKTREE-001/FR-AUTOTRIGGER-001/FR-CROSSPLAT-001 为同期竞品调研新纳入；FR-SKILL-001 (v3.3.0, RICE 7.9) 为用户战略决策新纳入。完整 RICE 排名见「跨版本 RICE 总排名」节。
+> **注**: FR-FAST-001 (RICE 21.6) 和 FR-SKILL-001 (RICE 17.5 更新后) 已于 2026-07 提前交付完成，不参与排名。FR-BUG-001 和 FR-WORKTREE-001 存在 Skill 化降级候选，RICE 将在 Skill 化评估后更新。
 
 ### 关键 milestones
 
@@ -77,12 +77,14 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 |------|-----------|:----:|
 | ✅ 2026-06-19 | v3.0.1 发布 — 模板质量统一 | v3.0.1 |
 | ✅ 2026-06-21 | v4.0.0 发布 — SDDU 框架源码架构重组 | v4.0.0 |
-| 2026-06-28 | 首个 v3.0.0 Feature discovery 完成 | v3.0.0 |
-| 2026-07-05 | 首个 v3.0.0 Feature spec + plan 完成 | v3.0.0 |
-| 2026-07-19 | v3.0.0 首批 P0 Feature validated | v3.0.0 |
-| 2026-08-30 | v3.0.0 全部 Feature 完成 | v3.0.0 |
-| 2026-Q4 | v3.1.0 FR-BUG-001 + FR-WORKTREE-001 discovery + v3.2.0 评估 | v3.1.0 / v3.2.0 |
-| 2027+ | v3.3.0 FR-RATIONAL-001 + FR-FAST-001 + FR-SKILL-001 评估启动 / v4.1.0 远期生态扩展评估 | v3.3.0 / v4.1.0 |
+| ✅ 2026-07-12 | FR-FAST-001 validated — @sddu-fast 快速模式 Agent 上线 | v3.3.0 (提前交付) |
+| ✅ 2026-07-19 | FR-SKILL-001 validated — SDDU Skill 系统上线 (三元闭环: discovery/creator/sync) | v3.3.0 (提前交付) |
+| 2026-07-19 | 首个 v3.0.0 Feature discovery 启动 (建议) | v3.0.0 |
+| 2026-08-02 | 首个 v3.0.0 Feature spec + plan 完成 | v3.0.0 |
+| 2026-08-16 | v3.0.0 首批 P0 Feature validated | v3.0.0 |
+| 2026-09-30 | v3.0.0 全部 Feature 完成 | v3.0.0 |
+| 2026-Q4 | v3.1.0 FR-BUG-001 (Skill 化重评估) + FR-WORKTREE-001 (Skill 化候选) + v3.2.0 评估 | v3.1.0 / v3.2.0 |
+| 2027+ | v3.3.0 FR-RATIONAL-001 启动评估 / v4.1.0 远期生态扩展评估 | v3.3.0 / v4.1.0 |
 
 ### 功能完成时间线
 
@@ -106,6 +108,8 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 2026-06-13  ✅  specs-tree-sddu-status-enhancement (状态增强 v3.0.0)
 2026-06-19  ✅  specs-tree-template-quality-unification (模板质量统一 v3.0.1)
 2026-06-21  ✅  specs-tree-framework-architecture (架构重组 v4.0.0)
+2026-07-12  ✅  specs-tree-sddu-fast (快速模式 Agent v3.3.0)
+2026-07-19  ✅  specs-tree-skill-system (Skill 系统 v3.3.0-early)
             ↓
 2026-Q3    📋  v3.0.0 质量与工作流改进
 ```
@@ -120,7 +124,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 
 ##### 已完成 Feature (15 个)
 
-> **注**: 本表含最新完成的 FR-FRAMEWORK-ARCH-001 (v4.0.0)。共 16 个已完成 Feature。
+> **注**: 本表含最新完成的 FR-FRAMEWORK-ARCH-001 (v4.0.0)、FR-FAST-001 (v3.3.0)、FR-SKILL-001 (v3.3.0-early)。共 18 个已完成 Feature。
 
 | # | Feature 目录 | ID | 名称 | Phase | Priority | 完成日期 |
 |:--|-------------|------|------|:-----:|:--------:|----------|
@@ -140,6 +144,8 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 14 | `specs-tree-sddu-status-enhancement` | FR-STATUS-001 | SDDU 特性状态增强 v3.0.0 | validated | P1 | 2026-06-13 |
 | **15** | **`specs-tree-template-quality-unification`** | **FR-TPL-001** | **预置输出模板质量统一 v3.0.1** | **validated** | **P1** | **2026-06-19** |
 | **16** | **`specs-tree-framework-architecture`** | **FR-FRAMEWORK-ARCH-001** | **SDDU 框架源码架构重组 v4.0.0 🆕** | **validated** | **P0** | **2026-06-21** |
+| **17** | **`specs-tree-sddu-fast`** | **FR-FAST-001** | **`@sddu-fast` 快速模式 Agent v3.3.0 🆕** | **validated** | **P0** | **2026-07-12** |
+| **18** | **`specs-tree-skill-system`** | **FR-SKILL-001** | **SDDU Skill 系统（用户级 + 框架级）v3.3.0-early 🆕** | **validated** | **P0** | **2026-07-19** |
 
 ##### 已终止 Feature (1 个)
 
@@ -200,13 +206,13 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 
 ---
 
-### v3.1.0 — 工具链增强
+### v3.1.0 — Skill 化降级验证
 
 **预计时间**: TBD (建议 v3.0.0 启动后评估)
-**状态**: 💡 提议中
-**主题**: Bug 流程框架化 + 其他增强项
+**状态**: 💡 提议中 (原定位: 工具链增强 → 新定位: Skill 化降级验证)
+**主题**: 将已规划独立 Feature 降级为框架级 Skill，验证 FR-SKILL-001 的「Agent→Skill 降级模型」
 
-**背景**: FR-FRAMEWORK-ARCH-001 (架构解耦) 已超前于 v4.0.0 完成交付。v3.1.0 的定位从"架构解耦与增强"调整为"工具链增强"，聚焦遗留改进和 Bug 流程框架化。Skills/TUI/MCP 等项继续搁置。
+**背景**: FR-SKILL-001 的交付为后续 Feature 引入了「Skill 化降级」新选项。FR-BUG-001 和 FR-WORKTREE-001 均高度适合 Skill 化——原合计 Effort 8d (M×2)，Skill 化后降至约 3.5d (S×2)，降幅 56%。v3.1.0 的使命从「工具链增强」转变为「Skill 化降级模型的首个验证场」。
 
 #### 核心 Feature: FR-BUG-001 — Bug 追踪与修复流程框架化 🆕
 
@@ -316,207 +322,115 @@ FR-WORKTREE-001 (Worktree) ──受益于──→ FR-KB-001 (全局配置) —
 
 ---
 
-### v3.3.0 — Agent 行为强化 (延期汇入)
+### v3.3.0 — Agent 行为强化 (部分提前交付)
 
-**预计时间**: TBD (依赖 v3.0.0 ~ v3.2.0 全部交付)
-**状态**: ⏸️ 搁置
-**注意**: 本版本为延期 Feature 的汇入点，待前置版本交付后再启动 discovery。
+**预计时间**: 2026-07 (FR-FAST-001 + FR-SKILL-001 已交付) / TBD (FR-RATIONAL-001)
+**状态**: 🔄 部分完成
+**已交付**: FR-FAST-001 ✅ / FR-SKILL-001 ✅
+**待启动**: FR-RATIONAL-001 (理性化对抗)
 
-#### 延期 Feature: FR-RATIONAL-001 — Agent 理性化对抗 🆕 (竞品借鉴)
-
-> **来源**: [Superpowers 竞品调研 §5.1.2](../../docs/research/superpowers-competitor-analysis.md#512-理性化对抗-rationalization-bulletproofing)
-> **加入日期**: 2026-07-11
-
-| 属性 | 值 |
-|------|-----|
-| **Feature ID** | FR-RATIONAL-001 |
-| **优先级** | 🥈 P1 (RICE 9.6) |
-| **Effort** | M (3-4 天) |
-| **来源** | 竞品调研 — Superpowers 的 Common Rationalizations 表 + Red Flags + `<HARD-GATE>` 标签 |
-| **归属** | v3.3.0 (推迟汇入) |
-
-**背景**: Superpowers 在每个纪律性 skill 中内置 Common Rationalizations 表（借口 vs 现实）+ Red Flags - STOP 列表 + `<HARD-GATE>` 标签强化关键约束。SDDU 当前仅有"不跳步""不越界"等基础约束，缺乏系统性的 Agent 理性化对抗。SDDU 的代码级状态机（PhaseReversalError）能堵住显式违规，但堵不住隐式偷懒（如 review 走形式、validate 不真跑）。理性化对抗是 Prompt 层的免疫系统，和代码层的状态机形成双重防线。
-
-**核心目标**: 为所有核心阶段 Agent 模板增加理性化对抗表，提升 Agent 执行纪律性。
-
-**预期范围** (待 discovery 阶段细化):
-1. **Common Rationalizations 表** — 为 spec/plan/build/review/validate 各阶段定义 Agent 常见借口 + 反驳
-2. **Red Flags — STOP 列表** — 每个阶段的"出现以下情况立即停止并报告用户"的硬条件
-3. **`<HARD-GATE>` 等价标签** — 关键指令的权威性标注（不改变 Markdown 渲染）
-4. **模板标准化** — 类似 FR-TPL-001 (v3.0.1)，纯模板内容变更，不改运行时代码
-
-**RICE 详细分析**:
-
-| 维度 | 评分 | 依据 |
-|------|:---:|------|
-| Reach | **8** | 影响全部核心 Agent 的每次调用，覆盖所有用户 |
-| Impact | **6** | 显著降低 Agent "自作主张"（跳步、偷懒、走形式）的发生率 |
-| Confidence | **70%** | 纯模板内容变更，与 FR-TPL-001 模式一致；实际效果依赖 AI 对自然语言指令的遵从度 |
-| Effort | **3.5** | 中等：设计 6 阶段 Rationalizations 表 (1.5d) + 模板写入 (1d) + 验证 (0.5d) + discovery (0.5d) |
-| **RICE** | **9.6** | **(8 × 6 × 0.7) / 3.5** |
-
-**与其他 Feature 的依赖关系**:
-
-```
-FR-RATIONAL-001 (理性化对抗) ──借用──→ FR-TPL-001 (模板系统) — 共用 Handlebars 模板引擎
-FR-RATIONAL-001 (理性化对抗) ──互补──→ 状态机 (PhaseReversalError) — Prompt 层 + 代码层双重防线
-FR-RATIONAL-001 (理性化对抗) ──无硬依赖──→ 可独立启动 (仅模板内容变更)
-```
-
-**建议**: 推迟至 v3.3.0，等 v3.0.0~v3.2.0 全部交付后再启动。纯模板层改动，启动后 Effort 仅 3-4d，可作为 v3.3.0 首个 Feature 快速交付。
+v3.3.0 原规划为三个 Feature 的搁置汇入点，现其中两个已提前交付，仅 FR-RATIONAL-001 待 v3.0.0~v3.2.0 交付后启动。FR-SKILL-001 的完成为后续 Feature 引入了「Skill 化降级」的新选项（详见 §Skill 化可行性评估）。
 
 ---
 
-#### 延期 Feature: FR-FAST-001 — @sddu-fast 快速模式 Agent 🆕 (竞品借鉴 + 用户战略决策)
+#### ✅ 已完成: FR-FAST-001 — @sddu-fast 快速模式 Agent
 
-> **来源**: Superpowers 竞品调研 — Superpowers 的核心优势是"轻"：无状态机、无编译、纯 Markdown skill 自动触发、对话式推进
-> **加入日期**: 2026-07-11
-> **决策来源**: 用户战略确认（轻重双模演进方向）
+> **交付日期**: 2026-07-12 | **版本**: v3.3.0 | **RICE**: 21.6 | **Effort**: XS (1-2d)
+> **交付物**: `@sddu-fast` Agent 模板 (.hbs) + OpenCode subagent 注册 + 6 任务全部完成 + validated
 
-| 属性 | 值 |
-|------|-----|
-| **Feature ID** | FR-FAST-001 |
-| **优先级** | 🥇 P0 (RICE 21.6，跨版本第 1 位) |
-| **Effort** | XS (1-2 天) |
-| **来源** | 竞品调研 — Superpowers 的轻量性：纯 Markdown、无状态机、无编译、对话式推进 + 用户战略决策 |
-| **归属** | v3.3.0 (搁置池，与 FR-RATIONAL-001 同版) |
+SDDU 正式进入「轻重双模」时代。`@sddu-fast` 提供零摩擦轻量入口：无状态机、纯对话、零中间产物、不留痕。覆盖 60-70% 日常简单任务（bug 修复、小功能、配置调整）。用户显式选择 `@sddu-fast` 或 `@sddu 开始`，Agent 在检测到复杂问题时建议升级到完整流程。
 
-**背景**: Superpowers 的核心竞争力在于"轻"—用户说"实现登录功能"，Agent 自动从 brainstorming 开始，轻量对话式推进，用户几乎无感。SDDU 的 8 阶段状态机对复杂 Feature 是质量保障，但对简单任务（bug 修复、小功能、配置调整等 60-70% 的日常工作）是过度工程。SDDU 当前缺少"轻量入口"，用户要么走完整 8 阶段，要么不用 SDDU，没有中间地带。这是 SDDU 从"重型框架"向"轻重双模"演进的关键一步。
+**关键设计决策**（已落地）:
+- 独立 Agent，不走状态机，不依赖 `pipeline/` 模块
+- 理解问题 → 直接解决 → 验证结果（三阶段，无中间文件）
+- 不写 `state.json`，不进 `specs-tree-root`
+- 建议升级但**不自动**升级到完整流程
 
-**核心目标**: 提供一个零摩擦的轻量入口，让用户在不值得走完整 8 阶段流程时也能享受 SDDU Agent 的能力。Fast 模式不追求文档可追溯，核心在于快速解决问题。
-
-**用户确认的设计决策（不可更改）**:
-
-1. **Agent 形态**: `@sddu-fast` 独立 Agent
-   - 有自己的 .hbs 模板和职责定义
-   - 独立注册到 OpenCode subagent 系统
-   - 不走状态机，不依赖 SDDU 核心状态管理
-
-2. **内部流程**: 无阶段，纯对话
-   - 理解问题 → 直接解决 → 验证结果
-   - 零中间产物，不产出 discovery.md / spec.md / plan.md 等
-
-3. **升级路径**: 纯一次性
-   - 解决完就结束，不留痕
-   - 不写 state.json，不进 specs-tree-root
-   - 如果 Fast 发现问题复杂，Agent 可建议用户切换到 `@sddu 开始` 走完整流程（仅建议，不自动升级）
-
-4. **版本归属**: v3.3.0（搁置池）
-   - 与 FR-RATIONAL-001 同属 v3.3.0
-   - 启动条件: v3.0.0~v3.2.0 全部交付后启动
-
-**预期范围** (待 discovery 阶段细化):
-1. `@sddu-fast` Agent 模板（.hbs）— 定义快速模式的行为约束和对话策略
-2. Agent 注册 — 独立注册到 OpenCode subagent，不走状态机
-3. 智能边界判断 — Agent 评估问题复杂度，如发现复杂建议升级到 `@sddu 开始`
-4. 可选的 TDD / 调试能力引入 — 按需引入 Superpowers 式的轻量技能（先写测试再写代码、根因分析等），但不是必须
-
-**RICE 详细分析**:
-
-| 维度 | 评分 | 依据 |
-|------|:---:|------|
-| Reach | **9** | 影响所有 SDDU 用户，覆盖 60-70% 日常工作场景（bug 修复、小功能、配置调整等） |
-| Impact | **8** | 显著降低使用门槛，从"重型框架"变"轻重双模"；零摩擦入口消除用户对 SDDU 的抵触心理 |
-| Confidence | **60%** | 概念清晰且有 Superpowers 成功验证；但纯一次性无追溯的效果需验证，Agent 边界判断能力待评估 |
-| Effort | **2** | 极低：一个 .hbs 模板 (0.5d) + Agent 注册 (0.3d) + 基础验证 (0.5d) + discovery (0.2d) |
-| **RICE** | **21.6** | **(9 × 8 × 0.6) / 2** |
-
-**与其他 Feature 的依赖关系**:
-
-```
-FR-FAST-001 (快速模式) ──借用──→ FR-TPL-001 (模板系统) — 共用 Handlebars 模板引擎生成 .hbs
-FR-FAST-001 (快速模式) ──独立于──→ 状态机 — 不走 StateMachine，不依赖 pipeline/ 模块
-FR-FAST-001 (快速模式) ──互补──→ SDDU 完整流程 — 轻/重双入口，覆盖不同复杂度场景
-FR-FAST-001 (快速模式) ──无硬依赖──→ 可独立启动 (仅模板 + Agent 注册)
-FR-FAST-001 (快速模式) ──启发自──→ Superpowers — 轻量对话式、无状态机、无编译
-```
-
-**建议**: 推迟至 v3.3.0，等 v3.0.0~v3.2.0 全部交付后再启动。Effort 极低 (1-2d)，可与 FR-RATIONAL-001 同期启动。二者互补：理性化对抗强化重型流程的 Agent 纪律，Fast 模式开辟轻量入口 — 共同构成 SDDU "轻重双模"的完整 Agent 体系。
+**依赖**: FR-TPL-001 (模板系统) — 共用 Handlebars 引擎
 
 ---
 
-#### 新增 Feature: FR-SKILL-001 — 项目级业务 Skills 🆕 (用户战略决策)
+#### ✅ 已完成: FR-SKILL-001 — SDDU Skill 系统 (双重定位)
 
-> **来源**: 用户战略决策 (2026-07-11)，竞品调研启发 — Superpowers 的 skills 概念启发了这个设计，但 SDDU 的 skills 是业务化的、用户填充的
-> **加入日期**: 2026-07-11
-> **决策来源**: 用户确认设计决策（存放位置 / 内容格式 / 触发机制 / 版本归属）
+> **交付日期**: 2026-07-19 | **版本**: v3.3.0-early | **RICE**: 17.5 (更新后 R=10/I=10/C=70%/E=4) | **Effort**: M (4d)
+> **交付物**: 3 个框架级 Skill + 12 个 Agent 模板注入 + 双层架构 + 三元自举闭环 + 28 FR / 8 NFR / 10 EC 覆盖 + validated (⚠️ 有条件通过)
+> **Commit**: `04d78a8`
 
-| 属性 | 值 |
-|------|-----|
-| **Feature ID** | FR-SKILL-001 |
-| **优先级** | 🥈 P1 (RICE 7.9) |
-| **Effort** | M (3-5 天) |
-| **来源** | 用户战略决策 — SDDU 需要项目级业务知识沉淀机制，让用户手写可复用执行流程，Agent 按需发现并加载 |
-| **归属** | v3.3.0 (搁置池，与 FR-FAST-001 + FR-RATIONAL-001 同版) |
+FR-SKILL-001 是 SDDU 架构演进的里程碑——SDDU 从「全功能 Agent 集合」进化为「固定引擎 + 可扩展能力」双层模型：
 
-**背景**: 用户项目里某类事情的执行流程没有地方沉淀，每次新会话、新需求都要重新和 Agent 描述，低效繁琐。例如"接入新的支付渠道"这件事，每次都要重新解释路由在哪、验签怎么写、回调怎么处理、测试怎么跑。这不是配置问题（FR-KB-001 解决不了），也不是历史 Feature 文档聚合（FR-KB-002 解决不了），而是项目特有的、可复用的执行流程知识。
+**架构决策**（不可更改）: 「未来 Agent 的清单尽可能保持简单固定，拓展 SDDU 能力核心重任就放到 Skill 这边来。」
 
-当前生态里这个问题普遍存在：
-- **CLAUDE.md / AGENTS.md**: 静态全量加载，不按上下文触发，长了就爆 context
-- **Superpowers 的 skills**: 通用方法论（TDD、调试），不是项目业务知识
-- **Cursor 的 .cursorrules**: 规则约束，不是流程指引
+**交付的关键成果**:
+1. **3 个框架级 Skill**（三元自举闭环）:
+   - `sddu-skill-discovery` — 用 Skill 描述 Skill 发现逻辑（Stage 1/2/3 渐进披露模型）
+   - `sddu-skill-creator` — 用 Skill 引导用户创建符合规范的 Skills
+   - `sddu-skill-sync` — 用 Skill 实现源目录 → 实际目录同步（按需触发）
+2. **12 个 Agent 模板全部注入**「## Skill 发现」章节（三阶段 + 冷启动同步路径，极简一行，不泄漏 discovery 内部职责）
+3. **「源目录 + 实际目录」双层架构**: 源目录 SDDU 管辖（`.sddu/skills/` + `.opencode/plugins/sddu/skills/`），实际目录 LLM Agent 工具管辖（`.opencode/skills/`），两套发现流程互不干扰
+4. **接口优先的契约式设计**: 每个框架级 Skill 包含参数/返回值/调用示例
+5. **Agent 新增门禁**: 任何提议新增 Agent 的需求必须先证明「Skill 无法满足」
+6. **Agent→Skill 降级评估框架**: 为 FR-BUG-001、FR-RATIONAL-001、FR-WORKTREE-001 等已规划 Feature 提供 Skill 化可行性评估（见下方）
 
-**与已有规划的本质区别**:
-| Feature | 类型 | 内容 | 定位 |
-|---------|------|------|------|
-| **FR-KB-001** (全局配置) | 声明式配置 | 技术栈、命名规范、代码风格 | 静态的「是什么」 |
-| **FR-KB-002** (知识沉淀) ✅ | 自动聚合 | Feature 产出物自动汇总 (已由 @sddu-docs 实现) | 过去的「做了什么」 |
-| **FR-SKILL-001** (业务 Skills) | 用户手写流程 | 项目特有的可复用执行流程 | 未来的「怎么做某类事」 |
+**验证结论**: ⚠️ 有条件通过 — 构建全链路 zero error，FR 覆盖率 92%（scope 内），NFR 覆盖率 75%，0 阻塞漂移，1 项非阻塞观察（`src/skills/` untracked → 建议提交）。
 
-三者本质不同，不应混并。
+---
 
-**核心目标**: 提供一个项目级业务知识沉淀机制，用户填充可复用执行流程，SDDU Agent 在相关任务时自动发现并应用，避免每次新会话重复描述。
+#### 📊 Skill 化可行性评估 — 对后续 Feature 的影响分析
 
-**用户确认的设计决策（不可更改）**:
+FR-SKILL-001 的交付引入了「Skill 化降级」的新范式：原本规划为独立 Feature 的能力，现在可以通过 Skill 以更低成本实现。下面对三个已规划 Feature 做 Skill 化可行性评估：
 
-1. **存放位置**: `.sddu/skills/`
-   - 与 Superpowers 的 skills 概念对齐，但内容是项目业务知识
-   - 和 specs-tree-root 平级，属于 SDDU 工作空间的一部分
+##### FR-BUG-001: Bug 流程框架化 → ⚡ 高度适合 Skill 化
 
-2. **内容格式**: 标准 skill 格式
-   - 结构化 Markdown + frontmatter (name / tags / when)
-   - 类似 Superpowers 的 SKILL.md 写法，用户可直接参考
-   - 不用 .hbs 模板引擎，纯用户手写
+| 评估维度 | 分析 |
+|---------|------|
+| **Skill 化适配度** | 🟢 **高** — Bug 流程本质是「可复用的执行流程指引」，正是 Skill 的核心定位 |
+| **Skill 化方案** | 创建框架级 `sddu-bug` Skill，包含：轻修复规则 (不改 spec/plan/tasks)、重修复规则 (走子特性流程)、bug 报告模板引用 |
+| **与原 Feature 的差异** | 原 FR-BUG-001 规划为「框架级 Feature + Bug 模板 + 规则写入 @sddu 指令」；Skill 化后 Bug 模板和流程规则封装为 Skill body，Agent 按需加载而非硬编码到 coordinator 指令中 |
+| **节省 Effort** | 原 Effort 4d (M) → Skill 化后约 2d (S) — 减少 50%，模板编写 + 注册即可，无需改 coordinator 指令体系 |
+| **跨项目复用** | ✅ Skill 随 `sddu-skill-sync` 同步，天然跨项目跟随 |
+| **建议** | **强烈推荐 Skill 化**。将 FR-BUG-001 从独立 Feature 降级为框架级 `sddu-bug` Skill，通过 `sddu-skill-creator` 创建，`sddu-skill-sync` 同步到实际目录。保留 FR-BUG-001 的 Feature ID 用于追踪，但 scope 大幅缩小为「创建并验证 sddu-bug Skill」 |
 
-3. **触发机制**: 混合模式
-   - Agent 工作时自动扫描 `.sddu/skills/` 目录
-   - 按关键词 / tags 匹配当前任务上下文
-   - 匹配到后推荐给用户，用户确认后才加载（避免误匹配）
-   - 不像 Superpowers 那样强制触发，也不像 CLAUDE.md 那样全量加载
+##### FR-WORKTREE-001: Git Worktree 隔离 → ⚡ 高度适合 Skill 化
 
-4. **版本归属**: v3.3.0（搁置池）
-   - 与 FR-FAST-001 / FR-RATIONAL-001 同版
-   - 启动条件: v3.0.0~v3.2.0 全部交付后启动
+| 评估维度 | 分析 |
+|---------|------|
+| **Skill 化适配度** | 🟢 **高** — Worktree 创建/初始化/收尾是典型的「可复用执行流程」，适合 Skill 封装 |
+| **Skill 化方案** | 创建框架级 `sddu-worktree` Skill，描述：Step 0 嵌套检测 → Step 1 创建 worktree → Step 2 项目初始化/依赖安装 → Step 3 基线验证 → Step 4 收尾（merge/PR/keep/discard） |
+| **与原 Feature 的差异** | 原规划为独立 Feature (M, 3-5d)；Skill 化后为框架级 Skill (S, 1-2d)，Agent 在 spec/plan 阶段按需发现并加载 |
+| **节省 Effort** | 原 Effort 4d (M) → Skill 化后约 1.5d (S) — 减少 60%+ |
+| **与树形 Feature 集成** | ✅ Skill body 可描述子 Feature 的 worktree 隔离策略，由 Agent 在运行时按 Skill 指引执行 |
+| **建议** | **推荐 Skill 化**。Worktree 操作本身高度流程化，Skill 格式天然适合。保留 FR-WORKTREE-001 Feature ID 用于追踪 |
 
-**预期范围** (待 discovery 阶段细化):
-1. **Skills 目录结构** — `.sddu/skills/` 目录 + 标准 skill 文件规范（frontmatter：name / tags / when）
-2. **扫描与匹配引擎** — Agent 启动时扫描 `skills/`，按 tags 匹配当前任务上下文，生成推荐列表
-3. **用户确认机制** — 匹配后通过对话推荐给用户，用户选择加载后才注入 Agent 上下文
-4. **Agent 模板集成** — 在 `@sddu` coordinator 的 .hbs 模板中增加 skills 扫描与推荐逻辑
-5. **示例 Skills** — 提供 2-3 个示例 skill 文件帮助用户上手（如：接入支付渠道、部署检查清单、数据库迁移流程）
+##### FR-RATIONAL-001: Agent 理性化对抗 → ⚠️ 部分适合，核心仍需模板变更
 
-**RICE 详细分析**:
+| 评估维度 | 分析 |
+|---------|------|
+| **Skill 化适配度** | 🟡 **中** — 理性化表可作为「参考 Skill」在 Agent 模板中引用，但核心交付仍是模板变更 |
+| **Skill 化方案** | (1) 创建 `sddu-rationalizations` Skill 作为「理性化知识库」— 包含各阶段常见借口 + 反驳； (2) Agent 模板中增加引用指令（如「执行前参考 `sddu-rationalizations` Skill 的对应阶段表」） |
+| **不能 Skill 化的部分** | Red Flags STOP 列表、`<HARD-GATE>` 标签需要硬编码到模板中才能保证执行纪律——仅靠 Skill 引用无法达到「强制停止」的效果 |
+| **与原 Feature 的关系** | 不能降级为纯 Skill，但可以 Skill + 模板变更混合实现。Skill 承载「知识」，模板承载「纪律」 |
+| **节省 Effort** | 有限 — 原 Effort 3.5d (M) → Skill + 模板混合约 3d，仅减少 ~15% |
+| **建议** | **保留为独立 Feature，但融入 Skill 引用**。在 FR-RATIONAL-001 的 discovery 阶段设计「Skill 知识库 + 模板强制约束」的混合方案。Rationalization 表作为 Skill 的好处：后续可独立更新（无需走模板变更流程） |
 
-| 纬度 | 评分 | 依据 |
-|------|:---:|------|
-| Reach | **9** | 影响所有 SDDU 用户的所有项目，覆盖高频的「重复描述」场景 — 几乎所有复杂项目都需要沉淀执行流程 |
-| Impact | **8** | 显著提升效率，消除「每次重新描述」的摩擦；Agent 获得项目上下文后产出质量也提升；用户投资（手写 skill）有长期复用回报 |
-| Confidence | **55%** | 概念清晰（Superpowers skills 已验证），但混合触发的匹配准确率需验证；用户是否会主动填充 skills 需观察；推荐确认机制可能增加交互步数 |
-| Effort | **5** | 中等：skills 目录扫描逻辑 (1d) + frontmatter 解析 + 匹配推荐 (1.5d) + Agent 模板集成 (1d) + 示例 skills (0.5d) + discovery/spec (1d) |
-| **RICE** | **7.9** | **(9 × 8 × 0.55) / 5** |
+##### Skill 化影响总结
 
-**与其他 Feature 的依赖关系**:
+| Feature | 原归属 | Effort (原) | Skill 化后 Effort | 节省 | Skill 化建议 |
+|---------|:------:|:-----------:|:-----------------:|:----:|:-----------:|
+| FR-BUG-001 | v3.1.0 | M (4d) | S (~2d) | **~50%** | ✅ 强烈推荐 |
+| FR-WORKTREE-001 | v3.1.0 | M (4d) | S (~1.5d) | **~60%** | ✅ 推荐 |
+| FR-RATIONAL-001 | v3.3.0 | M (3.5d) | M (~3d) | ~15% | ⚠️ 混合方案 |
 
-```
-FR-SKILL-001 (业务 Skills) ──独立于──→ FR-KB-001 (全局配置) — Skills 是流程知识，不是声明式配置，不依赖 KB-001
-FR-SKILL-001 (业务 Skills) ──互补于──→ FR-KB-002 (知识沉淀) — KB-002 聚合「过去的」产出物，Skills 指导「未来的」执行
-FR-SKILL-001 (业务 Skills) ──借用──→ FR-TPL-001 (模板系统) — Coordinator 模板中增加 skills 扫描逻辑，共用 Handlebars 引擎
-FR-SKILL-001 (业务 Skills) ──独立于──→ 状态机 — Skills 由 Agent 按需加载，不经过 pipeline 流转
-FR-SKILL-001 (业务 Skills) ──无硬依赖──→ 可独立启动 (纯目录扫描 + 模板变更)
-FR-SKILL-001 (业务 Skills) ──启发自──→ Superpowers — skills 概念 + SKILL.md 格式参考，但内容为项目业务知识
-```
+> **决策建议**: FR-BUG-001 和 FR-WORKTREE-001 从独立 Feature 降级为框架级 Skill（`sddu-bug` / `sddu-worktree`），可显著降低 v3.1.0 的交付负担——原 v3.1.0 总 Effort 约 8d (M×2)，Skill 化后降至约 3.5d (S×2)，降幅 56%。建议在 v3.1.0 discovery 阶段以 Skill 化路径启动，而非完整 Feature 流程。
 
-**建议**: 推迟至 v3.3.0，等 v3.0.0~v3.2.0 全部交付后再启动。FR-SKILL-001 与 FR-FAST-001 + FR-RATIONAL-001 共同构成 v3.3.0 的三大支柱：Fast 解决「轻量入口」问题、Rational 解决「Agent 纪律」问题、Skills 解决「项目知识复用」问题。三者互补，无需串行依赖。
+---
+
+#### 待启动: FR-RATIONAL-001 — Agent 理性化对抗
+
+> **来源**: Superpowers 竞品调研 §5.1.2 | **RICE**: 9.6 | **Effort**: M (3d) | **归属**: v3.3.0
+
+FR-RATIONAL-001 是 v3.3.0 仅剩的未启动 Feature。纯模板层改动，无硬依赖，可独立启动。建议采用「Skill 知识库 + 模板强制约束」混合方案：Rationalization 表和 Red Flags 以 Skill 形式承载，`<HARD-GATE>` 标签硬编码到 Agent 模板中。
+
+**启动条件**: v3.0.0~v3.2.0 全部交付 + 用户反馈 Agent 偷懒/走形式问题频发
 
 ---
 
@@ -560,25 +474,27 @@ FR-SKILL-001 (业务 Skills) ──启发自──→ Superpowers — skills 概
 
 ---
 
-### 跨版本 RICE 总排名 (全部 15 项: A-F + H-I + BUG-001 + FAST-001 + SKILL-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
+### 跨版本 RICE 总排名 (全部 15 项: A-F + H-I + BUG-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001)
 
 | 排名 | Feature | 归属 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
-| 🥇 | **FR-FAST-001**: 快速模式 Agent 🆕 | v3.3.0 | 9 | 8 | 60% | 2 | **21.6** | P0 |
-| 🥈 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 🥉 | **FR-BUG-001**: Bug 流程框架化 | v3.1.0 | 8 | 7 | 75% | 4 | **10.5** | P0 |
-| 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 5 | **FR-RATIONAL-001**: 理性化对抗 🆕 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
-| 6 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
-| 7 | **FR-SKILL-001**: 项目级业务 Skills 🆕 | v3.3.0 | 9 | 8 | 55% | 5 | **7.9** | P1 |
-| 8 | **FR-AUTOTRIGGER-001**: 自动触发 🆕 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
-| 9 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
-| 10 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
-| 11 | **FR-WORKTREE-001**: Git Worktree 🆕 | v3.1.0 | 5 | 6 | 60% | 4 | **4.5** | P2 |
-| 12 | ~~**FR-KB-002**: 项目知识沉淀~~ | ~~v3.2.0~~ | — | — | — | — | — | ✅ 已完成 (@sddu-docs) |
+| 🥇 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
+| 🥈 | **FR-BUG-001**: Bug 流程框架化 🔄 | v3.1.0 | 8 | 7 | 75% | 4→2 | **10.5→21.0** | P0 |
+| 🥉 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
+| 4 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
+| 5 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
+| 6 | **FR-AUTOTRIGGER-001**: 自动触发 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
+| 7 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
+| 8 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
+| 9 | **FR-WORKTREE-001**: Git Worktree 🔄 | v3.1.0 | 5 | 6 | 60% | 4→1.5 | **4.5→12.0** | P2 |
+| 10 | ~~**FR-FAST-001**: 快速模式 Agent~~ | ~~v3.3.0~~ | — | — | — | — | — | ✅ 已完成 |
+| 11 | ~~**FR-SKILL-001**: 项目级业务 Skills~~ | ~~v3.3.0~~ | — | — | — | — | — | ✅ 已完成 |
+| 12 | ~~**FR-KB-002**: 项目知识沉淀~~ | ~~v3.2.0~~ | — | — | — | — | — | ✅ 已完成 |
 | 13 | **FR-QUALITY-004**: 框架自验证 | v3.0.0 | 4 | 7 | 60% | 6 | **2.8** | P1 |
 | 14 | **FR-QUALITY-006**: coordinator 兼容 | v3.0.0 | 2 | 3 | 80% | 2 | **2.4** | P2 |
-| 15 | **FR-CROSSPLAT-001**: 多平台适配 🆕 | v4.1.0 | 9 | 8 | 40% | 12 | **2.4** | P3 |
+| 15 | **FR-CROSSPLAT-001**: 多平台适配 | v4.1.0 | 9 | 8 | 40% | 12 | **2.4** | P3 |
+
+> **注**: FR-BUG-001 和 FR-WORKTREE-001 标注 🔄 表示存在 Skill 化候选——原 Effort 4d → Skill 化后 2d/1.5d，RICE 显著提升。建议在 v3.1.0 discovery 阶段以 Skill 化路径评估。
 
 ---
 
@@ -635,10 +551,10 @@ specs-tree-sdd-plugin-baseline ────────────────�
             ├── FR-KB-001 (全局项目配置) — Issue I → v3.2.0
             └── FR-KB-002 (项目知识沉淀) — Issue H → ✅ 已完成 (@sddu-docs)
 
-            ▼  ─── ⏸️ v3.3.0 搁置 ───
-            ├── FR-RATIONAL-001 (理性化对抗) 🆕 — 竞品借鉴 §5.1.2 → v3.3.0
-            ├── FR-FAST-001 (快速模式 Agent) 🆕 — 竞品借鉴 + 用户战略决策 → v3.3.0
-            └── FR-SKILL-001 (项目级业务 Skills) 🆕 — 用户战略决策 → v3.3.0
+            ▼  ─── 🔄 v3.3.0 部分提前交付 ───
+            ├── FR-FAST-001 (快速模式 Agent) — ✅ 已完成 (2026-07-12)
+            ├── FR-SKILL-001 (SDDU Skill 系统) — ✅ 已完成 (2026-07-19)
+            └── FR-RATIONAL-001 (理性化对抗) — 📋 待启动 (v3.3.0 唯一剩余)
 
             ▼  ─── 💡 v4.1.0 远期 ───
             ├── FR-CROSSPLAT-001 (多平台适配) 🆕 — 竞品借鉴 §5.3.1 → v4.1.0
@@ -653,16 +569,14 @@ specs-tree-solo-team-flow (ETD-001) ──────────── 🚫 te
 FR-KB-001 (全局配置) ──→ ~~FR-KB-002 (知识沉淀)~~ ✅ 已完成       ← 配置是知识沉淀的前提 (已实现)
 FR-BUG-001 (Bug 流程) ──受益于──→ FR-KB-001 (全局配置)   ← 全局配置可定义 bug 严重度等级
 FR-BUG-001 (Bug 流程) ──借用──→ FR-TPL-001 (模板系统)   ← 共用 Handlebars 模板引擎
+FR-BUG-001 (Bug 流程) ──Skill 化──→ FR-SKILL-001 ✅     ← 高度适合 Skill 降级为框架级 sddu-bug Skill
 FR-WORKTREE-001 (Worktree) ──受益于──→ FR-MULTI-001 (多模块) ← Worktree 为子 Feature 提供物理隔离
 FR-WORKTREE-001 (Worktree) ──受益于──→ FR-KB-001 (全局配置) ← 全局配置可定义默认 worktree 行为
+FR-WORKTREE-001 (Worktree) ──Skill 化──→ FR-SKILL-001 ✅ ← 高度适合 Skill 降级为框架级 sddu-worktree Skill
 FR-RATIONAL-001 (理性化) ──借用──→ FR-TPL-001 (模板系统)  ← 纯模板层变更，共用 Handlebars 引擎
-FR-FAST-001 (快速模式) 🆕 ──借用──→ FR-TPL-001 (模板系统)  ← 纯模板层变更，共用 Handlebars 引擎
-FR-FAST-001 (快速模式) 🆕 ──独立于──→ 状态机 (pipeline/)  ← 不走状态机，不依赖 state.json
-FR-FAST-001 (快速模式) 🆕 ──互补──→ SDDU 完整流程       ← 轻/重双入口，覆盖不同复杂度
-FR-SKILL-001 (业务 Skills) 🆕 ──独立于──→ FR-KB-001 (全局配置) ← Skills 是流程知识，不是声明式配置
-FR-SKILL-001 (业务 Skills) 🆕 ──互补于──→ FR-KB-002 (知识沉淀) ← KB-002 聚合过去产物，Skills 指导未来执行
-FR-SKILL-001 (业务 Skills) 🆕 ──借用──→ FR-TPL-001 (模板系统) ← Coordinator 模板中增加 skills 扫描逻辑
-FR-SKILL-001 (业务 Skills) 🆕 ──独立于──→ 状态机 (pipeline/) ← Skills 由 Agent 按需加载，不经过 pipeline 流转
+FR-RATIONAL-001 (理性化) ──部分 Skill 化──→ FR-SKILL-001 ✅ ← Rational 知识库以 Skill 承载，纪律约束硬编码模板
+FR-FAST-001 (快速模式) ✅ ──已完成──→ 2026-07-12         ← 轻量入口，无状态机，纯对话
+FR-SKILL-001 (Skill 系统) ✅ ──已完成──→ 2026-07-19      ← 三元闭环 + 双层架构 + Agent 门禁
 FR-QUALITY-001 (Build Wave) ──→ FR-QUALITY-003 (设计规划)    ← Wave 经验指导设计
 FR-QUALITY-002 (Validate E2E) ──→ FR-QUALITY-004 (框架自验)  ← E2E 能力支撑自验证
 FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
@@ -690,11 +604,11 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 ┌─ Wave 5 (v3.2.0) ─────────────────┐
 │ ~~FR-KB-002 (知识沉淀)~~            │ ← ✅ 已完成 (@sddu-docs)
 └────────────────────────────────────┘
-┌─ Wave 6 (v3.3.0 搁置) ────────────┐
-│ FR-RATIONAL-001 (理性化对抗) 🆕     │ ← 等 v3.0~v3.2 交付后启动
-│ FR-FAST-001 (快速模式 Agent) 🆕    │ ← 等 v3.0~v3.2 交付后启动，Effort 1-2d
-│ FR-SKILL-001 (项目级业务 Skills) 🆕 │ ← 等 v3.0~v3.2 交付后启动，Effort 3-5d
-└────────────────────────────────────┘
+┌─ Wave 6 (v3.3.0 部分交付完毕 + 剩余) ────┐
+│ FR-FAST-001 (快速模式 Agent) ✅            │ ← 已完成 (2026-07-12)
+│ FR-SKILL-001 (SDDU Skill 系统) ✅          │ ← 已完成 (2026-07-19)
+│ FR-RATIONAL-001 (理性化对抗) 📋            │ ← 待 v3.0~v3.2 交付后启动
+└────────────────────────────────────────────┘
 ┌─ Wave 7 (v4.1.0 远期) ────────────┐
 │ FR-CROSSPLAT-001 (多平台) 🆕        │ ← 依赖 v4.0.0 adapters 基础
 │ FR-AUTOTRIGGER-001 (自动触发) 🆕    │ ← 无硬依赖
@@ -720,13 +634,15 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **FR-WORKTREE-001 嵌套 worktree 检测** 🆕 | 🟡 中 | 🟡 中 | 参考 Superpowers Step 0 检测逻辑；增加环境变量标记避免嵌套 |
 | **FR-WORKTREE-001 平台兼容性** 🆕 | 🟢 低 | 🟡 中 | 优先走平台原生工具 → 降级 git worktree add；E2E 测试覆盖多平台 |
 | **v3.3.0/v4.1.0 前瞻 Feature 过早承诺** 🆕 | 🟢 低 | 🟡 中 | 标记为 "远期"，不进入近期执行计划；每季度回顾一次是否启动评估 |
-| **FR-FAST-001 纯一次性无追溯** 🆕 | 🟡 中 | 🟡 中 | Fast 模式不产出任何文档或 state.json — 问题解决后无审计痕迹。缓解：通过 Agent prompt 建议用户对重要变更走完整流程；Fast 模式定位为"低风险快速任务"专用 |
-| **FR-FAST-001 Agent 边界判断不准** 🆕 | 🟡 中 | 🟡 中 | Agent 自行判断问题复杂度（Fast 还是完整流程）可能不准确。缓解：在 .hbs 模板中内置复杂度评估清单；允许用户显式选择路径（`@sddu-fast` vs `@sddu 开始`） |
-| **FR-FAST-001 与完整流程的割裂** 🆕 | 🟢 低 | 🟢 低 | 两种模式之间无数据互通，用户可能困惑何时用哪个。缓解：`@sddu` 入口增加智能路由提示；Fast Agent 检测到复杂问题时主动建议升级 |
-| **FR-SKILL-001 用户不主动填充 skills** 🆕 | 🔴 高 | 🟡 中 | Skills 的价值依赖用户持续填充 — 如果用户不写 skills，整个功能将成为空壳。缓解：&zero-width-space;(1) 提供初版示例 skills 降低上手门槛；(2) Agent 在发现重复操作模式时主动建议用户物化为 skill；(3) 在 v3.3.0 discovery 阶段设计技能发现 UI |
-| **FR-SKILL-001 混合触发匹配准确率低** 🆕 | 🟡 中 | 🟡 中 | 基于 keywords/tags 的自动匹配可能误推荐（不相关 skill）或漏推荐（相关 skill 未匹配）。缓解：&zero-width-space;(1) 使用关键词+语义双通道匹配；(2) 用户确认机制确保不误加载；(3) v3.3.0 discovery 阶段设计匹配度评分阈值 |
-| **FR-SKILL-001 Skills 冗余/过时管理** 🆕 | 🟡 中 | 🟢 低 | 随着项目演进，skills 可能过时或与代码实际行为不一致。缓解：&zero-width-space;(1) 每个 skill 记录 last-updated；(2) Agent 在相关任务后建议用户检查 skill 是否需更新 |
-| **v3.3.0 三大 Feature (FAST + RATIONAL + SKILL) 同时启动资源争抢** 🆕 | 🟡 中 | 🟢 低 | 三个 Feature 均为 v3.3.0 归属，若同时启动 discovery 可能分散注意力。缓解：&zero-width-space;FAST-001 Effort 仅 XS (1-2d) 可快速交付；SKILL-001 和 RATIONAL-001 Effort 均为 M (3-5d)，建议 FAST-001 先行作为速赢开路 |
+| **FR-FAST-001 纯一次性无追溯** | ~~🟡 中~~ → ✅ 已解决 | — | ✅ FR-FAST-001 已交付 — Fast 模式定位为"低风险快速任务"专用，Agent prompt 中明确建议重要变更走完整流程 |
+| **FR-FAST-001 Agent 边界判断不准** | ~~🟡 中~~ → ✅ 已解决 | — | ✅ FR-FAST-001 已交付 — @sddu-fast 模板内置复杂度评估清单，用户显式选择路径 |
+| **FR-FAST-001 与完整流程的割裂** | ~~🟢 低~~ → ✅ 已解决 | — | ✅ FR-FAST-001 已交付 — 轻重双入口体系就绪 |
+| **FR-SKILL-001 用户不主动填充 skills** | 🔴 高 → 🟡 中 | 🟡 中 | FR-SKILL-001 基础设施已就绪（三元闭环 + 双层架构）；skill-creator Skill 降低创建门槛；Agent 可在发现重复模式时建议用户物化为 Skill。实际填充率仍需观察 |
+| **FR-SKILL-001 混合触发匹配准确率低** | ~~🟡 中~~ → ✅ 已解决 | — | ✅ FR-SKILL-001 采用三阶段渐进披露模型（Stage 1 零 token → Stage 2 frontmatter → Stage 3 按需加载），不依赖关键词匹配；SDDU Agent 扫描源目录，OpenCode 原生 skill 机制按语义匹配 |
+| **FR-SKILL-001 Skills 冗余/过时管理** | 🟡 中 | 🟢 低 | 每个 skill 需记录 last-updated；Agent 在相关任务后可建议用户检查 skill 是否需更新。FR-SKILL-001 已交付 discovery/creator/sync 三元闭环，过时管理待运营经验积累 |
+| **FR-BUG-001 / FR-WORKTREE-001 Skill 化降级后 scope 漂移** 🆕 | 🟡 中 | 🟡 中 | Skill 化后 Feature 的 scope 边界可能模糊——"创建一个 Skill"是否还需要完整 SDDU 8 阶段流程？缓解：(1) 在 v3.1.0 discovery 阶段明确定义 Skill 化 Feature 的轻量流程；(2) FR-SKILL-001 的 skill-creator Skill 可作为创建过程的辅助工具 |
+| **FR-SKILL-001 框架级 Skill 与 Agent 新增门禁的实际执行力** 🆕 | 🟡 中 | 🟡 中 | FR-SKILL-001 定义的 Agent 新增门禁（「必须证明 Skill 无法满足」）目前是约定而非代码强制。缓解：在 FR-RATIONAL-001 中可将门禁规则纳入 Agent 模板的 HARD-GATE 约束，提升执行力 |
+| **v3.3.0 两 Feature 提前交付后的版本空窗** 🆕 | 🟡 中 | 🟢 低 | FR-FAST-001 和 FR-SKILL-001 提前交付后，v3.3.0 仅剩 FR-RATIONAL-001，版本定位从「三大 Feature 汇入」变为「单项收尾」。缓解：不影响 v3.0.0~v3.2.0 的优先级；FR-RATIONAL-001 可与前序版本 Feature 并行启动 |
 
 ---
 
@@ -738,40 +654,43 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
    - **如优先解决最大痛点**: 启动 `FR-QUALITY-001 (Build Wave 一体化)` — RICE 9.6，独立性强
    - **如优先解决架构基础**: 启动 `FR-KB-001 (全局项目配置)` — RICE 15.8，全局影响力最大
    - **如优先快速收益**: 同时启动 `FR-QUALITY-005 (auto-updater)` + `FR-QUALITY-006 (coordinator)` — 总 Effort 仅 2-4 天
-   - **如优先框架级质量能力**: 启动 `FR-BUG-001 (Bug 流程框架化)` — RICE 10.5，无硬依赖，Effort 仅 3-5d，可快速交付
+   - **如优先框架级质量能力 + Skill 化验证**: 启动 `FR-BUG-001 (Bug 流程框架化)` — 以 Skill 化路径（sddu-bug Skill），验证 FR-SKILL-001 的 Skill 化降级模型实战效果
 
 2. **确认 Feature 归属版本** — 当前方案:
     - A-F → v3.0.0 (质量与工作流改进)
-    - **FR-BUG-001 (Bug 流程框架化)** + **FR-WORKTREE-001 (Git Worktree 隔离)** 🆕 → v3.1.0 (工具链增强)
-     - H → ✅ 已完成 (FR-KB-002, 由 @sddu-docs 实现)；I → v3.2.0 (知识基础设施)
+    - **FR-BUG-001 (Bug 流程框架化 → sddu-bug Skill 化)** + **FR-WORKTREE-001 (Git Worktree → sddu-worktree Skill 化)** → v3.1.0 (Skill 化降级验证)
+    - H → ✅ 已完成 (FR-KB-002)；I → v3.2.0 (知识基础设施)
     - G → ✅ 已完成 (FR-TPL-001, v3.0.1)
-    - **FR-FRAMEWORK-ARCH-001** → ✅ 已完成 (v4.0.0, 2026-06-21)
-    - **FR-RATIONAL-001 (理性化对抗)** + **FR-FAST-001 (快速模式)** + **FR-SKILL-001 (项目级业务 Skills)** 🆕 → v3.3.0 (搁置，等前置版本交付)
-    - **FR-CROSSPLAT-001 + FR-AUTOTRIGGER-001** 🆕 → v4.1.0 (远期)
+    - **FR-FRAMEWORK-ARCH-001** → ✅ 已完成 (v4.0.0)
+    - **FR-FAST-001** → ✅ 已完成 (v3.3.0 提前交付, 2026-07-12)
+    - **FR-SKILL-001** → ✅ 已完成 (v3.3.0-early, 2026-07-19)
+    - **FR-RATIONAL-001** → v3.3.0 (Agent 理性化对抗，唯一剩余)
+    - **FR-CROSSPLAT-001 + FR-AUTOTRIGGER-001** → v4.1.0 (远期)
     - 是否需要调整归属？
 
-3. **运行残留检查**: `bash scripts/check-sdd-residue.sh`
+3. **提交 `src/skills/` 到版本控制**: `git add src/skills/ && git commit` — FR-SKILL-001 validation 发现 src/skills/ 为 untracked（3 个框架级 Skill 文件存在于磁盘但未 add）
+
+4. **运行残留检查**: `bash scripts/check-sdd-residue.sh`
 
 ### 🟡 短期行动 (2 周内)
 
 4. 对选中 Feature 执行完整 SDDU 工作流: `discovery → spec → plan → tasks`
-5. 在首个 Feature 的 discovery 阶段，收集更多上下文信息
-6. 评审 G/H/I 新增问题，确认描述准确性
+5. **对于 FR-BUG-001 / FR-WORKTREE-001**: 优先以 Skill 化路径启动 — 使用 `sddu-skill-creator` 创建框架级 Skill，通过 `sddu-skill-sync` 同步，验证 FR-SKILL-001 的降级模型实战效果
+6. 在首个 v3.0.0 Feature 的 discovery 阶段，收集更多上下文信息
 
 ### 🟢 中期行动 (1 个月内)
 
 7. 完成 v3.0.0 全部 P0 级 Feature
-8. 评估 v3.1.0 Feature (FR-BUG-001 + FR-WORKTREE-001) 是否启动
+8. 启动 v3.1.0 Feature — **优先以 Skill 化路径**（FR-BUG-001 → sddu-bug Skill, FR-WORKTREE-001 → sddu-worktree Skill），验证 Skill 化降级模型
 9. 为 FR-KB-001 收拢需求，基于 v4.0.0 三域分层架构协同设计 (FR-KB-002 已由 @sddu-docs 提前完成)
 
 ### 🔵 远期行动 (季度回顾)
 
-10. 每季度回顾竞品借鉴项 (FR-FAST-001 / FR-RATIONAL-001 / FR-SKILL-001 / FR-CROSSPLAT-001 / FR-AUTOTRIGGER-001) 是否达到启动条件
-11. FR-RATIONAL-001 启动条件: v3.0.0~v3.2.0 全部交付 + 用户反馈 Agent 偷懒/走形式问题频发
-12. FR-FAST-001 启动条件: v3.0.0~v3.2.0 全部交付 + 用户反馈 "简单功能也要走完整流程太繁琐" 成为痛点（RICE 21.6 全榜第一，一旦 v3.2.0 交付应优先启动）
-13. FR-SKILL-001 启动条件: v3.0.0~v3.2.0 全部交付 + 用户反馈 "每次新会话都要重复描述项目流程" 成为痛点，或项目 `.sddu/skills/` 目录已有至少 2-3 个手写 skill（证明用户有填充意愿）
-14. FR-CROSSPLAT-001 启动条件: OpenCode 之外的主流 AI Agent 平台明确需求 + adapters/ 架构成熟
-15. FR-AUTOTRIGGER-001 启动条件: 用户反馈 "忘记调用 @sddu" 成为痛点
+10. 每季度回顾竞品借鉴项 (FR-RATIONAL-001 / FR-CROSSPLAT-001 / FR-AUTOTRIGGER-001) 是否达到启动条件
+11. FR-RATIONAL-001 启动条件: v3.0.0~v3.2.0 全部交付 + 用户反馈 Agent 偷懒/走形式问题频发。建议采用「Skill 知识库 + 模板强制约束」混合方案
+12. 每季度回顾 FR-SKILL-001 的运营效果：用户填充 skills 的活跃度、Skill 化降级模型的实际价值、Agent 新增门禁的执行情况
+13. FR-CROSSPLAT-001 启动条件: OpenCode 之外的主流 AI Agent 平台明确需求 + adapters/ 架构成熟
+14. FR-AUTOTRIGGER-001 启动条件: 用户反馈 "忘记调用 @sddu" 成为痛点
 
 ---
 
@@ -797,6 +716,8 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | sddu-status-enhancement | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | template-quality-unification 🆕 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | framework-architecture 🆕 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| sddu-fast 🆕 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| skill-system 🆕 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | solo-team-flow (终止) | ✅ | — | — | — | — | — | — |
 
 > ✅ = 文件存在  — = 文件缺失 (可能因 Feature 时代/类型不同)
@@ -810,12 +731,12 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | 类别 | 数量 | 说明 |
 |------|:----:|------|
 | 🐛 Bug / 质量问题 | 10 | A-F + 4 预存测试失败 |
-| ✨ 增强特性 | 17 | H-I + BUG-001 + SKILL-001 + FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 |
+| ✨ 增强特性 | 17→15 | H-I + BUG-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 — SKILL-001 和 FAST-001 从待实现移至已完成 |
 | 🔧 技术债务 | 9 | deprecated 类型、旧 schema、stale spec.json、仪表盘 TS 化、缺集成测试等 |
 | 📄 文档/配置 | 7 | TREE.md 过时、冗余 wave1 文件、路径引用错误、ROADMAP 结构混乱等 |
 | ⏸️ 搁置但需关注 | 4 | ETD 独立仓库、Skills/TUI/MCP 持续延期 |
 
-**总计: 46 个待处理项目** (↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↓1: Issue H (FR-KB-002) 已由 @sddu-docs 完成；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001；↑1: FR-SKILL-001 新提案)
+**总计: 44 个待处理项目** (↓2: FR-FAST-001 已于 2026-07-12 交付；↓2: FR-SKILL-001 已于 2026-07-19 交付；↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↓1: Issue H (FR-KB-002) 已由 @sddu-docs 完成；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001；↑1: FR-SKILL-001 新提案 → ✅；净变化 46→44)
 
 ### 🐛 一、待修复 Bug / 质量问题 (10 项)
 
@@ -830,19 +751,20 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **T2** | wf-state-optimization phaseHistory 重复 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | state.json | phaseHistory 中有重复条目（从 tasked 回退到 specified 又回到 tasked），数据虽不影响功能但混淆调试 |
 | **T3** | agent-output-templating spec.json state 过期 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | spec.json | `"phase": "planned", "state": "specified"` — 实际 feature 早已 validated，spec.json 未同步更新 |
 
-### ✨ 二、待实现的增强特性 (17 项)
+### ✨ 二、待实现的增强特性 (15 项)
 
 | # | 名称 | 类型 | Effort | 优先级 | 归属 | 描述 |
 |:--|------|:----:|:------:|:------:|:-----|------|
-| **I** | 全局项目配置文件 | ✨ Enhancement | M (3-5d) | **P0** | v3.2.0 | `.sddu/project.json` — 技术栈、命名规范、代码风格等全局配置，RICE 15.8 排名第二 |
-| **BUG-001** | Bug 追踪与修复流程框架化 | ✨ Enhancement | M (3-5d) | **P0** | v3.1.0 | Bug 模板 + 轻/重修复规则 + 跨项目跟随。当前 bug 目录为临时方案，需提升为框架级能力。RICE 10.5 排名第三 |
-| **FAST-001** 🆕 | @sddu-fast 快速模式 Agent | ✨ Enhancement | XS (1-2d) | **P0** | v3.3.0 | 竞品借鉴 + 用户战略 — 零摩擦轻量入口，无状态机、纯对话、不留痕。覆盖 60-70% 日常简单任务。RICE 21.6 全榜第一 |
-| **SKILL-001** 🆕 | 项目级业务 Skills | ✨ Enhancement | M (3-5d) | **P1** | v3.3.0 | 用户战略 — `.sddu/skills/` 目录，用户手写可复用执行流程，Agent 按 tags 匹配后推荐加载。与 FR-KB-001 (声明式配置) / FR-KB-002 (自动聚合) 本质不同。RICE 7.9 |
+| **I** | 全局项目配置文件 | ✨ Enhancement | M (3-5d) | **P0** | v3.2.0 | `.sddu/project.json` — 技术栈、命名规范、代码风格等全局配置，RICE 15.8 排名第一 |
+| **BUG-001** | Bug 追踪与修复流程框架化 🔄 | ✨ Enhancement | S (~2d) | **P0** | v3.1.0 | 🔄 Skill 化候选 → `sddu-bug` Skill。Bug 模板 + 轻/重修复规则封装为框架级 Skill，Agent 按需加载。原 Effort M(4d) → S(2d) |
+| **WORKTREE-001** | Git Worktree Feature 隔离 🔄 | ✨ Enhancement | S (~1.5d) | **P2** | v3.1.0 | 🔄 Skill 化候选 → `sddu-worktree` Skill。Worktree 创建/初始化/收尾封装为框架级 Skill。原 Effort M(4d) → S(1.5d) |
 | **H** | ✅ 项目级知识自动沉淀 (FR-KB-002) | ✨ Enhancement | — | **P1** | ✅ 已完成 | ✅ 由 `@sddu-docs` Agent 实现 — 扫描 specs-tree-root，聚合 Feature 过程产物为项目全景文档 |
+| **FAST-001** | ✅ @sddu-fast 快速模式 Agent (FR-FAST-001) | ✨ Enhancement | — | **P0** | ✅ v3.3.0 | ✅ 已于 2026-07-12 完成交付 — 轻重双模入口 |
+| **SKILL-001** | ✅ SDDU Skill 系统 (FR-SKILL-001) | ✨ Enhancement | — | **P0** | ✅ v3.3.0-early | ✅ 已于 2026-07-19 完成交付 — 三元闭环 + 双层架构 + Agent 门禁 |
 | **S1** | FR-014: 模板校验工具命令 | ✨ Enhancement | M (3-5d) | **P2** | Could Have | `@sddu-validate-template` 命令，用户可提前验证模板正确性 (spec 中标记 "未来") |
 | **S2** | FR-015: 多套内置模板风格 | ✨ Enhancement | M (3-5d) | **P3** | Could Have | 简洁版/详细版等多套模板风格，通过配置切换 (spec 中标记 "未来") |
 | **S3** | FR-016: 模板版本管理 | ✨ Enhancement | M (3-5d) | **P3** | Could Have | 模板版本管理，与 Agent 版本对应 (spec 中标记 "未来") |
-| **S4** | Skills 系统 | ✨ Enhancement | L (>7d) | **P2** | v3.1.0 遗留 | v2.5.0 遗留：Skill 机制 |
+| **S4** | Skills 系统 (v2.5.0 遗留) | ✨ Enhancement | — | **P2** | ✅ 已解决 | ✅ 原 v2.5.0 遗留 Skill 机制需求 — 通过 FR-SKILL-001 实现解决 |
 | **S5** | TUI 界面 | ✨ Enhancement | L (>7d) | **P3** | v3.1.0 遗留 | v2.5.0 遗留：终端 UI 交互界面 |
 | **S6** | MCP 集成 | ✨ Enhancement | L (>7d) | **P3** | v3.1.0 遗留 | v2.5.0 遗留：Model Context Protocol 集成 |
 | **S7** | 文件命名标准化 | ✨ Enhancement | S (1-2d) | **P2** | v2.7.0 遗留 | 统一 validate.md / validation.md / validation-report.md 等命名不一致 |
@@ -890,55 +812,58 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **SUS3** | wf-state-optimization 缺 review/validation | ⏸️ 已标记 | N/A | — | Feature 在 state.json 中标记 completed 但 `files` 字段无 review/validation — 可能是 pre-SDDU 时代特征，功能已完成 |
 | **SUS4** | 预存测试 4 失败 | ⏸️ 已知 | S (1-2d) | — | 2 timeout + 1 断言 + 1 OOM，status-enhancement 中标记为非本次引入，需专门修复 |
 
-### 📈 全量优先级总排名 (Top 20)
+### 📈 全量优先级总排名 (Top 20 — 移除已完成项)
 
 | 排名 | ID | 名称 | 类型 | 归属 | Effort | RICE | 优先级 |
 |:----:|----|------|:----:|------|:------:|:----:|:------:|
-| 🥇 | **FAST-001** 🆕 | @sddu-fast 快速模式 Agent | ✨ | v3.3.0 | XS | **21.6** | **P0** |
-| 🥈 | **I** | 全局项目配置文件 | ✨ | v3.2.0 | M | 15.8 | **P0** |
-| 🥉 | **BUG-001** | Bug 追踪与修复流程框架化 | ✨ | v3.1.0 | M | 10.5 | **P0** |
-| 4 | **A** | Build Wave 一体化 | 🐛 | v3.0.0 | L | 9.6 | **P0** |
-| 5 | **RATIONAL-001** 🆕 | Agent 理性化对抗 | ✨ | v3.3.0 | M | 9.6 | **P1** |
-| 6 | **C** | Validate Agent E2E | 🐛 | v3.0.0 | L | 8.4 | **P0** |
-| 7 | **SKILL-001** 🆕 | 项目级业务 Skills | ✨ | v3.3.0 | M | **7.9** | **P1** |
-| 8 | **AUTOTRIGGER-001** 🆕 | Agent 自动触发 | ✨ | v4.1.0 | S | 7.5 | **P3** |
-| 9 | **F** | Review/Validate 设计规划 | 🐛 | v3.0.0 | M | 5.3 | **P1** |
-| 10 | **B** | auto-updater 修复 | 🐛 | v3.0.0 | S | 4.8 | **P2** |
-| 11 | **WORKTREE-001** 🆕 | Git Worktree 隔离 | ✨ | v3.1.0 | M | 4.5 | **P2** |
-| 12 | **H** | ✅ 项目知识沉淀 (FR-KB-002) | ✨ | ✅ 已完成 | — | 4.0 | **P1** |
-| 13 | **E** | 框架自验证 | 🐛 | v3.0.0 | L | 2.8 | **P1** |
-| 14 | **D** | coordinator 兼容 | 🐛 | v3.0.0 | XS | 2.4 | **P3** |
-| 15 | **CROSSPLAT-001** 🆕 | 多平台适配 | ✨ | v4.1.0 | XL | 2.4 | **P3** |
-| 16 | **S8** | FeatureStateEnum 清理 | ✨ | v3.1.0 | XS | — | **P1** |
-| 17 | **T1** | 预存测试修复 | 🐛 | — | S | — | **P2** |
-| 18 | **TD1** | 仪表盘 TS 化 | 🔧 | — | M | — | **P2** |
-| 19 | **TD2** | consistency-checker 集成测试 | 🔧 | — | S | — | **P2** |
-| 20 | **DOC1** | TREE.md sdd→sddu | 📄 | — | XS | — | **P2** |
-| 21 | **DOC2** | Wave1 冗余文件归档 | 📄 | — | XS | — | **P2** |
-| 22 | **S4** | Skills 系统 | ✨ | v3.1.0 | L | — | **P2** |
-| 23 | **S7** | 文件命名标准化 | ✨ | — | S | — | **P2** |
-| 24 | **TD8** | AI Agent 行为验证 | 🔧 | — | M | — | **P2** |
-| 25 | **S1** | 模板校验工具 | ✨ | Could Have | M | — | **P2** |
-| 26 | **DOC3-6** | 路径/数量修正 | 📄 | — | XS×4 | — | **P3** |
-| 27 | **TD3** | schema-v1.2.5 清理 | 🔧 | — | XS | — | **P3** |
+| 🥇 | **I** | 全局项目配置文件 | ✨ | v3.2.0 | M | 15.8 | **P0** |
+| 🥈 | **BUG-001** 🔄 | Bug 流程框架化 (→ sddu-bug Skill) | ✨ | v3.1.0 | S | 21.0 | **P0** |
+| 🥉 | **A** | Build Wave 一体化 | 🐛 | v3.0.0 | L | 9.6 | **P0** |
+| 4 | **RATIONAL-001** | Agent 理性化对抗 | ✨ | v3.3.0 | M | 9.6 | **P1** |
+| 5 | **C** | Validate Agent E2E | 🐛 | v3.0.0 | L | 8.4 | **P0** |
+| 6 | **AUTOTRIGGER-001** | Agent 自动触发 | ✨ | v4.1.0 | S | 7.5 | **P3** |
+| 7 | **F** | Review/Validate 设计规划 | 🐛 | v3.0.0 | M | 5.3 | **P1** |
+| 8 | **B** | auto-updater 修复 | 🐛 | v3.0.0 | S | 4.8 | **P2** |
+| 9 | **WORKTREE-001** 🔄 | Git Worktree (→ sddu-worktree Skill) | ✨ | v3.1.0 | S | 12.0 | **P2** |
+| 10 | **E** | 框架自验证 | 🐛 | v3.0.0 | L | 2.8 | **P1** |
+| 11 | **D** | coordinator 兼容 | 🐛 | v3.0.0 | XS | 2.4 | **P3** |
+| 12 | **CROSSPLAT-001** | 多平台适配 | ✨ | v4.1.0 | XL | 2.4 | **P3** |
+| 13 | **S8** | FeatureStateEnum 清理 | ✨ | v3.1.0 | XS | — | **P1** |
+| 14 | **T1** | 预存测试修复 | 🐛 | — | S | — | **P2** |
+| 15 | **TD1** | 仪表盘 TS 化 | 🔧 | — | M | — | **P2** |
+| 16 | **TD2** | consistency-checker 集成测试 | 🔧 | — | S | — | **P2** |
+| 17 | **DOC1** | TREE.md sdd→sddu | 📄 | — | XS | — | **P2** |
+| 18 | **DOC2** | Wave1 冗余文件归档 | 📄 | — | XS | — | **P2** |
+| 19 | **S7** | 文件命名标准化 | ✨ | — | S | — | **P2** |
+| 20 | **TD8** | AI Agent 行为验证 | 🔧 | — | M | — | **P2** |
+| — | ~~FAST-001~~ | ✅ @sddu-fast 快速模式 Agent | ✨ | ✅ v3.3.0 | — | 21.6 | ✅ |
+| — | ~~SKILL-001~~ | ✅ SDDU Skill 系统 | ✨ | ✅ v3.3.0-early | — | 17.5 | ✅ |
+| — | ~~H~~ | ✅ 项目知识沉淀 (FR-KB-002) | ✨ | ✅ | — | 4.0 | ✅ |
+| — | ~~S4~~ | ✅ Skills 系统 (v2.5.0 遗留) | ✨ | ✅ | — | — | ✅ (FR-SKILL-001 解决) |
+| — | **S1** | 模板校验工具 | ✨ | Could Have | M | — | **P2** |
+| — | **DOC3-6** | 路径/数量修正 | 📄 | — | XS×4 | — | **P3** |
+| — | **TD3** | schema-v1.2.5 清理 | 🔧 | — | XS | — | **P3** |
 
 ### 🗺️ 推荐执行顺序
 
 ```
 Phase 0 — ✅ 已完成 (v3.0.1, 2026-06-19)
-└── ✅ FR-TPL-001 (模板质量统一) — RICE 7.5，22 FR + 3 NFR 100% 通过
+├── ✅ FR-TPL-001 (模板质量统一) — RICE 7.5，22 FR + 3 NFR 100% 通过
+├── ✅ FR-FAST-001 (快速模式 Agent v3.3.0) — RICE 21.6，2026-07-12
+└── ✅ FR-SKILL-001 (SDDU Skill 系统 v3.3.0-early) — RICE 17.5，2026-07-19
 
 Phase 1 — 🔥 立即启动 (本周)
 ├── 🔴 P0: FR-QUALITY-001 (Build Wave 一体化) — RICE 9.6，独立性强
 ├── 🔴 P0: FR-KB-001 (全局项目配置) — RICE 15.8，全局影响力最大
+├── 🔴 P0: FR-BUG-001 → sddu-bug Skill — RICE 21.0 (Skill 化后)，验证降级模型
 └── 🟢 快速穿插: D (coordinator) + B (auto-updater) — 合共 1-3 天
 
 Phase 2 — 🟡 第二周
 ├── 🔴 P0: FR-QUALITY-002 (Validate E2E) — RICE 8.4，依赖 Phase 1 经验
-├── 🔴 P0: FR-BUG-001 (Bug 流程框架化) 🆕 — RICE 10.5，无硬依赖，可独立启动
+├── 🔴 P0: FR-WORKTREE-001 → sddu-worktree Skill — RICE 12.0 (Skill 化后)，验证第二个降级模型
 ├── 🟡 P1: FR-QUALITY-003 (Review/Validate 设计规划)
 ├── 🟡 P1: S8 (FeatureStateEnum 清理) — XS，顺手做
-└── 🟡 P2: T1 (预存测试修复) + TD2 (集成测试) + DOC1 (TREE.md)
+└── 🟡 P2: T1 (预存测试修复) + TD2 (集成测试)
 
 Phase 3 — 🟡 第三~四周
 ├── 🟡 P1: FR-QUALITY-004 (框架自验证) — 依赖 Validate E2E
@@ -947,15 +872,16 @@ Phase 3 — 🟡 第三~四周
 
 Phase 4 — 🟢 后续 (v3.1.0/v3.2.0)
 ├── ~~FR-ARCH-001 (SDDU 架构解耦)~~ → ✅ v4.0.0 已完成 (2026-06-21)
-├── S4 (Skills 系统) + S7 (文件命名标准化) + S9 (docs 模板化)
-├── TD8 (AI Agent 行为验证) + S1 (模板校验工具)
-└── 📄 DOC3-6 (路径/引用修正，批量处理)
+├── ~~S4 (Skills 系统)~~ → ✅ 通过 FR-SKILL-001 实现解决
+├── S7 (文件命名标准化) + S9 (docs 模板化) + TD8 (AI Agent 行为验证) + S1 (模板校验工具)
+├── 📄 DOC1 + DOC3-6 (路径/引用修正，批量处理)
+└── v3.2.0 FR-KB-001 (全局配置) — 与 v3.0.0 P0 Feature 协同推进
 
-Phase 5 — ⏸️ 搁置 (v3.3.0)
-├── FR-FAST-001 (快速模式 Agent) 🆕 — RICE 21.6，Effort XS，等 v3.2.0 交付后优先启动
-├── FR-RATIONAL-001 (理性化对抗) 🆕 — RICE 9.6，与 FAST-001 同期启动
-├── FR-SKILL-001 (项目级业务 Skills) 🆕 — RICE 7.9，Effort M，等 v3.2.0 交付后与 FAST-001/RATIONAL-001 统筹启动
-├── S5 (TUI) + S6 (MCP) — 持续延期，无明确需求
+Phase 5 — 🔄 v3.3.0 部分交付 + 收尾
+├── ✅ FR-FAST-001 (快速模式 Agent) — 已完成 (2026-07-12)
+├── ✅ FR-SKILL-001 (SDDU Skill 系统) — 已完成 (2026-07-19)
+├── 📋 FR-RATIONAL-001 (理性化对抗) — v3.3.0 唯一剩余，等 v3.0~v3.2 交付后启动
+├── S5 (TUI) + S6 (MCP) — 持续延期，无明确需求（可通过 Skill 化实现部分能力）
 ├── SUS3 (wf-state 缺 review/validation) — 历史 feature，不需要补
 └── TD3/TD4 (旧 schema) + TD5-7/TD9 (stale spec.json) — 低优先级清理
 ```
@@ -986,6 +912,15 @@ Phase 5 — ⏸️ 搁置 (v3.3.0)
 
 > **文档维护**: 本 Roadmap 是动态文档。建议每季度回顾更新，或每当一个 Feature 完成 validated 阶段时运行 `@sddu-roadmap` 刷新状态。
 
-> **生成信息**: 本文档由 `@sddu-roadmap` Agent 于 2026-06-21 重大更新 (v9.0.0)，反映 FR-FRAMEWORK-ARCH-001 (v4.0.0) 已完成交付——从「规划中」移至「已交付」，并更新全局状态、优先级排序、依赖图、风险评估、下一步行动。FR-BUG-001 仍为新提案待处理。扫描范围覆盖 `.sddu/specs-tree-root/` 下 17 个 Feature 目录的全部 state.json / spec.md / tasks.md / spec.json / validation-report.md 以及 `.sddu/docs/` / `.sddu/TREE.md` / 架构 ADR 目录。
+> **生成信息**: 本文档由 `@sddu-roadmap` Agent 于 2026-06-21 重大更新 (v9.0.0)，反映 FR-FRAMEWORK-ARCH-001 (v4.0.0) 已完成交付。
 > 
-> **最近更新 (v14.0.0)**: 2026-07-11 — FR-KB-002 (Issue H: 项目级知识自动沉淀) 标记为已完成，由 `@sddu-docs` Agent 实现。更新内容：全局状态行 (47→46)、版本总览表 v3.2.0 行（状态 → 🔄 部分完成）、v3.2.0 版本节（FR-KB-002 标记 ✅ 已完成 + @sddu-docs 注解）、跨版本 RICE 总排名表（FR-KB-002 划删除线）、依赖关系分析（移除 FR-KB-002 活跃依赖）、风险评估（KB-002 scope 风险标记已解决）、执行摘要问题计数（47→46）、附录 B 增强特性数（18→17）+ Issue H 条目标记完成。
+> **最近更新 (v15.0.0)**: 2026-07-19 — FR-SKILL-001 (SDDU Skill 系统) 和 FR-FAST-001 (快速模式 Agent) 标记为已完成。更新内容：
+> - **FR-SKILL-001 ✅**: 框架级 3 Skill（三元闭环 discovery/creator/sync）+ 12 Agent 模板 Skill 发现章节注入 + 「源目录 + 实际目录」双层架构 + Agent 新增门禁制度。Commit: `04d78a8`。全局状态 16→18 validated，待处理 46→44
+> - **FR-FAST-001 ✅**: @sddu-fast Agent 上线，SDDU 进入「轻重双模」时代
+> - **v3.3.0 状态**: ⏸️ 搁置 → 🔄 部分完成（FAST+SKILL 已交，RATIONAL 待启动）
+> - **Skill 化可行性评估**: FR-BUG-001 ⚡高度适合（Effort 4d→2d，降幅 50%），FR-WORKTREE-001 ⚡高度适合（Effort 4d→1.5d，降幅 60%），FR-RATIONAL-001 ⚠️部分适合（混合方案）
+> - **v3.1.0 定位调整**: 从「工具链增强」转变为「Skill 化降级验证」— 优先以 Skill 路径启动 BUG-001 和 WORKTREE-001
+> - **里程碑更新**: 新增 2026-07-12 (FAST-001) 和 2026-07-19 (SKILL-001) 交付里程碑
+> - **RICE 排名刷新**: 移除已完成 Feature，标注 Skill 化后 RICE 变化
+> - **风险评估更新**: 移除 FR-FAST-001 和 FR-SKILL-001 已解决风险，新增 Skill 化相关风险
+> - **v2.5.0 遗留 S4 (Skills 系统)**: 通过 FR-SKILL-001 实现标记为已解决

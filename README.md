@@ -1,7 +1,7 @@
 # OpenCode SDDU Plugin
 
 [![Version](https://img.shields.io/badge/version-1.4.1-blue)](https://github.com/THZSummer/sddu/releases)
-[![Phase](https://img.shields.io/badge/feature-17-blue)](https://github.com/THZSummer/sddu)
+[![Phase](https://img.shields.io/badge/feature-20-blue)](https://github.com/THZSummer/sddu)
 [![Status](https://img.shields.io/badge/status-stable-green)](https://github.com/THZSummer/sddu)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/THZSummer/sddu/blob/main/LICENSE)
 
@@ -15,13 +15,13 @@ SDDU 是一个 OpenCode 插件，用 **AI Agent 协作** 的方式把软件开�
 
 | 阶段 | Agent | 做什么 |
 |:--:|-------|--------|
-| 0 | `@sddu-discovery` | 把模糊想法挖成清晰问题 |
-| 1 | `@sddu-spec` | 把问题定义成可测试的需求规范 |
-| 2 | `@sddu-plan` | 把需求设计成技术方案 |
-| 3 | `@sddu-tasks` | 把方案拆成可并行的原子任务 |
-| 4 | `@sddu-build` | 逐任务实现代码 |
-| 5 | `@sddu-review` | 静态审查代码质量 |
-| 6 | `@sddu-validate` | 动态验证——跑测试、调接口、测性能 |
+| 1/7 | `@sddu-discovery` | 把模糊想法挖成清晰问题 |
+| 2/7 | `@sddu-spec` | 把问题定义成可测试的需求规范 |
+| 3/7 | `@sddu-plan` | 把需求设计成技术方案 |
+| 4/7 | `@sddu-tasks` | 把方案拆成可并行的原子任务 |
+| 5/7 | `@sddu-build` | 逐任务实现代码 |
+| 6/7 | `@sddu-review` | 静态审查代码质量 |
+| 7/7 | `@sddu-validate` | 动态验证——跑测试、调接口、测性能 |
 
 **三个设计原则**：
 - 🚫 **不跳步**：没有 spec 不能 plan，没有 plan 不能 tasks
@@ -115,6 +115,7 @@ sequenceDiagram
 | Agent | 类型 | 做什么 |
 |-------|:--:|------|
 | `@sddu` | 🚪 入口 | 智能路由、分类仪表盘、状态标记 |
+| `@sddu-fast` | ⚡ 快速 | 轻量任务单会话解决，无状态零产物 |
 | `@sddu-roadmap` | 📋 独立 | 多版本路线图规划、RICE 优先级排序 |
 | `@sddu-tree` | 🔄 自动 | 扫描 `.sddu/` 生成 TREE.md 目录导航 |
 | `@sddu-docs` | 📖 独立 | 双模式项目全景：默认扫描 specs-tree 过程产物，支持用户指令扫描代码 |
@@ -180,6 +181,7 @@ SDDU 将每个 Feature 的工作产物组织在 `.sddu/specs-tree-root/` 下：
 
 | 版本 | 主题 | 状态 |
 |------|------|:--:|
+| v3.3.0 | Skill 系统 + Fast 模式 — 三元自举闭环 + 轻量快速通道 | ✅ 已完成 |
 | v3.0.1 | 模板质量统一 — 17 模板格式骨架 + 11 Agent 职责边界 | ✅ 已完成 |
 | v3.0.0 | 两字段状态模型 — phase(8) + status(5) | ✅ 已完成 |
 | v3.1.0 | 质量与工作流改进 (A-F 问题修复) | 📋 规划中 |
@@ -330,7 +332,7 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 
 ---
 
-## ✅ 已完成 Feature (17 个)
+## ✅ 已完成 Feature (20 个)
 
 | # | Feature | 说明 |
 |:--|------|------|
@@ -351,6 +353,9 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 | 15 | specs-tree-solo-team-flow | Solo Team Flow (已终止→ETD) |
 | 16 | specs-tree-template-quality-unification | 模板质量统一 (17 模板 + 11 Agent 职责边界) |
 | 17 | specs-tree-framework-architecture | 框架源码架构重组 |
+| 18 | specs-tree-docs-agent-optimization | 文档 Agent 优化 (@sddu-docs 双模式) |
+| 19 | specs-tree-sddu-fast | @sddu-fast 快速模式 (轻量任务单会话解决) |
+| 20 | specs-tree-skill-system | Skill 系统 (三元自举闭环 + 双层架构) |
 
 ---
 
