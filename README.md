@@ -117,7 +117,6 @@ sequenceDiagram
 | `@sddu` | 🚪 入口 | 智能路由、分类仪表盘、状态标记 |
 | `@sddu-fast` | ⚡ 快速 | 轻量任务单会话解决，无状态零产物 |
 | `@sddu-roadmap` | 📋 独立 | 多版本路线图规划、RICE 优先级排序 |
-| `@sddu-tree` | 🔄 自动 | 扫描 `.sddu/` 生成 TREE.md 目录导航 |
 | `@sddu-docs` | 📖 独立 | 双模式项目全景：默认扫描 specs-tree 过程产物，支持用户指令扫描代码 |
 
 ---
@@ -153,7 +152,7 @@ SDDU 将每个 Feature 的工作产物组织在 `.sddu/specs-tree-root/` 下：
 
 ```
 .sddu/
-├── TREE.md                    # 目录导航（sddu-tree 自动生成）
+├── TREE.md                    # 目录导航（sddu-tree Skill 自动生成）
 ├── ROADMAP.md                 # 版本路线图
 └── specs-tree-root/
     └── specs-tree-<feature>/
@@ -182,7 +181,8 @@ SDDU 将每个 Feature 的工作产物组织在 `.sddu/specs-tree-root/` 下：
 | 版本 | 主题 | 状态 |
 |------|------|:--:|
 | v3.3.0 | Skill 系统 + Fast 模式 — 三元自举闭环 + 轻量快速通道 | ✅ 已完成 |
-| v3.0.1 | 模板质量统一 — 17 模板格式骨架 + 11 Agent 职责边界 | ✅ 已完成 |
+| v3.1.0 | @sddu-tree Agent->Skill 降级 — 脚本化 + 定向扫描优化 | ✅ 已完成 |
+| v3.0.1 | 模板质量统一 — 17 模板格式骨架 + 11 Agent 职责边界（sddu-tree 后降级为 Skill，现 10 Agent） | ✅ 已完成 |
 | v3.0.0 | 两字段状态模型 — phase(8) + status(5) | ✅ 已完成 |
 | v3.1.0 | 质量与工作流改进 (A-F 问题修复) | 📋 规划中 |
 | v3.2.0 | 项目知识基础设施 (全局配置 + 知识沉淀) | 💡 提议中 |
@@ -300,6 +300,7 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 | `sddu-skill-discovery` | 发现 Skill — 三阶段渐进披露模型 |
 | `sddu-skill-creator` | 创建 Skill — 对话式引导工作流 |
 | `sddu-skill-sync` | 同步 Skill — 源目录到实际目录 |
+| `sddu-tree` | 目录导航 — 扫描 Feature 目录及父目录链生成 TREE.md |
 
 ### Skill 存放
 
@@ -322,7 +323,7 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 | 版本 | 日期 | 说明 |
 |------|------|------|
 | v3.1.0 | 2026-06-21 | 🏗️ FR-FRAMEWORK-ARCH-001 源码架构重组 — 业务对象分层 + 平台适配器隔离 |
-| v3.0.1 | 2026-06-21 | 📐 模板质量统一 — 17 模板格式骨架 + 11 Agent 职责边界声明，sddu-tree 输出 TREE.md |
+| v3.0.1 | 2026-06-21 | 📐 模板质量统一 — 17 模板格式骨架 + 11 Agent 职责边界声明 |
 | v1.4.1 | 2026-06-13 | 🔄 v3.0.0 两字段状态模型 — phase(8) + status(5) 分离，@sddu 标记/状态 命令，R5 一致性检测 |
 | v1.4.0 | 2026-04-20 | 🎯 SDDU 品牌升级正式发布 |
 | v1.3.0 | 2026-05-25 | 🎨 Agent 输出模板化 — 7 个 Agent 输出固化为可自定义模板 |
