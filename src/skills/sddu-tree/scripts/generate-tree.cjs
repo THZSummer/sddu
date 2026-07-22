@@ -171,6 +171,20 @@ function getPhaseName(phase) {
   return map[phase] || phase;
 }
 
+/**
+ * 根据 phase 获取阶段编号字符串（如 "7/7"）。
+ * 支持字符串 phase（如 "validated"）和数字 phase（如 7）。
+ */
+function getPhaseStage(phase) {
+  const stageMap = {
+    registered: 0, discovered: 1, specified: 2, planned: 3,
+    tasked: 4, builded: 5, reviewed: 6, validated: 7
+  };
+  if (typeof phase === 'number') return `${phase}/7`;
+  const stage = stageMap[phase];
+  return stage !== undefined ? `${stage}/7` : '?/7';
+}
+
 // ─────────────────────────── 文件简介提取 ───────────────────────────
 
 /**
@@ -325,16 +339,8 @@ function generateFeatureTree(dirPath, dirName, relPath) {
     } else if (ext === '.md') {
       const info = extractMdInfo(f);
       const desc = info ? `${info.title} — ${info.overview}` : name;
-      // 确定状态标记
-      let fileStatus = '✅ 存在';
-      const bareName = name.replace('.md', '');
-      if (bareName === 'discovery') fileStatus = `✅ 已完成 (phase: discovered)`;
-      else if (bareName === 'spec') fileStatus = `✅ 已完成 (phase: specified)`;
-      else if (bareName === 'plan') fileStatus = `✅ 已完成 (phase: planned)`;
-      else if (bareName === 'tasks') fileStatus = `✅ 已完成 (phase: tasked)`;
-      else if (bareName === 'build') fileStatus = `✅ 已完成 (phase: builded)`;
-      else if (bareName === 'review') fileStatus = `✅ 已完成 (phase: reviewed)`;
-      else if (bareName === 'validate') fileStatus = `✅ 已完成 (phase: validated)`;
+      // 确定状态标记 — .md 文件统一标记为存在
+      const fileStatus = '✅ 存在';
       fileTableRows.push(`| ${name} | ${desc} | ${fileStatus} |`);
     } else if (ext === '.json') {
       fileTableRows.push(`| ${name} | 任务清单（机器可读） | ✅ 存在 |`);
@@ -362,6 +368,21 @@ function generateFeatureTree(dirPath, dirName, relPath) {
     lines.push(row);
   }
   lines.push('');
+
+  // Feature 状态表（从 state.json 读取实际 phase 和 status）
+  if (stateJson && stateJson.phase) {
+    const featureId = (stateJson.metadata && stateJson.metadata.featureId) || stateJson.featureId || 'N/A';
+    const phaseStr = `${getPhaseName(stateJson.phase)} (${getPhaseStage(stateJson.phase)})`;
+    const statusMark = getStatusMark(stateJson);
+    lines.push('## Feature 状态');
+    lines.push('| 字段 | 值 |');
+    lines.push('|------|-----|');
+    lines.push(`| Feature ID | ${featureId} |`);
+    lines.push(`| Phase | ${phaseStr} |`);
+    lines.push(`| Status | ${statusMark} |`);
+    lines.push('');
+  }
+
   lines.push('## 上级目录');
   lines.push('- [返回上级](../TREE.md)');
   lines.push('- [返回首页](../../TREE.md)');
