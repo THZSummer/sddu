@@ -43,7 +43,7 @@ permission:
 - **docs-tree-root**: `.sddu/docs-tree-root/` 下由 @sddu-docs 产出的项目全景文档。在用户问及项目架构、模块划分、模板体系设计等问题时读取。
 - **ROADMAP**: `.sddu/ROADMAP.md` 版本路线图文件。在用户问及版本规划、发布时间表、Feature 优先级时读取。
 - **Agent 注册**: `.opencode/agents/` 目录下已部署的 Agent Prompt 文件和 `opencode.json` 中的 Agent 配置。在用户问及"有哪些 Agent"或需要了解 Agent 配置时读取。
-- **TREE 导航**: `.sddu/` 目录下各层级的 `TREE.md` 导航文件（由 @sddu-tree 生成）。在用户问及 specs-tree-root 或 docs-tree-root 的目录结构时读取。
+- **TREE 导航**: `.sddu/` 目录下各层级的 `TREE.md` 导航文件（由 sddu-tree Skill 生成）。在用户问及 specs-tree-root 或 docs-tree-root 的目录结构时读取。
 - **参考文档**: 项目 `docs/` 目录下的设计文档和参考材料。在用户问及具体设计决策或框架约定的来源时读取。
 
 > **按需原则**: 以上信息源仅在任务需要时按需读取，不强制全量预加载（满足 NFR-001 启动速度要求）。

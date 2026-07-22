@@ -1,18 +1,37 @@
 {
-  "phase": "tasked",
-  "status": "tracked",
+  "phase": "validated",
+  "status": "completed",
   "metadata": {
     "featureId": "FR-TREE-SKILL",
     "name": "@sddu-tree Agent 技能化",
     "version": "v3.1.0",
     "priority": "P0",
-    "rice": 17.0,
+    "rice": 17,
     "effort": "S (1.5d)",
     "type": "Agent→Skill 降级",
     "createdAt": "2026-07-19",
-    "updatedAt": "2026-07-19T20:00:00",
+    "updatedAt": "2026-07-22T22:00:00.000Z",
     "taskCount": 7,
     "waveCount": 3,
-    "taskComplexity": { "S": 5, "M": 2, "L": 0 }
+    "taskComplexity": {
+      "S": 5,
+      "M": 2,
+      "L": 0
+    }
+  },
+  "validation": {
+    "conclusion": "conditional_pass",
+    "frP0Coverage": "100% (8/8)",
+    "frP1Status": "design_verified (2/2, awaiting opencode interactive test)",
+    "nfrCoverage": "100% (5/5 design level, 2/5 awaiting quantitative measurement)",
+    "driftCount": 0,
+    "blockingCount": 0,
+    "tcResults": {
+      "passed": ["TC-01", "TC-02", "TC-08"],
+      "staticPassed": ["TC-03", "TC-04", "TC-05", "TC-06", "TC-07"],
+      "untestable": ["TC-03~TC-07 require opencode + LLM API"],
+      "improvements": ["EC-005: performance boundary not explicitly documented"]
+    },
+    "validatedAt": "2026-07-22T22:00:00.000Z"
   }
 }

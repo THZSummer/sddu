@@ -1,13 +1,13 @@
 # 任务分解：@sddu-tree Agent 技能化
 
 > **文档定位**: SDDU 任务清单 — 将技术方案分解为可并行执行的原子任务，作为 build 阶段的输入  
-> **前置依赖**: plan.md（技术方案 v1.2）、spec.md（需求规范 v1.0）  
+> **前置依赖**: plan.md（技术方案 v1.3）、spec.md（需求规范 v1.0）  
 > **创建人**: SDDU Tasks Agent  
 > **创建时间**: 2026-07-19  
-> **版本**: v1.0  
+> **版本**: v1.1  
 > **更新人**: SDDU Tasks Agent  
-> **更新时间**: 2026-07-19  
-> **更新说明**: 初始创建 — 基于 plan v1.2 §5 文件影响分析（14 项变更）分解 7 个原子任务，3 个执行波次
+> **更新时间**: 2026-07-22  
+> **更新说明**: v1.1 — 基于增量补充后的 plan v1.3 §10 修正 TASK-001 越界问题：移除自行设计的 frontmatter 格式、Stage 2/3 具体内容、篇幅限制、工具约束等实现细节；验收标准改为引用 plan §10.2 结构设计和 §10.3 检查项；verify 对齐 plan §10.3.3/§10.3.4 验证命令。TASK-004 新增 plan §5 引用。依赖拓扑和波次排布不变。
 
 ## 1. 依赖拓扑总览
 > 任务依赖关系和执行顺序
@@ -36,7 +36,7 @@ Wave 3 ─── (依赖 Wave 2 全量完成)
 ## 2. 任务列表
 > 每个任务的详细定义
 
-### TASK-001: 创建 sddu-tree SKILL.md（原 Agent 265 行逻辑全量迁移）
+### TASK-001: 创建 sddu-tree SKILL.md（按 plan §10 结构设计全量迁移）
 > 框架级 Skill 源码——将 @sddu-tree Agent 降级为 sddu-tree Skill
 
 | 属性 | 值 |
@@ -47,30 +47,17 @@ Wave 3 ─── (依赖 Wave 2 全量完成)
 | **对应 FR** | FR-001 |
 
 **描述**:
-在 `src/skills/sddu-tree/` 下创建 `SKILL.md`。完整迁移原 Agent 模板 `src/templates/agents/sddu-tree.md.hbs`（265 行）的全部逻辑到 Progressive Disclosure 三层结构：
+按 plan §10「SKILL 文件技术实现设计」创建 `src/skills/sddu-tree/SKILL.md`。实现细节已由 plan 完整定义，build agent 需完整阅读 plan §10 后实现——不自行设计 frontmatter 格式、决定三层结构映射、或推测篇幅上限。
 
-**Frontmatter（Stage 1 — 默认上下文）**:
-```yaml
-name: sddu-tree
-description: SDDU 目录导航专家 — 扫描 .sddu/ 目录结构，为每个层级生成 TREE 导航
-```
-触发语义优化：包含「扫描」「目录」「导航」「TREE」「更新目录结构」等触发词，与 `sddu-docs` 的「项目全景」语义明确区分。
+**实现基准（详见 plan 对应章节）**：
 
-**Stage 2 — 概述（触发时加载，~50 tokens）**:
-- 角色定位：SDDU 目录导航专家，扫描 `.sddu/` 目录结构生成/更新 TREE.md
-- 触发条件：完成 SDDU 阶段后自动更新目录导航
-- 依赖：`find`、`ls`、文件读写工具
-- 职责边界：仅扫描生成 TREE，不修改业务流程产出
-
-**Stage 3 — Body（执行时按需加载）**，迁移原 Agent 模板的全部内容：
-1. **6 步工作流**：扫描目录树 → 检测缺失 TREE → 读取文件生成简介 → 生成 TREE → 验证已有 TREE → 输出报告
-2. **v3.0.0 状态标记规则**：phase + status 双字段模型（`specified`→`planned`→`tasked`→`built`→`reviewed`→`validated`，`tracked`/`draft`/`pending`/`blocked`）
-3. **7 条行为规则**：目录优先于文件、增量更新非全量重建、简介不超过 1 行 80 字符等
-4. **5 场景异常处理**：`.sddu/` 不存在、`state.json` 缺少字段、TREE.md 不存在、多个同名 Feature、超出扫描范围
-
-**弃用 Agent 专属骨架章节**：执行顺序、依赖关系声明、输出模板引用（这些是 Agent 运行时约束，Skill 体不承载）。
-
-**代理 Agent 工具约束**：Skill body 末尾声明——宿主 Agent 加载本 Skill 后直接使用自身的 `bash`、`glob`、`grep`、`read`、`write` 等工具执行扫描和文件操作，无需启动子 Agent 或子进程。
+| 设计维度 | plan 来源 | 要点 |
+|---------|:--:|------|
+| 整体结构 | §10.2.1 | Progressive Disclosure 三层映射：frontmatter → Stage 2 概述 → Stage 3 body |
+| 逐章节迁移映射 | §10.2.2 | 原 Agent 265 行→三层：约 195 行核心逻辑保留、约 30 行 Agent 骨架弃用、约 40 行改写提炼 |
+| 篇幅约束 | §10.2.3 | body（不含 frontmatter）≤ 300 行（硬约束），≤ 260 行（推荐目标） |
+| creator 借助策略 | §10.1 | 借助 creator 方法论（description 冲突检查、三层结构模板、七项检查清单），手动写入框架级路径 |
+| description 冲突检查 | §10.1.2 | 需与 sddu-docs 明确区分——核心触发词「目录导航/扫描 .sddu 结构/更新 TREE」，排除「项目全景/聚合 Feature」语义 |
 
 **涉及文件**:
 
@@ -80,37 +67,32 @@ description: SDDU 目录导航专家 — 扫描 .sddu/ 目录结构，为每个�
 
 **验收标准**:
 - [ ] SKILL.md 存在于 `src/skills/sddu-tree/` 目录下
-- [ ] frontmatter 包含 `name: sddu-tree` 和触发语义优化的 `description`
-- [ ] 逐项对比原 Agent 模板 6 步工作流，覆盖率 100%
-- [ ] 5 条异常处理场景全部覆盖
-- [ ] phase + status 双字段状态标记规则完整
-- [ ] 7 条行为规则全部迁移
-- [ ] 弃用 Agent 专属骨架章节（执行顺序/依赖关系/输出模板声明）
-- [ ] Skill body 末尾含代理工具约束声明
-- [ ] 总体篇幅控制在 300 行以内（NFR-004 自包含约束）
+- [ ] 符合 plan §10.2.1 Progressive Disclosure 三层结构（frontmatter → Stage 2 概述 → Stage 3 body）
+- [ ] 通过 plan §10.3.1 七项检查清单可自动化项：#1 name 符合 `^[a-z0-9]+(-[a-z0-9]+)*$` / #3 description ≤ 1024 字符 / #4 body ≤ 300 行 / #7 YAML frontmatter 格式正确
+- [ ] 通过 plan §10.3.3 六步工作流覆盖率验证：6/6 步骤完全对应，逐步骤关键命令（find/head/grep）无遗漏
+- [ ] 通过 plan §10.3.4 五场景异常覆盖验证：5/5 场景全部覆盖，处理策略与原 Agent 模板一致
+- [ ] 原 Agent 265 行核心逻辑完整迁移（对照 plan §10.2.2 逐章节映射表），覆盖率 100%
 
 **验证命令**:
 ```bash
 # 检查文件存在
 test -f src/skills/sddu-tree/SKILL.md && echo "PASS: file exists" || echo "FAIL: file missing"
 
-# 检查 frontmatter
-head -10 src/skills/sddu-tree/SKILL.md | grep -q "name:" && echo "PASS: frontmatter name" || echo "FAIL: frontmatter name"
-head -10 src/skills/sddu-tree/SKILL.md | grep -q "description:" && echo "PASS: frontmatter description" || echo "FAIL: frontmatter description"
+# 检查 frontmatter（plan §10.3.1 #1 name 正则 + #7 YAML 格式）
+head -10 src/skills/sddu-tree/SKILL.md | grep -q "^name:" && echo "PASS: frontmatter name" || echo "FAIL: frontmatter name"
+head -10 src/skills/sddu-tree/SKILL.md | grep -q "^description:" && echo "PASS: frontmatter description" || echo "FAIL: frontmatter description"
 
-# 检查 6 步工作流关键词
-grep -c "扫描目录树\|检测缺失\|读取文件生成简介\|生成 TREE\|验证已有\|输出报告" src/skills/sddu-tree/SKILL.md
+# 检查 body 行数（plan §10.2.3 硬约束 ≤ 300）
+BODY_LINES=$(awk '/^---/{n++;next} n>=1' src/skills/sddu-tree/SKILL.md | wc -l)
+[ "$BODY_LINES" -le 300 ] && echo "PASS: body lines ($BODY_LINES) ≤ 300" || echo "FAIL: body too long ($BODY_LINES)"
 
-# 检查异常处理 5 场景
-for scenario in ".sddu/ 目录不存在" "TREE.md 格式不兼容" "state.json 缺少" "超出扫描范围" "同名"; do
-  grep -q "$scenario" src/skills/sddu-tree/SKILL.md && echo "PASS: scenario '$scenario'" || echo "WARN: missing scenario '$scenario'"
-done
+# 检查 6 步工作流覆盖率（plan §10.3.3 验证命令）
+grep -c "步骤 1.*扫描目录树\|步骤 2.*检测缺失\|步骤 3.*读取文件\|步骤 4.*生成.*TREE\|步骤 5.*验证已有\|步骤 6.*输出报告" src/skills/sddu-tree/SKILL.md
+echo "（预期: 6 — plan §10.3.3 六步覆盖验证）"
 
-# 检查弃用的 Agent 骨架章节（不应出现）
-grep -n "执行顺序\|依赖关系.*前置条件\|输出模板" src/skills/sddu-tree/SKILL.md && echo "WARN: Agent skeleton residue" || echo "PASS: no Agent skeleton"
-
-# 检查行数
-LINES=$(wc -l < src/skills/sddu-tree/SKILL.md); echo "Lines: $LINES"
+# 检查 5 场景异常覆盖（plan §10.3.4 验证命令）
+grep -c "目录不存在\|目录为空\|跳过\|权限问题\|状态异常" src/skills/sddu-tree/SKILL.md
+echo "（预期: ≥ 5 — plan §10.3.4 五场景覆盖验证）"
 ```
 
 ---
@@ -230,7 +212,7 @@ grep -n "11.*Agent\|11 个" src/templates/agents/sddu.md.hbs | grep -v "修订�
 | **对应 FR** | FR-004, FR-008 |
 
 **描述**:
-对 9 个 Agent 模板执行统一的 @sddu-tree 引用替换。替换规则：
+对 9 个 Agent 模板执行统一的 @sddu-tree 引用替换（替换目标和位置详见 plan §5 文件影响分析中各模板的「说明」列）。具体替换文本如下：
 
 **7 个主流程 Agent（sddu-discovery/spec/plan/tasks/build/review/validate）**：
 - 旧文本：`完成后自动触发 \`@sddu-tree\` 扫描并更新 \`.sddu/\` 目录导航。`
@@ -522,3 +504,4 @@ Wave 2 的三个任务（TASK-004 + TASK-005 + TASK-006）必须在同一 commit
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 基于 plan v1.2 §5 文件影响分析（14 项变更）分解 7 个原子任务，3 个执行波次（S×5 / M×2 / L×0），覆盖 FR-001~010（除 FR-006/007 属 validate 阶段）。原子迁移方案：Wave 2 三任务（TASK-004→TASK-005/006）同波次同 commit。 | 2026-07-19 | SDDU Tasks Agent |
+| v1.1 | **TASK-001 越界修正**：基于增量补充后的 plan v1.3 §10，移除 tasks 中自行设计的 frontmatter 格式（YAML 示例代码块）、Stage 2 概述具体内容（角色/触发/依赖/边界 4 项清单）、Stage 3 body 详细大纲（6 步工作流/状态标记规则/7 条行为规则/5 场景异常处理）、Agent 专属骨架弃用声明、代理工具约束声明；验收标准改为引用 plan §10.2（结构设计）+ §10.3.1（七项检查）+ §10.3.3（六步覆盖）+ §10.3.4（五场景覆盖）；verify 对齐 plan §10.3.3/§10.3.4 验证命令。TASK-004 描述新增 plan §5 引用。依赖拓扑和波次排布不变（7 任务 3 波次）。 | 2026-07-22 | SDDU Tasks Agent |

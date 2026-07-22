@@ -1,8 +1,10 @@
 {
   "feature": "FR-TREE-SKILL",
   "name": "@sddu-tree Agent 技能化",
-  "version": "1.0",
+  "version": "1.1",
   "createdAt": "2026-07-19",
+  "updatedAt": "2026-07-22",
+  "updateNote": "v1.1: TASK-001 修正越界实现细节——移除自行设计的 frontmatter 格式/Stage 2-3 内容/篇幅限制/工具约束等，改为引用 plan §10.2 结构设计和 §10.3 检查项；verify 对齐 plan §10.3.3/§10.3.4 验证命令。",
   "summary": {
     "totalTasks": 7,
     "waves": 3,
@@ -11,7 +13,7 @@
   "tasks": [
     {
       "id": "TASK-001",
-      "name": "创建 sddu-tree SKILL.md（原 Agent 265 行逻辑全量迁移）",
+      "name": "创建 sddu-tree SKILL.md（按 plan §10 结构设计全量迁移）",
       "complexity": "M",
       "dependencies": [],
       "wave": 1,
@@ -21,16 +23,13 @@
       ],
       "acceptance": [
         "SKILL.md 存在于 src/skills/sddu-tree/ 目录下",
-        "frontmatter 包含 name: sddu-tree 和触发级 description",
-        "6 步工作流覆盖率 100%（对比原 Agent 模板）",
-        "5 条异常处理场景全部覆盖",
-        "phase + status 双字段状态标记规则完整",
-        "7 条行为规则全部迁移",
-        "弃用 Agent 专属骨架章节",
-        "Skill body 末尾含代理工具约束声明",
-        "篇幅 ≤300 行"
+        "符合 plan §10.2.1 Progressive Disclosure 三层结构（frontmatter → Stage 2 overview → Stage 3 body）",
+        "通过 plan §10.3.1 七项检查清单可自动化项：#1 name 正则 / #3 description ≤1024 字符 / #4 body ≤300 行 / #7 YAML 格式",
+        "通过 plan §10.3.3 六步工作流覆盖率验证：6/6 步骤完全对应（逐步骤关键命令无遗漏）",
+        "通过 plan §10.3.4 五场景异常覆盖验证：5/5 场景全部覆盖，处理策略与原 Agent 模板一致",
+        "原 Agent 265 行核心逻辑完整迁移（对照 plan §10.2.2 逐章节映射表），覆盖率 100%"
       ],
-      "verify": "test -f src/skills/sddu-tree/SKILL.md && grep -q 'name:' src/skills/sddu-tree/SKILL.md && grep -q 'description:' src/skills/sddu-tree/SKILL.md && grep -c '扫描目录树\\|检测缺失\\|读取文件生成简介\\|生成 TREE\\|验证已有\\|输出报告' src/skills/sddu-tree/SKILL.md"
+      "verify": "test -f src/skills/sddu-tree/SKILL.md && echo 'PASS: file exists' && grep -q '^name:' src/skills/sddu-tree/SKILL.md && echo 'PASS: frontmatter ok' && BODY_LINES=$(awk '/^---/{n++;next} n>=1' src/skills/sddu-tree/SKILL.md | wc -l); [ \"$BODY_LINES\" -le 300 ] && echo \"PASS: body lines ($BODY_LINES) ≤ 300\" || echo \"FAIL: body too long ($BODY_LINES)\" && STEP_COUNT=$(grep -c '步骤[1-6]' src/skills/sddu-tree/SKILL.md); [ \"$STEP_COUNT\" -ge 6 ] && echo \"PASS: 6-step coverage ($STEP_COUNT)\" || echo \"FAIL: step count ($STEP_COUNT)\""
     },
     {
       "id": "TASK-002",

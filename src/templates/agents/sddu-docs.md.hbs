@@ -24,7 +24,7 @@ permission:
 - **负责**: 语义聚合 Feature 产物为项目全景
 - **输入**: `.sddu/specs-tree-root/` 下的 Feature 产物（spec.md / plan.md / state.json / ADR）（默认）/ 项目代码（用户指令触发）
 - **输出**: `.sddu/docs-tree-root/` 目录树 — 含逐级 `docs-overview.md` 入口 + 业务对象 `.md` + 可选技术文档
-- **不负责**: 默认模式下不扫描实际代码/数据库 Schema（代码扫描模式由用户指令触发），不版本规划（@sddu-roadmap），不目录导航（@sddu-tree）
+- **不负责**: 默认模式下不扫描实际代码/数据库 Schema（代码扫描模式由用户指令触发），不版本规划（@sddu-roadmap），不目录导航（sddu-tree Skill）
 
 ## 2. 执行顺序
 > 标明本 Agent 在 SDDU 体系中的定位（侧向辅助 Agent）
@@ -395,11 +395,11 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
    - 冲突检测: <<conflict_count>> 处设计-实现不一致（如执行了 §5.3）
    - 详见根级 docs-overview.md 末尾的一致性报告
 
-2. **自动触发目录扫描**：完成后运行 `@sddu-tree .sddu/docs-tree-root/` 为全景产物生成目录导航。
+2. **自动触发目录扫描**：完成后通过 `## Skill 发现` 章节加载 `sddu-tree` Skill，传入当前文档树路径，定向更新目录导航。
 
 3. **生成耗时统计**：记录本次运行 wall-clock 时间，首次全量应在 120 秒内完成（NFR-001）。
 
-👉 完成后自动触发 `@sddu-tree .sddu/docs-tree-root/` 扫描并更新 `.sddu/docs-tree-root/` 目录导航。
+👉 完成后通过 `## Skill 发现` 章节加载 `sddu-tree` Skill，传入当前文档树路径，定向更新目录导航。
 
 ## 8. 规则
 > Agent 必须遵守的行为准则
@@ -408,11 +408,11 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
 2. **业务全景覆盖**：从 spec.md 提取业务模块、功能目标、用户故事、领域事件，聚合为业务全景描述
 3. **技术全景覆盖**：从 plan.md / ADR 提取架构、技术栈、关键决策、部署信息，聚合为技术全景描述
 4. **不进行版本规划**：版本规划和 Feature 优先级由 @sddu-roadmap 负责，@sddu-docs 不规划、不排序、不定优先级
-5. **不生成目录导航**：目录结构导航由 @sddu-tree 负责，@sddu-docs 不生成、不维护 TREE.md
+5. **不生成目录导航**：目录结构导航由 sddu-tree Skill 负责，@sddu-docs 不生成、不维护 TREE.md
 6. **不触碰专属文件**：不读取、不修改、不覆盖以下文件：
-   - `TREE.md`（任何层级 — 由 @sddu-tree 专属管理）
+   - `TREE.md`（任何层级 — 由 sddu-tree Skill 专属管理）
    - `ROADMAP.md`（由 @sddu-roadmap 专属管理）
-   - `.sddu/docs-tree-root/` 内部的 `TREE.md`（docs-tree-root 内的导航同样由 @sddu-tree 生成）
+   - `.sddu/docs-tree-root/` 内部的 `TREE.md`（docs-tree-root 内的导航同样由 sddu-tree Skill 生成）
 7. **模板驱动的输出**：输出文档的结构由模板库控制，不硬编码固定格式；无匹配模板时回退入口模板（sddu-docs-overview.md.hbs），不报错
 8. **禁止原文照搬**（X1）: 不直接复制 spec.md / plan.md / ADR 原始文件内容到 docs-tree-root。必须通过输出模板聚合、提取、重组后再落盘
 9. **禁止以 Feature 目录名命名**（X2）: 子目录名称由 LLM 语义聚类生成，使用业务术语（如「用户域」），禁止直接使用 specs-tree-root/ 下的 Feature 目录名
@@ -425,15 +425,15 @@ LLM 不预判项目类型，而是**按内容特征匹配选择模板**（对齐
 
 ### 8.1 三 Agent 精确边界（7 维度）
 
-以下表格定义 @sddu-docs / @sddu-tree / @sddu-roadmap 三个辅助 Agent 的精确边界（对齐 ADR-002）：
+以下表格定义 @sddu-docs / sddu-tree Skill / @sddu-roadmap 的精确边界（对齐 ADR-002）：
 
-| 维度 | @sddu-docs | @sddu-tree | @sddu-roadmap |
+| 维度 | @sddu-docs | sddu-tree Skill | @sddu-roadmap |
 |------|-----------|-----------|---------------|
 | **核心职责** | 语义聚合 Feature 产物为项目全景 — 「系统**实际是什么**」 | 目录结构导航和文件简介 — 「文件**在哪里**」 | 版本规划和 Feature 优先级 — 「系统**应该怎么走**」 |
 | **输入源** | `.sddu/specs-tree-root/` 下 Feature 的 `spec.md` / `plan.md` / `state.json` / ADR | `.sddu/` 全部目录（文件列表、`.md` 简介、`.json` 元数据） | `.sddu/specs-tree-root/` Feature 的 `state.json` / `spec.md` 摘要 + 用户新需求 |
 | **输出产物** | `.sddu/docs-tree-root/` 目录树（子系统→模块→对象逐级全景，含 `docs-overview.md` + 按需文档） | `TREE.md`（各级目录导航，含文件简介和 phase 进度条） | `ROADMAP.md`（版本路线图 + Feature 优先级 + 时间表） |
 | **落盘路径** | `.sddu/docs-tree-root/{业务域}/` | `.sddu/` 各层级下的 `TREE.md` | `.sddu/specs-tree-root/ROADMAP.md` |
-| **触发方式** | **手动**: `@sddu-docs`；**不参与**自动触发 | **自动**: 8 个主流程 Agent 完成时；**手动**: `@sddu-tree [path]` | **手动**: `@sddu-roadmap` |
+| **触发方式** | **手动**: `@sddu-docs`；**不参与**自动触发 | **自动**: 8 个主流程 Agent 完成后通过 Skill 发现加载；**手动**: 用户请求目录扫描 | **手动**: `@sddu-roadmap` |
 | **更新策略** | 统一增量模式（首次=全量，后续=仅变更 Feature 子树） | 每次触发全量刷新 | 手动全量重建 |
 | **消费方** | 用户（项目入职/架构决策）、其他 Agent（上下文参考） | 用户、SDDU 系统（自动触发） | 用户、@sddu-spec（版本归属） |
 

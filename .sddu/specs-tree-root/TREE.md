@@ -74,7 +74,7 @@ specs-tree-root/
 | 目录 | Feature ID | 说明 | Phase | Status |
 |------|-----------|------|:-----:|:------:|
 | specs-tree-sddu-fast | FR-FAST-001 | @sddu-fast 快速模式 Agent — validated 🔄 | validated | ✅ completed |
-| specs-tree-tree-skill | FR-TREE-SKILL | @sddu-tree Agent 技能化 — discovery 阶段，Agent→Skill 降级验证 🆕 | discovered | 🟢 tracked |
+| specs-tree-tree-skill |  |  | ⚠️ 状态异常 |
 
 ### 已终止 Feature (1 个)
 | 目录 | Feature ID | 说明 | Status | 去向 |
