@@ -1,6 +1,6 @@
 ---
 name: sddu-tree
-description: "SDDU 目录导航 Skill — 当 Agent 完成主流程后需要为指定 Feature 目录及父目录链生成或更新 TREE.md 目录导航文件时使用。负责加载 Skill → 接收 --target 路径 → 调用脚本 → 解析 JSON 报告 → 输出摘要。触发语义：更新目录导航 / 扫描 .sddu 结构 / 生成 TREE / 更新 TREE。"
+description: "SDDU 目录导航 Skill - 当 Agent 完成主流程后需要为指定 Feature 目录及父目录链生成或更新 TREE.md 目录导航文件时使用。负责接收 Feature 路径并调用脚本完成目录扫描、文件简介提取和导航文件生成，不聚合多 Feature 产物。"
 ---
 
 # sddu-tree
@@ -16,6 +16,39 @@ description: "SDDU 目录导航 Skill — 当 Agent 完成主流程后需要为�
 **触发条件**：
 - **自动触发**：8 个主流程 Agent 完成后，通过 `## Skill 发现` 章节加载，传入当前 Feature 路径
 - **手动触发**：用户显式请求「更新 .sddu 目录导航」「扫描 TREE」「生成目录树」等
+
+## 接口
+
+阅读本章节即可使用本 Skill，无需阅读后续工作流细节。
+
+### 参数
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|:--:|------|
+| `target` | string | ✅ | 当前 Feature 目录路径。相对 `.sddu/` 的路径，如 `specs-tree-root/specs-tree-tree-skill/`。由 Agent 模板完成协议自动传入。 |
+
+### 返回值
+
+**成功**（脚本 stdout JSON）：
+```json
+{
+  "created": [".sddu/specs-tree-root/specs-tree-tree-skill/TREE.md"],
+  "updated": [{"path": ".sddu/specs-tree-root/TREE.md", "changes": ["状态变更: specs-tree-tree-skill -> ✅ 已完成"]}],
+  "skipped": [".sddu/TREE.md"],
+  "errors": [],
+  "stats": {"scanned": 3, "created": 1, "updated": 1, "skipped": 1}
+}
+```
+
+**后续**：Agent 解析 JSON 报告，向用户输出人类可读摘要（已创建 X 个、已更新 Y 个、跳过 Z 个）。
+
+### 调用示例
+
+```
+Agent 完成主流程 -> 加载 sddu-tree Skill -> 传入当前 Feature 路径
+-> node scripts/generate-tree.cjs --target specs-tree-root/specs-tree-tree-skill/
+-> 解析 JSON 报告 -> 输出摘要
+```
 
 ## 前置条件
 
@@ -75,3 +108,4 @@ description: "SDDU 目录导航 Skill — 当 Agent 完成主流程后需要为�
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 从 @sddu-tree Agent 模板（265 行）全量迁移为框架级 Skill。Progressive Disclosure 三层编排。 | 2026-07-22 | SDDU Build Agent |
 | v2.0 | 脚本化 + 定向扫描优化：6 步工作流移入 `scripts/generate-tree.cjs`（确定性执行），body 从 223 行缩减到 ~55 行，新增 `--target` 定向扫描替代全量扫描。 | 2026-07-22 | SDDU Build Agent |
+| v2.1 | 对照 sddu-skill-creator 规范修正：description 去除关键词堆砌 + 新增标准 ## 接口 章节 | 2026-07-22 | SDDU Build Agent |
