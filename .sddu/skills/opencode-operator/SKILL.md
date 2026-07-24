@@ -213,7 +213,7 @@ opencode pr 42
 |:--|:--|:--|
 | < 5 分钟 | `opencode run --auto` | 单次完成，最简单 |
 | 5-30 分钟 | `opencode run -c` 分段续接 | 绕过超时，自动恢复上下文 |
-| > 30 分钟 | `opencode serve` + HTTP 轮询 | 长期运行，可查进度 |
+| > 30 分钟 | `scripts/serve-api.cjs` 非阻塞模式 | 提交即走，随时查进度 |
 
 ### `-c` 续接模式
 
@@ -326,11 +326,11 @@ opencode 配置分两层：用户级（全局）和项目级（覆盖合并）�
 ### 运行时配置查询
 
 ```bash
-# 通过 API 查看当前配置
-curl http://localhost:4096/config
+# 查看当前配置
+opencode debug
 
 # 查看当前项目的 Agent 列表
-curl http://localhost:4096/agent
+opencode agent list
 
 # 查看可用模型
 opencode models
