@@ -301,6 +301,14 @@ fi
 
 mkdir -p "${TARGET_DIR}/.opencode"
 OPENCODE_JSON_PATH="${TARGET_DIR}/.opencode/opencode.json"
+OLD_OPENCODE_JSON_PATH="${TARGET_DIR}/opencode.json"
+
+# 迁移：如果新路径不存在但老路径（项目根目录）存在，先迁移过来
+if [ ! -f "$OPENCODE_JSON_PATH" ] && [ -f "$OLD_OPENCODE_JSON_PATH" ]; then
+    print_color "${YELLOW}[MIGRATE] 发现旧版 opencode.json 在项目根目录，迁移到 .opencode/${NC}"
+    cp "$OLD_OPENCODE_JSON_PATH" "$OPENCODE_JSON_PATH"
+    print_color "${GREEN}[OK] 已迁移到 .opencode/opencode.json，原文件保留为备份${NC}"
+fi
 
 if [ -f "$OPENCODE_JSON_PATH" ]; then
     print_color "${CYAN}[CONFIG UPDATE]${NC}"

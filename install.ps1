@@ -292,6 +292,14 @@ if (-not (Test-Path $OpencodeDir)) {
 
 $OpencodeDestPath = Join-Path $OpencodeDir "opencode.json"
 
+# 迁移：如果新路径不存在但老路径（项目根目录）存在，先迁移过来
+$OldOpencodeJsonPath = Join-Path $TargetDir "opencode.json"
+if (-not (Test-Path $OpencodeDestPath) -and (Test-Path $OldOpencodeJsonPath)) {
+    Write-Host "[MIGRATE] 发现旧版 opencode.json 在项目根目录，迁移到 .opencode/" -ForegroundColor Yellow
+    Copy-Item $OldOpencodeJsonPath $OpencodeDestPath
+    Write-Host "[OK] 已迁移到 .opencode/opencode.json，原文件保留为备份" -ForegroundColor Green
+}
+
 # Verify SDDU configuration exists
 if (-not (Test-Path $OpencodeSourceSddu)) {
     Write-Host "ERROR: SDDU opencode.json not found at $OpencodeSourceSddu" -ForegroundColor Red
