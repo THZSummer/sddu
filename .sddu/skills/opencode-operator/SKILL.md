@@ -13,15 +13,26 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|:--:|------|
-| `intent` | string | ✅ | 操作意图描述，如"跑一次代码审查"、"启动无头服务器"、"列出可用模型" |
-| `mode` | enum | ❌ | 操作模式：`cli`(默认) / `serve` / `acp` / `github`。根据 intent 自动推导 |
+| `intent` | string | ✅ | 操作意图描述，如"跑一次代码审查"、"启动无头服务器" |
+| `mode` | enum | ❌ | 操作模式，根据 intent 自动推导。见下表 |
 | `project_dir` | string | ❌ | 目标项目目录，默认当前工作目录 |
-| `agent` | string | ❌ | 指定 Agent 名称（如 `build`、`sddu`、`sddu-spec`） |
-| `model` | string | ❌ | 指定模型，格式 `provider/model-id` |
+| `agent` | string | ❌ | 指定 Agent（如 `build`、`sddu`）。用 `opencode agent list` 查看可用值 |
+| `model` | string | ❌ | 指定模型，格式 `provider/model-id`。用 `opencode models` 查看可用值 |
+
+**mode 选项**：
+
+| 值 | 命令 | 适用场景 | 时长参考 |
+|:--|:--|:--|:--|
+| `cli`（默认） | `opencode run` | 单次任务：代码审查、bug 修复、问答 | <5min 单次；5-30min 用 `-c` 续接 |
+| `serve` | `opencode serve` | 长期运行、多会话、需进度监控 | >30min |
+| `acp` | `opencode acp` | 进程间 stdin/stdout 通信 | 任意 |
+| `github` | `opencode github` | CI/CD 自动化 | 触发式 |
+
+> 不确定时用 `cli`。任务超 5 分钟需 `-c` 续接或改用 `serve`。详见 [长流程编排](#长流程编排)。
 
 ### 返回值
 
-**成功**：返回可执行的命令序列或 HTTP API 调用方案，Agent 直接执行或输出给用户。
+**成功**：返回可执行的命令或 API 调用方案。长流程（>5 分钟）额外返回续接策略。
 
 **异常**：
 
@@ -35,13 +46,21 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 ### 调用示例
 
 ```
+# 简单任务（< 5 分钟）
 用户："帮我在 src/ 上跑一次代码审查"
--> opencode run --agent build --auto --dir . "审查 src/ 目录的代码质量"
+-> opencode run --agent build --auto --dir . "审查 src/ 目录"
 
+# 长流程任务（5-30 分钟，需续接）
+用户："用 SDDU 跑完 todo-app 的全流程"
+-> opencode run --auto --dir /project --agent sddu "todo-app"
+-> （超时后续接）opencode run -c --auto --dir /project "继续执行"
+
+# 长期运行（> 30 分钟，需监控）
 用户："启动一个无头服务器让我通过 API 调用"
--> opencode serve --port 4096 --hostname 127.0.0.1
--> 返回 API 端点列表
+-> node scripts/serve-api.cjs run --message "任务" --agent build --dir .
+-> （或非阻塞）node scripts/serve-api.cjs start --port 4096
 
+# 查询类
 用户："列出当前项目有哪些 Agent"
 -> opencode agent list
 ```
@@ -101,85 +120,59 @@ opencode run --command compact
 | `--thinking` | boolean | 显示思考过程 |
 | `-i/--interactive` | boolean | 交互式分屏模式 |
 
+> **长流程提示**：任务预计超过 5 分钟时，`opencode run` 可能被 shell 超时中断。使用 `-c` 续接或改用 `opencode serve`。详见 [长流程编排](#长流程编排) 章节。
+
 ### 路径 2: opencode serve（HTTP API）
 
-启动无头 HTTP 服务器，暴露完整 REST API。适合长期运行、多会话管理、外部系统集成。
+启动无头 HTTP 服务器，适合长期运行、多会话管理、外部系统集成。
 
-**启动服务器**：
+**通过脚本操作（推荐）**：
+
+阻塞模式（提交后等待完成）：
 ```bash
-# 基本启动（随机端口）
-opencode serve
-
-# 指定端口和主机
-opencode serve --port 4096 --hostname 127.0.0.1
-
-# 启用 mDNS 服务发现
-opencode serve --mdns
-
-# 设置 CORS
-opencode serve --cors example.com another.com
-
-# 启动并打开 Web 界面
-opencode web
+# 一键模式：启动 -> 执行任务 -> 关闭
+node scripts/serve-api.cjs run --message "审查代码" --agent build --dir . --port 4096
 ```
 
-**认证**：
+非阻塞模式（提交后去做别的，随时回来看进度）：
+```bash
+# 1. 启动 serve（一次性）
+node scripts/serve-api.cjs start --port 4096 --dir .
+
+# 2. 提交任务，立即返回 sessionId
+node scripts/serve-api.cjs submit --port 4096 --message "审查代码" --agent build
+# -> { sessionId: "abc-123", status: "submitted" }
+
+# 3. 去做别的事情...
+
+# 4. 随时查看进度
+node scripts/serve-api.cjs status --port 4096 --session abc-123
+# -> { status: "running", messageCount: 5 }
+
+# 5. 完成后取结果
+node scripts/serve-api.cjs result --port 4096 --session abc-123
+# -> { status: "idle", messages: [...] }
+
+# 6. 太慢可以中止
+node scripts/serve-api.cjs abort --port 4096 --session abc-123
+
+# 7. 全部用完关闭 serve
+node scripts/serve-api.cjs stop --port 4096
+```
+
+> 不推荐直接 curl 调用 HTTP API。脚本封装了会话创建、消息发送、轮询、进程管理等确定性逻辑。如需查看完整 API 规范，访问运行中 serve 的 `/doc` 端点。
+
+**认证**（可选）：
 ```bash
 export OPENCODE_SERVER_PASSWORD=secret
-export OPENCODE_SERVER_USERNAME=myuser  # 可选，默认 opencode
 ```
 
-**核心 API 端点**：
-
-| 端点 | 方法 | 用途 |
-|------|:--|------|
-| `/global/health` | GET | 健康检查 + 版本 |
-| `/project/current` | GET | 当前项目信息 |
-| `/config` | GET/PATCH | 读取/修改配置 |
-| `/config/providers` | GET | 列出模型供应商 |
-| `/session` | POST | 创建会话 |
-| `/session/:id` | GET/DELETE/PATCH | 查看/删除/修改会话 |
-| `/session/:id/message` | POST | 发送消息并等待响应 |
-| `/session/:id/message` | GET | 获取会话消息列表 |
-| `/session/:id/prompt_async` | POST | 异步发送消息 |
-| `/session/:id/command` | POST | 执行斜杠命令 |
-| `/session/:id/abort` | POST | 中止当前执行 |
-| `/session/:id/share` | POST | 分享会话 |
-| `/file/content?path=` | GET | 读取文件内容 |
-| `/find?pattern=` | GET | 全文搜索 |
-| `/find/file` | GET | 按文件名搜索 |
-| `/find/symbol` | GET | 按符号搜索 |
-| `/agent` | GET | 列出所有 Agent |
-| `/mcp` | GET/POST | 查询/管理 MCP 服务器 |
-| `/event` | GET(SSE) | 实时事件流 |
-| `/doc` | GET | OpenAPI 3.1 规范 |
-
-**典型交互流程**：
-```bash
-# 1. 创建会话
-SID=$(curl -s -X POST http://localhost:4096/session \
-  -H "Content-Type: application/json" \
-  -d '{"title":"refactor-task"}' | jq -r .id)
-
-# 2. 发送消息
-curl -s -X POST http://localhost:4096/session/$SID/message \
-  -H "Content-Type: application/json" \
-  -d '{"parts":[{"type":"text","text":"重构 auth 模块"}]}'
-
-# 3. 获取回复
-curl -s http://localhost:4096/session/$SID/message
-
-# 4. 中止执行（如需要）
-curl -s -X POST http://localhost:4096/session/$SID/abort
-
-# 5. SSE 事件流（实时监听）
-curl -N http://localhost:4096/event
-```
-
-**TUI 附加到 serve**：
+**TUI 附加**：
 ```bash
 opencode attach http://localhost:4096
 ```
+
+> serve 不会自动退出。用 `scripts/serve-api.cjs stop --port 4096` 或 `lsof -ti:4096 | xargs kill` 关闭。
 
 ### 路径 3: opencode acp（标准协议）
 
@@ -210,6 +203,62 @@ opencode pr 42
 
 ---
 
+## 长流程编排
+
+任务预计超过 5 分钟时（多阶段 workflow、批量重构），需特殊策略应对 shell 超时和进度不可见问题。
+
+### 策略选择
+
+| 预计时长 | 推荐策略 | 原因 |
+|:--|:--|:--|
+| < 5 分钟 | `opencode run --auto` | 单次完成，最简单 |
+| 5-30 分钟 | `opencode run -c` 分段续接 | 绕过超时，自动恢复上下文 |
+| > 30 分钟 | `opencode serve` + HTTP 轮询 | 长期运行，可查进度 |
+
+### `-c` 续接模式
+
+`opencode run` 被超时中断后，`-c` 续接最后一次会话，保留完整上下文：
+
+```bash
+# 第一次调用（可能超时）
+opencode run --auto --dir <project> --agent sddu "启动多阶段任务"
+
+# 超时后续接（可多次）
+opencode run -c --auto --dir <project> "继续执行"
+```
+
+**关键点**：
+- `-c` 继续最后一次会话，保留完整对话历史和上下文
+- 多次 `-c` 之间，Agent 的中间产物已持久化到磁盘（文件、state.json 等）
+- 续接时如不确定进度，先检查项目产物文件再决定提示词
+
+### 进度监控
+
+| 场景 | 方法 | 示例 |
+|:--|:--|:--|
+| serve 非阻塞任务 | 脚本 status 命令 | `node scripts/serve-api.cjs status --port 4096 --session <sid>` |
+| serve 实时事件流 | SSE 端点 | `curl -N http://localhost:4096/event` |
+| `opencode run` 阻塞任务 | 读项目状态文件 | `cat <project>/.sddu/specs-tree-root/*/state.json \| jq .phase` |
+| `opencode run` 阻塞任务 | 检查产物文件 | `ls <output_dir>/` 看文件增长 |
+| `opencode run` 需事件流 | `--format json` 管道 | `opencode run --format json --auto "..." \| jq .type` |
+
+### serve 长流程示例
+
+```bash
+# 一条龙：启动 serve -> 提交任务 -> 轮询 -> 取结果 -> 自动关闭
+node scripts/serve-api.cjs run --message "执行多阶段任务" --agent sddu --dir . --port 4096
+# stdout JSON: { sessionId, status, messages, duration }
+# stderr 实时进度: [12.5s] status: running
+
+# 或组合模式（需并行多会话时）
+node scripts/serve-api.cjs start --port 4096 --dir .
+node scripts/serve-api.cjs send --port 4096 --message "任务1" --agent build
+node scripts/serve-api.cjs send --port 4096 --message "任务2" --agent build
+node scripts/serve-api.cjs stop --port 4096
+```
+
+---
+
 ## CLI 命令速查
 
 ### 会话管理
@@ -220,19 +269,15 @@ opencode pr 42
 | `opencode session delete <id>` | 删除会话 |
 | `opencode export [sessionID]` | 导出会话为 JSON |
 | `opencode import <file>` | 从 JSON 导入会话 |
-| `opencode stats` | Token 用量和费用统计 |
-| `opencode stats --days 7 --models` | 按天/模型查看用量 |
+| `opencode stats [--days N] [--models]` | Token 用量和费用统计 |
 
 ### 模型与供应商
 
 | 命令 | 用途 |
 |------|------|
-| `opencode models` | 列出所有可用模型 |
-| `opencode models anthropic` | 按供应商过滤 |
-| `opencode models --refresh` | 刷新模型列表 |
+| `opencode models [provider] [--refresh]` | 列出可用模型（可过滤/刷新） |
 | `opencode providers list` | 列出已配置的供应商 |
-| `opencode providers login <id>` | 登录供应商 |
-| `opencode providers logout <id>` | 退出登录 |
+| `opencode providers login\|logout <id>` | 登录/退出供应商 |
 
 ### Agent 管理
 
@@ -250,24 +295,14 @@ opencode pr 42
 | `opencode mcp auth` | MCP 服务器认证 |
 | `opencode mcp debug` | 调试 MCP 服务器 |
 
-### 插件管理
-
-| 命令 | 用途 |
-|------|------|
-| `opencode plugin <module>` | 安装插件 |
-| `opencode plugin <module> --global` | 全局安装 |
-
 ### 其他
 
 | 命令 | 用途 |
 |------|------|
-| `opencode completion` | 生成 Shell 补全脚本 |
+| `opencode plugin <module> [--global]` | 安装插件（可选全局） |
 | `opencode debug` | 诊断和故障排除 |
-| `opencode upgrade` | 升级到最新版本 |
-| `opencode upgrade <version>` | 升级到指定版本 |
+| `opencode upgrade [version]` | 升级到最新或指定版本 |
 | `opencode uninstall` | 卸载 opencode |
-| `opencode db path` | 查看数据库路径 |
-| `opencode db <query>` | 执行数据库查询 |
 
 ---
 
@@ -315,31 +350,27 @@ opencode run --format json --auto --dir . "修复所有 ESLint 错误" 2>/dev/nu
 opencode run --auto "给 src/utils.ts 加上 JSDoc 注释"
 ```
 
-### 模式 2: serve + 多会话管理
+### 模式 2: serve 多会话并行
 
 ```bash
 # 启动服务器
-opencode serve --port 4096 &
+node scripts/serve-api.cjs start --port 4096 --dir .
 
-# 创建多个并行会话
-SID1=$(curl -s -X POST http://localhost:4096/session -d '{"title":"task-1"}' | jq -r .id)
-SID2=$(curl -s -X POST http://localhost:4096/session -d '{"title":"task-2"}' | jq -r .id)
+# 并行提交多个任务
+node scripts/serve-api.cjs send --port 4096 --message "审查 auth/" &
+node scripts/serve-api.cjs send --port 4096 --message "审查 payment/" &
+wait
 
-# 并行发送任务
-curl -X POST http://localhost:4096/session/$SID1/message \
-  -d '{"parts":[{"type":"text","text":"审查 auth/"}]}' &
-curl -X POST http://localhost:4096/session/$SID2/message \
-  -d '{"parts":[{"type":"text","text":"审查 payment/"}]}' &
+# 关闭服务器
+node scripts/serve-api.cjs stop --port 4096
 ```
 
-### 模式 3: 外部 Agent 通过 HTTP 驱动 opencode
+### 模式 3: 外部 Agent 通过脚本驱动 opencode
 
-```
-openclaw / Claude Code / 其他 Agent
-  -> POST http://localhost:4096/session
-  -> POST http://localhost:4096/session/:id/message
-  -> GET  http://localhost:4096/session/:id/message
-  -> 解析回复，继续编排
+```bash
+# openclaw / Claude Code / 其他 Agent 调用
+node scripts/serve-api.cjs run --message "重构 auth 模块" --agent build --dir /project
+# -> 解析 stdout JSON 获取结果，继续编排
 ```
 
 ### 模式 4: 指定 SDDU Agent 执行专项任务
@@ -368,13 +399,45 @@ opencode import session.json
 opencode run --share --auto "帮我分析这段代码"
 ```
 
+### 模式 6: 多阶段长流程（分段续接）
+
+适合 SDDU 7 阶段 workflow 等预计 20-30 分钟的任务：
+
+```bash
+# 第一轮：启动（可能超时）
+opencode run --auto --dir /path/to/project --agent sddu "project-name"
+
+# 检查进度
+cat /path/to/project/.sddu/specs-tree-root/*/state.json | jq .phase
+# -> "discovered"
+
+# 第二轮：续接
+opencode run -c --auto --dir /path/to/project "继续执行"
+
+# 再检查
+cat /path/to/project/.sddu/specs-tree-root/*/state.json | jq .phase
+# -> "specified"
+
+# 重复直到完成
+opencode run -c --auto --dir /path/to/project "继续"
+# -> {"phase": "validated", "status": "completed"}
+```
+
+---
+
+## 脚本
+
+| 脚本 | 路径 | 用途 |
+|------|------|------|
+| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API。8 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）。零依赖，stdout JSON。 |
+
 ---
 
 ## 边界
 
 **本 Skill 负责**：
 - opencode CLI 命令的构造和执行指引
-- HTTP API（serve 模式）的端点说明和调用方案
+- serve 模式通过 `scripts/serve-api.cjs` 脚本封装的调用方案
 - ACP 协议的使用指引
 - GitHub Agent 的 CI/CD 集成
 - 运行时会话管理（创建、查询、中止、导出）
@@ -393,3 +456,8 @@ opencode run --share --auto "帮我分析这段代码"
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
 | v1.0 | 初始创建 - 覆盖 opencode CLI 4 条操作路径 + HTTP API 端点表 + CLI 速查 + 配置管理 + 5 种常见模式 | 2026-07-24 | sddu-skill-creator |
+| v1.1 | 新增长流程编排章节（`-c` 续接模式 + 进度监控 + serve 长流程示例）+ 模式 6 多阶段续接实战 | 2026-07-24 | 实战优化 |
+| v1.2 | 接口章节重写：mode 选项表 + agent/model 发现方式 + 长流程调用示例 + 续接策略返回 | 2026-07-24 | 接口完善 |
+| v1.3 | 补全 serve 生命周期：停止服务器 3 种方式 + 典型交互流程 step 6 + 接口示例关闭 + CLI 速查精简 | 2026-07-24 | 生命周期完善 |
+| v2.0 | 脚本化：新增 `scripts/serve-api.cjs` 封装 serve API；路径 2/长流程/常见模式全部改为脚本驱动，移除裸 curl 示例和 API 端点表 | 2026-07-24 | 脚本化重构 |
+| v2.1 | 新增非阻塞工作流：`submit`/`status`/`result`/`abort` 4 个子命令；进度监控表增加 serve 非阻塞查询 | 2026-07-24 | 非阻塞支持 |
