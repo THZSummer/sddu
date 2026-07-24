@@ -172,7 +172,7 @@ SDDU 将每个 Feature 的工作产物组织在 `.sddu/specs-tree-root/` 下：
 
 ## 🚧 项目约束（Agent 必读）
 
-本项目是 SDDU 插件自身（dogfooding）。所有 Agent 定义需求/方案/任务时：**修改目标只限设计态源码**（`src/`、`scripts/`、`e2e/`、`docs/`、`examples/`、`package.json`、`tsconfig.json` 等）。`.opencode/`（含 `opencode.json` + `agents/` + `plugins/`）是编译产物（`src/` build 生成），`.sddu/` 是流程产物——**二者不得列为修改/创建/删除目标**。改运行时行为请走「改 `src/` + `npm run build`」。
+本项目是 SDDU 插件自身（dogfooding）。所有 Agent 定义需求/方案/任务时：**修改目标只限设计态源码**（`src/`、`scripts/`、`e2e/`、`docs/`、`examples/`、`package.json`、`tsconfig.json` 等）。`.opencode/`（含 `opencode.json` + `agents/` + `plugins/`）是安装产物（`install.sh` 安装生成），`.sddu/` 是流程产物——**二者不得列为修改/创建/删除目标**。改运行时行为请走「改 `src/` + `npm run build`」。
 
 ---
 
