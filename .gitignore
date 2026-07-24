@@ -24,7 +24,6 @@ Thumbs.db
 
 # OpenCode SDD Plugin 安装文件（不应提交）
 .opencode/
-/opencode.json
 
 # Test coverage reports (generated artifacts)
 coverage/
