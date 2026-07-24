@@ -113,7 +113,7 @@ echo "── Step 6: 安装配置验证 ──"
 grep -q "同步 SDDU Skills" "$TEST_DIR/.opencode/plugins/sddu/install.sh" 2>/dev/null && \
   pass "V6 install.sh 同步提示" || fail "V6 install.sh 缺少同步提示"
 
-grep -q '"skill".*"allow"' "$TEST_DIR/opencode.json" 2>/dev/null && \
+grep -q '"skill".*"allow"' "$TEST_DIR/.opencode/opencode.json" 2>/dev/null && \
   pass "V7 opencode.json skill: allow" || fail "V7 opencode.json skill 权限未配置"
 
 # ── Step 7: LLM Agent 运行时验证 ──

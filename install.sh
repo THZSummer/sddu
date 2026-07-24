@@ -299,7 +299,8 @@ if [ ! -f "$OPENCODE_JSON_SOURCE_SDDU" ]; then
     exit 1
 fi
 
-OPENCODE_JSON_PATH="${TARGET_DIR}/opencode.json"
+mkdir -p "${TARGET_DIR}/.opencode"
+OPENCODE_JSON_PATH="${TARGET_DIR}/.opencode/opencode.json"
 
 if [ -f "$OPENCODE_JSON_PATH" ]; then
     print_color "${CYAN}[CONFIG UPDATE]${NC}"
@@ -427,7 +428,7 @@ echo ""
 echo "Files:"
 echo "  - .opencode/plugins/sddu/ ($([ -d ${TARGET_DIR}/.opencode/plugins/sddu ] && find ${TARGET_DIR}/.opencode/plugins/sddu -type f | wc -l || echo 0) files from SDDU dist/)"
 echo "  - .opencode/agents/ ($AGENT_COUNT agents total)"
-echo "  - opencode.json (plugin configuration - SDDU standard)"
+echo "  - .opencode/opencode.json (plugin configuration - SDDU standard)"
 echo "  - .sddu/ (workspace container)"
 echo ""
 echo "  🚀 New Feature: 8-Stage Workflow is now available!"

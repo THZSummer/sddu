@@ -283,7 +283,14 @@ Write-Host "[INFO] Source package version: $SourceVersion" -ForegroundColor Gree
 Write-Host "[7/${TOTAL_STEPS}] Configuring SDDU opencode.json..." -ForegroundColor Cyan
 
 $OpencodeSourceSddu = Join-Path $ScriptDir "dist/sddu/opencode.json"
-$OpencodeDestPath = Join-Path $TargetDir "opencode.json"
+
+# Ensure .opencode directory exists
+$OpencodeDir = Join-Path $TargetDir ".opencode"
+if (-not (Test-Path $OpencodeDir)) {
+    New-Item -ItemType Directory -Path $OpencodeDir -Force | Out-Null
+}
+
+$OpencodeDestPath = Join-Path $OpencodeDir "opencode.json"
 
 # Verify SDDU configuration exists
 if (-not (Test-Path $OpencodeSourceSddu)) {
@@ -407,7 +414,7 @@ Write-Host "Files:" -ForegroundColor White
 Write-Host "  - .opencode/plugins/sddu/ ($SdduFileCount files from SDDU dist/)" -ForegroundColor White
 Write-Host "  - .opencode/agents/ ($AgentCount agents total)" -ForegroundColor White
 Write-Host "  - .opencode/plugins/sddu/templates/output/ (output templates)" -ForegroundColor White
-Write-Host "  - opencode.json (plugin configuration - SDDU standard)" -ForegroundColor White
+Write-Host "  - .opencode/opencode.json (plugin configuration - SDDU standard)" -ForegroundColor White
 Write-Host "  - .sddu/ (workspace container)" -ForegroundColor White
 Write-Host ""
 Write-Host "  🚀 v3.0.0: 8-Stage Workflow + Two-Field State Model" -ForegroundColor Yellow

@@ -62,7 +62,7 @@ generate_verification_summary() {
     # 检查核心配置文件
     local core_completed=0
     [ -f "$project_dir/.sdd/state.json" ] && ((core_completed++))
-    [ -f "$project_dir/opencode.json" ] && ((core_completed++))
+    [ -f "$project_dir/.opencode/opencode.json" ] && ((core_completed++))
     
     local total_core=8
     local total_complete=$((phases_completed + core_completed))
@@ -155,7 +155,7 @@ $(check_file_exists "$project_dir/.sdd/specs-tree-root/$project_name/validation.
 $(check_file_exists "$project_dir/.sdd/state.json" "state.json")
 
 ### Opencode 配置验证
-$(check_file_exists "$project_dir/opencode.json" "opencode.json")
+$(check_file_exists "$project_dir/.opencode/opencode.json" "opencode.json")
 
 ## 验证总结
 $(generate_verification_summary "$project_dir" "$project_name")
@@ -215,7 +215,7 @@ $(check_file_exists \"$project_dir/.sdd/specs-tree-root/$project_name/validation
 $(check_file_exists \"$project_dir/.sdd/state.json\" \"state.json\")
 
 ### Opencode 配置验证
-$(check_file_exists \"$project_dir/opencode.json\" \"opencode.json\")
+$(check_file_exists \"$project_dir/.opencode/opencode.json\" \"opencode.json\")
 $(check_plugin_exists \"$project_dir/.opencode/plugins\" \"sddu\")
 
 ## 验证总结
@@ -309,7 +309,7 @@ generate_verification_summary() {
     file_status[review]=$( [ -f "$project_dir/.sdd/specs-tree-root/$project_name/review.md" ] && echo "present" || echo "missing" )
     file_status[validation]=$( [ -f "$project_dir/.sdd/specs-tree-root/$project_name/validation.md" ] && echo "present" || echo "missing" )
     file_status[state]=$( [ -f "$project_dir/.sdd/state.json" ] && echo "present" || echo "missing" )
-    file_status[opencode]=$( [ -f "$project_dir/opencode.json" ] && echo "present" || echo "missing" )
+    file_status[opencode]=$( [ -f "$project_dir/.opencode/opencode.json" ] && echo "present" || echo "missing" )
     
     local phases_completed=0
     for key in discovery spec plan tasks review validation; do
@@ -413,7 +413,7 @@ $(check_file_exists "$project_dir/.sdd/specs-tree-root/$project_name/validation.
 $(check_file_exists "$project_dir/.sdd/state.json" "state.json")
 
 ### Opencode 配置验证
-$(check_file_exists "$project_dir/opencode.json" "opencode.json")
+$(check_file_exists "$project_dir/.opencode/opencode.json" "opencode.json")
 $(check_plugin_exists "$project_dir/.opencode/plugins" "sddu")
 
 ## 验证总结
@@ -483,7 +483,7 @@ generate_verification_summary() {
         ".sdd/specs-tree-root/$project_name/review.md"
         ".sdd/specs-tree-root/$project_name/validation.md"
         ".sdd/state.json"
-        "opencode.json"
+        ".opencode/opencode.json"
     )
     
     local total_files=${#essential_files[@]}
