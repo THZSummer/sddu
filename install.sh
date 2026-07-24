@@ -358,8 +358,8 @@ try {
         }
     }
     
-    // Also update permissions to be secure by default
-    existingConfig.permission = newConfig.permission;
+    // Merge permissions: SDDU required permissions take precedence, user's custom permissions preserved
+    existingConfig.permission = { ...existingConfig.permission, ...newConfig.permission };
     
     // Maintain schema from new config 
     if (newConfig.\$schema) {

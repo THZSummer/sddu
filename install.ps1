@@ -369,8 +369,16 @@ if (Test-Path $OpencodeDestPath) {
         }
         $existingConfig.agent = $agentPSC
         
-        # Update permissions
-        $existingConfig.permission = $newConfig.permission
+        # Merge permissions: SDDU required permissions take precedence, user's custom permissions preserved
+        $existingConfig.permission = @{}
+        foreach ($key in $newConfig.permission.PSObject.Properties.Name) {
+            $existingConfig.permission[$key] = $newConfig.permission[$key]
+        }
+        foreach ($key in $existingConfigOld.permission.PSObject.Properties.Name) {
+            if (-not $existingConfig.permission.ContainsKey($key)) {
+                $existingConfig.permission[$key] = $existingConfigOld.permission[$key]
+            }
+        }
         
         # Update schema
         if ($newConfig.'$schema') {
