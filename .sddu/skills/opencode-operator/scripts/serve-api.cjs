@@ -231,15 +231,12 @@ function cmdStop(opts) {
     for (let i = 0; i < 10; i++) {
       try {
         execSync(`lsof -ti:${port} 2>/dev/null`);
-        // 端口仍被占用，等待
-        const s = require('child_process').spawnSync;
+        // 端口仍被占用，同步等待 500ms
+        execSync('sleep 0.5');
       } catch {
         killed = true;
         break;
       }
-      // 同步等待
-      const start = Date.now();
-      while (Date.now() - start < 500) {}
     }
 
     output({ killed: true, port: parseInt(port), pids: pids.map(Number) });

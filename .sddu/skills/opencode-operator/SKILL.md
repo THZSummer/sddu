@@ -55,10 +55,14 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 -> opencode run --auto --dir /project --agent sddu "todo-app"
 -> （超时后续接）opencode run -c --auto --dir /project "继续执行"
 
-# 长期运行（> 30 分钟，需监控）
-用户："启动一个无头服务器让我通过 API 调用"
--> node scripts/serve-api.cjs run --message "任务" --agent build --dir .
--> （或非阻塞）node scripts/serve-api.cjs start --port 4096
+# 长期运行非阻塞（> 30 分钟，提交后去做别的）
+用户："启动服务器跑个长任务，我先去忙别的"
+-> node scripts/serve-api.cjs start --port 4096 --dir .
+-> node scripts/serve-api.cjs submit --port 4096 --message "任务" --agent build
+-> （随时）node scripts/serve-api.cjs status --port 4096 --session <sid>
+-> （完成）node scripts/serve-api.cjs result --port 4096 --session <sid>
+-> （太慢）node scripts/serve-api.cjs abort --port 4096 --session <sid>
+-> （用完）node scripts/serve-api.cjs stop --port 4096
 
 # 查询类
 用户："列出当前项目有哪些 Agent"
@@ -151,7 +155,7 @@ node scripts/serve-api.cjs status --port 4096 --session abc-123
 
 # 5. 完成后取结果
 node scripts/serve-api.cjs result --port 4096 --session abc-123
-# -> { status: "idle", messages: [...] }
+# -> { status: "completed", messages: [...] }
 
 # 6. 太慢可以中止
 node scripts/serve-api.cjs abort --port 4096 --session abc-123
@@ -429,7 +433,7 @@ opencode run -c --auto --dir /path/to/project "继续"
 
 | 脚本 | 路径 | 用途 |
 |------|------|------|
-| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API。8 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）。零依赖，stdout JSON。 |
+| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API。8 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）。零依赖，stdout JSON。通用参数 `--port`（必填，默认 4096），`--hostname`（可选），`--timeout`/`--interval`（轮询控制）。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
 
 ---
 
