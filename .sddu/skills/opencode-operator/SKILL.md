@@ -271,6 +271,8 @@ node scripts/serve-api.cjs stop --port 4096
 
 ## CLI 命令速查
 
+> **查看所有 CLI 命令**：`opencode --help`（列出全部顶层命令，始终是最新清单，优先于本章节静态表格）；`opencode <command> --help` 查看某命令的子命令与参数详情。
+
 ### 会话管理
 
 | 命令 | 用途 |
@@ -542,3 +544,4 @@ curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').re
 | v2.4 | 新增 sessions/rm 子命令管理 serve 会话 | 2026-07-26 | @sddu-fast |
 | v2.5 | 微调 description 补充 serve 进程/会话巡检触发词 | 2026-07-26 | @sddu-fast |
 | v2.6 | 接口章节加命令自发现提示（无参数运行查看 usage） | 2026-07-26 | @sddu-fast |
+| v2.7 | CLI 命令速查章节加 opencode --help 自发现提示 | 2026-07-26 | @sddu-fast |
