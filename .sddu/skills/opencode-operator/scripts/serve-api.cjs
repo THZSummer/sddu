@@ -20,20 +20,37 @@
 
 const { spawn, execSync } = require('child_process');
 const http = require('http');
+const { parseArgs } = require('util');
 
 // ─── 参数解析 ───
 
-function parseArgs(args) {
-  const opts = {};
-  for (let i = 0; i < args.length; i++) {
-    if (args[i].startsWith('--')) {
-      const key = args[i].slice(2);
-      const val = i + 1 < args.length && !args[i + 1].startsWith('--') ? args[i + 1] : true;
-      opts[key] = val;
-      if (val !== true) i++;
-    }
+function parseCliArgs(args) {
+  const { values } = parseArgs({
+    args,
+    options: {
+      port:      { type: 'string' },
+      hostname:  { type: 'string' },
+      dir:       { type: 'string' },
+      message:   { type: 'string' },
+      agent:     { type: 'string' },
+      timeout:   { type: 'string' },
+      interval:  { type: 'string' },
+      session:   { type: 'string' },
+      grep:      { type: 'string' },
+      limit:     { type: 'string' },
+      full:      { type: 'boolean' },
+    },
+    strict: false,
+  });
+  return values;
+}
+
+function requireOpts(opts, keys) {
+  const missing = keys.filter(k => opts[k] === undefined);
+  if (missing.length > 0) {
+    output({ error: '缺少必填参数 ' + missing.map(k => '--' + k).join(', ') });
+    process.exit(1);
   }
-  return opts;
 }
 
 function getUrl(opts) {
@@ -161,10 +178,7 @@ async function cmdSend(opts) {
   const timeoutSec = parseInt(opts.timeout || '600');
   const intervalSec = parseInt(opts.interval || '5');
 
-  if (!opts.port || !message) {
-    output({ error: '缺少必填参数 --port 和 --message' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port', 'message']);
 
   const start = Date.now();
 
@@ -212,10 +226,7 @@ async function cmdSend(opts) {
 
 function cmdStop(opts) {
   const port = opts.port;
-  if (!port) {
-    output({ error: '缺少必填参数 --port' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port']);
 
   try {
     const pidStr = execSync(`lsof -ti:${port} 2>/dev/null`).toString().trim();
@@ -278,10 +289,7 @@ function httpDelete(url, timeoutMs) {
 async function cmdSessions(opts) {
   const url = getUrl(opts);
 
-  if (!opts.port) {
-    output({ error: '缺少必填参数 --port' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port']);
 
   const sessions = await httpGet(`${url}/session`, 10000);
   let list = Array.isArray(sessions) ? sessions : [];
@@ -328,10 +336,7 @@ async function cmdRm(opts) {
   const url = getUrl(opts);
   const sessionId = opts.session;
 
-  if (!opts.port || !sessionId) {
-    output({ error: '缺少必填参数 --port 和 --session' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port', 'session']);
 
   const response = await httpDelete(`${url}/session/${sessionId}`, 10000);
   output({ deleted: true, sessionId, response });
@@ -405,10 +410,7 @@ async function cmdSubmit(opts) {
   const message = opts.message;
   const agent = opts.agent;
 
-  if (!message) {
-    output({ error: '缺少必填参数 --message' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['message']);
 
   // 创建会话 + 异步发送消息，不等结果
   const session = await httpPost(`${url}/session`, { title: 'serve-api-task' });
@@ -427,10 +429,7 @@ async function cmdStatus(opts) {
   const url = getUrl(opts);
   const sessionId = opts.session;
 
-  if (!opts.port) {
-    output({ error: '缺少必填参数 --port' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port']);
 
   // 检查服务器健康
   let health;
@@ -472,10 +471,7 @@ async function cmdResult(opts) {
   const url = getUrl(opts);
   const sessionId = opts.session;
 
-  if (!opts.port || !sessionId) {
-    output({ error: '缺少必填参数 --port 和 --session' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port', 'session']);
 
   const messages = await httpGet(`${url}/session/${sessionId}/message`, 30000);
   const msgCount = Array.isArray(messages) ? messages.length : 1;
@@ -492,10 +488,7 @@ async function cmdAbort(opts) {
   const url = getUrl(opts);
   const sessionId = opts.session;
 
-  if (!opts.port || !sessionId) {
-    output({ error: '缺少必填参数 --port 和 --session' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port', 'session']);
 
   await httpPost(`${url}/session/${sessionId}/abort`, {});
   output({ aborted: true, sessionId });
@@ -505,10 +498,7 @@ async function cmdAbort(opts) {
 
 async function cmdRun(opts) {
   const message = opts.message;
-  if (!message) {
-    output({ error: '缺少必填参数 --message' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['message']);
 
   const agent = opts.agent;
   const dir = opts.dir || '.';
@@ -585,7 +575,7 @@ async function cmdRun(opts) {
 
 const args = process.argv.slice(2);
 const cmd = args[0];
-const opts = parseArgs(args.slice(1));
+const opts = parseCliArgs(args.slice(1));
 
 switch (cmd) {
   case 'start':
