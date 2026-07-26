@@ -455,6 +455,41 @@ node scripts/serve-api.cjs ps
 
 ---
 
+## 参考文档
+
+拓展 `serve-api.cjs` 新能力时，先通过以下来源确认可用 API。
+
+| 来源 | 地址 | 用途 |
+|------|------|------|
+| 官方文档 | https://opencode.ai/docs/server/ | serve 命令用法、认证方式、API 概览 |
+| 运行时 OpenAPI 规范 | `GET http://主机:端口/doc` | 当前版本完整 API 端点自描述（OpenAPI 3.1.0），最权威 |
+| GitHub 仓库 | https://github.com/anomalyco/opencode | 源码、issue、release |
+| SDK 类型定义 | https://github.com/anomalyco/opencode/blob/dev/packages/sdk/js/src/gen/types.gen.ts | 端点的 TypeScript schema |
+
+### 用 `/doc` 发现新端点
+
+启动 serve 后用 `curl -s http://127.0.0.1:端口/doc` 取 OpenAPI 规范，再用 `node` 或 `jq` 解析 paths 列出所有端点，对照下方已封装端点找出缺口。
+
+```bash
+curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').readFileSync(0));console.log(Object.keys(d.paths).join('\n'))"
+```
+
+### 已封装端点（供对照）
+
+`serve-api.cjs` 当前已封装以下 5 个 API 端点：
+
+| 端点 | serve-api.cjs 子命令 | 说明 |
+|------|---------------------|------|
+| `GET /global/health` | `status` / `cmdStart` / `cmdRun` | 健康检查 |
+| `POST /session` | `send` / `submit` / `run` | 创建会话 |
+| `GET /session/{id}/message` | `status` / `result` | 取消息 |
+| `POST /session/{id}/prompt_async` | `send` / `submit` / `run` | 异步发消息 |
+| `POST /session/{id}/abort` | `abort` | 中止会话 |
+
+未封装的常见端点如 `GET /session`（列出会话）、`DELETE /session/{id}`（删除会话）等，可按需扩展。
+
+---
+
 ## 边界
 
 **本 Skill 负责**：
@@ -484,3 +519,4 @@ node scripts/serve-api.cjs ps
 | v2.0 | 脚本化：新增 `scripts/serve-api.cjs` 封装 serve API；路径 2/长流程/常见模式全部改为脚本驱动，移除裸 curl 示例和 API 端点表 | 2026-07-24 | 脚本化重构 |
 | v2.1 | 新增非阻塞工作流：`submit`/`status`/`result`/`abort` 4 个子命令；进度监控表增加 serve 非阻塞查询 | 2026-07-24 | 非阻塞支持 |
 | v2.2 | 新增 `ps` 子命令巡检运行中的 serve 进程；SKILL.md 同步服务巡检模式 | 2026-07-26 | @sddu-fast |
+| v2.3 | 新增参考文档章节（官方文档地址 + /doc 端点 + 已封装端点对照） | 2026-07-26 | @sddu-fast |
