@@ -101,7 +101,7 @@ function httpGet(url, timeoutMs) {
         catch { resolve({ raw: data }); }
       });
     });
-    req.on('error', reject);
+    req.on('error', (e) => { e._url = url; reject(e); });
     req.setTimeout(timeoutMs || 10000, () => { req.destroy(new Error('HTTP timeout')); });
     req.end();
   });
@@ -128,7 +128,7 @@ function httpPost(url, body, timeoutMs) {
         catch { resolve({ raw: data }); }
       });
     });
-    req.on('error', reject);
+    req.on('error', (e) => { e._url = url; reject(e); });
     req.setTimeout(timeoutMs || 10000, () => { req.destroy(new Error('HTTP timeout')); });
     req.write(payload);
     req.end();
@@ -278,7 +278,7 @@ function httpDelete(url, timeoutMs) {
         catch { resolve({ raw: data }); }
       });
     });
-    req.on('error', reject);
+    req.on('error', (e) => { e._url = url; reject(e); });
     req.setTimeout(timeoutMs || 10000, () => { req.destroy(new Error('HTTP timeout')); });
     req.end();
   });
@@ -572,6 +572,28 @@ async function cmdRun(opts) {
 }
 
 // ─── 主入口 ───
+
+// 全局未捕获 Promise 拒绝处理器 — 将 serve 连接错误转为友好 JSON 输出
+process.on('unhandledRejection', (err) => {
+  const url = err._url || '';
+  const code = err.code || '';
+
+  if (code === 'ECONNREFUSED' || code === 'ECONNRESET' || code === 'ETIMEDOUT' || code === 'ENOTFOUND') {
+    output({
+      error: '无法连接到 serve 服务器',
+      url,
+      code,
+      hint: '请确认 serve 已启动，可用 ps 命令巡检或 start 命令启动',
+    });
+  } else {
+    output({
+      error: err.message || String(err),
+      url,
+    });
+  }
+
+  process.exit(1);
+});
 
 const args = process.argv.slice(2);
 const cmd = args[0];
