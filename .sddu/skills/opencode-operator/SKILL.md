@@ -9,6 +9,8 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 
 阅读本章节即可使用本 Skill，无需阅读后续路径细节。
 
+> **查看所有子命令**：`node scripts/serve-api.cjs`（无参数运行即打印完整 usage，始终是最新清单，优先于本文件的静态表格）
+
 ### 参数
 
 | 参数 | 类型 | 必填 | 说明 |
@@ -539,3 +541,4 @@ curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').re
 | v2.3 | 新增参考文档章节（官方文档地址 + /doc 端点 + 已封装端点对照） | 2026-07-26 | @sddu-fast |
 | v2.4 | 新增 sessions/rm 子命令管理 serve 会话 | 2026-07-26 | @sddu-fast |
 | v2.5 | 微调 description 补充 serve 进程/会话巡检触发词 | 2026-07-26 | @sddu-fast |
+| v2.6 | 接口章节加命令自发现提示（无参数运行查看 usage） | 2026-07-26 | @sddu-fast |
