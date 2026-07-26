@@ -445,13 +445,28 @@ node scripts/serve-api.cjs stop --port 4097
 node scripts/serve-api.cjs ps
 ```
 
+### 模式 8: 会话清理
+
+```bash
+# 列出所有会话，找到废弃/僵尸会话
+node scripts/serve-api.cjs sessions --port 4096
+# -> [ { "id": "abc-123", "title": "...", "agent": "build" }, ... ]
+
+# 删除指定会话（不可逆）
+node scripts/serve-api.cjs rm --port 4096 --session abc-123
+# -> { "deleted": true, "sessionId": "abc-123", "response": true }
+
+# 复核确认已删除
+node scripts/serve-api.cjs sessions --port 4096
+```
+
 ---
 
 ## 脚本
 
 | 脚本 | 路径 | 用途 |
 |------|------|------|
-| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API。9 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）；**只读巡检** `ps`（列出运行中的 serve 进程加健康探测）。零依赖，stdout JSON。通用参数 `--port`（必填，默认 4096），`--hostname`（可选），`--timeout`/`--interval`（轮询控制）。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
+| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API。11 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）；**只读巡检** `ps`（列出运行中的 serve 进程加健康探测）、`sessions`（列出会话）、`rm`（删除会话不可逆）。零依赖，stdout JSON。通用参数 `--port`（必填，默认 4096），`--hostname`（可选），`--timeout`/`--interval`（轮询控制）。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
 
 ---
 
@@ -476,17 +491,19 @@ curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').re
 
 ### 已封装端点（供对照）
 
-`serve-api.cjs` 当前已封装以下 5 个 API 端点：
+`serve-api.cjs` 当前已封装以下 7 个 API 端点：
 
 | 端点 | serve-api.cjs 子命令 | 说明 |
 |------|---------------------|------|
 | `GET /global/health` | `status` / `cmdStart` / `cmdRun` | 健康检查 |
 | `POST /session` | `send` / `submit` / `run` | 创建会话 |
+| `GET /session` | `sessions` | 列出所有会话 |
 | `GET /session/{id}/message` | `status` / `result` | 取消息 |
 | `POST /session/{id}/prompt_async` | `send` / `submit` / `run` | 异步发消息 |
 | `POST /session/{id}/abort` | `abort` | 中止会话 |
+| `DELETE /session/{id}` | `rm` | 删除会话（不可逆） |
 
-未封装的常见端点如 `GET /session`（列出会话）、`DELETE /session/{id}`（删除会话）等，可按需扩展。
+未封装的常见端点如 `GET /session/{id}`（查看单会话详情）、实时事件流等，可按需扩展。
 
 ---
 
@@ -520,3 +537,4 @@ curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').re
 | v2.1 | 新增非阻塞工作流：`submit`/`status`/`result`/`abort` 4 个子命令；进度监控表增加 serve 非阻塞查询 | 2026-07-24 | 非阻塞支持 |
 | v2.2 | 新增 `ps` 子命令巡检运行中的 serve 进程；SKILL.md 同步服务巡检模式 | 2026-07-26 | @sddu-fast |
 | v2.3 | 新增参考文档章节（官方文档地址 + /doc 端点 + 已封装端点对照） | 2026-07-26 | @sddu-fast |
+| v2.4 | 新增 sessions/rm 子命令管理 serve 会话 | 2026-07-26 | @sddu-fast |

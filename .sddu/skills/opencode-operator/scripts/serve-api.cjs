@@ -14,6 +14,8 @@
  *   node serve-api.cjs send --url <url> --message "..." [--agent sddu] [--timeout 600]
  *   node serve-api.cjs stop --port 4096
  *   node serve-api.cjs ps [--port 4096]
+ *   node serve-api.cjs sessions --port 4096 [--agent <name>]
+ *   node serve-api.cjs rm --port 4096 --session <sid>
  */
 
 const { spawn, execSync } = require('child_process');
@@ -244,6 +246,66 @@ function cmdStop(opts) {
   } catch {
     output({ killed: false, port: parseInt(port), reason: '端口无进程' });
   }
+}
+
+// ─── HTTP 工具函数 ── DELETE
+
+function httpDelete(url, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url);
+    const req = http.request({
+      hostname: u.hostname,
+      port: u.port,
+      path: u.pathname + u.search,
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch { resolve({ raw: data }); }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(timeoutMs || 10000, () => { req.destroy(new Error('HTTP timeout')); });
+    req.end();
+  });
+}
+
+// ─── 子命令：sessions（列出会话） ───
+
+async function cmdSessions(opts) {
+  const url = getUrl(opts);
+
+  if (!opts.port) {
+    output({ error: '缺少必填参数 --port' });
+    process.exit(1);
+  }
+
+  const sessions = await httpGet(`${url}/session`, 10000);
+  const list = Array.isArray(sessions) ? sessions : [];
+
+  if (opts.agent) {
+    output(list.filter(s => s.agent === opts.agent));
+  } else {
+    output(list);
+  }
+}
+
+// ─── 子命令：rm（删除会话，不可逆） ───
+
+async function cmdRm(opts) {
+  const url = getUrl(opts);
+  const sessionId = opts.session;
+
+  if (!opts.port || !sessionId) {
+    output({ error: '缺少必填参数 --port 和 --session' });
+    process.exit(1);
+  }
+
+  const response = await httpDelete(`${url}/session/${sessionId}`, 10000);
+  output({ deleted: true, sessionId, response });
 }
 
 // ─── 子命令：ps（进程巡检） ───
@@ -524,37 +586,49 @@ switch (cmd) {
   case 'ps':
     cmdPs(opts);
     break;
+  case 'sessions':
+    cmdSessions(opts);
+    break;
+  case 'rm':
+    cmdRm(opts);
+    break;
   default:
     process.stderr.write(`Usage: node serve-api.cjs <command> [options]
 
-阻塞模式：
-  run    --message "..." [--agent sddu] [--dir .] [--port 4096] [--timeout 600]
-         一条龙：启动 serve -> 提交 -> 轮询 -> 取结果 -> 关闭
+ 阻塞模式：
+   run    --message "..." [--agent sddu] [--dir .] [--port 4096] [--timeout 600]
+          一条龙：启动 serve -> 提交 -> 轮询 -> 取结果 -> 关闭
 
-  send   --port 4096 --message "..." [--agent sddu] [--timeout 600]
-         向已运行的 serve 提交任务，阻塞直到完成
+   send   --port 4096 --message "..." [--agent sddu] [--timeout 600]
+          向已运行的 serve 提交任务，阻塞直到完成
 
-非阻塞模式：
-  start  [--port 4096] [--hostname 127.0.0.1] [--dir .]
-         启动 serve，返回端口 + PID
+ 非阻塞模式：
+   start  [--port 4096] [--hostname 127.0.0.1] [--dir .]
+          启动 serve，返回端口 + PID
 
-  submit --port 4096 --message "..." [--agent sddu]
-         提交任务，立即返回 sessionId，不等待完成
+   submit --port 4096 --message "..." [--agent sddu]
+          提交任务，立即返回 sessionId，不等待完成
 
-  status --port 4096 [--session <sid>]
-         查 serve 健康状态；指定 --session 时查会话进度
+   status --port 4096 [--session <sid>]
+          查 serve 健康状态；指定 --session 时查会话进度
 
-  result --port 4096 --session <sid>
-         取已完成的会话消息
+   result --port 4096 --session <sid>
+          取已完成的会话消息
 
-  abort  --port 4096 --session <sid>
-         中止运行中的会话
+   abort  --port 4096 --session <sid>
+          中止运行中的会话
 
-  stop   --port 4096
-         按端口查找并杀掉 serve 进程
+   stop   --port 4096
+          按端口查找并杀掉 serve 进程
 
-  ps     [--port 4096]
-         列出所有运行中的 serve 进程加健康探测
-`);
+   ps     [--port 4096]
+          列出所有运行中的 serve 进程加健康探测
+
+   sessions --port 4096 [--agent <name>]
+          列出某 serve 所有会话（可按 agent 过滤）
+
+   rm     --port 4096 --session <sid>
+          删除指定会话（不可逆）
+ `);
     process.exit(1);
 }
