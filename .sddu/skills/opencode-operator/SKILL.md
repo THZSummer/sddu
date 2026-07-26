@@ -143,6 +143,9 @@ node scripts/serve-api.cjs run --message "审查代码" --agent build --dir . --
 # 1. 启动 serve（一次性）
 node scripts/serve-api.cjs start --port 4096 --dir .
 
+# （可选）巡检当前有哪些 serve 在跑
+node scripts/serve-api.cjs ps
+
 # 2. 提交任务，立即返回 sessionId
 node scripts/serve-api.cjs submit --port 4096 --message "审查代码" --agent build
 # -> { sessionId: "abc-123", status: "submitted" }
@@ -242,6 +245,7 @@ opencode run -c --auto --dir <project> "继续执行"
 |:--|:--|:--|
 | serve 非阻塞任务 | 脚本 status 命令 | `node scripts/serve-api.cjs status --port 4096 --session <sid>` |
 | serve 实时事件流 | SSE 端点 | `curl -N http://localhost:4096/event` |
+| serve 全局巡检 | 脚本 ps 命令 | `node scripts/serve-api.cjs ps` |
 | `opencode run` 阻塞任务 | 读项目状态文件 | `cat <project>/.sddu/specs-tree-root/*/state.json \| jq .phase` |
 | `opencode run` 阻塞任务 | 检查产物文件 | `ls <output_dir>/` 看文件增长 |
 | `opencode run` 需事件流 | `--format json` 管道 | `opencode run --format json --auto "..." \| jq .type` |
@@ -427,13 +431,27 @@ opencode run -c --auto --dir /path/to/project "继续"
 # -> {"phase": "validated", "status": "completed"}
 ```
 
+### 模式 7: 服务巡检 / 僵尸进程清理
+
+```bash
+# 发现所有运行中的 serve 进程加健康探测
+node scripts/serve-api.cjs ps
+# -> [{ pid: "12345", port: 4096, health: "alive", ... }, { pid: "12346", port: 4097, health: "down", ... }]
+
+# 对 down 或不再需要的进程清理
+node scripts/serve-api.cjs stop --port 4097
+
+# 复核清理结果
+node scripts/serve-api.cjs ps
+```
+
 ---
 
 ## 脚本
 
 | 脚本 | 路径 | 用途 |
 |------|------|------|
-| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API。8 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）。零依赖，stdout JSON。通用参数 `--port`（必填，默认 4096），`--hostname`（可选），`--timeout`/`--interval`（轮询控制）。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
+| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API。9 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）；**只读巡检** `ps`（列出运行中的 serve 进程加健康探测）。零依赖，stdout JSON。通用参数 `--port`（必填，默认 4096），`--hostname`（可选），`--timeout`/`--interval`（轮询控制）。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
 
 ---
 
@@ -465,3 +483,4 @@ opencode run -c --auto --dir /path/to/project "继续"
 | v1.3 | 补全 serve 生命周期：停止服务器 3 种方式 + 典型交互流程 step 6 + 接口示例关闭 + CLI 速查精简 | 2026-07-24 | 生命周期完善 |
 | v2.0 | 脚本化：新增 `scripts/serve-api.cjs` 封装 serve API；路径 2/长流程/常见模式全部改为脚本驱动，移除裸 curl 示例和 API 端点表 | 2026-07-24 | 脚本化重构 |
 | v2.1 | 新增非阻塞工作流：`submit`/`status`/`result`/`abort` 4 个子命令；进度监控表增加 serve 非阻塞查询 | 2026-07-24 | 非阻塞支持 |
+| v2.2 | 新增 `ps` 子命令巡检运行中的 serve 进程；SKILL.md 同步服务巡检模式 | 2026-07-26 | @sddu-fast |

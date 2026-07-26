@@ -13,6 +13,7 @@
  *   node serve-api.cjs start [--port 4096] [--hostname 127.0.0.1] [--dir .]
  *   node serve-api.cjs send --url <url> --message "..." [--agent sddu] [--timeout 600]
  *   node serve-api.cjs stop --port 4096
+ *   node serve-api.cjs ps [--port 4096]
  */
 
 const { spawn, execSync } = require('child_process');
@@ -245,6 +246,67 @@ function cmdStop(opts) {
   }
 }
 
+// ─── 子命令：ps（进程巡检） ───
+
+async function cmdPs(opts) {
+  const psOutput = execSync('ps -eo pid,etime,command', { encoding: 'utf8' });
+  const lines = psOutput.split('\n').filter(line => /[o]pencode\s+serve/.test(line));
+
+  const processes = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // 解析：PID（行首数字）、etime（第二列非空）、command（剩余）
+    const m = trimmed.match(/^(\d+)\s+(\S+)\s+(.+)$/);
+    if (!m) continue;
+
+    const pid = m[1];
+    const etime = m[2];
+    const command = m[3];
+
+    // 从 command 提取参数
+    const portMatch = command.match(/--port\s+(\d+)/);
+    const hostMatch = command.match(/--hostname\s+(\S+)/);
+    const dirMatch  = command.match(/--(?:dir|cwd)\s+(\S+)/);
+
+    const port     = portMatch ? parseInt(portMatch[1]) : 4096;
+    const hostname = hostMatch ? hostMatch[1] : '127.0.0.1';
+    const dir      = dirMatch  ? dirMatch[1]  : null;
+
+    // 可选按端口过滤
+    if (opts.port && String(port) !== String(opts.port)) continue;
+
+    processes.push({ pid, etime, port, hostname, dir });
+  }
+
+  // 对每个进程做健康探测（复用现有 async httpGet）
+  const results = [];
+  for (const proc of processes) {
+    const url = `http://${proc.hostname}:${proc.port}`;
+    let health  = 'down';
+    let version = null;
+
+    try {
+      const h = await httpGet(`${url}/global/health`, 3000);
+      health  = 'alive';
+      version = (h && h.version) ? h.version : 'unknown';
+    } catch { /* 探测失败视为 down */ }
+
+    results.push({
+      pid:      proc.pid,
+      etime:    proc.etime,
+      port:     proc.port,
+      hostname: proc.hostname,
+      dir:      proc.dir,
+      health,
+      version,
+    });
+  }
+
+  output(results);
+}
+
 // ─── 子命令：submit（非阻塞提交） ───
 
 async function cmdSubmit(opts) {
@@ -459,6 +521,9 @@ switch (cmd) {
   case 'run':
     cmdRun(opts);
     break;
+  case 'ps':
+    cmdPs(opts);
+    break;
   default:
     process.stderr.write(`Usage: node serve-api.cjs <command> [options]
 
@@ -487,6 +552,9 @@ switch (cmd) {
 
   stop   --port 4096
          按端口查找并杀掉 serve 进程
+
+  ps     [--port 4096]
+         列出所有运行中的 serve 进程加健康探测
 `);
     process.exit(1);
 }
