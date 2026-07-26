@@ -9,7 +9,9 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 
 阅读本章节即可使用本 Skill，无需阅读后续路径细节。
 
-> **查看所有子命令**：`node scripts/serve-api.cjs`（无参数运行即打印完整 usage，始终是最新清单，优先于本文件的静态表格）
+> **命令自发现**（始终优先于本文件的静态表格）：
+> - serve-api 子命令：`node scripts/serve-api.cjs`（无参数运行打印完整 usage）
+> - opencode CLI 命令：`opencode --help`（列出全部顶层命令）；`opencode <command> --help` 查看子命令与参数详情
 
 ### 参数
 
@@ -545,3 +547,4 @@ curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').re
 | v2.5 | 微调 description 补充 serve 进程/会话巡检触发词 | 2026-07-26 | @sddu-fast |
 | v2.6 | 接口章节加命令自发现提示（无参数运行查看 usage） | 2026-07-26 | @sddu-fast |
 | v2.7 | CLI 命令速查章节加 opencode --help 自发现提示 | 2026-07-26 | @sddu-fast |
+| v2.8 | 接口章节自发现提示扩展为全集块（serve-api + opencode CLI 并列） | 2026-07-26 | @sddu-fast |
