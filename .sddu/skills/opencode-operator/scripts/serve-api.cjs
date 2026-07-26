@@ -14,7 +14,7 @@
  *   node serve-api.cjs send --url <url> --message "..." [--agent sddu] [--timeout 600]
  *   node serve-api.cjs stop --port 4096
  *   node serve-api.cjs ps [--port 4096]
- *   node serve-api.cjs sessions --port 4096 [--agent <name>]
+ *   node serve-api.cjs sessions --port 4096 [--agent <name>] [--grep <kw>] [--limit 20] [--full]
  *   node serve-api.cjs rm --port 4096 --session <sid>
  */
 
@@ -284,12 +284,41 @@ async function cmdSessions(opts) {
   }
 
   const sessions = await httpGet(`${url}/session`, 10000);
-  const list = Array.isArray(sessions) ? sessions : [];
+  let list = Array.isArray(sessions) ? sessions : [];
 
+  // 1. agent 过滤
   if (opts.agent) {
-    output(list.filter(s => s.agent === opts.agent));
-  } else {
+    list = list.filter(s => s.agent === opts.agent);
+  }
+
+  // 2. grep 过滤 title
+  if (opts.grep) {
+    const kw = String(opts.grep).toLowerCase();
+    list = list.filter(s => String(s.title || '').toLowerCase().includes(kw));
+  }
+
+  // 3. 按 time 降序排序（无效 time 放最后）
+  //    time 可能是对象 {created,updated} 或字符串，兼容处理
+  const getTs = (t) => {
+    if (typeof t === 'object' && t) return t.updated || t.created || 0;
+    return new Date(t).getTime() || 0;
+  };
+  list.sort((a, b) => getTs(b.time) - getTs(a.time));
+
+  // 4. limit 切片（limit=0 不限返回全部；默认 20）
+  const limit = opts.limit !== undefined ? parseInt(opts.limit) : 20;
+  if (limit > 0) list = list.slice(0, limit);
+
+  // 5. 输出：full 返回完整；默认摘要（id/title/agent/time）
+  if (opts.full) {
     output(list);
+  } else {
+    output(list.map(s => ({
+      id: String(s.id || '').slice(0, 12),
+      title: s.title,
+      agent: s.agent,
+      time: s.time,
+    })));
   }
 }
 
@@ -624,8 +653,8 @@ switch (cmd) {
    ps     [--port 4096]
           列出所有运行中的 serve 进程加健康探测
 
-   sessions --port 4096 [--agent <name>]
-          列出某 serve 所有会话（可按 agent 过滤）
+   sessions --port 4096 [--agent <name>] [--grep <kw>] [--limit 20] [--full]
+          列出会话（默认摘要最近20条，数据全局共享）
 
    rm     --port 4096 --session <sid>
           删除指定会话（不可逆）
