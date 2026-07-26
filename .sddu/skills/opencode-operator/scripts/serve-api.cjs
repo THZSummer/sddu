@@ -14,7 +14,7 @@
  *   node serve-api.cjs send --url <url> --message "..." [--agent sddu] [--timeout 600]
  *   node serve-api.cjs stop --port 4096
  *   node serve-api.cjs ps [--port 4096]
- *   node serve-api.cjs sessions --port 4096 [--agent <name>] [--grep <kw>] [--limit 20] [--full]
+ *   node serve-api.cjs sessions --port 4096 [--agent <name>] [--grep <kw>] [--limit 5] [--full]
  *   node serve-api.cjs rm --port 4096 --session <sid>
  */
 
@@ -313,8 +313,8 @@ async function cmdSessions(opts) {
   };
   list.sort((a, b) => getTs(b.time) - getTs(a.time));
 
-  // 4. limit 切片（limit=0 不限返回全部；默认 20）
-  const limit = opts.limit !== undefined ? parseInt(opts.limit) : 20;
+  // 4. limit 切片（limit=0 不限返回全部；默认 5）
+  const limit = opts.limit !== undefined ? parseInt(opts.limit) : 5;
   if (limit > 0) list = list.slice(0, limit);
 
   // 5. 输出：full 返回完整；默认摘要（id/title/agent/time）
@@ -665,8 +665,8 @@ switch (cmd) {
    ps     [--port 4096]
           列出所有运行中的 serve 进程加健康探测
 
-   sessions --port 4096 [--agent <name>] [--grep <kw>] [--limit 20] [--full]
-          列出会话（默认摘要最近20条，数据全局共享）
+   sessions --port 4096 [--agent <name>] [--grep <kw>] [--limit 5] [--full]
+          列出会话（默认摘要最近5条，数据全局共享）
 
    rm     --port 4096 --session <sid>
           删除指定会话（不可逆）
