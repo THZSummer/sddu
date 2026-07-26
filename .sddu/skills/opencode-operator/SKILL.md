@@ -1,6 +1,6 @@
 ---
 name: opencode-operator
-description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--包括非交互式任务执行（opencode run）、无头 HTTP 服务器（opencode serve）、ACP 协议通信、会话/Agent/Skill/Plugin/MCP 管理和 GitHub CI/CD 集成。不负责 opencode 配置文件编辑（走 customize-opencode）。"
+description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--包括非交互式任务执行（opencode run）、无头 HTTP 服务器（opencode serve）、ACP 协议通信、会话/Agent/Skill/Plugin/MCP 管理和 GitHub CI/CD 集成，以及查询/巡检当前运行中的 opencode serve 进程和会话。不负责 opencode 配置文件编辑（走 customize-opencode）。"
 ---
 
 # opencode-operator
@@ -538,3 +538,4 @@ curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').re
 | v2.2 | 新增 `ps` 子命令巡检运行中的 serve 进程；SKILL.md 同步服务巡检模式 | 2026-07-26 | @sddu-fast |
 | v2.3 | 新增参考文档章节（官方文档地址 + /doc 端点 + 已封装端点对照） | 2026-07-26 | @sddu-fast |
 | v2.4 | 新增 sessions/rm 子命令管理 serve 会话 | 2026-07-26 | @sddu-fast |
+| v2.5 | 微调 description 补充 serve 进程/会话巡检触发词 | 2026-07-26 | @sddu-fast |
