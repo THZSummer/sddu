@@ -13,24 +13,44 @@
  *   node serve-api.cjs start [--port 4096] [--hostname 127.0.0.1] [--dir .]
  *   node serve-api.cjs send --url <url> --message "..." [--agent sddu] [--timeout 600]
  *   node serve-api.cjs stop --port 4096
+ *   node serve-api.cjs ps [--port 4096]
+ *   node serve-api.cjs sessions --port 4096 [--agent <name>] [--grep <kw>] [--limit 5] [--full]
+ *   node serve-api.cjs rm --port 4096 --session <sid>
  */
 
 const { spawn, execSync } = require('child_process');
 const http = require('http');
+const { parseArgs } = require('util');
 
 // ─── 参数解析 ───
 
-function parseArgs(args) {
-  const opts = {};
-  for (let i = 0; i < args.length; i++) {
-    if (args[i].startsWith('--')) {
-      const key = args[i].slice(2);
-      const val = i + 1 < args.length && !args[i + 1].startsWith('--') ? args[i + 1] : true;
-      opts[key] = val;
-      if (val !== true) i++;
-    }
+function parseCliArgs(args) {
+  const { values } = parseArgs({
+    args,
+    options: {
+      port:      { type: 'string' },
+      hostname:  { type: 'string' },
+      dir:       { type: 'string' },
+      message:   { type: 'string' },
+      agent:     { type: 'string' },
+      timeout:   { type: 'string' },
+      interval:  { type: 'string' },
+      session:   { type: 'string' },
+      grep:      { type: 'string' },
+      limit:     { type: 'string' },
+      full:      { type: 'boolean' },
+    },
+    strict: false,
+  });
+  return values;
+}
+
+function requireOpts(opts, keys) {
+  const missing = keys.filter(k => opts[k] === undefined);
+  if (missing.length > 0) {
+    output({ error: '缺少必填参数 ' + missing.map(k => '--' + k).join(', ') });
+    process.exit(1);
   }
-  return opts;
 }
 
 function getUrl(opts) {
@@ -81,7 +101,7 @@ function httpGet(url, timeoutMs) {
         catch { resolve({ raw: data }); }
       });
     });
-    req.on('error', reject);
+    req.on('error', (e) => { e._url = url; reject(e); });
     req.setTimeout(timeoutMs || 10000, () => { req.destroy(new Error('HTTP timeout')); });
     req.end();
   });
@@ -108,7 +128,7 @@ function httpPost(url, body, timeoutMs) {
         catch { resolve({ raw: data }); }
       });
     });
-    req.on('error', reject);
+    req.on('error', (e) => { e._url = url; reject(e); });
     req.setTimeout(timeoutMs || 10000, () => { req.destroy(new Error('HTTP timeout')); });
     req.write(payload);
     req.end();
@@ -158,10 +178,7 @@ async function cmdSend(opts) {
   const timeoutSec = parseInt(opts.timeout || '600');
   const intervalSec = parseInt(opts.interval || '5');
 
-  if (!opts.port || !message) {
-    output({ error: '缺少必填参数 --port 和 --message' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port', 'message']);
 
   const start = Date.now();
 
@@ -209,10 +226,7 @@ async function cmdSend(opts) {
 
 function cmdStop(opts) {
   const port = opts.port;
-  if (!port) {
-    output({ error: '缺少必填参数 --port' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port']);
 
   try {
     const pidStr = execSync(`lsof -ti:${port} 2>/dev/null`).toString().trim();
@@ -245,6 +259,150 @@ function cmdStop(opts) {
   }
 }
 
+// ─── HTTP 工具函数 ── DELETE
+
+function httpDelete(url, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url);
+    const req = http.request({
+      hostname: u.hostname,
+      port: u.port,
+      path: u.pathname + u.search,
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch { resolve({ raw: data }); }
+      });
+    });
+    req.on('error', (e) => { e._url = url; reject(e); });
+    req.setTimeout(timeoutMs || 10000, () => { req.destroy(new Error('HTTP timeout')); });
+    req.end();
+  });
+}
+
+// ─── 子命令：sessions（列出会话） ───
+
+async function cmdSessions(opts) {
+  const url = getUrl(opts);
+
+  requireOpts(opts, ['port']);
+
+  const sessions = await httpGet(`${url}/session`, 10000);
+  let list = Array.isArray(sessions) ? sessions : [];
+
+  // 1. agent 过滤
+  if (opts.agent) {
+    list = list.filter(s => s.agent === opts.agent);
+  }
+
+  // 2. grep 过滤 title
+  if (opts.grep) {
+    const kw = String(opts.grep).toLowerCase();
+    list = list.filter(s => String(s.title || '').toLowerCase().includes(kw));
+  }
+
+  // 3. 按 time 降序排序（无效 time 放最后）
+  //    time 可能是对象 {created,updated} 或字符串，兼容处理
+  const getTs = (t) => {
+    if (typeof t === 'object' && t) return t.updated || t.created || 0;
+    return new Date(t).getTime() || 0;
+  };
+  list.sort((a, b) => getTs(b.time) - getTs(a.time));
+
+  // 4. limit 切片（limit=0 不限返回全部；默认 5）
+  const limit = opts.limit !== undefined ? parseInt(opts.limit) : 5;
+  if (limit > 0) list = list.slice(0, limit);
+
+  // 5. 输出：full 返回完整；默认摘要（id/title/agent/time）
+  if (opts.full) {
+    output(list);
+  } else {
+    output(list.map(s => ({
+      id: String(s.id || '').slice(0, 12),
+      title: s.title,
+      agent: s.agent,
+      time: s.time,
+    })));
+  }
+}
+
+// ─── 子命令：rm（删除会话，不可逆） ───
+
+async function cmdRm(opts) {
+  const url = getUrl(opts);
+  const sessionId = opts.session;
+
+  requireOpts(opts, ['port', 'session']);
+
+  const response = await httpDelete(`${url}/session/${sessionId}`, 10000);
+  output({ deleted: true, sessionId, response });
+}
+
+// ─── 子命令：ps（进程巡检） ───
+
+async function cmdPs(opts) {
+  const psOutput = execSync('ps -eo pid,etime,command', { encoding: 'utf8' });
+  const lines = psOutput.split('\n').filter(line => /[o]pencode\s+serve/.test(line));
+
+  const processes = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // 解析：PID（行首数字）、etime（第二列非空）、command（剩余）
+    const m = trimmed.match(/^(\d+)\s+(\S+)\s+(.+)$/);
+    if (!m) continue;
+
+    const pid = m[1];
+    const etime = m[2];
+    const command = m[3];
+
+    // 从 command 提取参数
+    const portMatch = command.match(/--port\s+(\d+)/);
+    const hostMatch = command.match(/--hostname\s+(\S+)/);
+    const dirMatch  = command.match(/--(?:dir|cwd)\s+(\S+)/);
+
+    const port     = portMatch ? parseInt(portMatch[1]) : 4096;
+    const hostname = hostMatch ? hostMatch[1] : '127.0.0.1';
+    const dir      = dirMatch  ? dirMatch[1]  : null;
+
+    // 可选按端口过滤
+    if (opts.port && String(port) !== String(opts.port)) continue;
+
+    processes.push({ pid, etime, port, hostname, dir });
+  }
+
+  // 对每个进程做健康探测（复用现有 async httpGet）
+  const results = [];
+  for (const proc of processes) {
+    const url = `http://${proc.hostname}:${proc.port}`;
+    let health  = 'down';
+    let version = null;
+
+    try {
+      const h = await httpGet(`${url}/global/health`, 3000);
+      health  = 'alive';
+      version = (h && h.version) ? h.version : 'unknown';
+    } catch { /* 探测失败视为 down */ }
+
+    results.push({
+      pid:      proc.pid,
+      etime:    proc.etime,
+      port:     proc.port,
+      hostname: proc.hostname,
+      dir:      proc.dir,
+      health,
+      version,
+    });
+  }
+
+  output(results);
+}
+
 // ─── 子命令：submit（非阻塞提交） ───
 
 async function cmdSubmit(opts) {
@@ -252,10 +410,7 @@ async function cmdSubmit(opts) {
   const message = opts.message;
   const agent = opts.agent;
 
-  if (!message) {
-    output({ error: '缺少必填参数 --message' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['message']);
 
   // 创建会话 + 异步发送消息，不等结果
   const session = await httpPost(`${url}/session`, { title: 'serve-api-task' });
@@ -274,10 +429,7 @@ async function cmdStatus(opts) {
   const url = getUrl(opts);
   const sessionId = opts.session;
 
-  if (!opts.port) {
-    output({ error: '缺少必填参数 --port' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port']);
 
   // 检查服务器健康
   let health;
@@ -319,10 +471,7 @@ async function cmdResult(opts) {
   const url = getUrl(opts);
   const sessionId = opts.session;
 
-  if (!opts.port || !sessionId) {
-    output({ error: '缺少必填参数 --port 和 --session' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port', 'session']);
 
   const messages = await httpGet(`${url}/session/${sessionId}/message`, 30000);
   const msgCount = Array.isArray(messages) ? messages.length : 1;
@@ -339,10 +488,7 @@ async function cmdAbort(opts) {
   const url = getUrl(opts);
   const sessionId = opts.session;
 
-  if (!opts.port || !sessionId) {
-    output({ error: '缺少必填参数 --port 和 --session' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['port', 'session']);
 
   await httpPost(`${url}/session/${sessionId}/abort`, {});
   output({ aborted: true, sessionId });
@@ -352,10 +498,7 @@ async function cmdAbort(opts) {
 
 async function cmdRun(opts) {
   const message = opts.message;
-  if (!message) {
-    output({ error: '缺少必填参数 --message' });
-    process.exit(1);
-  }
+  requireOpts(opts, ['message']);
 
   const agent = opts.agent;
   const dir = opts.dir || '.';
@@ -430,9 +573,31 @@ async function cmdRun(opts) {
 
 // ─── 主入口 ───
 
+// 全局未捕获 Promise 拒绝处理器 — 将 serve 连接错误转为友好 JSON 输出
+process.on('unhandledRejection', (err) => {
+  const url = err._url || '';
+  const code = err.code || '';
+
+  if (code === 'ECONNREFUSED' || code === 'ECONNRESET' || code === 'ETIMEDOUT' || code === 'ENOTFOUND') {
+    output({
+      error: '无法连接到 serve 服务器',
+      url,
+      code,
+      hint: '请确认 serve 已启动，可用 ps 命令巡检或 start 命令启动',
+    });
+  } else {
+    output({
+      error: err.message || String(err),
+      url,
+    });
+  }
+
+  process.exit(1);
+});
+
 const args = process.argv.slice(2);
 const cmd = args[0];
-const opts = parseArgs(args.slice(1));
+const opts = parseCliArgs(args.slice(1));
 
 switch (cmd) {
   case 'start':
@@ -459,34 +624,52 @@ switch (cmd) {
   case 'run':
     cmdRun(opts);
     break;
+  case 'ps':
+    cmdPs(opts);
+    break;
+  case 'sessions':
+    cmdSessions(opts);
+    break;
+  case 'rm':
+    cmdRm(opts);
+    break;
   default:
     process.stderr.write(`Usage: node serve-api.cjs <command> [options]
 
-阻塞模式：
-  run    --message "..." [--agent sddu] [--dir .] [--port 4096] [--timeout 600]
-         一条龙：启动 serve -> 提交 -> 轮询 -> 取结果 -> 关闭
+ 阻塞模式：
+   run    --message "..." [--agent sddu] [--dir .] [--port 4096] [--timeout 600]
+          一条龙：启动 serve -> 提交 -> 轮询 -> 取结果 -> 关闭
 
-  send   --port 4096 --message "..." [--agent sddu] [--timeout 600]
-         向已运行的 serve 提交任务，阻塞直到完成
+   send   --port 4096 --message "..." [--agent sddu] [--timeout 600]
+          向已运行的 serve 提交任务，阻塞直到完成
 
-非阻塞模式：
-  start  [--port 4096] [--hostname 127.0.0.1] [--dir .]
-         启动 serve，返回端口 + PID
+ 非阻塞模式：
+   start  [--port 4096] [--hostname 127.0.0.1] [--dir .]
+          启动 serve，返回端口 + PID
 
-  submit --port 4096 --message "..." [--agent sddu]
-         提交任务，立即返回 sessionId，不等待完成
+   submit --port 4096 --message "..." [--agent sddu]
+          提交任务，立即返回 sessionId，不等待完成
 
-  status --port 4096 [--session <sid>]
-         查 serve 健康状态；指定 --session 时查会话进度
+   status --port 4096 [--session <sid>]
+          查 serve 健康状态；指定 --session 时查会话进度
 
-  result --port 4096 --session <sid>
-         取已完成的会话消息
+   result --port 4096 --session <sid>
+          取已完成的会话消息
 
-  abort  --port 4096 --session <sid>
-         中止运行中的会话
+   abort  --port 4096 --session <sid>
+          中止运行中的会话
 
-  stop   --port 4096
-         按端口查找并杀掉 serve 进程
-`);
+   stop   --port 4096
+          按端口查找并杀掉 serve 进程
+
+   ps     [--port 4096]
+          列出所有运行中的 serve 进程加健康探测
+
+   sessions --port 4096 [--agent <name>] [--grep <kw>] [--limit 5] [--full]
+          列出会话（默认摘要最近5条，数据全局共享）
+
+   rm     --port 4096 --session <sid>
+          删除指定会话（不可逆）
+ `);
     process.exit(1);
 }

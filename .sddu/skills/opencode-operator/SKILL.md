@@ -1,6 +1,6 @@
 ---
 name: opencode-operator
-description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--包括非交互式任务执行（opencode run）、无头 HTTP 服务器（opencode serve）、ACP 协议通信、会话/Agent/Skill/Plugin/MCP 管理和 GitHub CI/CD 集成。不负责 opencode 配置文件编辑（走 customize-opencode）。"
+description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--包括非交互式任务执行（opencode run）、无头 HTTP 服务器（opencode serve）、ACP 协议通信、会话/Agent/Skill/Plugin/MCP 管理和 GitHub CI/CD 集成，以及查询/巡检当前运行中的 opencode serve 进程和会话。不负责 opencode 配置文件编辑（走 customize-opencode）。"
 ---
 
 # opencode-operator
@@ -8,6 +8,10 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 ## 接口
 
 阅读本章节即可使用本 Skill，无需阅读后续路径细节。
+
+> **命令自发现**（始终优先于本文件的静态表格）：
+> - serve-api 子命令：`node scripts/serve-api.cjs`（无参数运行打印完整 usage）
+> - opencode CLI 命令：`opencode --help`（列出全部顶层命令）；`opencode <command> --help` 查看子命令与参数详情
 
 ### 参数
 
@@ -143,6 +147,9 @@ node scripts/serve-api.cjs run --message "审查代码" --agent build --dir . --
 # 1. 启动 serve（一次性）
 node scripts/serve-api.cjs start --port 4096 --dir .
 
+# （可选）巡检当前有哪些 serve 在跑
+node scripts/serve-api.cjs ps
+
 # 2. 提交任务，立即返回 sessionId
 node scripts/serve-api.cjs submit --port 4096 --message "审查代码" --agent build
 # -> { sessionId: "abc-123", status: "submitted" }
@@ -242,6 +249,7 @@ opencode run -c --auto --dir <project> "继续执行"
 |:--|:--|:--|
 | serve 非阻塞任务 | 脚本 status 命令 | `node scripts/serve-api.cjs status --port 4096 --session <sid>` |
 | serve 实时事件流 | SSE 端点 | `curl -N http://localhost:4096/event` |
+| serve 全局巡检 | 脚本 ps 命令 | `node scripts/serve-api.cjs ps` |
 | `opencode run` 阻塞任务 | 读项目状态文件 | `cat <project>/.sddu/specs-tree-root/*/state.json \| jq .phase` |
 | `opencode run` 阻塞任务 | 检查产物文件 | `ls <output_dir>/` 看文件增长 |
 | `opencode run` 需事件流 | `--format json` 管道 | `opencode run --format json --auto "..." \| jq .type` |
@@ -264,6 +272,8 @@ node scripts/serve-api.cjs stop --port 4096
 ---
 
 ## CLI 命令速查
+
+> **查看所有 CLI 命令**：`opencode --help`（列出全部顶层命令，始终是最新清单，优先于本章节静态表格）；`opencode <command> --help` 查看某命令的子命令与参数详情。
 
 ### 会话管理
 
@@ -427,13 +437,81 @@ opencode run -c --auto --dir /path/to/project "继续"
 # -> {"phase": "validated", "status": "completed"}
 ```
 
+### 模式 7: 服务巡检 / 僵尸进程清理
+
+```bash
+# 发现所有运行中的 serve 进程加健康探测
+node scripts/serve-api.cjs ps
+# -> [{ pid: "12345", port: 4096, health: "alive", ... }, { pid: "12346", port: 4097, health: "down", ... }]
+
+# 对 down 或不再需要的进程清理
+node scripts/serve-api.cjs stop --port 4097
+
+# 复核清理结果
+node scripts/serve-api.cjs ps
+```
+
+### 模式 8: 会话清理
+
+> 会话数据全局共享，端口号只决定连哪个 serve 进程不隔离数据，任意端口可查/删全局会话。
+
+```bash
+# 列出所有会话，找到废弃/僵尸会话
+node scripts/serve-api.cjs sessions --port 4096
+# -> [ { "id": "abc-123", "title": "...", "agent": "build" }, ... ]
+
+# 删除指定会话（不可逆）
+node scripts/serve-api.cjs rm --port 4096 --session abc-123
+# -> { "deleted": true, "sessionId": "abc-123", "response": true }
+
+# 复核确认已删除
+node scripts/serve-api.cjs sessions --port 4096
+```
+
 ---
 
 ## 脚本
 
 | 脚本 | 路径 | 用途 |
 |------|------|------|
-| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API。8 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）。零依赖，stdout JSON。通用参数 `--port`（必填，默认 4096），`--hostname`（可选），`--timeout`/`--interval`（轮询控制）。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
+| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API。11 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）；**只读巡检** `ps`（列出运行中的 serve 进程加健康探测）、`sessions`（列出会话，默认摘要最近5条，支持 --grep/--limit/--full，会话数据全局共享）、`rm`（删除会话不可逆）。零依赖，stdout JSON。通用参数 `--port`（必填，默认 4096），`--hostname`（可选），`--timeout`/`--interval`（轮询控制）。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
+
+---
+
+## 参考文档
+
+拓展 `serve-api.cjs` 新能力时，先通过以下来源确认可用 API。
+
+| 来源 | 地址 | 用途 |
+|------|------|------|
+| 官方文档 | https://opencode.ai/docs/server/ | serve 命令用法、认证方式、API 概览 |
+| 运行时 OpenAPI 规范 | `GET http://主机:端口/doc` | 当前版本完整 API 端点自描述（OpenAPI 3.1.0），最权威 |
+| GitHub 仓库 | https://github.com/anomalyco/opencode | 源码、issue、release |
+| SDK 类型定义 | https://github.com/anomalyco/opencode/blob/dev/packages/sdk/js/src/gen/types.gen.ts | 端点的 TypeScript schema |
+
+### 用 `/doc` 发现新端点
+
+启动 serve 后用 `curl -s http://127.0.0.1:端口/doc` 取 OpenAPI 规范，再用 `node` 或 `jq` 解析 paths 列出所有端点，对照下方已封装端点找出缺口。
+
+```bash
+curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').readFileSync(0));console.log(Object.keys(d.paths).join('\n'))"
+```
+
+### 已封装端点（供对照）
+
+`serve-api.cjs` 当前已封装以下 7 个 API 端点：
+
+| 端点 | serve-api.cjs 子命令 | 说明 |
+|------|---------------------|------|
+| `GET /global/health` | `status` / `cmdStart` / `cmdRun` | 健康检查 |
+| `POST /session` | `send` / `submit` / `run` | 创建会话 |
+| `GET /session` | `sessions` | 列出所有会话 |
+| `GET /session/{id}/message` | `status` / `result` | 取消息 |
+| `POST /session/{id}/prompt_async` | `send` / `submit` / `run` | 异步发消息 |
+| `POST /session/{id}/abort` | `abort` | 中止会话 |
+| `DELETE /session/{id}` | `rm` | 删除会话（不可逆） |
+
+未封装的常见端点如 `GET /session/{id}`（查看单会话详情）、实时事件流等，可按需扩展。
 
 ---
 
@@ -465,3 +543,12 @@ opencode run -c --auto --dir /path/to/project "继续"
 | v1.3 | 补全 serve 生命周期：停止服务器 3 种方式 + 典型交互流程 step 6 + 接口示例关闭 + CLI 速查精简 | 2026-07-24 | 生命周期完善 |
 | v2.0 | 脚本化：新增 `scripts/serve-api.cjs` 封装 serve API；路径 2/长流程/常见模式全部改为脚本驱动，移除裸 curl 示例和 API 端点表 | 2026-07-24 | 脚本化重构 |
 | v2.1 | 新增非阻塞工作流：`submit`/`status`/`result`/`abort` 4 个子命令；进度监控表增加 serve 非阻塞查询 | 2026-07-24 | 非阻塞支持 |
+| v2.2 | 新增 `ps` 子命令巡检运行中的 serve 进程；SKILL.md 同步服务巡检模式 | 2026-07-26 | @sddu-fast |
+| v2.3 | 新增参考文档章节（官方文档地址 + /doc 端点 + 已封装端点对照） | 2026-07-26 | @sddu-fast |
+| v2.4 | 新增 sessions/rm 子命令管理 serve 会话 | 2026-07-26 | @sddu-fast |
+| v2.5 | 微调 description 补充 serve 进程/会话巡检触发词 | 2026-07-26 | @sddu-fast |
+| v2.6 | 接口章节加命令自发现提示（无参数运行查看 usage） | 2026-07-26 | @sddu-fast |
+| v2.7 | CLI 命令速查章节加 opencode --help 自发现提示 | 2026-07-26 | @sddu-fast |
+| v2.8 | 接口章节自发现提示扩展为全集块（serve-api + opencode CLI 并列） | 2026-07-26 | @sddu-fast |
+| v2.9 | sessions 加 --grep/--limit/--full 参数 + 文档说明会话数据全局共享 | 2026-07-26 | @sddu-fast |
+| v3.0 | sessions 默认 limit 从 20 改为 5 | 2026-07-26 | @sddu-fast |
