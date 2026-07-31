@@ -79,55 +79,6 @@ discovery 阶段的实证分析揭示了以下事实（详见 `discovery.md` §3
 
 > SDDU 主流程 8 阶段单向不可逆推进——每个阶段由对应 Agent 触发，结构上保证"不跳步、不回溯"。本 Feature 涉及 plan（planned）、review（reviewed）、validate（validated）3 个阶段的 Agent 职责回归——图中 🟡 高亮标注。
 
-```mermaid
-stateDiagram-v2
-    direction LR
-
-    [*] --> registered : Feature 创建 / @sddu 入口
-
-    state "🟢 registered\n(阶段 0)" as reg
-    state "🟢 discovered\n(阶段 1)" as disc
-    state "🟢 specified\n(阶段 2)" as spec
-    state "🟡 planned\n(阶段 3)" as plan
-    state "🟢 tasked\n(阶段 4)" as task
-    state "🟢 builded\n(阶段 5)" as build
-    state "🟡 reviewed\n(阶段 6)" as review
-    state "🟡 validated\n(阶段 7)" as valid
-
-    reg --> disc : @sddu-discovery\n问题挖掘
-    disc --> spec : @sddu-spec\n需求定义
-    spec --> plan : @sddu-plan\n技术设计
-    plan --> task : @sddu-tasks\n任务排布
-    task --> build : @sddu-build\n实施构建
-    build --> review : @sddu-review\n静态审查
-    review --> valid : @sddu-validate\n动态验证
-
-    valid --> [*] : status → completed\n(终态)
-
-    note left of plan
-        🟡 本 Feature 核心：
-        plan 剥离 §5.8/§5.9
-        不再为下游代笔
-        审查/验证策略
-    end note
-
-    note left of review
-        🟡 本 Feature 核心：
-        review 自主定义
-        C1~CN 审查清单
-        (逆向·静态)
-    end note
-
-    note left of valid
-        🟡 本 Feature 核心：
-        validate 自主定义
-        V1~VN 验证场景
-        (逆向·动态)
-    end note
-```
-
-> **📎 直接渲染**（若上方 Mermaid 未渲染出图，以下为等效 SVG 版本）：
-
 <div align="center">
 
 <img src="./sddu-phase-state-machine.svg" alt="SDDU Phase 流转状态机" style="max-width:100%;" />
@@ -141,8 +92,6 @@ stateDiagram-v2
 | 终态 | phase=validated + status=completed → Feature 生命周期结束 |
 | 跳转约束 | 父 Feature 仅允许至 planned；叶子 Feature 允许全流程 |
 | 本 Feature 聚焦 | planned → reviewed → validated 三个阶段的 Agent 职责边界 —— plan 不越界，review/validate 自主 |
-
-> **📎 备选渲染**：若 Mermaid 渲染效果不佳，可查看 SVG 版本 → [sddu-phase-state-machine.svg](./sddu-phase-state-machine.svg)（同目录下，1540×400，浏览器直接打开）
 
 ## 3. 目标与非目标
 > 明确需求范围，防止范围蔓延
