@@ -1,86 +1,182 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="520" viewBox="0 0 1100 520" font-family="'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="720" viewBox="0 0 1100 720" font-family="'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
   <defs>
-    <filter id="shadow" x="-5%" y="-5%" width="112%" height="118%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08"/>
+    <filter id="rowShadow" x="-4%" y="-12%" width="108%" height="124%">
+      <feDropShadow dx="0" dy="1.2" stdDeviation="2.4" flood-color="#263238" flood-opacity="0.12"/>
     </filter>
-    <marker id="arrowDown" viewBox="0 0 10 10" refX="5" refY="8" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 0 L 5 8 z" fill="#90a4ae"/>
-    </marker>
+    <filter id="badgeShadow" x="-15%" y="-25%" width="130%" height="150%">
+      <feDropShadow dx="0" dy="0.8" stdDeviation="1.2" flood-color="#263238" flood-opacity="0.15"/>
+    </filter>
   </defs>
 
-  <text x="280" y="46" text-anchor="middle" font-size="17" font-weight="bold" fill="#c62828">改造前 ❌</text>
-  <text x="820" y="46" text-anchor="middle" font-size="17" font-weight="bold" fill="#2e7d32">改造后 ✅</text>
+  <rect width="1100" height="720" fill="#ffffff"/>
 
-  <g filter="url(#shadow)">
-    <rect x="30" y="20" width="500" height="380" rx="8" fill="#ffffff" stroke="#cfd8dc" stroke-width="1.5"/>
-    <rect x="570" y="20" width="500" height="380" rx="8" fill="#ffffff" stroke="#cfd8dc" stroke-width="1.5"/>
-    <rect x="150" y="430" width="800" height="52" rx="10" fill="#fafafa" stroke="#e0e0e0" stroke-width="1.5"/>
+  <line x1="550" y1="16" x2="550" y2="658" stroke="#90a4ae" stroke-width="3" stroke-linecap="round"/>
+
+  <path d="M 530 300 L 530 520" stroke="#e53935" stroke-width="2" stroke-dasharray="7 5" fill="none" stroke-linecap="round"/>
+  <polygon points="530,527 524,516 536,516" fill="#e53935"/>
+  <path d="M 541 300 L 541 612" stroke="#e53935" stroke-width="2" stroke-dasharray="7 5" fill="none" stroke-linecap="round"/>
+  <polygon points="541,619 535,608 547,608" fill="#e53935"/>
+  <text x="536" y="432" transform="rotate(-90 536 432)" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#c62828">代笔策略 → 被动消费</text>
+
+  <circle cx="550" cy="340" r="28" fill="#ffffff" stroke="#90a4ae" stroke-width="2.5"/>
+  <text x="550" y="349" text-anchor="middle" font-size="26" font-weight="bold" fill="#546e7a">→</text>
+
+  <rect x="20" y="16" width="500" height="42" rx="9" fill="#ffebee" stroke="#ef9a9a" stroke-width="1.5" filter="url(#rowShadow)"/>
+  <text x="270" y="43" text-anchor="middle" font-size="18" font-weight="bold" fill="#c62828">改造前 ❌  越界依赖</text>
+  <rect x="580" y="16" width="500" height="42" rx="9" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5" filter="url(#rowShadow)"/>
+  <text x="830" y="43" text-anchor="middle" font-size="18" font-weight="bold" fill="#2e7d32">改造后 ✅  职责隔离</text>
+
+  <g>
+    <rect x="20" y="70" width="500" height="78" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="20" y="80" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="105" y1="76" x2="105" y2="142" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="62.5" y="102" text-anchor="middle" font-size="17">🔍</text>
+    <text x="62.5" y="122" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">discovery</text>
+    <text x="114" y="116" font-size="13" fill="#37474f">问题挖掘 · 辅导模式 · 7 步工作流</text>
+  </g>
+  <g>
+    <rect x="20" y="155" width="500" height="78" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="20" y="165" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="105" y1="161" x2="105" y2="227" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="62.5" y="187" text-anchor="middle" font-size="17">📋</text>
+    <text x="62.5" y="207" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">spec</text>
+    <text x="114" y="201" font-size="13" fill="#37474f">需求定义 · FR/NFR/EC</text>
+  </g>
+  <g>
+    <rect x="20" y="240" width="500" height="78" rx="6" fill="#ffebee" stroke="#ef9a9a" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="20" y="250" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="105" y1="246" x2="105" y2="312" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="62.5" y="272" text-anchor="middle" font-size="17">📐</text>
+    <text x="62.5" y="292" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">plan</text>
+    <text x="114" y="286" font-size="13" fill="#37474f">
+      <tspan>技术设计</tspan>
+      <tspan fill="#90a4ae"> + </tspan>
+      <tspan font-weight="bold" fill="#d32f2f">代笔审查策略 §5.8</tspan>
+      <tspan fill="#90a4ae"> + </tspan>
+      <tspan font-weight="bold" fill="#d32f2f">代笔验证策略 §5.9</tspan>
+    </text>
+    <rect x="440" y="267" width="74" height="24" rx="12" fill="#e53935" filter="url(#badgeShadow)"/>
+    <text x="477" y="284" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#ffffff">越界</text>
+  </g>
+  <g>
+    <rect x="20" y="325" width="500" height="78" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="20" y="335" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="105" y1="331" x2="105" y2="397" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="62.5" y="357" text-anchor="middle" font-size="17">📊</text>
+    <text x="62.5" y="377" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">tasks</text>
+    <text x="114" y="371" font-size="13" fill="#37474f">任务排布 · 波次规划</text>
+  </g>
+  <g>
+    <rect x="20" y="410" width="500" height="78" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="20" y="420" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="105" y1="416" x2="105" y2="482" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="62.5" y="442" text-anchor="middle" font-size="17">🔨</text>
+    <text x="62.5" y="462" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">build</text>
+    <text x="114" y="456" font-size="13" fill="#37474f">实施构建 · 实现决策</text>
+  </g>
+  <g>
+    <rect x="20" y="495" width="500" height="78" rx="6" fill="#f5f5f5" stroke="#b0bec5" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="20" y="505" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="105" y1="501" x2="105" y2="567" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="62.5" y="527" text-anchor="middle" font-size="17">🔎</text>
+    <text x="62.5" y="547" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">review</text>
+    <text x="114" y="541" font-size="13" fill="#546e7a">读取 plan §5.8 → 被动审查 · 无自主策略</text>
+    <rect x="440" y="522" width="74" height="24" rx="12" fill="#fb8c00" filter="url(#badgeShadow)"/>
+    <text x="477" y="539" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#ffffff">⚠️ 入口依赖</text>
+  </g>
+  <g>
+    <rect x="20" y="580" width="500" height="78" rx="6" fill="#f5f5f5" stroke="#b0bec5" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="20" y="590" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="105" y1="586" x2="105" y2="652" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="62.5" y="612" text-anchor="middle" font-size="17">✅</text>
+    <text x="62.5" y="632" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">validate</text>
+    <text x="114" y="626" font-size="13" fill="#546e7a">读取 plan §5.9 → 被动验证 · 33% 场景无法执行</text>
+    <rect x="440" y="607" width="74" height="24" rx="12" fill="#fb8c00" filter="url(#badgeShadow)"/>
+    <text x="477" y="624" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#ffffff">⚠️ 入口依赖</text>
   </g>
 
-  <path d="M30,28 A8,8 0 0 1 38,20 H522 A8,8 0 0 1 530,28 V62 H30 Z" fill="#ffcdd2"/>
-  <path d="M570,28 A8,8 0 0 1 578,20 H1062 A8,8 0 0 1 1070,28 V62 H570 Z" fill="#c8e6c9"/>
-
-  <line x1="550" y1="20" x2="550" y2="400" stroke="#90a4ae" stroke-width="3"/>
-  <text x="550" y="214" text-anchor="middle" font-size="32" font-weight="bold" fill="#607d8b">→</text>
-
-  <g stroke-linejoin="round">
-    <rect x="46" y="74" width="468" height="95" rx="6" fill="#bbdefb" stroke="#90caf9" stroke-width="1.5"/>
-    <rect x="586" y="74" width="468" height="95" rx="6" fill="#bbdefb" stroke="#90caf9" stroke-width="1.5"/>
-    <rect x="46" y="183" width="468" height="95" rx="6" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1.5"/>
-    <rect x="586" y="183" width="468" height="95" rx="6" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5"/>
-    <rect x="46" y="292" width="468" height="95" rx="6" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1.5"/>
-    <rect x="586" y="292" width="468" height="95" rx="6" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5"/>
+  <g>
+    <rect x="580" y="70" width="500" height="78" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="580" y="80" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="665" y1="76" x2="665" y2="142" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="622.5" y="102" text-anchor="middle" font-size="17">🔍</text>
+    <text x="622.5" y="122" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">discovery</text>
+    <text x="674" y="116" font-size="13" fill="#37474f">问题挖掘 · 辅导模式 · 7 步工作流</text>
+  </g>
+  <g>
+    <rect x="580" y="155" width="500" height="78" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="580" y="165" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="665" y1="161" x2="665" y2="227" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="622.5" y="187" text-anchor="middle" font-size="17">📋</text>
+    <text x="622.5" y="207" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">spec</text>
+    <text x="674" y="201" font-size="13" fill="#37474f">需求定义 · FR/NFR/EC</text>
+  </g>
+  <g>
+    <rect x="580" y="240" width="500" height="78" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="580" y="250" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="665" y1="246" x2="665" y2="312" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="622.5" y="272" text-anchor="middle" font-size="17">📐</text>
+    <text x="622.5" y="292" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">plan</text>
+    <text x="674" y="286" font-size="13" fill="#37474f">
+      <tspan>纯技术设计</tspan>
+      <tspan fill="#90a4ae"> · </tspan>
+      <tspan font-weight="bold" fill="#2e7d32">§5.1~§5.7 架构分析/方案对比/ADR</tspan>
+    </text>
+    <rect x="1000" y="267" width="74" height="24" rx="12" fill="#66bb6a" filter="url(#badgeShadow)"/>
+    <text x="1037" y="284" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#ffffff">回归</text>
+  </g>
+  <g>
+    <rect x="580" y="325" width="500" height="78" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="580" y="335" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="665" y1="331" x2="665" y2="397" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="622.5" y="357" text-anchor="middle" font-size="17">📊</text>
+    <text x="622.5" y="377" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">tasks</text>
+    <text x="674" y="371" font-size="13" fill="#37474f">任务排布 · 波次规划</text>
+  </g>
+  <g>
+    <rect x="580" y="410" width="500" height="78" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="580" y="420" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="665" y1="416" x2="665" y2="482" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="622.5" y="442" text-anchor="middle" font-size="17">🔨</text>
+    <text x="622.5" y="462" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">build</text>
+    <text x="674" y="456" font-size="13" fill="#37474f">实施构建 · 实现决策</text>
+  </g>
+  <g>
+    <rect x="580" y="495" width="500" height="78" rx="6" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="580" y="505" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="665" y1="501" x2="665" y2="567" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="622.5" y="527" text-anchor="middle" font-size="17">🔎</text>
+    <text x="622.5" y="547" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">review</text>
+    <text x="674" y="541" font-size="13" fill="#37474f">
+      <tspan font-weight="bold" fill="#2e7d32">自主定义 C1~CN</tspan>
+      <tspan fill="#90a4ae"> · </tspan>
+      <tspan>从 spec+plan+产物 提取审查对象</tspan>
+    </text>
+    <rect x="1000" y="522" width="74" height="24" rx="12" fill="#43a047" filter="url(#badgeShadow)"/>
+    <text x="1037" y="539" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#ffffff">自主</text>
+  </g>
+  <g>
+    <rect x="580" y="580" width="500" height="78" rx="6" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="580" y="590" width="85" height="58" rx="9" fill="#ffffff" opacity="0.62" stroke="#000000" stroke-opacity="0.08"/>
+    <line x1="665" y1="586" x2="665" y2="652" stroke="#000000" stroke-opacity="0.08"/>
+    <text x="622.5" y="612" text-anchor="middle" font-size="17">✅</text>
+    <text x="622.5" y="632" text-anchor="middle" font-size="12" font-weight="bold" fill="#455a64">validate</text>
+    <text x="674" y="626" font-size="13" fill="#37474f">
+      <tspan font-weight="bold" fill="#2e7d32">自主定义 V1~VN</tspan>
+      <tspan fill="#90a4ae"> · </tspan>
+      <tspan>从 spec+NFR+产物 提取验证对象</tspan>
+    </text>
+    <rect x="1000" y="607" width="74" height="24" rx="12" fill="#43a047" filter="url(#badgeShadow)"/>
+    <text x="1037" y="624" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#ffffff">自主</text>
   </g>
 
-  <g font-weight="bold" fill="#ffffff">
-    <rect x="46" y="74" width="80" height="95" fill="#42a5f5"/>
-    <text x="86" y="126" text-anchor="middle" font-size="15">plan</text>
-    <rect x="586" y="74" width="80" height="95" fill="#42a5f5"/>
-    <text x="626" y="126" text-anchor="middle" font-size="15">plan</text>
-    <rect x="46" y="183" width="80" height="95" fill="#bdbdbd"/>
-    <text x="86" y="235" text-anchor="middle" font-size="15">review</text>
-    <rect x="586" y="183" width="80" height="95" fill="#81c784"/>
-    <text x="626" y="235" text-anchor="middle" font-size="15">review</text>
-    <rect x="46" y="292" width="80" height="95" fill="#bdbdbd"/>
-    <text x="86" y="344" text-anchor="middle" font-size="15">validate</text>
-    <rect x="586" y="292" width="80" height="95" fill="#81c784"/>
-    <text x="626" y="344" text-anchor="middle" font-size="15">validate</text>
-  </g>
-
-  <g fill="#37474f">
-    <text x="142" y="112" font-size="15">技术设计</text>
-    <text x="142" y="221" font-size="15">读取 plan §5.8 → 被动审查</text>
-    <text x="142" y="330" font-size="15">读取 plan §5.9 → 被动验证</text>
-    <text x="682" y="112" font-size="15" font-weight="bold">纯技术设计</text>
-    <text x="682" y="221" font-size="15" font-weight="bold" fill="#1b5e20">自主定义 C1~CN 审查清单</text>
-    <text x="682" y="330" font-size="15" font-weight="bold" fill="#1b5e20">自主定义 V1~VN 验证场景</text>
-  </g>
-
-  <g fill="#546e7a">
-    <text x="682" y="136" font-size="12.5">§5.1~§5.7 架构分析 / 方案对比 / ADR</text>
-    <text x="682" y="245" font-size="12.5">从 spec + plan + 产物中提取审查对象</text>
-    <text x="682" y="354" font-size="12.5">从 spec + NFR + 产物中提取验证对象</text>
-    <text x="142" y="245" font-size="12.5">无自主策略</text>
-  </g>
-
-  <text x="142" y="136" font-size="13" font-weight="bold" fill="#d32f2f">代笔 §5.8 审查策略 + §5.9 验证策略</text>
-  <text x="142" y="354" font-size="12.5" font-weight="bold" fill="#d32f2f">33% 验证场景无法执行</text>
-
-  <rect x="422" y="107.5" width="76" height="28" rx="14" fill="#d32f2f"/>
-  <text x="460" y="126.5" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffffff">越界</text>
-  <rect x="974" y="107.5" width="64" height="28" rx="14" fill="#2e7d32"/>
-  <text x="1006" y="126.5" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffffff">回归</text>
-
-  <line x1="390" y1="170" x2="390" y2="182" stroke="#90a4ae" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrowDown)"/>
-
-  <g font-size="12.5" fill="#455a64">
-    <rect x="220" y="449" width="14" height="14" rx="3" fill="#bbdefb" stroke="#90caf9" stroke-width="1.5"/>
-    <text x="242" y="460">蓝色 = plan（技术设计方）</text>
-    <rect x="430" y="449" width="14" height="14" rx="3" fill="#f5f5f5" stroke="#bdbdbd" stroke-width="1.5"/>
-    <text x="452" y="460">灰色 = 被动消费（改造前）</text>
-    <rect x="640" y="449" width="14" height="14" rx="3" fill="#e8f5e9" stroke="#81c784" stroke-width="1.5"/>
-    <text x="662" y="460">绿色 = 自主策略（改造后）</text>
-    <rect x="845" y="449" width="14" height="14" rx="3" fill="#d32f2f"/>
-    <text x="867" y="460">红色 = 越界代笔</text>
-  </g>
+  <rect x="20" y="668" width="1060" height="46" rx="10" fill="#fafbfc" stroke="#eceff1" stroke-width="1.5"/>
+  <circle cx="44" cy="682" r="5" fill="#1e88e5"/>
+  <text x="56" y="687" font-size="12" fill="#455a64">蓝色 = 未变更（discovery / spec / tasks / build）</text>
+  <circle cx="580" cy="682" r="5" fill="#e53935"/>
+  <text x="592" y="687" font-size="12" fill="#455a64">红色 = 越界代笔（plan 改造前）</text>
+  <rect x="40" y="694" width="8" height="8" rx="2" fill="#bdbdbd"/>
+  <text x="56" y="706" font-size="12" fill="#455a64">灰色 = 被动消费（review / validate 改造前）</text>
+  <circle cx="580" cy="700" r="5" fill="#43a047"/>
+  <text x="592" y="706" font-size="12" fill="#455a64">绿色 = 职责回归 / 自主策略（plan / review / validate 改造后）</text>
 </svg>
