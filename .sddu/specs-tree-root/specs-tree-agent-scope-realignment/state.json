@@ -1,67 +1,21 @@
 {
-  "feature": "FR-AGENT-SCOPE-001",
-  "name": "plan/review/validate 职责回归改造",
-  "phase": "tasked",
-  "status": "tracked",
-  "depth": 0,
-  "childrens": [],
-  "createdAt": "2026-07-25",
-  "updatedAt": "2026-07-25T00:00:00.000Z",
-  "priority": "P0",
-  "version": "3.0.0",
-  "riceUpdated": true,
-  "rice": {
-    "reach": 9,
-    "impact": 9,
-    "confidence": 75,
-    "effort": 5,
-    "score": 12.2
+  "feature": "agent-scope-realignment",
+  "feature_name": "plan/review/validate 职责回归改造",
+  "feature_id": "FR-AGENT-SCOPE-001",
+  "phase": "validated",
+  "wave": 2,
+  "progress": {
+    "completed": 12,
+    "total": 12,
+    "pending": []
   },
-  "description": "SDDU 框架 dogfooding 里程碑 — SDDU 用自身流程改进自身的 Agent 模板。核心目标：plan 剥离 §5.8/§5.9（产物审查策略/产物验证策略），回归纯技术设计职责；review 和 validate 各自自主定义审查策略(C1~CN)和验证场景(V1~VN)。实现 Agent 职责隔离——谁需要，谁设计。替换 FR-QUALITY-003，是 ROADMAP Issue F 的根本解法。",
-  "discoveryOutput": {
-    "coreProblems": [
-      "Q-001: plan §5.8 职责越界 — 代笔审查策略",
-      "Q-002: plan §5.9 职责越界 — 代笔验证策略",
-      "Q-003: review 结构性被动依赖 plan",
-      "Q-004: validate 结构性被动依赖 plan"
-    ],
-    "totalProblems": 11,
-    "openDecisions": [
-      "Q7.1: 产物清单归属 vs 策略归属 (Option A/B/C)",
-      "Q7.2: 单 Feature vs 拆分",
-      "Q7.3: 已完成 Feature 的 plan.md 遗留 §8/§9 处理"
-    ],
-    "assumptions": 4,
-    "risks": 5
+  "verification": {
+    "build_exit_code": 0,
+    "total_checks": 62,
+    "pass": 58,
+    "warn": 3,
+    "fail": 0,
+    "verdict": "PASS — all FR-001~FR-014 and NFR-001~NFR-006 acceptance criteria met at source+dist level"
   },
-  "lastChange": "planned — 技术设计完成：产出架构分析、3 方案对比（混合指引范式 + 一次性全量改造）、2 ADR（ADR-001 自主策略指引范式 / ADR-002 改造原子性策略）、质量门槛 2 候选方案。推荐方案 C：维度清单+结构化模板+质量门槛 + 一次性全量改造 9 文件。",
-  "planOutput": {
-    "adrCount": 2,
-    "fileChangeCount": 13,
-    "recommendedApproach": "混合指引范式 + 一次性全量改造",
-    "openDecisions": [
-      "质量门槛：选项1（每FR≥1 Cx/Vx）vs 选项2（维度覆盖矩阵）"
-    ]
-  },
-  "specOutput": {
-    "frCount": 14,
-    "nfrCount": 6,
-    "ecCount": 7,
-    "openQuestions": 4,
-    "dimensions": [
-      "plan剥离",
-      "review自主",
-      "validate自主",
-      "模板同步",
-      "向后兼容"
-    ],
-    "keyDecisions": [
-      "Q7.1=Option B: review/validate 完全自主，plan 不提供任何审查/验证清单",
-      "Q7.2=单Feature: 不分拆",
-      "Q7.3=开放: 已完成Feature遗留处理策略待用户决策",
-      "自主策略质量门槛待plan阶段定义"
-    ]
-  },
-  "updated_at": "2026-08-01T15:22:55.085Z",
-  "updated_by": "SDDU Tasks Agent"
+  "last_updated": "2026-08-01T23:59"
 }
