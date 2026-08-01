@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范，14 FR / 6 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-07-25  
-> **版本**: v1.3  
-> **更新人**: SDDU Plan Agent  
-> **更新时间**: 2026-08-01  
-> **更新说明**: v1.3 — 新增 ADR-004：策略/报告文档拆分
+> **版本**: v1.4
+> **更新人**: SDDU Plan Agent
+> **更新时间**: 2026-08-01
+> **更新说明**: v1.4 — 修正 §5 文件影响分析：移除 6 个 `.opencode/` MODIFY 条目（安装产物，由构建生成），只保留 `src/templates/` + `scripts/` 源文件目标
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -24,7 +24,7 @@
 
 ### 2.1 现有架构：三份文件存在形态
 
-本次改造涉及 9 个文件，分布在 3 个层级：
+本次改造涉及 7 个源文件（`src/templates/` + `scripts/`），`.opencode/` 副本由构建生成：
 
 ```
 项目根
@@ -92,7 +92,7 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 
 ### 2.5 不建议拆分
 
-已确认（Q7.2 = 单 Feature，不拆分）。9 个文件的改造高度耦合——plan 的删除、review/validate 的新增、输出模板的适配三者在语义上是一个整体，拆分反而引入不一致窗口。
+已确认（Q7.2 = 单 Feature，不拆分）。7 个源文件的改造高度耦合（`.opencode/` 副本由构建同步）——plan 的删除、review/validate 的新增、输出模板的适配三者在语义上是一个整体，拆分反而引入不一致窗口。
 
 ### 2.6 改造前后对比：泳道图
 
@@ -127,9 +127,9 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 
 | 维度 | 方案 A：分批改造 | 方案 B：一次性全量改造（推荐） |
 |------|:--|:--|
-| 描述 | 先改 plugin copies → 验证功能正常 → 再改 runtime copies。或先改 plan（剥离 §5.8/5.9）→ 验证 plan 正常 → 再改 review/validate（解除依赖）。分 2-3 批提交 | 所有 9 个文件一次性改造，单次提交，改造完成后立即运行 `node build-agents.cjs` 验证构建通过 |
-| 优点 | ① 每批改动范围小，容易回滚；② 可以逐步验证不会破坏现有工作流；③ 降低单次提交的 review 负担 | ① 语义完整性——删除和新增是同一事的两个面，分批会形成不一致窗口（如 plan 已删 §5.8 但 review 仍引用它）；② 最简单——没有中间态需要维护；③ 改造量小（9 个文件，约 50~80 行净变更），**不属于大规模变更** |
-| 缺点 | ① 中间态不一致窗口——plan 删了但 review 还引用导致行为异常；② 需要额外设计中间态的兼容逻辑（如"如果 plan 没有策略章节，跳过"）；③ 总工作量反而更大 | ① 9 个文件的 diff 需要仔细 review；② 如果改错一处，需要一起回滚 |
+| 描述 | 先改 plugin copies → 验证功能正常 → 再改 runtime copies。或先改 plan（剥离 §5.8/5.9）→ 验证 plan 正常 → 再改 review/validate（解除依赖）。分 2-3 批提交 | 所有 7 个源文件一次性改造，单次提交，改造完成后立即运行 `node build-agents.cjs` 验证构建通过 |
+| 优点 | ① 每批改动范围小，容易回滚；② 可以逐步验证不会破坏现有工作流；③ 降低单次提交的 review 负担 | ① 语义完整性——删除和新增是同一事的两个面，分批会形成不一致窗口（如 plan 已删 §5.8 但 review 仍引用它）；② 最简单——没有中间态需要维护；③ 改造量小（7 个源文件，约 50~80 行净变更），**不属于大规模变更** |
+| 缺点 | ① 中间态不一致窗口——plan 删了但 review 还引用导致行为异常；② 需要额外设计中间态的兼容逻辑（如"如果 plan 没有策略章节，跳过"）；③ 总工作量反而更大 | ① 7 个源文件的 diff 需要仔细 review；② 如果改错一处，需要一起回滚 |
 | 风险 | 中（不一致窗口风险） | 低（改动量小，准确度高） |
 | 工作量 | 中（需设计中间态） | 低（但需仔细逐行对比） |
 
@@ -154,10 +154,10 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 
 1. **自主策略指引范式 = 混合方案（C）**：这是 spec EC-005 和 NFR-004 的直接影响项。
    - 纯启发式（B）在 discovery 阶段已被量化风险为"最高风险"（R-001），18 个已完成 Feature 的 plan §8/§9 实证已证明空洞指引无效。
-   - 纯结构化（A）对本项目而言过度设计——9 个 Agent 模板文件的改造不需要引入完整的清单生成引擎。
+   - 纯结构化（A）对本项目而言过度设计——7 个源文件的改造不需要引入完整的清单生成引擎。
    - **混合方案**最适配：① 已有 review/validate 模板中的 §5.1~5.5 是天然的维度种子——只需在 Agent §1/§5.0 中明确引用并使用即可；② 质量门槛（见 §8 开放问题）提供最低完成标准；③ 输出模板新增 section 提供结构化输出格式。三位一体，不多不少。
 
-2. **改造原子性 = 一次性全量（B）**：9 个文件的总净变更量约 50~80 行（主要是删除 + 段落改写），规模很小，分批改造的不一致窗口风险超过全量改造的回滚成本。且已验证 3 个 Agent 的两份副本完全一致——改一份即可同步到另一份。
+2. **改造原子性 = 一次性全量（B）**：7 个源文件（`src/templates/` + `scripts/`）的总净变更量约 50~80 行（主要是删除 + 段落改写），规模很小，分批改造的不一致窗口风险超过全量改造的回滚成本。且已验证 3 个 Agent 的两份副本完全一致——改一份即可同步到另一份，`.opencode/` 下的运行时副本由构建生成。
 
 3. **与 spec 约束的对齐**：
    - Q7.1=Option B（完全自主）：推荐方案中 review/validate 完全自主设计策略，plan 不提供任何审查/验证清单 ✓
@@ -171,12 +171,6 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 
 | 操作 | 文件路径 | 说明 |
 |:--:|------|------|
-| MODIFY | `.opencode/plugins/sddu/agents/sddu-plan.md` | 删除 §5.8（L112-114）「产物审查策略」和 §5.9（L117-120）「产物验证策略」；§6 输出模板指引中无需调整（该指引是通用模板查找逻辑，不涉及审查/验证策略） |
-| MODIFY | `.opencode/agents/sddu-plan.md` | 同步以上修改——与 plugin copy 保持一致 |
-| MODIFY | `.opencode/plugins/sddu/agents/sddu-review.md` | ① §1（L16）：将"审查的产物清单和基准以 plan.md 中「产物审查策略」章节为准，该章节定义的审查清单（C1~CN）是你的首要检查项"替换为自主策略描述；② §3（L39）：删除"审查的产物清单和基准见 plan.md 中「产物审查策略」章节（搜索该标题，不依赖固定章节号）"；③ §6（L82）：将"审查的产物和基准见 plan.md 中「产物审查策略」章节（搜索该标题，不依赖固定章节号），以下为流程通过标准"替换为"审查对象和基准基于本 Agent 自主定义的 C1~CN 审查清单，以下为流程通过标准"④ §10 示例对话（L142-149）：更新示例，移除对 plan 策略章节的引用 |
-| MODIFY | `.opencode/agents/sddu-review.md` | 同步以上修改 |
-| MODIFY | `.opencode/plugins/sddu/agents/sddu-validate.md` | ① §1（L16-17）：将"验证的第一步永远是读取 plan.md 中的「产物验证策略」章节——plan 定义的验证场景是你最重要的任务清单，以下通用步骤是其补充和兜底"替换为自主策略描述；② §3（L35）：删除"验证的产物清单和基准见 plan.md 中「产物验证策略」章节（搜索该标题，不依赖固定章节号）"；③ §5.0（整个章节 L51-69）：重写为"场景设计（自主 — 优先级最高）"—自主从 spec+NFR+产物 中设计验证场景矩阵 V1~VN（替代原来的"读取 plan 验证策略"入口）；④ §6（L145）：将"验证的产物和基准见 plan.md 中「产物验证策略」章节（搜索该标题，不依赖固定章节号），以下为流程通过标准"替换为"验证对象和基准基于本 Agent 自主定义的 V1~VN 验证场景，以下为流程通过标准"；⑤ §10 示例对话（L207-219）：更新示例，移除对 plan 策略章节的引用 |
-| MODIFY | `.opencode/agents/sddu-validate.md` | 同步以上修改 |
 | MODIFY | `src/templates/agents/sddu-plan.md.hbs` | 同步删除 §5.8/§5.9（与 plugin/runtime copies 一致） |
 | MODIFY | `src/templates/agents/sddu-review.md.hbs` | 同步 review Agent 模板的所有修改 |
 | MODIFY | `src/templates/agents/sddu-validate.md.hbs` | 同步 validate Agent 模板的所有修改 |
@@ -185,7 +179,7 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 | CREATE | `src/templates/outputs/sddu-review-report.md.hbs` | 新建 — review 报告文档模板：逐项审查结果（审查对象+基准+评估结果）、结论（通过/不通过/有条件通过）、修订记录 |
 | MODIFY | `src/templates/outputs/sddu-validate.md.hbs` | 在 §1「验证概要」之后新增 §2「自主验证场景（V1~VN）」section——包含验证对象、验证步骤、预期结果、实测结果的条目模板；原 §2→§3、§3→§4、...、§7→§8，修订记录编号顺延为 §9 |
 | CREATE | `src/templates/outputs/sddu-validate-report.md.hbs` | 新建 — validate 报告文档模板：逐项验证结果（验证对象+步骤+预期+实测）、结论（通过/不通过/有条件通过）、验证脚本执行记录、修订记录 |
-| MODIFY | `scripts/build-agents.cjs` | 在文件头部注释中增加同步说明注释：明确 `src/templates/agents/*.hbs` 是源文件（source-of-truth），`.opencode/agents/` 和 `.opencode/plugins/sddu/agents/` 需要同步维护；建议后续 Feature 实施自动同步 |
+| MODIFY | `scripts/build-agents.cjs` | 在文件头部注释中增加同步说明：明确 `src/templates/agents/*.hbs` 是源文件（source-of-truth），构建后生成 `.opencode/agents/` 和 `.opencode/plugins/sddu/agents/` 下的运行时副本。改造完成后运行 `npm run build` 即可同步全部产物 |
 
 ---
 
@@ -209,7 +203,7 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 | ADR | 标题 | 状态 |
 |-----|------|:--:|
 | ADR-001 | review/validate 自主策略指引范式选型 — 混合方案（维度清单 + 结构化模板 + 质量门槛） | PROPOSED |
-| ADR-002 | 改造原子性策略 — 一次性全量改造 9 个文件 | PROPOSED |
+| ADR-002 | 改造原子性策略 — 一次性全量改造 7 个源文件（`src/templates/` + `scripts/`，`.opencode/` 副本由构建生成） | PROPOSED |
 | ADR-003 | validate 验证脚本归属 — 自主编写直接执行，不走 task→build | PROPOSED |
 | ADR-004 | review/validate 策略与报告文档拆分 — 策略为 Feature 级固定产物，报告为执行级独立产物 | PROPOSED |
 
@@ -312,6 +306,7 @@ review/validate 自主策略的"最低质量门槛"如何量化？以下是 2 �
 
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
+| v1.4 | 修正 §5 文件影响分析：移除 6 个 `.opencode/` MODIFY 条目（安装产物，由构建生成）；符合 README 「只改 src/ + npm run build」约束 | 2026-08-01 | SDDU Coordinator |
 | v1.3 | 新增 ADR-004：review/validate 策略与报告文档拆分；更新 §5 文件影响分析，新增 2 个输出模板文件 | 2026-08-01 | SDDU Coordinator |
 | v1.2 | 新增 ADR-003：validate 验证脚本归属决策 — 自主编写直接执行，不走 task→build | 2026-08-01 | SDDU Coordinator |
 | v1.1 | 新增 §2.6 改造前后泳道对比图（agent-scope-swimlane.svg）—— plan 越界→职责回归，3 Agent 改造前/后可视化 | 2026-08-01 | SDDU Coordinator |
