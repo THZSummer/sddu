@@ -125,8 +125,6 @@ sequenceDiagram
     P->>TK: plan.md + ADR
     TK->>B: tasks.json
     
-    Note over R,V: ∥ 策略设计不依赖 tasks/build<br/>可与正向建设流并行
-    
     rect rgb(245, 245, 245)
         R-->>R: 设计 C1~CN 审查清单
         V-->>V: 设计 V1~VN · 编写脚本
