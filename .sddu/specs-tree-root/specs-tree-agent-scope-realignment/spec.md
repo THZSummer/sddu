@@ -49,7 +49,7 @@ discovery 阶段的实证分析揭示了以下事实（详见 `discovery.md` §3
 
 ### 2.4 SDDU 主流程 7 阶段认知矩阵
 
-> 本矩阵定义 SDDU 主流程 7 个阶段的认知边界，作为本次改造的职责基准。每个阶段都是"想+做+判"的完整认知循环，"想的产物"是"做"的依据，"做的产物"是"判"的对象。
+> 本矩阵定义 SDDU 主流程 7 个阶段的认知边界，作为本次改造的职责基准。每个阶段都是"想+做+判"的完整认知循环，"想的产物"是"做"的依据，"做的产物"是"判"的对象。review/validate 的策略（想）与报告（做+判）拆分为独立文件——策略为 Feature 级固定产物，报告为每轮执行产物。
 
 | Agent | 想的产物 | 沉淀于 | 做的产物 | 沉淀于 | 判 | 视角 |
 |-------|---------|--------|---------|--------|----|------|
@@ -58,8 +58,8 @@ discovery 阶段的实证分析揭示了以下事实（详见 `discovery.md` §3
 | **plan** | 策略对比+推荐方案 | plan.md + ADR | 方案细节 | plan.md | 可行吗 | 正向设计 |
 | **tasks** | 依赖图+波次 | tasks.md | TASK-xxx 清单 | tasks.md + json | 可执行吗 | 执行规划 |
 | **build** | 实现决策 | build.md | 实际产物 | 实际产物 | 自洽吗 | 实现 |
-| **review** | C1~CN 审查清单 | review.md（策略段） | 审查结果 | review.md（结果段） | 合格吗 | 逆向·静态 |
-| **validate** | V1~VN 验证场景 | validate.md（策略段） | 验证报告 | validate.md（结果段） | 合规吗 | 逆向·动态 |
+| **review** | C1~CN 审查清单 | review.md | 审查结果 | review-report.md | 合格吗 | 逆向·静态 |
+| **validate** | V1~VN 验证场景 | validate.md | 验证报告 | validate-report.md | 合规吗 | 逆向·动态 |
 
 **矩阵核心约束：**
 
@@ -73,7 +73,7 @@ discovery 阶段的实证分析揭示了以下事实（详见 `discovery.md` §3
 
 5. **build 判"自洽"，validate 判"合规"**--build 的"判"是交付物自洽性（产物内部一致、可交付），不越界到 validate 的合规性验证（FR 覆盖、NFR 达标、无漂移）。
 
-6. **review/validate 的文档结构强制三段式**--策略段（想的产物）+ 结果段（做的产物）+ 结论段（判的产物），策略段必须先于结果段完成，不能事后补。
+6. **review/validate 策略与报告分离**--策略文档（review.md / validate.md，想的产物）与报告文档（review-report.md / validate-report.md，做+判的产物）拆分为独立文件。策略文档为 Feature 级固定产物（定义一次），报告文档为执行级产物（每轮独立），策略必须先于报告完成。
 
 ### 2.5 SDDU Phase 流转状态机
 
@@ -142,16 +142,16 @@ discovery 阶段的实证分析揭示了以下事实（详见 `discovery.md` §3
 | FR-004 | **plan 输出模板删除「产物验证策略」章节**：从 `src/templates/outputs/sddu-plan.md.hbs` 中删除 §9「产物验证策略」章节（当前 L74-80）及内容 | 在 `sddu-plan.md.hbs` 中搜索字符串 `产物验证策略` 返回 0 结果；新 plan.md 产出中不含该章节 | P0 |
 | FR-005 | **review Agent §1「角色定位」改为自主策略模式**：当前 §1 中 "审查的产物清单和基准以 plan.md 中「产物审查策略」章节为准，该章节定义的审查清单（C1~CN）是你的首要检查项"（L16）替换为自主描述——review 自主从 spec+plan+产物 中提取审查对象，运用 §5.1~5.4 审查方法论自主定义 C1~CN 审查清单 | 在 2 份 review Agent 模板副本中：不包含对 plan.md「产物审查策略」的引用；包含"自主从 spec+plan+产物中定义审查清单 C1~CN"的语义描述 | P0 |
 | FR-006 | **review Agent 解除对 plan 审查策略的结构性依赖**：删除 §3「依赖关系」中对 plan.md「产物审查策略」的引用（L39 "审查的产物清单和基准见 plan.md 中「产物审查策略」章节"）；改写 §6「审查标准」中对 plan.md「产物审查策略」的引用（L82 "审查的产物和基准见 plan.md 中「产物审查策略」章节"），替换为自主策略引用（如"审查对象和基准基于本 Agent 自主定义的 C1~CN 审查清单"） | 在 2 份 review Agent 模板副本中：§3 和 §6 不含对 plan.md「产物审查策略」章节的引用 | P0 |
-| FR-007 | **review 输出模板提供自主审查清单输出能力**：在 `src/templates/outputs/sddu-review.md.hbs` 中适配或新增 section，使 review Agent 有地方输出其自主定义的 C1~CN 审查清单及对应的审查结果。当前模板缺乏专门的审查清单 section（§2 审查详情按类型组织但不显式呈现审查清单结构）——需要新增或增强 | 审查产出模板中包含明确标注的审查清单（C1~CN）section，每个 Cx 有审查对象、基准、评估结果的条目 | P0 |
+| FR-007 | **review 输出模板拆分为策略文档与报告文档**：review Agent 产出两个独立文件——(1) `review.md`（策略文档）：自主定义的 C1~CN 审查清单，Feature 级固定产物，定义一次；(2) `review-report.md`（报告文档）：逐项审查结果与结论，每轮执行独立产出。需从 `src/templates/outputs/sddu-review.md.hbs` 拆分为两个输出模板（`sddu-review.md.hbs` + `sddu-review-report.md.hbs`），或在一个模板中按条件路由输出到不同文件 | (1) review.md 包含明确的 C1~CN 审查清单，每个 Cx 有审查对象、基准；(2) review-report.md 包含逐项评估结果和结论；两文件独立存在，策略文档产出先于报告文档 | P0 |
 | FR-008 | **validate Agent §1「角色定位」改为自主策略模式**：当前 §1 中 "验证的第一步永远是读取 plan.md 中的「产物验证策略」章节——plan 定义的验证场景是你最重要的任务清单"（L16-17）替换为自主描述——validate 自主从 spec+NFR+产物 中提取验证对象，运用 §5.1~5.5 验证方法论自主定义 V1~VN 验证场景 | 在 2 份 validate Agent 模板副本中：不包含对 plan.md「产物验证策略」的引用作为"第一步"/"最重要的任务清单"；包含"自主从 spec+NFR+产物中定义验证场景 V1~VN"的语义描述 | P0 |
 | FR-009 | **validate Agent 解除对 plan 验证策略的结构性依赖**：删除或改写以下 3 处对 plan.md「产物验证策略」的引用：① §3（L35 "验证的产物清单和基准见 plan.md 中「产物验证策略」章节"）；② §5.0「场景验证」整体改为自主场景设计模式——不再以"读取 plan 验证策略"作为入口，改为"自主从 spec+NFR+产物中设计验证场景矩阵"；③ §6「验证标准」（L145 "验证的产物和基准见 plan.md 中「产物验证策略」章节"）替换为自主策略引用 | 在 2 份 validate Agent 模板副本中：§3/§5.0/§6 不含对 plan.md「产物验证策略」章节的引用；§5.0 以自主场景设计为入口而非 plan 策略为入口 | P0 |
-| FR-010 | **validate 输出模板提供自主验证场景输出能力**：在 `src/templates/outputs/sddu-validate.md.hbs` 中适配或新增 section，使 validate Agent 有地方输出其自主定义的 V1~VN 验证场景及对应的实测结果。当前模板缺乏专门的验证场景 section——需要新增或增强 | 验证产出模板中包含明确标注的验证场景（V1~VN）section，每个 Vx 有验证对象、验证步骤、预期结果、实测结果的条目 | P0 |
+| FR-010 | **validate 输出模板拆分为策略文档与报告文档**：validate Agent 产出两个独立文件——(1) `validate.md`（策略文档）：自主定义的 V1~VN 验证场景，Feature 级固定产物，定义一次；(2) `validate-report.md`（报告文档）：逐项验证结果与结论，每轮执行独立产出（含验证脚本及执行记录，见 ADR-003）。需从 `src/templates/outputs/sddu-validate.md.hbs` 拆分为两个输出模板（`sddu-validate.md.hbs` + `sddu-validate-report.md.hbs`），或在一个模板中按条件路由 | (1) validate.md 包含明确的 V1~VN 验证场景，每个 Vx 有验证对象、验证步骤、预期结果；(2) validate-report.md 包含实测结果和结论；两文件独立存在，策略文档产出先于报告文档 | P0 |
 | FR-011 | **Agent 模板 plugin copies 与 runtime copies 同步**：本次改造涉及 3 个 Agent（plan/review/validate）的 2 份副本，共 6 个文件——`.opencode/plugins/sddu/agents/sddu-{plan,review,validate}.md`（plugin copies）和 `.opencode/agents/sddu-{plan,review,validate}.md`（runtime copies）。每个 Agent 的 2 份副本在改造完成后内容必须**完全一致**（除 frontmatter 可能差异外） | 对每个 Agent，`diff` 两副本结果为当前级别的合理差异（如 frontmatter 字段差异）或空；review 模板引用 plan 策略的字符串在两副本中均不存在 | P0 |
 | FR-012 | **构建机制兼容改造后的模板**：运行 `node scripts/build-agents.cjs`（或其他构建命令）在改造后的模板上不产生错误，成功完成构建 | 改造完成后执行一遍构建流程，退出码为 0，构建日志无 ERROR | P1 |
 | FR-013 | **review Agent 向后兼容已完成 Feature 的旧格式 plan.md**：已完成 Feature 的 plan.md 中包含 §8「产物审查策略」（旧格式，18 个计划均如此）。review Agent 在处理新 Feature 时不依赖 plan 策略章节；若在处理过程中读取到已完成或旧格式的 plan.md（含 §8），应忽略该章节而非报错或尝试解析 | review Agent 模板中不应有"读取 plan 策略"的指令；如 review 工作流包含读取 plan.md 文档的通用步骤，不因 plan.md 包含 §8 而中断或产生错误行为 | P1 |
 | FR-014 | **validate Agent 向后兼容已完成 Feature 的旧格式 plan.md**：已完成 Feature 的 plan.md 中包含 §9「产物验证策略」（旧格式，18 个计划均如此）。validate Agent 在处理新 Feature 时不依赖 plan 策略章节；若在处理过程中读取到已完成或旧格式的 plan.md（含 §9），应忽略该章节而非报错或尝试解析 | validate Agent 模板中不应有"读取 plan 验证策略"的指令；如 validate 工作流包含读取 plan.md 文档的通用步骤，不因 plan.md 包含 §9 而中断或产生错误行为 | P1 |
 
-> **FR 编号说明**：共 14 个 FR，覆盖 5 个维度——plan 剥离（FR-001~004）、review 自主（FR-005~007）、validate 自主（FR-008~010）、模板同步（FR-011~012）、向后兼容（FR-013~014）。所有 P0（10 个）为阻塞项，P1（4 个）为重要但非阻塞项。
+> **FR 编号说明**：共 14 个 FR，覆盖 5 个维度——plan 剥离（FR-001~004）、review 自主（FR-005~007，含策略/报告文档拆分）、validate 自主（FR-008~010，含策略/报告文档拆分）、模板同步（FR-011~012）、向后兼容（FR-013~014）。所有 P0（10 个）为阻塞项，P1（4 个）为重要但非阻塞项。
 
 ## 6. 非功能需求 (NFR)
 > 跨切面质量需求
@@ -175,7 +175,7 @@ discovery 阶段的实证分析揭示了以下事实（详见 `discovery.md` §3
 | EC-003 | **已完成 Feature 的 plan.md 遗留 §8/§9**：18 个已完成 Feature 的 plan.md 包含旧格式 §8（产物审查策略）和 §9（产物验证策略）。这些 Feature 已完成（不会再触发 review/validate），但遗留的 §8/§9 可能与改造后的规范语义不匹配——例如，新用户阅读旧 plan.md 时可能疑惑"为什么 plan.md 有审查策略章节，但 @sddu-review 说明它是自主的？" | 处理策略见 §8 开放问题 #1（Q7.3）：待用户决策。当前 spec 的默认策略——不批量清理已完成 Feature 的遗留 §8/§9（已完成 Feature 为 freeze 状态，修改会引入无价值的 diff 和 git 历史膨胀）。可在 `sddu-plan.md.hbs` 模板的 §5.5 下方添加 migration note 说明"§8/§9 已从 plan 模板中移除（v3.0.0+），旧 Feature 的 plan.md 可能仍包含此章节" |
 | EC-004 | **plugin copies 与 runtime copies 未来出现不同步**：当前同步通过手动维护两份副本实现，未来如果某个 Agent 模板修改仅更新了一份副本，会导致 Agent 行为不一致 | 处理策略：改造完成后，在 `build-agents.cjs` 或 install 脚本中增加同步说明注释，或明确标注哪一份是源文件（source-of-truth）、哪一份是生成的目标文件。见 §8 开放问题 #2 |
 | EC-005 | **review/validate 自主策略定义的"最低质量门槛"未达标**：如果 review/validate 首次自主设计策略时，产出的 C1~CN 或 V1~VN 比改造前"plan 薄策略但 Agent 自己补全"的质量更低——即 discovery R-001 风险（"本来有 50 分底线的纸，撕掉后直接交白卷"） | 处理策略见 §8 开放问题 #3。当前 spec 在 NFR-004 中定义了自主策略设计指引的最低要求，但具体如何量化"最低质量门槛"（如 C1~CN 至少覆盖多少维度、V1~VN 至少覆盖多少 FR/NFR）需要在 plan 阶段设计具体方案 |
-| EC-006 | **计划中的 review/validate 输出模板章节编号冲突**：在 `sddu-review.md.hbs` 和 `sddu-validate.md.hbs` 中新增"自主审查清单/验证场景"section 可能导致现有章节编号变动——如果下游 tool 或脚本依赖模板章节编号而非标题搜索，可能解析失败 | 处理方式：新增 section 使用语义化标题（如 `## X. 自主审查清单 (C1~CN)`），优先确保标题搜索（grep）的稳定性；现有章节编号如需变更，在修订记录中注明编号变动映射表 |
+| EC-006 | **拆分后的输出模板文件命名和 Agent 路由**：review/validate 各产出两个文件（策略文档 + 报告文档），Agent 需要明确何时产出策略文档（"想"阶段完成时）、何时产出报告文档（"做+判"阶段完成时）。如果使用单个模板按条件路由到两个文件，需要定义路由规则 | 处理方式：Agent 模板中明确分两步——步骤 N（"想"阶段）：产出策略文档（review.md / validate.md），不涉及执行；步骤 N+1（"做+判"阶段）：执行审查/验证后产出报告文档（review-report.md / validate-report.md）。两步之间有明确的完成确认门槛 |
 | EC-007 | **并发修改冲突**：如果本 Feature 执行期间，另一个 Feature（如 FR-SKILL-* 或 FR-TEMPLATE-*）同时修改了 Agent 模板文件，可能产生 merge conflict | 处理方式：本 Feature 的 plan 阶段需检查当前分支状态，列出所有可能冲突的文件；如果存在冲突，plan 需包含 merge 策略（如基于最新 HEAD 重新应用变更） |
 
 ## 8. 开放问题

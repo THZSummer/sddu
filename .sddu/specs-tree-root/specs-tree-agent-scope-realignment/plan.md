@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范，14 FR / 6 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-07-25  
-> **版本**: v1.2  
+> **版本**: v1.3  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-08-01  
-> **更新说明**: v1.2 — 新增 ADR-003：validate 验证脚本归属决策
+> **更新说明**: v1.3 — 新增 ADR-004：策略/报告文档拆分
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -182,7 +182,9 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 | MODIFY | `src/templates/agents/sddu-validate.md.hbs` | 同步 validate Agent 模板的所有修改 |
 | MODIFY | `src/templates/outputs/sddu-plan.md.hbs` | 删除 §8「产物审查策略」（L65-72）和 §9「产物验证策略」（L74-80）；章节重新编号：原"修订记录"从无编号变为 §8 |
 | MODIFY | `src/templates/outputs/sddu-review.md.hbs` | 在 §1「审查概要」之后新增 §2「自主审查清单（C1~CN）」section——包含审查对象、审查基准、评估结果的条目模板；原 §2→§3、§3→§4、§4→§5、§5→§6，修订记录编号顺延为 §7 |
+| CREATE | `src/templates/outputs/sddu-review-report.md.hbs` | 新建 — review 报告文档模板：逐项审查结果（审查对象+基准+评估结果）、结论（通过/不通过/有条件通过）、修订记录 |
 | MODIFY | `src/templates/outputs/sddu-validate.md.hbs` | 在 §1「验证概要」之后新增 §2「自主验证场景（V1~VN）」section——包含验证对象、验证步骤、预期结果、实测结果的条目模板；原 §2→§3、§3→§4、...、§7→§8，修订记录编号顺延为 §9 |
+| CREATE | `src/templates/outputs/sddu-validate-report.md.hbs` | 新建 — validate 报告文档模板：逐项验证结果（验证对象+步骤+预期+实测）、结论（通过/不通过/有条件通过）、验证脚本执行记录、修订记录 |
 | MODIFY | `scripts/build-agents.cjs` | 在文件头部注释中增加同步说明注释：明确 `src/templates/agents/*.hbs` 是源文件（source-of-truth），`.opencode/agents/` 和 `.opencode/plugins/sddu/agents/` 需要同步维护；建议后续 Feature 实施自动同步 |
 
 ---
@@ -209,6 +211,7 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 | ADR-001 | review/validate 自主策略指引范式选型 — 混合方案（维度清单 + 结构化模板 + 质量门槛） | PROPOSED |
 | ADR-002 | 改造原子性策略 — 一次性全量改造 9 个文件 | PROPOSED |
 | ADR-003 | validate 验证脚本归属 — 自主编写直接执行，不走 task→build | PROPOSED |
+| ADR-004 | review/validate 策略与报告文档拆分 — 策略为 Feature 级固定产物，报告为执行级独立产物 | PROPOSED |
 
 #### ADR-003：validate 验证脚本归属决策
 
@@ -235,6 +238,34 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 - validate Agent 模板中应明确其拥有"编写并执行验证脚本"的权限和能力
 - 验证脚本产出路径约定（如 `/tmp/sddu-validate-<timestamp>/`），避免污染项目源码目录
 - 验证报告中应列出使用的验证脚本及其执行结果，保持可追溯性
+
+---
+
+#### ADR-004：review/validate 策略与报告文档拆分
+
+**决策**：review/validate 的策略（想）与报告（做+判）拆分为两个独立文件，不混在同一个文档的三段式结构中。
+
+**背景**：当前 spec §2.4 定义了 review/validate 的单文件三段式结构（策略段 → 结果段 → 结论段）。但策略和结果的修改节奏完全不同——策略是 Feature 级产物（定义一次），报告是执行级产物（每轮独立）。混在一个文件里导致：(1) 多轮执行时覆写丢失历史或追加膨胀；(2) 文件定位模糊——读者不知道 `review.md` 是策略还是报告；(3) 违背 SDDU 简洁命名惯例。
+
+**选项**：
+
+| 选项 | 说明 | 优点 | 缺点 |
+|:--|------|------|------|
+| A: 单文件三段式（原方案） | review.md / validate.md 内包含策略段+结果段+结论段 | 物理强制"策略先于结果" | 多轮执行冲突；文件定位模糊 |
+| B: 双文件拆分 **(选中)** | review.md（策略）+ review-report.md（报告）；validate.md（策略）+ validate-report.md（报告） | ① 策略和报告各自独立，修改不互相影响；② 命名符合 SDDU 简洁惯例（核心文档无后缀，报告加 -report）；③ 每轮执行可保留历史报告 | 策略先于结果的约束从物理强制变为 Agent 模板逻辑约束 |
+| C: 策略在 plan.md 中 | review/validate 策略放入 plan.md（回到 plan 代笔的老路） | 无 | 违背 FR-AGENT-SCOPE-001 核心目标——"谁需要谁设计" |
+
+**理由**：
+1. **修改节奏不同** — build 修 3 次 bug 需要 3 轮审查，策略不变但结果覆盖 3 次。单文件无法优雅处理。
+2. **命名简洁** — SDDU 核心产物不带后缀（discovery.md / spec.md / plan.md / review.md / validate.md），报告类产物加 `-report`。与现有命名体系一致。
+3. **历史可追溯** — 报告独立文件可保留多轮执行记录（如 `review-report.md` 追加或 `review-report-r2.md` 编号），支撑质量闭环的追溯需求。
+
+**后果**：
+- review/validate 的输出模板需拆分为两个（或一个模板按条件路由两个文件）
+- Agent 模板中需明确两步：步骤 N 产出策略文档 → 确认 → 步骤 N+1 产出报告文档
+- 已完成 Feature（18 个）的 review.md / validate.md 为旧格式单文件，仅影响阅读，不阻塞新流程
+- §5 文件影响分析中新增 `sddu-review-report.md.hbs` 和 `sddu-validate-report.md.hbs` 两个输出模板文件
+- 泳道图中 review/validate 的输出列展示两个产出文件名
 
 ---
 
@@ -281,6 +312,7 @@ review/validate 自主策略的"最低质量门槛"如何量化？以下是 2 �
 
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
+| v1.3 | 新增 ADR-004：review/validate 策略与报告文档拆分；更新 §5 文件影响分析，新增 2 个输出模板文件 | 2026-08-01 | SDDU Coordinator |
 | v1.2 | 新增 ADR-003：validate 验证脚本归属决策 — 自主编写直接执行，不走 task→build | 2026-08-01 | SDDU Coordinator |
 | v1.1 | 新增 §2.6 改造前后泳道对比图（agent-scope-swimlane.svg）—— plan 越界→职责回归，3 Agent 改造前/后可视化 | 2026-08-01 | SDDU Coordinator |
 | v1.0 | 初始创建 — 基于 spec.md (FR-AGENT-SCOPE-001, 14 FR / 6 NFR / 7 EC)，产出架构分析、3 方案对比、推荐方案（混合指引范式 + 一次性全量改造）、2 个 ADR（ADR-001/002）、质量门槛 2 候选方案 | 2026-07-25 | SDDU Plan Agent |
