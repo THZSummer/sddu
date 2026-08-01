@@ -106,33 +106,28 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 
 ---
 
-### 2.7 时序图：文档传递与并行区间
+### 2.7 文档依赖图
 
-> 纵向展示 Agent 之间的文档交接时序。review/validate 的策略设计（C1~CN / V1~VN）在逻辑上可与 tasks→build 并行——图中灰色区块标注并行区间。
+> 箭头 = 产出/依赖关系。实线 = 正向建设流（每个阶段产出给下一阶段），虚线分叉 = plan 完成后 review/validate 直接产出策略文档（不依赖 tasks/build），实线回合 = build 产物触发报告产出。
 
 ```mermaid
-sequenceDiagram
-    participant D as discovery<br/>问题挖掘
-    participant S as spec<br/>需求定义
-    participant P as plan<br/>技术设计
-    participant TK as tasks<br/>任务排布
-    participant B as build<br/>实施构建
-    participant R as review<br/>产物审查
-    participant V as validate<br/>产物验证
-
-    D->>S: discovery.md
-    S->>P: spec.md
-    P->>TK: plan.md + ADR
-    TK->>B: tasks.json
+flowchart TD
+    D[discovery.md] -->|产出| S[spec.md]
+    S -->|产出| P[plan.md + ADR]
+    P -->|产出| TK[tasks.json]
+    TK -->|产出| B[产物 + build.md]
     
-    P-->>R: 产出 review.md（C1~CN 策略）
-    P-->>V: 产出 validate.md（V1~VN 策略）· 编写脚本
+    P -.->|策略设计| R_S[review.md<br/>C1~CN 审查清单]
+    P -.->|策略设计| V_S[validate.md<br/>V1~VN 验证场景]
     
-    B->>R: 产物 + build.md（触发审查执行）
+    B -->|触发执行| R_R[review-report.md<br/>审查报告]
+    R_R -->|输入| V_R[validate-report.md<br/>验证报告]
     
-    R->>V: review-report.md（审查报告）
-    V-->>V: validate-report.md（验证报告）
+    R_S -.->|输入| R_R
+    V_S -.->|输入| V_R
 ```
+
+> **图例**：方块 = 文档产物。实线 `-->` = 正向建设流（阶段产出传递）。虚线 `-.->` = 策略设计（不经过 tasks/build）。review.md / validate.md 由 review/validate Agent 自主产出，在 plan 完成后即可开始，不依赖 tasks/build。
 
 ---
 
