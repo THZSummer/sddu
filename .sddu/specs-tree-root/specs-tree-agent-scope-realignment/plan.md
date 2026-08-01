@@ -125,10 +125,8 @@ sequenceDiagram
     P->>TK: plan.md + ADR
     TK->>B: tasks.json
     
-    rect rgb(245, 245, 245)
-        R-->>R: 设计 C1~CN 审查清单
-        V-->>V: 设计 V1~VN · 编写脚本
-    end
+    P-->>R: （策略设计，不经过 tasks/build）
+    P-->>V: （策略设计 + 脚本编写）
     
     B->>R: 产物 + build.md
     
