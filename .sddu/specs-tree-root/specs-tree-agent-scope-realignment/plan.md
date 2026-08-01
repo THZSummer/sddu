@@ -112,23 +112,27 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 
 ```mermaid
 sequenceDiagram
+    participant D as discovery<br/>问题挖掘
     participant S as spec<br/>需求定义
     participant P as plan<br/>技术设计
-    participant TB as tasks→build<br/>实施
+    participant TK as tasks<br/>任务排布
+    participant B as build<br/>实施构建
     participant R as review<br/>产物审查
     participant V as validate<br/>产物验证
 
+    D->>S: discovery.md
     S->>P: spec.md
-    P->>TB: plan.md + ADR
+    P->>TK: plan.md + ADR
+    TK->>B: tasks.json
     
-    Note over R,V: ∥ 策略设计可与 tasks→build 并行
+    Note over R,V: ∥ 策略设计不依赖 tasks/build<br/>可与正向建设流并行
     
     rect rgb(245, 245, 245)
         R-->>R: 设计 C1~CN 审查清单
-        V-->>V: 设计 V1~VN 验证场景 · 编写脚本
+        V-->>V: 设计 V1~VN · 编写脚本
     end
     
-    TB->>R: 产物 + build.md
+    B->>R: 产物 + build.md
     
     R->>V: review.md + review-report.md
     V-->>V: validate.md + validate-report.md
