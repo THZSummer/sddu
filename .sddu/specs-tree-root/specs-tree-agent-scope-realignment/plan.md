@@ -4,7 +4,7 @@
 > **前置依赖**: spec.md（需求规范，14 FR / 6 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-07-25  
-> **版本**: v1.5
+> **版本**: v1.6
 > **更新人**: SDDU Plan Agent
 > **更新时间**: 2026-08-01
 > **更新说明**: v1.4 — 修正 §5 文件影响分析：移除 6 个 `.opencode/` MODIFY 条目（安装产物，由构建生成），只保留 `src/templates/` + `scripts/` 源文件目标
@@ -229,6 +229,9 @@ flowchart TD
 | MODIFY | `src/templates/outputs/sddu-validate.md.hbs` | 在 §1「验证概要」之后新增 §2「自主验证场景（V1~VN）」section——包含验证对象、验证步骤、预期结果、实测结果的条目模板；原 §2→§3、§3→§4、...、§7→§8，修订记录编号顺延为 §9 |
 | CREATE | `src/templates/outputs/sddu-validate-report.md.hbs` | 新建 — validate 报告文档模板：逐项验证结果（验证对象+步骤+预期+实测）、结论（通过/不通过/有条件通过）、验证脚本执行记录、修订记录 |
 | MODIFY | `scripts/build-agents.cjs` | 在文件头部注释中增加同步说明：明确 `src/templates/agents/*.hbs` 是源文件（source-of-truth），构建后生成 `.opencode/agents/` 和 `.opencode/plugins/sddu/agents/` 下的运行时副本。改造完成后运行 `npm run build` 即可同步全部产物 |
+| MODIFY | `src/templates/agents/sddu.md.hbs` | 路由感知更新 — ① §5.2 路由约束：明确 review/validate 的策略设计可在 plan 后路由（不依赖 tasks/build 完成）；② §6.2 推荐规则：补充二维时序引导，plan 完成后建议同时启动 tasks 和 review/validate 策略设计；③ 标注策略/报告文档拆分（review.md vs review-report.md，validate.md vs validate-report.md） |
+
+> **关于 @sddu 模板**：NG-004 禁止修改 coordinator 的运行时逻辑（状态机/路由代码），但 `src/templates/agents/sddu.md.hbs` 是 Agent 指令模板——与 plan/review/validate 模板同类，属于本次改造范围。更新内容：让 @sddu 感知二维时序（策略设计可与 build 并行）和策略/报告文档拆分。
 
 ---
 
@@ -355,6 +358,7 @@ review/validate 自主策略的"最低质量门槛"如何量化？以下是 2 �
 
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
+| v1.6 | §5 新增 sddu.md.hbs MODIFY 条目 — @sddu 路由模板感知二维时序和文档拆分 | 2026-08-01 | SDDU Coordinator |
 | v1.5 | 新增 §2.7 Agent 文档传递时序图（agent-scope-sequence.svg）—— 展示正向建设流与逆向检验流的并行区间 | 2026-08-01 | SDDU Coordinator |
 | v1.4 | 修正 §5 文件影响分析：移除 6 个 `.opencode/` MODIFY 条目（安装产物，由构建生成）；符合 README 「只改 src/ + npm run build」约束 | 2026-08-01 | SDDU Coordinator |
 | v1.3 | 新增 ADR-004：review/validate 策略与报告文档拆分；更新 §5 文件影响分析，新增 2 个输出模板文件 | 2026-08-01 | SDDU Coordinator |

@@ -1,213 +1,336 @@
 {
   "feature": "agent-scope-realignment",
   "feature_name": "plan/review/validate 职责回归改造",
-  "version": "v1.0",
-  "created_at": "2026-07-25",
-  "plan_ref": "plan.md (推荐方案 C：混合指引范式 + 一次性全量改造)",
-  "spec_ref": "spec.md (14 FR / 6 NFR / 7 EC)",
-  "quality_threshold": "选项1-数量基线法",
-  "reform_atomicity": "一次性全量改造",
+  "feature_id": "FR-AGENT-SCOPE-001",
+  "version": "v3.0",
+  "created_at": "2026-08-01",
+  "plan_ref": "plan.md (v1.6: ADR-001~004, README constraint, @sddu coordinator template routing update, mixed-strategy paradigm, atomic reform)",
+  "spec_ref": "spec.md (v1.1: 14 FR / 6 NFR / 7 EC)",
+  "quality_threshold": "选项1-数量基线法 (每个FR≥1个Cx/Vx，每维度至少1条)",
+  "reform_atomicity": "一次性全量改造 (src/templates/ + scripts/build-agents.cjs，.opencode/ 由构建生成)",
   "autonomous_strategy_paradigm": "混合方案（维度清单 + 结构化模板 + 质量门槛）",
+  "readme_constraint": "仅改 src/templates/ 源文件 + scripts/build-agents.cjs，禁止直接修改 .opencode/ 目录",
+  "coordinator_routing_update": "§5.2 二维时序路由约束 + §6.6 二维时序引导 + §3 文档拆分标注（plan v1.6 新增）",
   "summary": {
-    "total_tasks": 9,
+    "total_tasks": 12,
     "waves": 2,
-    "complexity_s": 4,
-    "complexity_m": 5,
-    "complexity_l": 0
+    "complexity_s": 3,
+    "complexity_m": 9,
+    "complexity_l": 0,
+    "create_tasks": 2,
+    "modify_tasks": 8,
+    "verify_tasks": 2
   },
   "tasks": [
     {
       "id": "TASK-001",
-      "name": "plan Agent 模板剥离",
+      "name": "plan Agent 源码模板 — 删除 §5.8/§5.9",
       "complexity": "M",
       "dependencies": [],
       "wave": 1,
       "fr": ["FR-001", "FR-002"],
-      "description": "删除 plan Agent plugin copy 和 runtime copy 中的 §5.8（产物审查策略）和 §5.9（产物验证策略）",
+      "adr": ["ADR-002"],
+      "description": "修改 src/templates/agents/sddu-plan.md.hbs：删除 §5.8「产物审查策略」(L112-116) 和 §5.9「产物验证策略」(L117-120)，确保 §5.7→§6 过渡连贯。此为 README 约束下的唯一修改入口——.opencode/ 副本由 npm run build 生成。",
       "files": [
-        {"operation": "MODIFY", "path": ".opencode/agents/sddu-plan.md", "change": "DELETE §5.8 (L112-116) + §5.9 (L117-120)"},
-        {"operation": "MODIFY", "path": ".opencode/plugins/sddu/agents/sddu-plan.md", "change": "DELETE §5.8 (L112-116) + §5.9 (L117-120)"}
+        {"operation": "MODIFY", "path": "src/templates/agents/sddu-plan.md.hbs", "change": "DELETE §5.8 (L112-116) + DELETE §5.9 (L117-120)；保留 §5.7→§6 过渡连续"}
       ],
       "verification": [
-        {"cmd": "grep -c '5\\.8.*产物审查策略' .opencode/agents/sddu-plan.md", "expected": "0"},
-        {"cmd": "grep -c '5\\.9.*产物验证策略' .opencode/agents/sddu-plan.md", "expected": "0"},
-        {"cmd": "grep -c '5\\.8.*产物审查策略' .opencode/plugins/sddu/agents/sddu-plan.md", "expected": "0"},
-        {"cmd": "grep -c '5\\.9.*产物验证策略' .opencode/plugins/sddu/agents/sddu-plan.md", "expected": "0"}
+        {"type": "grep-zero", "cmd": "grep -c '5\\.8.*产物审查策略' src/templates/agents/sddu-plan.md.hbs", "expected": "0", "desc": "§5.8 removed from source template"},
+        {"type": "grep-zero", "cmd": "grep -c '5\\.9.*产物验证策略' src/templates/agents/sddu-plan.md.hbs", "expected": "0", "desc": "§5.9 removed from source template"},
+        {"type": "grep-zero", "cmd": "grep -c '产物审查策略\\|产物验证策略' src/templates/agents/sddu-plan.md.hbs", "expected": "0", "desc": "No residue references"},
+        {"type": "grep-ge", "cmd": "grep -c '^## 6\\. 输出模板' src/templates/agents/sddu-plan.md.hbs", "expected": ">=1", "desc": "§6 section intact after deletion"}
       ]
     },
     {
       "id": "TASK-002",
-      "name": "review Agent 模板自主化",
+      "name": "review Agent 源码模板 — 自主化改写 + ADR-004 双文件产出",
       "complexity": "M",
       "dependencies": [],
       "wave": 1,
-      "fr": ["FR-005", "FR-006"],
-      "description": "改写 review Agent plugin copy 和 runtime copy 的 §1/§3/§6/§10，从被动消费 plan 审查策略改为自主定义 C1~CN 审查清单",
+      "fr": ["FR-005", "FR-006", "FR-007", "FR-013"],
+      "adr": ["ADR-001", "ADR-004"],
+      "description": "修改 src/templates/agents/sddu-review.md.hbs 的 5 处：(1) §1 角色定位改为自主策略模式（从 spec+plan+产物 中提取审查对象，运用 §5.1~5.4 四维度方法论自主定义 C1~CN，含质量门槛提示）；(2) §3 删除 plan 审查策略引用；(3) §6 替换为 C1~CN 引用；(4) §10 示例改为自主模式；(5) 新增 ADR-004 双文件产出指引（review.md 策略 + review-report.md 报告）。含 FR-013 向后兼容声明。",
       "files": [
-        {"operation": "MODIFY", "path": ".opencode/agents/sddu-review.md", "change": "REWRITE §1 (L16) + DELETE §3 ref (L39) + REWRITE §6 (L82) + UPDATE §10 example"},
-        {"operation": "MODIFY", "path": ".opencode/plugins/sddu/agents/sddu-review.md", "change": "REWRITE §1 (L16) + DELETE §3 ref (L39) + REWRITE §6 (L82) + UPDATE §10 example"}
+        {"operation": "MODIFY", "path": "src/templates/agents/sddu-review.md.hbs", "change": "REWRITE §1 (L16) - autonomous + 4-dimension methodology + quality threshold + backward compat；DELETE §3 ref (L39)；REWRITE §6 (L82) - C1~CN reference；UPDATE §10 example；ADD ADR-004 two-file guidance"}
       ],
       "verification": [
-        {"cmd": "grep -c 'plan\\.md.*产物审查策略' .opencode/agents/sddu-review.md", "expected": "0"},
-        {"cmd": "grep -c '自主.*spec.*plan' .opencode/agents/sddu-review.md", "expected": ">=1"},
-        {"cmd": "grep -c '审查的产物清单和基准见 plan' .opencode/agents/sddu-review.md", "expected": "0"},
-        {"cmd": "grep -c 'C1.*CN.*审查清单' .opencode/agents/sddu-review.md", "expected": ">=1"}
+        {"type": "grep-zero", "cmd": "grep -c 'plan\\.md.*产物审查策略' src/templates/agents/sddu-review.md.hbs", "expected": "0", "desc": "FR-005: §1 de-ref from plan strategy"},
+        {"type": "grep-ge", "cmd": "grep -c '自主.*spec.*plan' src/templates/agents/sddu-review.md.hbs", "expected": ">=1", "desc": "FR-005: §1 contains autonomous description"},
+        {"type": "grep-ge", "cmd": "grep -c '代码质量.*规范符合.*架构一致.*测试质量' src/templates/agents/sddu-review.md.hbs", "expected": ">=1", "desc": "FR-005: §1 references 4 review dimensions"},
+        {"type": "grep-zero", "cmd": "grep -c '审查的产物清单和基准见 plan' src/templates/agents/sddu-review.md.hbs", "expected": "0", "desc": "FR-006: §3 de-ref from plan strategy"},
+        {"type": "grep-ge", "cmd": "grep -c 'C1.*CN.*审查清单' src/templates/agents/sddu-review.md.hbs", "expected": ">=1", "desc": "FR-006: §6 contains C1~CN reference"},
+        {"type": "grep-ge", "cmd": "grep -c 'review-report\\.md' src/templates/agents/sddu-review.md.hbs", "expected": ">=1", "desc": "ADR-004: two-file output guidance present"},
+        {"type": "grep-ge", "cmd": "grep -ci '忽略\\|旧格式\\|backward\\|already completed' src/templates/agents/sddu-review.md.hbs", "expected": ">=1", "desc": "FR-013: backward compatibility declaration"}
       ]
     },
     {
       "id": "TASK-003",
-      "name": "validate Agent 模板自主化",
+      "name": "validate Agent 源码模板 — 自主化改写 + ADR-003 脚本归属 + ADR-004 双文件产出",
       "complexity": "M",
       "dependencies": [],
       "wave": 1,
-      "fr": ["FR-008", "FR-009"],
-      "description": "改写 validate Agent plugin copy 和 runtime copy 的 §1/§3/§5.0/§6/§10，从被动消费 plan 验证策略改为自主定义 V1~VN 验证场景",
+      "fr": ["FR-008", "FR-009", "FR-010", "FR-014"],
+      "adr": ["ADR-001", "ADR-003", "ADR-004"],
+      "description": "修改 src/templates/agents/sddu-validate.md.hbs 的 6 处：(1) §1 角色定位改为自主策略模式（从 spec+NFR+产物 中提取验证对象，运用 §5.1~5.5 五维度方法论自主定义 V1~VN，含质量门槛提示 + Feature 类型自适应）；(2) §3 删除 plan 验证策略引用；(3) §5.0 整体重写为「场景设计（自主）」——入口从读取 plan 验证策略改为自主设计；(4) §6 替换为 V1~VN 引用；(5) 新增 ADR-003 验证脚本归属声明（自主编写直接执行，不走 task→build，路径约定 /tmp/sddu-validate-<feature>-<timestamp>/）；(6) §10 示例改为自主模式。含 FR-014 向后兼容声明。",
       "files": [
-        {"operation": "MODIFY", "path": ".opencode/agents/sddu-validate.md", "change": "REWRITE §1 (L16-17) + DELETE §3 ref (L35) + REWRITE §5.0 (L51-69) + REWRITE §6 (L145) + UPDATE §10 example"},
-        {"operation": "MODIFY", "path": ".opencode/plugins/sddu/agents/sddu-validate.md", "change": "REWRITE §1 (L16-17) + DELETE §3 ref (L35) + REWRITE §5.0 (L51-69) + REWRITE §6 (L145) + UPDATE §10 example"}
+        {"operation": "MODIFY", "path": "src/templates/agents/sddu-validate.md.hbs", "change": "REWRITE §1 (L16-17) - autonomous + 5-dimension methodology + quality threshold + type-adaptive + backward compat；DELETE §3 ref (L35)；REWRITE §5.0 (L51-69) - title + entry + remove old fallback；REWRITE §6 (L145) - V1~VN reference；ADD ADR-003 script ownership (in §5.0 or role section)；ADD ADR-004 two-file guidance；UPDATE §10 example"}
       ],
       "verification": [
-        {"cmd": "grep -c '验证的第一步永远是读取 plan' .opencode/agents/sddu-validate.md", "expected": "0"},
-        {"cmd": "grep -c '自主.*spec.*NFR' .opencode/agents/sddu-validate.md", "expected": ">=1"},
-        {"cmd": "grep -c '场景验证（plan 驱动' .opencode/agents/sddu-validate.md", "expected": "0"},
-        {"cmd": "grep -c '场景设计（自主' .opencode/agents/sddu-validate.md", "expected": ">=1"},
-        {"cmd": "grep -c 'V1.*VN.*验证场景' .opencode/agents/sddu-validate.md", "expected": ">=1"},
-        {"cmd": "grep -c '如果 plan 中无.*产物验证策略.*跳过' .opencode/agents/sddu-validate.md", "expected": "0"}
+        {"type": "grep-zero", "cmd": "grep -c '验证的第一步永远是读取 plan' src/templates/agents/sddu-validate.md.hbs", "expected": "0", "desc": "FR-008: §1 de-ref from plan validation strategy"},
+        {"type": "grep-ge", "cmd": "grep -c '自主.*spec.*NFR' src/templates/agents/sddu-validate.md.hbs", "expected": ">=1", "desc": "FR-008: §1 contains autonomous description"},
+        {"type": "grep-ge", "cmd": "grep -c '测试覆盖.*接口.*构建.*性能.*漂移' src/templates/agents/sddu-validate.md.hbs", "expected": ">=1", "desc": "FR-008: §1 references 5 validation dimensions"},
+        {"type": "grep-zero", "cmd": "grep -c '验证的产物清单和基准见 plan' src/templates/agents/sddu-validate.md.hbs", "expected": "0", "desc": "FR-009: §3 de-ref from plan validation strategy"},
+        {"type": "grep-zero", "cmd": "grep -c '场景验证（plan 驱动' src/templates/agents/sddu-validate.md.hbs", "expected": "0", "desc": "FR-009: old §5.0 title removed"},
+        {"type": "grep-ge", "cmd": "grep -c '场景设计（自主' src/templates/agents/sddu-validate.md.hbs", "expected": ">=1", "desc": "FR-009: new §5.0 title '场景设计（自主）'"},
+        {"type": "grep-zero", "cmd": "grep -c '如果 plan 中无.*产物验证策略.*跳过' src/templates/agents/sddu-validate.md.hbs", "expected": "0", "desc": "FR-009: old fallback removed"},
+        {"type": "grep-ge", "cmd": "grep -c 'V1.*VN.*验证场景' src/templates/agents/sddu-validate.md.hbs", "expected": ">=1", "desc": "FR-009: §6 contains V1~VN reference"},
+        {"type": "grep-ge", "cmd": "grep -c '自主编写.*验证脚本\\|验证脚本.*不走.*task' src/templates/agents/sddu-validate.md.hbs", "expected": ">=1", "desc": "ADR-003: script ownership declaration present"},
+        {"type": "grep-ge", "cmd": "grep -c '/tmp/sddu-validate' src/templates/agents/sddu-validate.md.hbs", "expected": ">=1", "desc": "ADR-003: script path convention present"},
+        {"type": "grep-ge", "cmd": "grep -c 'validate-report\\.md' src/templates/agents/sddu-validate.md.hbs", "expected": ">=1", "desc": "ADR-004: two-file output guidance present"},
+        {"type": "grep-ge", "cmd": "grep -ci '忽略\\|旧格式\\|backward\\|already completed' src/templates/agents/sddu-validate.md.hbs", "expected": ">=1", "desc": "FR-014: backward compatibility declaration"}
       ]
     },
     {
       "id": "TASK-004",
-      "name": "Agent 源模板同步",
+      "name": "plan 输出模板 — 删除 §8/§9 + 修订记录重新编号 + migration note",
       "complexity": "M",
-      "dependencies": ["TASK-001", "TASK-002", "TASK-003 (建议依赖，非硬性)"],
+      "dependencies": [],
       "wave": 1,
-      "fr": ["FR-001", "FR-002", "FR-005", "FR-006", "FR-008", "FR-009"],
-      "description": "同步 src/templates/agents/ 下 3 个 .hbs 源模板文件，确保与 runtime/plugin copies 内容一致",
+      "fr": ["FR-003", "FR-004"],
+      "nfr": ["NFR-003"],
+      "description": "修改 src/templates/outputs/sddu-plan.md.hbs：(1) 删除 §8「产物审查策略」(L65-72)；(2) 删除 §9「产物验证策略」(L74-80)；(3) 原无编号的「修订记录」章节改为「## 8. 修订记录」；(4) 添加 HTML 注释格式的 migration note 说明 v3.0.0+ 已移除 §8/§9。",
       "files": [
-        {"operation": "MODIFY", "path": "src/templates/agents/sddu-plan.md.hbs", "change": "DELETE §5.8 (L112-116) + §5.9 (L117-120)"},
-        {"operation": "MODIFY", "path": "src/templates/agents/sddu-review.md.hbs", "change": "REWRITE §1/§3/§6/§10 (same as TASK-002)"},
-        {"operation": "MODIFY", "path": "src/templates/agents/sddu-validate.md.hbs", "change": "REWRITE §1/§3/§5.0/§6/§10 (same as TASK-003)"}
+        {"operation": "MODIFY", "path": "src/templates/outputs/sddu-plan.md.hbs", "change": "DELETE §8 (L65-72) + DELETE §9 (L74-80)；RENAME '修订记录' → '## 8. 修订记录'；ADD migration note (HTML comment)"}
       ],
       "verification": [
-        {"cmd": "grep -c '5\\.8.*产物审查策略' src/templates/agents/sddu-plan.md.hbs", "expected": "0"},
-        {"cmd": "grep -c 'plan\\.md.*产物审查策略' src/templates/agents/sddu-review.md.hbs", "expected": "0"},
-        {"cmd": "grep -c '验证的第一步永远是读取 plan' src/templates/agents/sddu-validate.md.hbs", "expected": "0"}
+        {"type": "grep-zero", "cmd": "grep -c '产物审查策略' src/templates/outputs/sddu-plan.md.hbs", "expected": "0", "desc": "FR-003: §8 removed from plan output template"},
+        {"type": "grep-zero", "cmd": "grep -c '产物验证策略' src/templates/outputs/sddu-plan.md.hbs", "expected": "0", "desc": "FR-004: §9 removed from plan output template"},
+        {"type": "grep-ge", "cmd": "grep -c '^## 8\\. 修订记录' src/templates/outputs/sddu-plan.md.hbs", "expected": ">=1", "desc": "Revision record renumbered to §8"},
+        {"type": "grep-ge", "cmd": "grep -c 'Migration.*§8.*§9.*removed' src/templates/outputs/sddu-plan.md.hbs", "expected": ">=1", "desc": "Migration note present"},
+        {"type": "grep-ge", "cmd": "grep -c '^## [5-7]\\. ' src/templates/outputs/sddu-plan.md.hbs", "expected": ">=1", "desc": "NFR-003: §5~§7 sections preserved intact"}
       ]
     },
     {
       "id": "TASK-005",
-      "name": "输出模板改造",
+      "name": "review 输出模板 — 新增 §2 自主审查清单 (C1~CN) + 章节重新编号",
       "complexity": "M",
       "dependencies": [],
       "wave": 1,
-      "fr": ["FR-003", "FR-004", "FR-007", "FR-010"],
-      "description": "修改 src/templates/outputs/ 下 3 个输出模板：删除 plan 输出模板的 §8/§9，新增 review/validate 输出模板的自主审查清单/验证场景 section",
+      "fr": ["FR-007"],
+      "adr": ["ADR-001", "ADR-004"],
+      "description": "修改 src/templates/outputs/sddu-review.md.hbs（专用于策略文档 review.md）：(1) 文档定位从「审查报告」改为「审查策略」；(2) 在 §1 与原 §2 之间新增「## 2. 自主审查清单（C1~CN）」section——含审查对象来源说明、四维度指引、审查清单表格（审查对象/基准/维度/方法）、数量基线法质量门槛；(3) 章节重新编号：原 §2→§3、§3→§4、§4→§5、§5→§6、修订记录→§7。",
       "files": [
-        {"operation": "MODIFY", "path": "src/templates/outputs/sddu-plan.md.hbs", "change": "DELETE §8 (L65-72) + §9 (L74-80) + add §8 revision-record numbering + add migration note"},
-        {"operation": "MODIFY", "path": "src/templates/outputs/sddu-review.md.hbs", "change": "ADD §2 自主审查清单（C1~CN）section + renumber §2→§7"},
-        {"operation": "MODIFY", "path": "src/templates/outputs/sddu-validate.md.hbs", "change": "ADD §2 自主验证场景（V1~VN）section + renumber §2→§9"}
+        {"operation": "MODIFY", "path": "src/templates/outputs/sddu-review.md.hbs", "change": "UPDATE doc positioning to '审查策略'；ADD §2 自主审查清单（C1~CN）with source description + dimension guide + checklist table + quality threshold；RENUMBER §2→§3 through 修订记录→§7"}
       ],
       "verification": [
-        {"cmd": "grep -c '产物审查策略' src/templates/outputs/sddu-plan.md.hbs", "expected": "0"},
-        {"cmd": "grep -c '产物验证策略' src/templates/outputs/sddu-plan.md.hbs", "expected": "0"},
-        {"cmd": "grep -c '自主审查清单.*C1.*CN' src/templates/outputs/sddu-review.md.hbs", "expected": ">=1"},
-        {"cmd": "grep -c '自主验证场景.*V1.*VN' src/templates/outputs/sddu-validate.md.hbs", "expected": ">=1"}
+        {"type": "grep-ge", "cmd": "grep -c '自主审查清单.*C1.*CN' src/templates/outputs/sddu-review.md.hbs", "expected": ">=1", "desc": "FR-007: §2 C1~CN section present"},
+        {"type": "grep-ge", "cmd": "grep -c '审查策略' src/templates/outputs/sddu-review.md.hbs", "expected": ">=1", "desc": "Document positioned as strategy (not report)"},
+        {"type": "grep-ge", "cmd": "grep -c '审查对象.*审查基准.*审查维度.*审查方法' src/templates/outputs/sddu-review.md.hbs", "expected": ">=1", "desc": "Checklist table column headers present"},
+        {"type": "grep-ge", "cmd": "grep -c '每个 FR.*≥.*1.*Cx\\|每.*维度.*至少.*1' src/templates/outputs/sddu-review.md.hbs", "expected": ">=1", "desc": "Quality threshold (quantity baseline) present"},
+        {"type": "grep-ge", "cmd": "grep -c '^## 2\\. 自主审查清单' src/templates/outputs/sddu-review.md.hbs", "expected": ">=1", "desc": "New §2 heading correct"},
+        {"type": "grep-ge", "cmd": "grep -c '^## 7\\. 修订记录' src/templates/outputs/sddu-review.md.hbs", "expected": ">=1", "desc": "Revision record renumbered to §7"}
       ]
     },
     {
       "id": "TASK-006",
-      "name": "build-agents.cjs 同步注释",
-      "complexity": "S",
-      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
-      "wave": 2,
-      "fr": ["FR-012-partial", "NFR-005"],
-      "description": "在 build-agents.cjs 头部注释块中添加 3 层文件同步关系说明注释",
+      "name": "review-report 输出模板 — 新建审查报告模板 (ADR-004)",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-007"],
+      "adr": ["ADR-004"],
+      "description": "新建 src/templates/outputs/sddu-review-report.md.hbs（专用于报告文档 review-report.md）。模板结构：§1 审查概要（含审查源 review.md 引用）、§2 逐项审查结果 C1~CN（详细表格 — 审查对象/基准/评估/发现/严重程度）、§3 审查维度汇总（四维度统计）、§4 阻塞问题、§5 改进建议、§6 结论（三态 + 理由）、修订记录。包含审查轮次字段（R1, R2…）支持多轮执行。",
       "files": [
-        {"operation": "MODIFY", "path": "scripts/build-agents.cjs", "change": "ADD sync-relationship comment block in header (after existing JSDoc, before closing */)"}
+        {"operation": "CREATE", "path": "src/templates/outputs/sddu-review-report.md.hbs", "change": "NEW file — review report template with per-item C1~CN results table, dimension summary, blocking items, suggestions, 3-state conclusion, review round field"}
       ],
       "verification": [
-        {"cmd": "grep -c '同步关系说明' scripts/build-agents.cjs", "expected": ">=1"},
-        {"cmd": "grep -c 'source-of-truth' scripts/build-agents.cjs", "expected": ">=1"},
-        {"cmd": "node -c scripts/build-agents.cjs", "expected": "SYNTAX_OK"}
+        {"type": "exists", "cmd": "test -f src/templates/outputs/sddu-review-report.md.hbs && echo 1 || echo 0", "expected": "1", "desc": "FR-007: review-report template file exists"},
+        {"type": "grep-ge", "cmd": "grep -c '逐项审查结果' src/templates/outputs/sddu-review-report.md.hbs", "expected": ">=1", "desc": "Per-item review results section present"},
+        {"type": "grep-ge", "cmd": "grep -c '审查轮次' src/templates/outputs/sddu-review-report.md.hbs", "expected": ">=1", "desc": "Review round field present"},
+        {"type": "grep-ge", "cmd": "grep -c '阻塞问题' src/templates/outputs/sddu-review-report.md.hbs", "expected": ">=1", "desc": "Blocking issues section present"},
+        {"type": "grep-ge", "cmd": "grep -c '改进建议' src/templates/outputs/sddu-review-report.md.hbs", "expected": ">=1", "desc": "Improvement suggestions section present"},
+        {"type": "grep-zero", "cmd": "grep -c '自主审查清单' src/templates/outputs/sddu-review-report.md.hbs", "expected": "0", "desc": "Report template does not contain strategy definition (separation verified)"}
       ]
     },
     {
       "id": "TASK-007",
-      "name": "构建兼容性验证",
-      "complexity": "S",
-      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
-      "wave": 2,
-      "fr": ["FR-012"],
-      "description": "运行 node build-agents.cjs 验证改造后的模板构建无错误",
-      "files": [],
+      "name": "validate 输出模板 — 新增 §2 自主验证场景 (V1~VN) + 章节重新编号",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-010"],
+      "adr": ["ADR-001", "ADR-004"],
+      "description": "修改 src/templates/outputs/sddu-validate.md.hbs（专用于策略文档 validate.md）：(1) 文档定位从「验证报告」改为「验证策略」；(2) 在 §1 与原 §2 之间新增「## 2. 自主验证场景（V1~VN）」section——含验证对象来源说明、Feature 类型自适应（代码/模板/配置/文档）、验证场景矩阵表格（验证对象/步骤/预期/维度/方法）、数量基线法质量门槛；(3) 章节重新编号：原 §2→§3 至 §7→§8、修订记录→§9。",
+      "files": [
+        {"operation": "MODIFY", "path": "src/templates/outputs/sddu-validate.md.hbs", "change": "UPDATE doc positioning to '验证策略'；ADD §2 自主验证场景（V1~VN）with source description + Feature type-adaptive + scenario matrix table + quality threshold；RENUMBER §2→§3 through 修订记录→§9"}
+      ],
       "verification": [
-        {"cmd": "node scripts/build-agents.cjs; echo EXIT_CODE=$?", "expected": "EXIT_CODE=0"},
-        {"cmd": "grep -c '5\\.8.*产物审查策略' dist/templates/agents/sddu-plan-sddu.md", "expected": "0"}
+        {"type": "grep-ge", "cmd": "grep -c '自主验证场景.*V1.*VN' src/templates/outputs/sddu-validate.md.hbs", "expected": ">=1", "desc": "FR-010: §2 V1~VN section present"},
+        {"type": "grep-ge", "cmd": "grep -c '验证策略' src/templates/outputs/sddu-validate.md.hbs", "expected": ">=1", "desc": "Document positioned as strategy (not report)"},
+        {"type": "grep-ge", "cmd": "grep -c '验证对象.*验证步骤.*预期结果.*验证维度.*验证方法' src/templates/outputs/sddu-validate.md.hbs", "expected": ">=1", "desc": "Scenario matrix table column headers present"},
+        {"type": "grep-ge", "cmd": "grep -c 'Feature.*类型.*自适应\\|代码类.*全维度\\|模板.*配置.*构建完整性' src/templates/outputs/sddu-validate.md.hbs", "expected": ">=1", "desc": "Feature type-adaptive logic present"},
+        {"type": "grep-ge", "cmd": "grep -c '每个 FR.*≥.*1.*Vx\\|每.*维度.*至少.*1' src/templates/outputs/sddu-validate.md.hbs", "expected": ">=1", "desc": "Quality threshold (quantity baseline) present"},
+        {"type": "grep-ge", "cmd": "grep -c '^## 2\\. 自主验证场景' src/templates/outputs/sddu-validate.md.hbs", "expected": ">=1", "desc": "New §2 heading correct"},
+        {"type": "grep-ge", "cmd": "grep -c '^## 9\\. 修订记录' src/templates/outputs/sddu-validate.md.hbs", "expected": ">=1", "desc": "Revision record renumbered to §9"}
       ]
     },
     {
       "id": "TASK-008",
-      "name": "内容正确性全面验证",
-      "complexity": "S",
-      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
-      "wave": 2,
-      "fr": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-010"],
-      "description": "执行全量 grep 验证脚本，逐项确认 FR-001~FR-010 的验收标准全部满足（数量基线法质量门槛）",
-      "files": [],
+      "name": "validate-report 输出模板 — 新建验证报告模板 (ADR-004 + ADR-003)",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-010"],
+      "adr": ["ADR-003", "ADR-004"],
+      "description": "新建 src/templates/outputs/sddu-validate-report.md.hbs（专用于报告文档 validate-report.md）。模板结构：§1 验证概要（含验证源 validate.md 引用）、§2 逐项验证结果 V1~VN（详细表格 — 验证对象/步骤/预期/实测/判定，含 ⏭️ 无法执行标注）、§3 验证详细信息（测试覆盖/接口数据/构建脚本/性能边界/漂移检测）、§4 验证脚本执行记录（ADR-003 落地 — 脚本文件/用途/对应场景/退出码/关键输出表 + 路径约定 /tmp/sddu-validate-<feature>-<timestamp>/）、§5 阻塞问题、§6 结论（三态 + 指标达标矩阵）、修订记录。",
+      "files": [
+        {"operation": "CREATE", "path": "src/templates/outputs/sddu-validate-report.md.hbs", "change": "NEW file — validate report template with per-item V1~VN results table (expected vs actual), validation script execution records (ADR-003), 3-state conclusion with metrics matrix, validation round field"}
+      ],
       "verification": [
-        {"cmd": "run full verification script (see tasks.md TASK-008)", "expected": "ALL PASS (21 checks, 0 failures)"}
+        {"type": "exists", "cmd": "test -f src/templates/outputs/sddu-validate-report.md.hbs && echo 1 || echo 0", "expected": "1", "desc": "FR-010: validate-report template file exists"},
+        {"type": "grep-ge", "cmd": "grep -c '逐项验证结果.*V1.*VN' src/templates/outputs/sddu-validate-report.md.hbs", "expected": ">=1", "desc": "Per-item validation results section present"},
+        {"type": "grep-ge", "cmd": "grep -c '验证脚本执行记录' src/templates/outputs/sddu-validate-report.md.hbs", "expected": ">=1", "desc": "ADR-003: script execution records section present"},
+        {"type": "grep-ge", "cmd": "grep -c '/tmp/sddu-validate' src/templates/outputs/sddu-validate-report.md.hbs", "expected": ">=1", "desc": "ADR-003: script path convention present in report"},
+        {"type": "grep-ge", "cmd": "grep -c '验证轮次' src/templates/outputs/sddu-validate-report.md.hbs", "expected": ">=1", "desc": "Validation round field present"},
+        {"type": "grep-ge", "cmd": "grep -c '预期结果.*实测结果' src/templates/outputs/sddu-validate-report.md.hbs", "expected": ">=1", "desc": "Expected vs actual comparison columns present"},
+        {"type": "grep-ge", "cmd": "grep -c '阻塞问题' src/templates/outputs/sddu-validate-report.md.hbs", "expected": ">=1", "desc": "Blocking issues section present"},
+        {"type": "grep-ge", "cmd": "grep -c '指标.*实测.*要求.*达标' src/templates/outputs/sddu-validate-report.md.hbs", "expected": ">=1", "desc": "Metrics compliance matrix present"},
+        {"type": "grep-zero", "cmd": "grep -c '验证场景矩阵\\|Feature.*类型.*自适应' src/templates/outputs/sddu-validate-report.md.hbs", "expected": "0", "desc": "Report template does not contain strategy definition (separation verified)"}
       ]
     },
     {
       "id": "TASK-009",
-      "name": "同步一致性验证",
+      "name": "build-agents.cjs — 同步关系说明注释",
       "complexity": "S",
-      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-012"],
+      "nfr": ["NFR-005"],
+      "description": "在 scripts/build-agents.cjs 头部 JSDoc 注释块内添加三层文件同步关系说明（源模板 source-of-truth → 构建产物 → 运行时副本），含修改流程、禁止操作和一致性验证规则。添加位置：现有注释末尾（*/ 之前）。不破坏脚本语法。",
+      "files": [
+        {"operation": "MODIFY", "path": "scripts/build-agents.cjs", "change": "ADD sync-relationship documentation block in header JSDoc comment: 3-layer file path model (source → build output → runtime copies), modification workflow, forbidden operations, consistency verification rules"}
+      ],
+      "verification": [
+        {"type": "grep-ge", "cmd": "grep -c 'source-of-truth' scripts/build-agents.cjs", "expected": ">=1", "desc": "source-of-truth keyword present"},
+        {"type": "grep-ge", "cmd": "grep -c '三层文件路径' scripts/build-agents.cjs", "expected": ">=1", "desc": "Three-layer path model documented"},
+        {"type": "grep-ge", "cmd": "grep -c '同步维护规则' scripts/build-agents.cjs", "expected": ">=1", "desc": "Sync maintenance rules documented"},
+        {"type": "syntax-check", "cmd": "node -c scripts/build-agents.cjs && echo SYNTAX_OK || echo SYNTAX_ERROR", "expected": "SYNTAX_OK", "desc": "Script syntax valid after modification"}
+      ]
+    },
+    {
+      "id": "TASK-010",
+      "name": "构建 + 同步验证",
+      "complexity": "S",
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-012"],
       "wave": 2,
-      "fr": ["FR-011", "NFR-001"],
-      "description": "逐对 diff plugin copy 与 runtime copy，确认 3 个 Agent 的双副本正文内容一致",
+      "fr": ["FR-011", "FR-012"],
+      "nfr": ["NFR-001"],
+      "description": "运行 npm run build 验证：(1) 构建退出码 0，无 ERROR；(2) .opencode/ 下的 plan/review/validate/coordinator Agent 副本已同步改造内容；(3) plugin copy 与 runtime copy 正文内容一致（排除 frontmatter diff）；(4) dist 目录下新输出模板文件存在。此为纯验证任务，不修改文件。",
       "files": [],
       "verification": [
-        {"cmd": "diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-plan.md) <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-plan.md)", "expected": "empty (no diff)"},
-        {"cmd": "diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-review.md) <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-review.md)", "expected": "empty (no diff)"},
-        {"cmd": "diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-validate.md) <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-validate.md)", "expected": "empty (no diff)"}
+        {"type": "exit-zero", "cmd": "npm run build 2>&1; echo EXIT_CODE=$?", "expected": "EXIT_CODE=0", "desc": "FR-012: build exits with code 0"},
+        {"type": "grep-zero", "cmd": "grep -c '5\\.8.*产物审查策略\\|5\\.9.*产物验证策略' .opencode/agents/sddu-plan.md", "expected": "0", "desc": "FR-001/002: runtime plan copy clean"},
+        {"type": "grep-ge", "cmd": "grep -c '自主.*spec.*plan' .opencode/agents/sddu-review.md", "expected": ">=1", "desc": "FR-005: runtime review copy autonomous"},
+        {"type": "grep-ge", "cmd": "grep -c '场景设计（自主' .opencode/agents/sddu-validate.md", "expected": ">=1", "desc": "FR-009: runtime validate copy autonomous"},
+        {"type": "grep-ge", "cmd": "grep -c '二维时序\|策略设计.*不依赖.*build' .opencode/agents/sddu.md", "expected": ">=1", "desc": "TASK-012: runtime coordinator 2D aware"},
+        {"type": "diff-zero", "cmd": "diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-plan.md) <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-plan.md) | wc -l", "expected": "0", "desc": "FR-011: plan plugin↔runtime body identical"},
+        {"type": "diff-zero", "cmd": "diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-review.md) <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-review.md) | wc -l", "expected": "0", "desc": "FR-011: review plugin↔runtime body identical"},
+        {"type": "diff-zero", "cmd": "diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-validate.md) <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-validate.md) | wc -l", "expected": "0", "desc": "FR-011: validate plugin↔runtime body identical"},
+        {"type": "exists", "cmd": "test -f dist/templates/output/sddu-review-report.md.hbs && echo 1 || echo 0", "expected": "1", "desc": "FR-007: review-report template in dist"},
+        {"type": "exists", "cmd": "test -f dist/templates/output/sddu-validate-report.md.hbs && echo 1 || echo 0", "expected": "1", "desc": "FR-010: validate-report template in dist"}
+      ]
+    },
+    {
+      "id": "TASK-011",
+      "name": "完整内容验证 — FR/NFR 全量验收",
+      "complexity": "S",
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-012", "TASK-010"],
+      "wave": 2,
+      "fr": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-010", "FR-011", "FR-012", "FR-013", "FR-014"],
+      "nfr": ["NFR-001", "NFR-002", "NFR-003", "NFR-004", "NFR-005", "NFR-006"],
+      "description": "执行全量自动化验收脚本（35+ 条 check），逐项确认 FR-001~FR-014 和 NFR-001~NFR-006 的全部验收标准，新增 TASK-012 coordinator 路由感知验证。此为数量基线法质量门槛的最终落地——使用 grep/diff 组合覆盖：(a) 源文件内容正确性（src/templates/）；(b) 构建产物一致性（.opencode/ copies）；(c) ADR-003/ADR-004 落地；(d) @sddu coordinator 二维时序感知；(e) 向后兼容声明。输出 pass/fail 矩阵，要求 0 fail。",
+      "files": [],
+      "verification": [
+        {"type": "script", "cmd": "run full verification bash script (see tasks.md TASK-011 verification commands)", "expected": "ALL PASS (35+ checks, 0 failures)", "desc": "NFR-006: Full automated FR/NFR verification — all checks pass including TASK-012 coordinator routing checks"}
+      ]
+    },
+    {
+      "id": "TASK-012",
+      "name": "@sddu coordinator 模板 — 路由感知二维时序 + 文档拆分",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "fr": [],
+      "adr": ["ADR-004"],
+      "description": "修改 src/templates/agents/sddu.md.hbs（计划 v1.6 新增）：(1) §5.2 路由约束新增二维时序约束——review/validate 策略设计不依赖 tasks/build，plan 完成后可并行路由；(2) 新增 §6.6 二维时序引导——plan 完成后建议同时启动 tasks（正向建设）和 review/validate 策略设计（逆向检验准备）；(3) §3 路由目标表中 review/validate 说明列标注策略设计可提前、报告执行需 build 完成。不修改运行时逻辑或状态机代码（符合 NG-004 约束）。",
+      "files": [
+        {"operation": "MODIFY", "path": "src/templates/agents/sddu.md.hbs", "change": "ADD 2D routing constraint in §5.2（strategy design doesn't depend on build）；ADD §6.6 2D timing guidance（正向建设链 + 逆向检验准备链并行）；UPDATE §3 routing target table（annotate doc split awareness）"}
+      ],
+      "verification": [
+        {"type": "grep-ge", "cmd": "grep -c '二维时序\\|策略设计.*不依赖.*build\\|策略设计.*不依赖.*tasks' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "§5.2: 2D routing constraint added"},
+        {"type": "grep-ge", "cmd": "grep -c '二维时序引导\\|正向建设链\\|逆向检验准备链\\|plan.*完成后.*同时.*review.*validate\\|策略设计.*并行' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "§6.6: 2D timing guidance present"},
+        {"type": "grep-ge", "cmd": "grep -c '策略设计可提前' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "§3: routing target table annotated with early-start capability"},
+        {"type": "grep-ge", "cmd": "grep -c 'review\\.md.*review-report\\.md\\|validate\\.md.*validate-report\\.md' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "ADR-004: document split awareness present in coordinator"},
+        {"type": "grep-ge", "cmd": "grep -c '^{{' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "NG-004 compliance: file still .hbs template format (not runtime code)"}
       ]
     }
   ],
   "fr_coverage": {
-    "FR-001": "TASK-001, TASK-004",
-    "FR-002": "TASK-001, TASK-004",
-    "FR-003": "TASK-005",
-    "FR-004": "TASK-005",
-    "FR-005": "TASK-002, TASK-004",
-    "FR-006": "TASK-002, TASK-004",
-    "FR-007": "TASK-005",
-    "FR-008": "TASK-003, TASK-004",
-    "FR-009": "TASK-003, TASK-004",
-    "FR-010": "TASK-005",
-    "FR-011": "TASK-009",
-    "FR-012": "TASK-006, TASK-007",
-    "FR-013": "implicit (no dedicated task; handled by review template self-design capability)",
-    "FR-014": "implicit (no dedicated task; handled by validate template self-design capability)"
+    "FR-001": "TASK-001, TASK-010, TASK-011",
+    "FR-002": "TASK-001, TASK-010, TASK-011",
+    "FR-003": "TASK-004, TASK-011",
+    "FR-004": "TASK-004, TASK-011",
+    "FR-005": "TASK-002, TASK-010, TASK-011",
+    "FR-006": "TASK-002, TASK-010, TASK-011",
+    "FR-007": "TASK-002, TASK-005, TASK-006, TASK-010, TASK-011",
+    "FR-008": "TASK-003, TASK-010, TASK-011",
+    "FR-009": "TASK-003, TASK-010, TASK-011",
+    "FR-010": "TASK-003, TASK-007, TASK-008, TASK-010, TASK-011",
+    "FR-011": "TASK-010, TASK-011",
+    "FR-012": "TASK-009, TASK-010, TASK-011",
+    "FR-013": "TASK-002, TASK-011",
+    "FR-014": "TASK-003, TASK-011"
+  },
+  "nfr_coverage": {
+    "NFR-001": "TASK-010, TASK-011",
+    "NFR-002": "TASK-011 (implicit — no file modification to completed Features)",
+    "NFR-003": "TASK-004, TASK-011",
+    "NFR-004": "TASK-002, TASK-003, TASK-005, TASK-007",
+    "NFR-005": "TASK-009, TASK-011",
+    "NFR-006": "TASK-011"
+  },
+  "adr_coverage": {
+    "ADR-001": {"title": "混合指引范式（维度清单 + 结构化模板 + 质量门槛）", "tasks": ["TASK-002", "TASK-003", "TASK-005", "TASK-007"]},
+    "ADR-002": {"title": "一次性全量改造（src/templates/ + scripts/，.opencode/ 由构建生成）", "tasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-012"]},
+    "ADR-003": {"title": "validate 验证脚本归属 — 自主编写直接执行，不走 task→build", "tasks": ["TASK-003", "TASK-008"]},
+    "ADR-004": {"title": "review/validate 策略与报告文档拆分", "tasks": ["TASK-002", "TASK-003", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-012"]}
   },
   "wave_plan": {
     "wave_1": {
-      "description": "无依赖任务，5 个 M 级全部并行。分别修改 3 个 Agent 的 2 份副本（运行时 + 插件）+ 源模板 + 输出模板。",
-      "tasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
+      "description": "10 个任务全部并行——分别修改 src/templates/agents/ (4 files: 3 Agent + 1 coordinator)、src/templates/outputs/ (3 MODIFY + 2 CREATE)、scripts/build-agents.cjs (1 MODIFY)。所有任务操作互不重叠的文件，可安全并行。",
+      "tasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-012"],
       "parallel": true,
-      "strategy": "5 tasks modify independent file groups — plan (2 files), review (2 files), validate (2 files), source templates (3 files), output templates (3 files). Zero overlap in modified files ensures safe parallel execution."
+      "complexity": "9M + 1S",
+      "strategy": "All 10 tasks modify independent file groups with zero overlap: plan agent (TASK-001), review agent (TASK-002), validate agent (TASK-003), coordinator (TASK-012), plan output (TASK-004), review output+report (TASK-005/006), validate output+report (TASK-007/008), build script (TASK-009). Safe for full parallel execution."
     },
     "wave_2": {
-      "description": "依赖 Wave 1 全部完成，4 个 S 级验证任务可并行。含 1 个修改任务（build-agents.cjs 注释）+ 3 个纯验证任务。",
-      "tasks": ["TASK-006", "TASK-007", "TASK-008", "TASK-009"],
+      "description": "2 个 S 级任务可并行——TASK-010 运行构建并验证产物同步，TASK-011 执行全量 FR/NFR 验收脚本（含 TASK-012 coordinator 路由感知验证）。依赖 Wave 1 所有源文件改造完成。",
+      "tasks": ["TASK-010", "TASK-011"],
       "parallel": true,
-      "strategy": "TASK-006 modifies build script header comment. TASK-007~009 are pure validation (no file modifications). All 4 can run in parallel after Wave 1 completes."
+      "complexity": "2S",
+      "strategy": "TASK-010 (build + sync verify) and TASK-011 (full grep verification including coordinator checks) can run in parallel. TASK-010 validates build output matches source; TASK-011 validates source file content correctness. Both are read-only verification tasks."
     }
   },
   "execution_notes": [
-    "TASK-004 source template sync can optionally wait for TASK-001~003 to complete first, then apply diffs — this is an efficiency optimization, not a hard dependency",
-    "TASK-001~003 each modify paired plugin+runtime copies; build agent should modify BOTH copies within the same task execution to avoid desync",
-    "Wave 2 S-level tasks can be batched: @sddu-build TASK-006~009",
-    "FR-013/FR-014 (backward compatibility) are implicitly handled by the review/validate template rewrites — old-format plan.md §8/§9 will be ignored by the new autonomous agents"
+    "README 约束：所有 Agent 模板变更只改 src/templates/agents/*.hbs，禁止直接修改 .opencode/agents/ 或 .opencode/plugins/sddu/agents/ 下的文件",
+    "TASK-001~003 各自只修改 1 个 Agent 源模板文件，TASK-012 修改 coordinator 源模板——可用 @sddu-build TASK-001~003 TASK-012 批量执行 4 个 Agent 模板",
+    "TASK-004~008 是输出模板操作（3 MODIFY + 2 CREATE），可用 @sddu-build TASK-004~008 批量执行",
+    "TASK-006 和 TASK-008 是全新文件创建（review-report / validate-report 输出模板），需 build Agent 生成完整模板内容",
+    "TASK-012（@sddu coordinator）更新 §5.2/§6.6/§3——不修改 runtime 逻辑，仅更新指令模板使其感知二维时序和文档拆分，符合 NG-004",
+    "Wave 2 的两个 S 级任务 (TASK-010, TASK-011) 可合并为一个 build 指令：@sddu-build TASK-010~011",
+    "TASK-010 中的 npm run build 会将 src/templates/ 的改造同步到 .opencode/ 副本（含 coordinator），是改造生效的关键步骤",
+    "FR-013/FR-014（向后兼容）隐式落地于 TASK-002/003 的模板改写——review/validate 模板中增加了对旧格式 plan.md §8/§9 的忽略声明",
+    "ADR-003（验证脚本归属）的核心落地在 TASK-003（validate Agent §5.0 中的脚本权限声明）和 TASK-008（validate-report 模板 §4 验证脚本执行记录）",
+    "ADR-004（策略/报告拆分）的核心落地在 TASK-002/003（Agent 模板双文件产出指引）、TASK-005/006（review 策略/报告模板拆分）、TASK-007/008（validate 策略/报告模板拆分）、TASK-012（coordinator 感知文档拆分）"
   ]
 }
