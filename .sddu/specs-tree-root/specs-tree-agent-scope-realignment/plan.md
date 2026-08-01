@@ -125,13 +125,13 @@ sequenceDiagram
     P->>TK: plan.md + ADR
     TK->>B: tasks.json
     
-    P-->>R: （策略设计，不经过 tasks/build）
-    P-->>V: （策略设计 + 脚本编写）
+    P-->>R: 产出 review.md（C1~CN 策略）
+    P-->>V: 产出 validate.md（V1~VN 策略）· 编写脚本
     
-    B->>R: 产物 + build.md
+    B->>R: 产物 + build.md（触发审查执行）
     
-    R->>V: review.md + review-report.md
-    V-->>V: validate.md + validate-report.md
+    R->>V: review-report.md（审查报告）
+    V-->>V: validate-report.md（验证报告）
 ```
 
 ---
