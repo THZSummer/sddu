@@ -7,27 +7,29 @@
 > **版本**: v3.0  
 > **更新人**: SDDU Tasks Agent  
 > **更新时间**: 2026-08-01  
-> **更新说明**: 基于 plan v1.6 重生成 — 新增 TASK-012（@sddu coordinator 模板路由感知更新：二维时序 + 策略/报告文档拆分感知）；任务从 11→12，M×9 / S×3，波次保持 2 个
+> **更新说明**: 基于 plan v1.6 重生成 — 新增 TASK-010（@sddu coordinator 模板路由感知更新：二维时序 + 策略/报告文档拆分感知）；任务从 11→12，M×9 / S×3，波次保持 2 个
 
 ## 1. 依赖拓扑总览
 > 任务依赖关系和执行顺序
 
 ```
-Wave 1 ─── (无依赖，9 个 M 级修改 + 1 个 S 级修改全部并行)
-  TASK-001 [M]  plan Agent 源码模板 — 删除 §5.8/§5.9
-  TASK-002 [M]  review Agent 源码模板 — §1/§3/§6/§10 自主化 + ADR-004 双文件产出指引
-  TASK-003 [M]  validate Agent 源码模板 — §1/§3/§5.0/§6/§10 自主化 + ADR-003 脚本归属
-  TASK-004 [M]  plan 输出模板 — 删除 §8/§9 + 修订记录编号 + migration note
-  TASK-005 [M]  review 输出模板 — 新增 §2 C1~CN + 章节重新编号
-  TASK-006 [M]  review-report 输出模板 — 新建审查报告模板 (ADR-004)
-  TASK-007 [M]  validate 输出模板 — 新增 §2 V1~VN + 章节重新编号
-  TASK-008 [M]  validate-report 输出模板 — 新建验证报告模板 (ADR-004)
+Wave 1: TASK-001~010 (10 tasks, all parallel)
+  TASK-001~003: Agent source templates
+    TASK-001 [M]  plan Agent 源码模板 — 删除 §5.8/§5.9
+    TASK-002 [M]  review Agent 源码模板 — §1/§3/§6/§10 自主化 + ADR-004 双文件产出指引
+    TASK-003 [M]  validate Agent 源码模板 — §1/§3/§5.0/§6/§10 自主化 + ADR-003 脚本归属
+  TASK-004~008: Output templates
+    TASK-004 [M]  plan 输出模板 — 删除 §8/§9 + 修订记录编号 + migration note
+    TASK-005 [M]  review 输出模板 — 新增 §2 C1~CN + 章节重新编号
+    TASK-006 [M]  review-report 输出模板 — 新建审查报告模板 (ADR-004)
+    TASK-007 [M]  validate 输出模板 — 新增 §2 V1~VN + 章节重新编号
+    TASK-008 [M]  validate-report 输出模板 — 新建验证报告模板 (ADR-004)
   TASK-009 [S]  build-agents.cjs — 头部增加同步关系说明注释
-  TASK-012 [M]  @sddu coordinator 模板 — 路由感知二维时序 + 文档拆分 (plan v1.6 新增)
+  TASK-010 [M]  @sddu coordinator 模板 — 路由感知二维时序 + 文档拆分 ← was TASK-012
 
-Wave 2 ─── (依赖 Wave 1 全部完成，2 个 S 级任务可并行)
-  TASK-010 [S]  构建 + 同步验证 — npm run build + diff 验证产物一致
-  TASK-011 [S]  完整内容验证 — grep 覆盖 FR-001~FR-014 + NFR-001~NFR-006 全部验收标准
+Wave 2: TASK-011~012 (2 tasks, parallel, depends on Wave 1)
+  TASK-011 [S]  构建验证 — npm run build + diff 验证产物一致 ← was TASK-010
+  TASK-012 [S]  验收 — grep 覆盖 FR-001~FR-014 + NFR-001~NFR-006 全部验收标准 ← was TASK-011
 ```
 
 ## 2. 任务列表
@@ -710,14 +712,94 @@ node -c scripts/build-agents.cjs && echo "PASS: syntax OK" || echo "FAIL: syntax
 
 ---
 
-### TASK-010: 构建 + 同步验证
+### TASK-010: @sddu coordinator 模板 — 路由感知二维时序 + 文档拆分
+
+> 更新 @sddu 路由调度专家模板，使其感知策略/报告文档拆分和二维时序（策略设计可与 build 并行）
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | M |
+| **前置依赖** | 无 |
+| **执行波次** | 1 |
+| **对应 FR** | 无直接 FR 映射（协调器感知更新，对应 plan §5 文件影响分析，NG-004 约束：不修改运行时逻辑，仅更新指令模板） |
+| **对应 ADR** | ADR-004（策略/报告文档拆分感知） |
+
+**描述**:
+修改 `src/templates/agents/sddu.md.hbs`——这是 @sddu 路由调度专家的 Agent 指令模板（源文件）。`.opencode/` 下的副本由 `npm run build` 生成。修改 3 处内容：
+
+1. **§5.2 路由约束**（L72-76）：在现有 4 条约束列表末尾新增 1 条约束：
+   ```
+   - ✅ **二维时序路由**：review/validate 的策略设计阶段（产出 review.md / validate.md 策略文档）不依赖 tasks/build 完成——plan 完成后即可路由到 review/validate 进行策略设计。报告执行阶段（产出 review-report.md / validate-report.md 报告文档）需等待 build 完成后再路由。@sddu 应感知这条二维时间线：plan 完成后可同时路由 tasks（向前建设）和 review/validate 策略设计（逆向检验准备），两条线并行不悖。
+   ```
+   这条约束打破原有的"线性串行"隐含假设——明确告知 @sddu：plan 完成后可以同时路由 `@sddu-tasks`（正向建设链）和 `@sddu-review`/`@sddu-validate` 的策略设计（逆向检验链），策略设计链不等待 build 完成。
+
+2. **§6.5 智能引导**（或新建 §6.6）：在仪表盘末尾「操作建议」之后、§7 标记命令之前，补充二维时序引导段落。最佳添加位置：§6.5 现有内容尾部（L132-133 之后）新增 `### 6.6 二维时序引导` 子章节：
+   ```
+   ### 6.6 二维时序引导
+   > plan 完成后，正向建设链和逆向检验准备链可并行推进
+   
+   当 Feature phase = planned 时，在操作建议中补充以下二维时序提示：
+   
+   **正向建设链**（串行依赖）：
+   tasks → build（产出实际产物）
+   
+   **逆向检验准备链**（与正向链并行，不依赖 tasks/build）：
+   review 策略设计（产出 review.md，定义 C1~CN 审查清单）
+   validate 策略设计（产出 validate.md，定义 V1~VN 验证场景）
+   
+   **执行建议**：
+   - plan 完成后，建议用户同时启动 `@sddu-tasks <feature>` 和 `@sddu-review <feature>` / `@sddu-validate <feature>` 策略设计
+   - 报告执行（产出 review-report.md / validate-report.md）需等待 build 完成后触发
+   ```
+
+3. **§3 路由目标**（L38-49）：更新路由目标表中 review/validate 的「说明」列，标注策略/报告文档拆分。在说明列中补充 `（策略设计可提前，不依赖 build）`。修改后表格如下：
+   ```
+   | @sddu-review | 6/7 | 产物审查（策略设计可提前，不依赖 build；报告执行需 build 完成） |
+   | @sddu-validate | 7/7 | 产物验证（策略设计可提前，不依赖 build；报告执行需 build 完成） |
+   ```
+
+**涉及文件**:
+
+| 操作 | 文件路径 |
+|:--:|------|
+| MODIFY | `src/templates/agents/sddu.md.hbs` |
+
+**验收标准**:
+- [ ] §5.2 路由约束包含新增的「二维时序路由」约束，明确策略设计不依赖 tasks/build
+- [ ] §6.6 二维时序引导章节存在（或等效内容在 §6.5 尾部），包含正向建设链和逆向检验准备链的并行说明
+- [ ] §3 路由目标表中 review/validate 的说明列标注了策略设计可提前
+- [ ] 模板中标注了策略/报告文档拆分概念（review.md vs review-report.md，validate.md vs validate-report.md）
+- [ ] 不修改运行时逻辑或状态机代码（仅改 Agent 指令模板文本，符合 NG-004 约束）
+
+**验证命令**:
+```bash
+# 1. §5.2 二维时序路由约束新增
+grep -c "二维时序\|策略设计.*不依赖.*build\|策略设计.*不依赖.*tasks" src/templates/agents/sddu.md.hbs
+
+# 2. §6.6（或等效于 §6 中的）二维时序引导
+grep -c "二维时序引导\|正向建设链\|逆向检验准备链\|plan.*完成后.*同时.*review.*validate\|策略设计.*并行" src/templates/agents/sddu.md.hbs
+
+# 3. §3 路由目标表标注
+grep -c "策略设计可提前" src/templates/agents/sddu.md.hbs
+
+# 4. 策略/报告文档拆分概念
+grep -c "review\.md.*review-report\.md\|validate\.md.*validate-report\.md" src/templates/agents/sddu.md.hbs
+
+# 5. NG-004 合规：不修改运行时逻辑（确认文件仍是 .hbs 模板格式）
+grep -c "{{" src/templates/agents/sddu.md.hbs
+head -5 src/templates/agents/sddu.md.hbs | grep -c "handelbars\|hbs\|template"
+```
+
+---
+
+### TASK-011: 构建 + 同步验证
 
 > 运行 npm run build，验证改造后的源模板可正确构建，并确认运行时副本与源模板一致
 
 | 属性 | 值 |
 |------|-----|
 | **复杂度** | S |
-| **前置依赖** | TASK-001~009, TASK-012（所有源文件改造完成） |
+| **前置依赖** | TASK-001~010（所有源文件改造完成） |
 | **执行波次** | 2 |
 | **对应 FR** | FR-011（模板副本同步）、FR-012（构建兼容性） |
 | **对应 NFR** | NFR-001（一致性） |
@@ -738,7 +820,7 @@ node -c scripts/build-agents.cjs && echo "PASS: syntax OK" || echo "FAIL: syntax
 - [ ] `.opencode/agents/sddu-plan.md` 不含 §5.8/§5.9
 - [ ] `.opencode/agents/sddu-review.md` 不含 plan 审查策略引用，§1 自主化
 - [ ] `.opencode/agents/sddu-validate.md` 不含 plan 验证策略引用，§5.0 自主化
-- [ ] `.opencode/agents/sddu.md` 包含二维时序路由感知（TASK-012 产物同步验证）
+- [ ] `.opencode/agents/sddu.md` 包含二维时序路由感知（TASK-010 产物同步验证）
 - [ ] 3 个 Agent 的 plugin copy 与 runtime copy 正文内容一致
 - [ ] dist 目录下新输出模板文件（sddu-review-report.md.hbs, sddu-validate-report.md.hbs）存在
 
@@ -779,14 +861,14 @@ ls -la dist/templates/output/sddu-validate-report.md.hbs 2>/dev/null && echo "PA
 
 ---
 
-### TASK-011: 完整内容验证 — FR/NFR 全量验收
+### TASK-012: 完整内容验证 — FR/NFR 全量验收
 
 > 执行全量 grep 验证脚本，逐项确认 FR-001~FR-014 和 NFR-001~NFR-006 的验收标准全部满足
 
 | 属性 | 值 |
 |------|-----|
 | **复杂度** | S |
-| **前置依赖** | TASK-001~009, TASK-012（所有改造） + TASK-010（构建完成） |
+| **前置依赖** | TASK-001~010（所有改造） + TASK-011（构建完成） |
 | **执行波次** | 2 |
 | **对应 FR** | FR-001~FR-014（集中验证） |
 | **对应 NFR** | NFR-001~NFR-006（集中验证） |
@@ -804,7 +886,7 @@ ls -la dist/templates/output/sddu-validate-report.md.hbs 2>/dev/null && echo "PA
 - FR-011: plugin ↔ runtime 副本同步一致性
 - FR-012: 构建兼容性
 - FR-013~FR-014: 向后兼容（review/validate 模板中的兼容声明）
-- NFR-001: 一致性（diff 验证已含于 TASK-010）
+- NFR-001: 一致性（diff 验证已含于 TASK-011）
 - NFR-002: 兼容性（不破坏已完成 Feature）
 - NFR-003: §5.5 格式向前兼容
 - NFR-004: 自主策略设计质量指引
@@ -885,9 +967,9 @@ check "FR-010 validate-report exists" 1 "$(test -f src/templates/outputs/sddu-va
 check "FR-010 validate-report content" 1 "$(grep -c '逐项验证结果.*V1.*VN' src/templates/outputs/sddu-validate-report.md.hbs 2>/dev/null || echo 0)"
 check "FR-010 validate-report scripts" 1 "$(grep -c '验证脚本执行记录' src/templates/outputs/sddu-validate-report.md.hbs 2>/dev/null || echo 0)"
 
-# ======== TASK-012: @sddu coordinator 路由感知 ========
-check "TASK-012 coordinator 2D timing" 1 "$(grep -c '二维时序\|策略设计.*不依赖.*build\|plan.*完成后.*同时.*review.*validate' src/templates/agents/sddu.md.hbs 2>/dev/null || echo 0)"
-check "TASK-012 coordinator doc split" 1 "$(grep -c '策略.*报告.*拆分\|review\.md.*review-report\.md\|validate\.md.*validate-report\.md' src/templates/agents/sddu.md.hbs 2>/dev/null || echo 0)"
+# ======== TASK-010: @sddu coordinator 路由感知 ========
+check "TASK-010 coordinator 2D timing" 1 "$(grep -c '二维时序\|策略设计.*不依赖.*build\|plan.*完成后.*同时.*review.*validate' src/templates/agents/sddu.md.hbs 2>/dev/null || echo 0)"
+check "TASK-010 coordinator doc split" 1 "$(grep -c '策略.*报告.*拆分\|review\.md.*review-report\.md\|validate\.md.*validate-report\.md' src/templates/agents/sddu.md.hbs 2>/dev/null || echo 0)"
 
 # ======== FR-011: 副本同步一致性 ========
 check "FR-011 plan sync" 0 "$(diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-plan.md 2>/dev/null) <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-plan.md 2>/dev/null) | wc -l)"
@@ -919,86 +1001,6 @@ echo "Failed       : $FAIL"
 
 ---
 
-### TASK-012: @sddu coordinator 模板 — 路由感知二维时序 + 文档拆分
-
-> 更新 @sddu 路由调度专家模板，使其感知策略/报告文档拆分和二维时序（策略设计可与 build 并行）
-
-| 属性 | 值 |
-|------|-----|
-| **复杂度** | M |
-| **前置依赖** | 无 |
-| **执行波次** | 1 |
-| **对应 FR** | 无直接 FR 映射（协调器感知更新，对应 plan §5 文件影响分析，NG-004 约束：不修改运行时逻辑，仅更新指令模板） |
-| **对应 ADR** | ADR-004（策略/报告文档拆分感知） |
-
-**描述**:
-修改 `src/templates/agents/sddu.md.hbs`——这是 @sddu 路由调度专家的 Agent 指令模板（源文件）。`.opencode/` 下的副本由 `npm run build` 生成。修改 3 处内容：
-
-1. **§5.2 路由约束**（L72-76）：在现有 4 条约束列表末尾新增 1 条约束：
-   ```
-   - ✅ **二维时序路由**：review/validate 的策略设计阶段（产出 review.md / validate.md 策略文档）不依赖 tasks/build 完成——plan 完成后即可路由到 review/validate 进行策略设计。报告执行阶段（产出 review-report.md / validate-report.md 报告文档）需等待 build 完成后再路由。@sddu 应感知这条二维时间线：plan 完成后可同时路由 tasks（向前建设）和 review/validate 策略设计（逆向检验准备），两条线并行不悖。
-   ```
-   这条约束打破原有的"线性串行"隐含假设——明确告知 @sddu：plan 完成后可以同时路由 `@sddu-tasks`（正向建设链）和 `@sddu-review`/`@sddu-validate` 的策略设计（逆向检验链），策略设计链不等待 build 完成。
-
-2. **§6.5 智能引导**（或新建 §6.6）：在仪表盘末尾「操作建议」之后、§7 标记命令之前，补充二维时序引导段落。最佳添加位置：§6.5 现有内容尾部（L132-133 之后）新增 `### 6.6 二维时序引导` 子章节：
-   ```
-   ### 6.6 二维时序引导
-   > plan 完成后，正向建设链和逆向检验准备链可并行推进
-   
-   当 Feature phase = planned 时，在操作建议中补充以下二维时序提示：
-   
-   **正向建设链**（串行依赖）：
-   tasks → build（产出实际产物）
-   
-   **逆向检验准备链**（与正向链并行，不依赖 tasks/build）：
-   review 策略设计（产出 review.md，定义 C1~CN 审查清单）
-   validate 策略设计（产出 validate.md，定义 V1~VN 验证场景）
-   
-   **执行建议**：
-   - plan 完成后，建议用户同时启动 `@sddu-tasks <feature>` 和 `@sddu-review <feature>` / `@sddu-validate <feature>` 策略设计
-   - 报告执行（产出 review-report.md / validate-report.md）需等待 build 完成后触发
-   ```
-
-3. **§3 路由目标**（L38-49）：更新路由目标表中 review/validate 的「说明」列，标注策略/报告文档拆分。在说明列中补充 `（策略设计可提前，不依赖 build）`。修改后表格如下：
-   ```
-   | @sddu-review | 6/7 | 产物审查（策略设计可提前，不依赖 build；报告执行需 build 完成） |
-   | @sddu-validate | 7/7 | 产物验证（策略设计可提前，不依赖 build；报告执行需 build 完成） |
-   ```
-
-**涉及文件**:
-
-| 操作 | 文件路径 |
-|:--:|------|
-| MODIFY | `src/templates/agents/sddu.md.hbs` |
-
-**验收标准**:
-- [ ] §5.2 路由约束包含新增的「二维时序路由」约束，明确策略设计不依赖 tasks/build
-- [ ] §6.6 二维时序引导章节存在（或等效内容在 §6.5 尾部），包含正向建设链和逆向检验准备链的并行说明
-- [ ] §3 路由目标表中 review/validate 的说明列标注了策略设计可提前
-- [ ] 模板中标注了策略/报告文档拆分概念（review.md vs review-report.md，validate.md vs validate-report.md）
-- [ ] 不修改运行时逻辑或状态机代码（仅改 Agent 指令模板文本，符合 NG-004 约束）
-
-**验证命令**:
-```bash
-# 1. §5.2 二维时序路由约束新增
-grep -c "二维时序\|策略设计.*不依赖.*build\|策略设计.*不依赖.*tasks" src/templates/agents/sddu.md.hbs
-
-# 2. §6.6（或等效于 §6 中的）二维时序引导
-grep -c "二维时序引导\|正向建设链\|逆向检验准备链\|plan.*完成后.*同时.*review.*validate\|策略设计.*并行" src/templates/agents/sddu.md.hbs
-
-# 3. §3 路由目标表标注
-grep -c "策略设计可提前" src/templates/agents/sddu.md.hbs
-
-# 4. 策略/报告文档拆分概念
-grep -c "review\.md.*review-report\.md\|validate\.md.*validate-report\.md" src/templates/agents/sddu.md.hbs
-
-# 5. NG-004 合规：不修改运行时逻辑（确认文件仍是 .hbs 模板格式）
-grep -c "{{" src/templates/agents/sddu.md.hbs
-head -5 src/templates/agents/sddu.md.hbs | grep -c "handelbars\|hbs\|template"
-```
-
----
-
 ## 3. 任务汇总
 > 任务数量、复杂度和波次的统计总览
 
@@ -1021,38 +1023,38 @@ head -5 src/templates/agents/sddu.md.hbs | grep -c "handelbars\|hbs\|template"
 **Wave 1（10 个任务全部并行）**：
 - TASK-001~TASK-008 全部修改 `src/templates/` 下不同文件，零重叠——各任务操作互不冲突
 - TASK-009 修改 `scripts/build-agents.cjs`，与模板操作互不冲突
-- TASK-012 修改 `src/templates/agents/sddu.md.hbs`（@sddu coordinator 模板），与 TASK-001~003 不同文件，不冲突
-- **效率提示**：TASK-001~003（Agent 源码模板 3 文件）+ TASK-012（coordinator 模板）可在一个 build 命令中批量执行 `@sddu-build TASK-001~003 TASK-012`
+- TASK-010 修改 `src/templates/agents/sddu.md.hbs`（@sddu coordinator 模板），与 TASK-001~003 不同文件，不冲突
+- **效率提示**：TASK-001~003（Agent 源码模板 3 文件）+ TASK-010（coordinator 模板）可在一个 build 命令中批量执行 `@sddu-build TASK-001~003 TASK-010`
 
 **Wave 2（依赖 Wave 1 全部完成）**：
-- TASK-010 运行构建将 `src/templates/` 的改造同步到 `.opencode/` 副本
-- TASK-011 执行全量验证脚本，确认所有 FR/NFR 验收标准通过
-- 两任务可并行（TASK-011 验证源文件，TASK-010 验证构建产物）
+- TASK-011 运行构建将 `src/templates/` 的改造同步到 `.opencode/` 副本
+- TASK-012 执行全量验证脚本，确认所有 FR/NFR 验收标准通过
+- 两任务可并行（TASK-012 验证源文件，TASK-011 验证构建产物）
 
 **关键约束**：
 - **禁止直接修改 `.opencode/` 下的文件**——所有 Agent 模板变更只改 `src/templates/agents/*.hbs`，由 `npm run build` 生成运行时副本（README 约束）
 - TASK-006、TASK-008 是新文件创建（CREATE），其余为文件修改（MODIFY）
-- S 级任务（TASK-009, TASK-010, TASK-011）可在一个 build 指令中批量执行
-- TASK-012 是 plan v1.6 新增项——@sddu coordinator 模板不修改运行时逻辑（符合 NG-004），仅更新 Agent 指令模板使其感知二维时序和文档拆分
+- S 级任务（TASK-009, TASK-011, TASK-012）可在一个 build 指令中批量执行
+- TASK-010 是 plan v1.6 新增项——@sddu coordinator 模板不修改运行时逻辑（符合 NG-004），仅更新 Agent 指令模板使其感知二维时序和文档拆分
 
 **FR 覆盖矩阵**：
 
 | FR | TASK-001 | TASK-002 | TASK-003 | TASK-004 | TASK-005 | TASK-006 | TASK-007 | TASK-008 | TASK-009 | TASK-010 | TASK-011 | TASK-012 |
 |----|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| FR-001 | ✅ | | | | | | | | | ✅ | ✅ | |
-| FR-002 | ✅ | | | | | | | | | ✅ | ✅ | |
-| FR-003 | | | | ✅ | | | | | | | ✅ | |
-| FR-004 | | | | ✅ | | | | | | | ✅ | |
-| FR-005 | | ✅ | | | | | | | | ✅ | ✅ | |
-| FR-006 | | ✅ | | | | | | | | ✅ | ✅ | |
-| FR-007 | | ✅ | | | ✅ | ✅ | | | | | ✅ | |
-| FR-008 | | | ✅ | | | | | | | ✅ | ✅ | |
-| FR-009 | | | ✅ | | | | | | | ✅ | ✅ | |
-| FR-010 | | | ✅ | | | | ✅ | ✅ | | | ✅ | |
-| FR-011 | | | | | | | | | | ✅ | ✅ | |
-| FR-012 | | | | | | | | | ✅ | ✅ | ✅ | |
-| FR-013 | | ✅ | | | | | | | | | ✅ | |
-| FR-014 | | | ✅ | | | | | | | | ✅ | |
+| FR-001 | ✅ | | | | | | | | | | ✅ | ✅ |
+| FR-002 | ✅ | | | | | | | | | | ✅ | ✅ |
+| FR-003 | | | | ✅ | | | | | | | | ✅ |
+| FR-004 | | | | ✅ | | | | | | | | ✅ |
+| FR-005 | | ✅ | | | | | | | | | ✅ | ✅ |
+| FR-006 | | ✅ | | | | | | | | | ✅ | ✅ |
+| FR-007 | | ✅ | | | ✅ | ✅ | | | | | | ✅ |
+| FR-008 | | | ✅ | | | | | | | | ✅ | ✅ |
+| FR-009 | | | ✅ | | | | | | | | ✅ | ✅ |
+| FR-010 | | | ✅ | | | | ✅ | ✅ | | | | ✅ |
+| FR-011 | | | | | | | | | | | ✅ | ✅ |
+| FR-012 | | | | | | | | | ✅ | | ✅ | ✅ |
+| FR-013 | | ✅ | | | | | | | | | | ✅ |
+| FR-014 | | | ✅ | | | | | | | | | ✅ |
 
 **ADR 覆盖矩阵**：
 
@@ -1061,13 +1063,14 @@ head -5 src/templates/agents/sddu.md.hbs | grep -c "handelbars\|hbs\|template"
 | ADR-001 | 混合指引范式（维度清单 + 结构化模板 + 质量门槛） | TASK-002, TASK-003, TASK-005, TASK-007 |
 | ADR-002 | 一次性全量改造（src/templates/ + scripts/） | 所有 Wave 1 任务 |
 | ADR-003 | validate 验证脚本归属 | TASK-003, TASK-008 |
-| ADR-004 | review/validate 策略与报告文档拆分 | TASK-002, TASK-003, TASK-005, TASK-006, TASK-007, TASK-008, **TASK-012** |
+| ADR-004 | review/validate 策略与报告文档拆分 | TASK-002, TASK-003, TASK-005, TASK-006, TASK-007, TASK-008, **TASK-010** |
 
 ## 修订记录
 > 记录本文档的版本变更历史
 
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
-| v3.0 | 基于 plan v1.6 重生成 — 新增 TASK-012（@sddu coordinator 模板路由感知更新：§5.2 二维时序路由约束、§6.6 二维时序引导、§3 文档拆分标注）；任务从 11→12，M×9 / S×3，波次保持 2；TASK-010/011 前置依赖扩展至 TASK-012；ADR-004 覆盖矩阵加入 TASK-012 | 2026-08-01 | SDDU Tasks Agent |
+| v3.1 | 任务排序修正 — 将 TASK-012（@sddu coordinator 模板）移至 Wave 1 的 TASK-010 位置（紧随 TASK-009 之后），原 TASK-010/011（构建验证/验收）顺延为 TASK-011/012，全文件引用同步重映射 | 2026-08-01 | SDDU Tasks Agent |
+| v3.0 | 基于 plan v1.6 重生成 — 新增 TASK-010（@sddu coordinator 模板路由感知更新：§5.2 二维时序路由约束、§6.6 二维时序引导、§3 文档拆分标注）；任务从 11→12，M×9 / S×3，波次保持 2；TASK-011/012 前置依赖扩展至 TASK-010；ADR-004 覆盖矩阵加入 TASK-010 | 2026-08-01 | SDDU Tasks Agent |
 | v2.0 | 基于 plan v1.5 重生成 — 遵守 README 约束（仅改 `src/templates/` + `scripts/`，`.opencode/` 由构建生成）；新增 TASK-006/008（review-report/validate-report 输出模板，ADR-004）；TASK-003 增加 ADR-003 脚本归属；任务从 9 个增至 11 个 | 2026-08-01 | SDDU Tasks Agent |
 | v1.0 | 初始创建 — 基于 plan v1.0 + spec v1.0，9 个任务、2 个波次 | 2026-07-25 | SDDU Tasks Agent |

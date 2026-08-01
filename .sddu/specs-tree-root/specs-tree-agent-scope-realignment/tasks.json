@@ -219,9 +219,29 @@
     },
     {
       "id": "TASK-010",
+      "name": "@sddu coordinator 模板 — 路由感知二维时序 + 文档拆分",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "fr": [],
+      "adr": ["ADR-004"],
+      "description": "修改 src/templates/agents/sddu.md.hbs（计划 v1.6 新增）：(1) §5.2 路由约束新增二维时序约束——review/validate 策略设计不依赖 tasks/build，plan 完成后可并行路由；(2) 新增 §6.6 二维时序引导——plan 完成后建议同时启动 tasks（正向建设）和 review/validate 策略设计（逆向检验准备）；(3) §3 路由目标表中 review/validate 说明列标注策略设计可提前、报告执行需 build 完成。不修改运行时逻辑或状态机代码（符合 NG-004 约束）。",
+      "files": [
+        {"operation": "MODIFY", "path": "src/templates/agents/sddu.md.hbs", "change": "ADD 2D routing constraint in §5.2（策略设计 doesn't depend on build）；ADD §6.6 2D timing guidance（正向建设链 + 逆向检验准备链并行）；UPDATE §3 routing target table（annotate doc split awareness）"}
+      ],
+      "verification": [
+        {"type": "grep-ge", "cmd": "grep -c '二维时序\\|策略设计.*不依赖.*build\\|策略设计.*不依赖.*tasks' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "§5.2: 2D routing constraint added"},
+        {"type": "grep-ge", "cmd": "grep -c '二维时序引导\\|正向建设链\\|逆向检验准备链\\|plan.*完成后.*同时.*review.*validate\\|策略设计.*并行' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "§6.6: 2D timing guidance present"},
+        {"type": "grep-ge", "cmd": "grep -c '策略设计可提前' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "§3: routing target table annotated with early-start capability"},
+        {"type": "grep-ge", "cmd": "grep -c 'review\\.md.*review-report\\.md\\|validate\\.md.*validate-report\\.md' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "ADR-004: document split awareness present in coordinator"},
+        {"type": "grep-ge", "cmd": "grep -c '^{{' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "NG-004 compliance: file still .hbs template format (not runtime code)"}
+      ]
+    },
+    {
+      "id": "TASK-011",
       "name": "构建 + 同步验证",
       "complexity": "S",
-      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-012"],
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-010"],
       "wave": 2,
       "fr": ["FR-011", "FR-012"],
       "nfr": ["NFR-001"],
@@ -232,7 +252,7 @@
         {"type": "grep-zero", "cmd": "grep -c '5\\.8.*产物审查策略\\|5\\.9.*产物验证策略' .opencode/agents/sddu-plan.md", "expected": "0", "desc": "FR-001/002: runtime plan copy clean"},
         {"type": "grep-ge", "cmd": "grep -c '自主.*spec.*plan' .opencode/agents/sddu-review.md", "expected": ">=1", "desc": "FR-005: runtime review copy autonomous"},
         {"type": "grep-ge", "cmd": "grep -c '场景设计（自主' .opencode/agents/sddu-validate.md", "expected": ">=1", "desc": "FR-009: runtime validate copy autonomous"},
-        {"type": "grep-ge", "cmd": "grep -c '二维时序\|策略设计.*不依赖.*build' .opencode/agents/sddu.md", "expected": ">=1", "desc": "TASK-012: runtime coordinator 2D aware"},
+        {"type": "grep-ge", "cmd": "grep -c '二维时序\\|策略设计.*不依赖.*build' .opencode/agents/sddu.md", "expected": ">=1", "desc": "TASK-010: runtime coordinator 2D aware"},
         {"type": "diff-zero", "cmd": "diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-plan.md) <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-plan.md) | wc -l", "expected": "0", "desc": "FR-011: plan plugin↔runtime body identical"},
         {"type": "diff-zero", "cmd": "diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-review.md) <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-review.md) | wc -l", "expected": "0", "desc": "FR-011: review plugin↔runtime body identical"},
         {"type": "diff-zero", "cmd": "diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-validate.md) <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-validate.md) | wc -l", "expected": "0", "desc": "FR-011: validate plugin↔runtime body identical"},
@@ -241,96 +261,76 @@
       ]
     },
     {
-      "id": "TASK-011",
+      "id": "TASK-012",
       "name": "完整内容验证 — FR/NFR 全量验收",
       "complexity": "S",
-      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-012", "TASK-010"],
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-010", "TASK-011"],
       "wave": 2,
       "fr": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-010", "FR-011", "FR-012", "FR-013", "FR-014"],
       "nfr": ["NFR-001", "NFR-002", "NFR-003", "NFR-004", "NFR-005", "NFR-006"],
-      "description": "执行全量自动化验收脚本（35+ 条 check），逐项确认 FR-001~FR-014 和 NFR-001~NFR-006 的全部验收标准，新增 TASK-012 coordinator 路由感知验证。此为数量基线法质量门槛的最终落地——使用 grep/diff 组合覆盖：(a) 源文件内容正确性（src/templates/）；(b) 构建产物一致性（.opencode/ copies）；(c) ADR-003/ADR-004 落地；(d) @sddu coordinator 二维时序感知；(e) 向后兼容声明。输出 pass/fail 矩阵，要求 0 fail。",
+      "description": "执行全量自动化验收脚本（35+ 条 check），逐项确认 FR-001~FR-014 和 NFR-001~NFR-006 的全部验收标准，新增 TASK-010 coordinator 路由感知验证。此为数量基线法质量门槛的最终落地——使用 grep/diff 组合覆盖：(a) 源文件内容正确性（src/templates/）；(b) 构建产物一致性（.opencode/ copies）；(c) ADR-003/ADR-004 落地；(d) @sddu coordinator 二维时序感知；(e) 向后兼容声明。输出 pass/fail 矩阵，要求 0 fail。",
       "files": [],
       "verification": [
-        {"type": "script", "cmd": "run full verification bash script (see tasks.md TASK-011 verification commands)", "expected": "ALL PASS (35+ checks, 0 failures)", "desc": "NFR-006: Full automated FR/NFR verification — all checks pass including TASK-012 coordinator routing checks"}
-      ]
-    },
-    {
-      "id": "TASK-012",
-      "name": "@sddu coordinator 模板 — 路由感知二维时序 + 文档拆分",
-      "complexity": "M",
-      "dependencies": [],
-      "wave": 1,
-      "fr": [],
-      "adr": ["ADR-004"],
-      "description": "修改 src/templates/agents/sddu.md.hbs（计划 v1.6 新增）：(1) §5.2 路由约束新增二维时序约束——review/validate 策略设计不依赖 tasks/build，plan 完成后可并行路由；(2) 新增 §6.6 二维时序引导——plan 完成后建议同时启动 tasks（正向建设）和 review/validate 策略设计（逆向检验准备）；(3) §3 路由目标表中 review/validate 说明列标注策略设计可提前、报告执行需 build 完成。不修改运行时逻辑或状态机代码（符合 NG-004 约束）。",
-      "files": [
-        {"operation": "MODIFY", "path": "src/templates/agents/sddu.md.hbs", "change": "ADD 2D routing constraint in §5.2（strategy design doesn't depend on build）；ADD §6.6 2D timing guidance（正向建设链 + 逆向检验准备链并行）；UPDATE §3 routing target table（annotate doc split awareness）"}
-      ],
-      "verification": [
-        {"type": "grep-ge", "cmd": "grep -c '二维时序\\|策略设计.*不依赖.*build\\|策略设计.*不依赖.*tasks' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "§5.2: 2D routing constraint added"},
-        {"type": "grep-ge", "cmd": "grep -c '二维时序引导\\|正向建设链\\|逆向检验准备链\\|plan.*完成后.*同时.*review.*validate\\|策略设计.*并行' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "§6.6: 2D timing guidance present"},
-        {"type": "grep-ge", "cmd": "grep -c '策略设计可提前' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "§3: routing target table annotated with early-start capability"},
-        {"type": "grep-ge", "cmd": "grep -c 'review\\.md.*review-report\\.md\\|validate\\.md.*validate-report\\.md' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "ADR-004: document split awareness present in coordinator"},
-        {"type": "grep-ge", "cmd": "grep -c '^{{' src/templates/agents/sddu.md.hbs", "expected": ">=1", "desc": "NG-004 compliance: file still .hbs template format (not runtime code)"}
+        {"type": "script", "cmd": "run full verification bash script (see tasks.md TASK-012 verification commands)", "expected": "ALL PASS (35+ checks, 0 failures)", "desc": "NFR-006: Full automated FR/NFR verification — all checks pass including TASK-010 coordinator routing checks"}
       ]
     }
   ],
   "fr_coverage": {
-    "FR-001": "TASK-001, TASK-010, TASK-011",
-    "FR-002": "TASK-001, TASK-010, TASK-011",
-    "FR-003": "TASK-004, TASK-011",
-    "FR-004": "TASK-004, TASK-011",
-    "FR-005": "TASK-002, TASK-010, TASK-011",
-    "FR-006": "TASK-002, TASK-010, TASK-011",
-    "FR-007": "TASK-002, TASK-005, TASK-006, TASK-010, TASK-011",
-    "FR-008": "TASK-003, TASK-010, TASK-011",
-    "FR-009": "TASK-003, TASK-010, TASK-011",
-    "FR-010": "TASK-003, TASK-007, TASK-008, TASK-010, TASK-011",
-    "FR-011": "TASK-010, TASK-011",
-    "FR-012": "TASK-009, TASK-010, TASK-011",
-    "FR-013": "TASK-002, TASK-011",
-    "FR-014": "TASK-003, TASK-011"
+    "FR-001": "TASK-001, TASK-011, TASK-012",
+    "FR-002": "TASK-001, TASK-011, TASK-012",
+    "FR-003": "TASK-004, TASK-012",
+    "FR-004": "TASK-004, TASK-012",
+    "FR-005": "TASK-002, TASK-011, TASK-012",
+    "FR-006": "TASK-002, TASK-011, TASK-012",
+    "FR-007": "TASK-002, TASK-005, TASK-006, TASK-011, TASK-012",
+    "FR-008": "TASK-003, TASK-011, TASK-012",
+    "FR-009": "TASK-003, TASK-011, TASK-012",
+    "FR-010": "TASK-003, TASK-007, TASK-008, TASK-011, TASK-012",
+    "FR-011": "TASK-011, TASK-012",
+    "FR-012": "TASK-009, TASK-011, TASK-012",
+    "FR-013": "TASK-002, TASK-012",
+    "FR-014": "TASK-003, TASK-012"
   },
   "nfr_coverage": {
-    "NFR-001": "TASK-010, TASK-011",
-    "NFR-002": "TASK-011 (implicit — no file modification to completed Features)",
-    "NFR-003": "TASK-004, TASK-011",
+    "NFR-001": "TASK-011, TASK-012",
+    "NFR-002": "TASK-012 (implicit — no file modification to completed Features)",
+    "NFR-003": "TASK-004, TASK-012",
     "NFR-004": "TASK-002, TASK-003, TASK-005, TASK-007",
-    "NFR-005": "TASK-009, TASK-011",
-    "NFR-006": "TASK-011"
+    "NFR-005": "TASK-009, TASK-012",
+    "NFR-006": "TASK-012"
   },
   "adr_coverage": {
     "ADR-001": {"title": "混合指引范式（维度清单 + 结构化模板 + 质量门槛）", "tasks": ["TASK-002", "TASK-003", "TASK-005", "TASK-007"]},
-    "ADR-002": {"title": "一次性全量改造（src/templates/ + scripts/，.opencode/ 由构建生成）", "tasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-012"]},
+    "ADR-002": {"title": "一次性全量改造（src/templates/ + scripts/，.opencode/ 由构建生成）", "tasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-010"]},
     "ADR-003": {"title": "validate 验证脚本归属 — 自主编写直接执行，不走 task→build", "tasks": ["TASK-003", "TASK-008"]},
-    "ADR-004": {"title": "review/validate 策略与报告文档拆分", "tasks": ["TASK-002", "TASK-003", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-012"]}
+    "ADR-004": {"title": "review/validate 策略与报告文档拆分", "tasks": ["TASK-002", "TASK-003", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-010"]}
   },
   "wave_plan": {
     "wave_1": {
       "description": "10 个任务全部并行——分别修改 src/templates/agents/ (4 files: 3 Agent + 1 coordinator)、src/templates/outputs/ (3 MODIFY + 2 CREATE)、scripts/build-agents.cjs (1 MODIFY)。所有任务操作互不重叠的文件，可安全并行。",
-      "tasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-012"],
+      "tasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-008", "TASK-009", "TASK-010"],
       "parallel": true,
       "complexity": "9M + 1S",
-      "strategy": "All 10 tasks modify independent file groups with zero overlap: plan agent (TASK-001), review agent (TASK-002), validate agent (TASK-003), coordinator (TASK-012), plan output (TASK-004), review output+report (TASK-005/006), validate output+report (TASK-007/008), build script (TASK-009). Safe for full parallel execution."
+      "strategy": "All 10 tasks modify independent file groups with zero overlap: plan agent (TASK-001), review agent (TASK-002), validate agent (TASK-003), coordinator (TASK-010), plan output (TASK-004), review output+report (TASK-005/006), validate output+report (TASK-007/008), build script (TASK-009). Safe for full parallel execution."
     },
     "wave_2": {
-      "description": "2 个 S 级任务可并行——TASK-010 运行构建并验证产物同步，TASK-011 执行全量 FR/NFR 验收脚本（含 TASK-012 coordinator 路由感知验证）。依赖 Wave 1 所有源文件改造完成。",
-      "tasks": ["TASK-010", "TASK-011"],
+      "description": "2 个 S 级任务可并行——TASK-011 运行构建并验证产物同步，TASK-012 执行全量 FR/NFR 验收脚本（含 TASK-010 coordinator 路由感知验证）。依赖 Wave 1 所有源文件改造完成。",
+      "tasks": ["TASK-011", "TASK-012"],
       "parallel": true,
       "complexity": "2S",
-      "strategy": "TASK-010 (build + sync verify) and TASK-011 (full grep verification including coordinator checks) can run in parallel. TASK-010 validates build output matches source; TASK-011 validates source file content correctness. Both are read-only verification tasks."
+      "strategy": "TASK-011 (build + sync verify) and TASK-012 (full grep verification including coordinator checks) can run in parallel. TASK-011 validates build output matches source; TASK-012 validates source file content correctness. Both are read-only verification tasks."
     }
   },
   "execution_notes": [
     "README 约束：所有 Agent 模板变更只改 src/templates/agents/*.hbs，禁止直接修改 .opencode/agents/ 或 .opencode/plugins/sddu/agents/ 下的文件",
-    "TASK-001~003 各自只修改 1 个 Agent 源模板文件，TASK-012 修改 coordinator 源模板——可用 @sddu-build TASK-001~003 TASK-012 批量执行 4 个 Agent 模板",
+    "TASK-001~003 各自只修改 1 个 Agent 源模板文件，TASK-010 修改 coordinator 源模板——可用 @sddu-build TASK-001~003 TASK-010 批量执行 4 个 Agent 模板",
     "TASK-004~008 是输出模板操作（3 MODIFY + 2 CREATE），可用 @sddu-build TASK-004~008 批量执行",
     "TASK-006 和 TASK-008 是全新文件创建（review-report / validate-report 输出模板），需 build Agent 生成完整模板内容",
-    "TASK-012（@sddu coordinator）更新 §5.2/§6.6/§3——不修改 runtime 逻辑，仅更新指令模板使其感知二维时序和文档拆分，符合 NG-004",
-    "Wave 2 的两个 S 级任务 (TASK-010, TASK-011) 可合并为一个 build 指令：@sddu-build TASK-010~011",
-    "TASK-010 中的 npm run build 会将 src/templates/ 的改造同步到 .opencode/ 副本（含 coordinator），是改造生效的关键步骤",
+    "TASK-010（@sddu coordinator）更新 §5.2/§6.6/§3——不修改 runtime 逻辑，仅更新指令模板使其感知二维时序和文档拆分，符合 NG-004",
+    "Wave 2 的两个 S 级任务 (TASK-011, TASK-012) 可合并为一个 build 指令：@sddu-build TASK-011~012",
+    "TASK-011 中的 npm run build 会将 src/templates/ 的改造同步到 .opencode/ 副本（含 coordinator），是改造生效的关键步骤",
     "FR-013/FR-014（向后兼容）隐式落地于 TASK-002/003 的模板改写——review/validate 模板中增加了对旧格式 plan.md §8/§9 的忽略声明",
     "ADR-003（验证脚本归属）的核心落地在 TASK-003（validate Agent §5.0 中的脚本权限声明）和 TASK-008（validate-report 模板 §4 验证脚本执行记录）",
-    "ADR-004（策略/报告拆分）的核心落地在 TASK-002/003（Agent 模板双文件产出指引）、TASK-005/006（review 策略/报告模板拆分）、TASK-007/008（validate 策略/报告模板拆分）、TASK-012（coordinator 感知文档拆分）"
+    "ADR-004（策略/报告拆分）的核心落地在 TASK-002/003（Agent 模板双文件产出指引）、TASK-005/006（review 策略/报告模板拆分）、TASK-007/008（validate 策略/报告模板拆分）、TASK-010（coordinator 感知文档拆分）"
   ]
 }
