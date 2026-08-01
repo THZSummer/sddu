@@ -108,13 +108,31 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 
 ### 2.7 时序图：文档传递与并行区间
 
-> 纵向展示 Agent 之间的文档交接时序。review/validate 的策略设计（C1~CN / V1~VN）在逻辑上可与 tasks→build 并行——图中灰色虚线框标注。
+> 纵向展示 Agent 之间的文档交接时序。review/validate 的策略设计（C1~CN / V1~VN）在逻辑上可与 tasks→build 并行——图中灰色区块标注并行区间。
 
-<div align="center">
+```mermaid
+sequenceDiagram
+    participant S as spec<br/>需求定义
+    participant P as plan<br/>技术设计
+    participant TB as tasks→build<br/>实施
+    participant R as review<br/>产物审查
+    participant V as validate<br/>产物验证
 
-<img src="./agent-scope-sequence.svg" alt="Agent 文档传递时序图" style="max-width:100%;" />
-
-</div>
+    S->>P: spec.md
+    P->>TB: plan.md + ADR
+    
+    Note over R,V: ∥ 策略设计可与 tasks→build 并行
+    
+    rect rgb(245, 245, 245)
+        R-->>R: 设计 C1~CN 审查清单
+        V-->>V: 设计 V1~VN 验证场景 · 编写脚本
+    end
+    
+    TB->>R: 产物 + build.md
+    
+    R->>V: review.md + review-report.md
+    V-->>V: validate.md + validate-report.md
+```
 
 ---
 
