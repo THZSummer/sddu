@@ -112,16 +112,40 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 
 ```mermaid
 flowchart TD
-    D[discovery.md] -->|产出| S[spec.md]
-    S -->|产出| P[plan.md + ADR]
-    P -->|产出| TK[tasks.json]
-    TK -->|产出| B[产物 + build.md]
+    subgraph DAG[问题挖掘]
+        D[discovery.md]
+    end
+    subgraph SAG[需求定义]
+        S[spec.md]
+    end
+    subgraph PAG[技术设计]
+        P[plan.md + ADR]
+    end
+    subgraph TAG[任务排布]
+        TK[tasks.json]
+    end
+    subgraph BAG[实施构建]
+        B[产物 + build.md]
+    end
+    subgraph RAG[产物审查]
+        R_S[review.md<br/>C1~CN 审查清单]
+        R_R[review-report.md<br/>审查报告]
+    end
+    subgraph VAG[产物验证]
+        V_S[validate.md<br/>V1~VN 验证场景]
+        V_R[validate-report.md<br/>验证报告]
+    end
+
+    D -->|产出| S
+    S -->|产出| P
+    P -->|产出| TK
+    TK -->|产出| B
     
-    P -.->|策略设计| R_S[review.md<br/>C1~CN 审查清单]
-    P -.->|策略设计| V_S[validate.md<br/>V1~VN 验证场景]
+    P -.->|策略设计| R_S
+    P -.->|策略设计| V_S
     
-    B -->|触发执行| R_R[review-report.md<br/>审查报告]
-    R_R -->|输入| V_R[validate-report.md<br/>验证报告]
+    B -->|触发执行| R_R
+    R_R -->|输入| V_R
     
     R_S -.->|输入| R_R
     V_S -.->|输入| V_R
