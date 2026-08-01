@@ -4,7 +4,7 @@
 > **前置依赖**: spec.md（需求规范，14 FR / 6 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-07-25  
-> **版本**: v1.4
+> **版本**: v1.5
 > **更新人**: SDDU Plan Agent
 > **更新时间**: 2026-08-01
 > **更新说明**: v1.4 — 修正 §5 文件影响分析：移除 6 个 `.opencode/` MODIFY 条目（安装产物，由构建生成），只保留 `src/templates/` + `scripts/` 源文件目标
@@ -101,6 +101,18 @@ validate → 自主：从 spec+NFR+产物 提取验证对象 → 定义 V1~VN
 <div align="center">
 
 <img src="./agent-scope-swimlane.svg" alt="Agent 职责改造前后泳道对比" style="max-width:100%;" />
+
+</div>
+
+---
+
+### 2.7 时序图：文档传递与并行区间
+
+> 纵向展示 Agent 之间的文档交接时序。review/validate 的策略设计（C1~CN / V1~VN）在逻辑上可与 tasks→build 并行——图中灰色虚线框标注。
+
+<div align="center">
+
+<img src="./agent-scope-sequence.svg" alt="Agent 文档传递时序图" style="max-width:100%;" />
 
 </div>
 
@@ -306,6 +318,7 @@ review/validate 自主策略的"最低质量门槛"如何量化？以下是 2 �
 
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
+| v1.5 | 新增 §2.7 Agent 文档传递时序图（agent-scope-sequence.svg）—— 展示正向建设流与逆向检验流的并行区间 | 2026-08-01 | SDDU Coordinator |
 | v1.4 | 修正 §5 文件影响分析：移除 6 个 `.opencode/` MODIFY 条目（安装产物，由构建生成）；符合 README 「只改 src/ + npm run build」约束 | 2026-08-01 | SDDU Coordinator |
 | v1.3 | 新增 ADR-004：review/validate 策略与报告文档拆分；更新 §5 文件影响分析，新增 2 个输出模板文件 | 2026-08-01 | SDDU Coordinator |
 | v1.2 | 新增 ADR-003：validate 验证脚本归属决策 — 自主编写直接执行，不走 task→build | 2026-08-01 | SDDU Coordinator |
