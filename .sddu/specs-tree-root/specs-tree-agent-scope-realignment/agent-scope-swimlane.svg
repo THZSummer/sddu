@@ -10,6 +10,9 @@
     <marker id="redArrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
       <path d="M0,0 L10,5 L0,10 z" fill="#e53935"/>
     </marker>
+    <marker id="flowArrow" viewBox="0 0 10 10" refX="5" refY="10" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 5 10 L 10 0 z" fill="#90a4ae"/>
+    </marker>
   </defs>
 
   <rect x="0" y="0" width="1200" height="820" fill="#ffffff"/>
@@ -224,6 +227,18 @@
     <text x="525" y="696" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">⚠️ 入口依赖</text>
   </g>
 
+  <!-- Pipeline flow arrows — LEFT side -->
+  <g stroke="#90a4ae" stroke-width="1.8" fill="none" marker-end="url(#flowArrow)">
+    <line x1="295" y1="160" x2="295" y2="165"/>
+    <line x1="295" y1="256" x2="295" y2="261"/>
+    <line x1="295" y1="352" x2="295" y2="357"/>
+    <line x1="295" y1="448" x2="295" y2="453"/>
+    <line x1="295" y1="544" x2="295" y2="549"/>
+    <line x1="295" y1="640" x2="295" y2="645"/>
+  </g>
+
+  <text x="280" y="400" transform="rotate(-90 280 400)" text-anchor="middle" font-size="10" fill="#90a4ae" font-style="italic">输出→下阶段输入</text>
+
   <!-- ============ RIGHT ROWS (改造后) x0=610 ============ -->
 
   <!-- Row 1 discovery y=72 -->
@@ -420,6 +435,18 @@
     <rect x="1097" y="681" width="36" height="22" rx="11" fill="#43a047" filter="url(#badgeShadow)"/>
     <text x="1115" y="696" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">自主</text>
   </g>
+
+  <!-- Pipeline flow arrows — RIGHT side -->
+  <g stroke="#90a4ae" stroke-width="1.8" fill="none" marker-end="url(#flowArrow)">
+    <line x1="885" y1="160" x2="885" y2="165"/>
+    <line x1="885" y1="256" x2="885" y2="261"/>
+    <line x1="885" y1="352" x2="885" y2="357"/>
+    <line x1="885" y1="448" x2="885" y2="453"/>
+    <line x1="885" y1="544" x2="885" y2="549"/>
+    <line x1="885" y1="640" x2="885" y2="645"/>
+  </g>
+
+  <text x="870" y="400" transform="rotate(-90 870 400)" text-anchor="middle" font-size="10" fill="#90a4ae" font-style="italic">输出→下阶段输入</text>
 
   <!-- ============ Red dashed dependency arrows (LEFT only) ============ -->
   <g>
