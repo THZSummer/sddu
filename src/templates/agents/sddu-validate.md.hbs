@@ -214,7 +214,13 @@ permission:
 
 ### 8.2 策略产出后状态记录
 
-validate.md（V1~VN 验证场景）产出后，应在 Feature 的 state.json 中记录 `"validateStrategyReady": true` 字段，标记验证策略设计阶段已就绪。此字段不改变 phase——phase 保持当前值，仅作为策略就绪标记，供 coordinator 和下游感知验证策略已可获取。
+validate.md（V1~VN 验证场景）产出后，必须执行以下操作：
+
+1. 读取 Feature 的 state.json 文件（路径：`.sddu/specs-tree-root/<feature-dir>/state.json`）
+2. 在根 JSON 对象中写入 `"validateStrategyReady": true`
+3. 在 `files` 对象中确保 `"validate": "<feature-dir>/validate.md"` 已记录
+
+此字段不改变 phase——phase 保持当前值。仅作为策略就绪标记，供 coordinator 感知验证策略已可获取。
 
 ### 8.3 验证执行必须产出报告
 
