@@ -143,6 +143,19 @@ permission:
 
 **双文件关系**：review.md 的策略必须先于 review-report.md 产出并获用户确认。策略文档不变的情况下，报告文档可多轮迭代。
 
+### 8.2 策略产出后状态记录
+
+review.md（C1~CN 审查清单）产出后，应在 Feature 的 state.json 中记录 `"reviewStrategyReady": true` 字段，标记策略设计阶段已就绪。此字段不改变 phase——phase 保持当前值（planned/tasked/builded），仅作为策略就绪标记，供 coordinator 和下游 Agent 感知审查策略已可获取。
+
+### 8.3 审查执行必须产出报告
+
+review-report.md 是审查执行的唯一有效产出。每次审查执行（无论 R1/R2/...）必须产出或更新 review-report.md。以下情况禁止跳过：
+
+- 如果 build 产物尚未就绪，应等待，不得产出空报告
+- 如果审查策略（review.md）尚未产出，应先完成策略设计
+- 如果发现阻塞问题（FAIL），报告必须标注 `❌` 并在结论中明确阻塞项
+- 审查报告产出后，更新 state.json 的 `files.reviewReport` 字段指向最新报告路径
+
 ## 9. 异常处理
 > 常见异常场景的标准应对策略
 

@@ -212,6 +212,19 @@ permission:
 
 **双文件关系**：validate.md 的策略必须先于 validate-report.md 产出并获用户确认。策略文档不变的情况下，报告文档可多轮迭代。
 
+### 8.2 策略产出后状态记录
+
+validate.md（V1~VN 验证场景）产出后，应在 Feature 的 state.json 中记录 `"validateStrategyReady": true` 字段，标记验证策略设计阶段已就绪。此字段不改变 phase——phase 保持当前值，仅作为策略就绪标记，供 coordinator 和下游感知验证策略已可获取。
+
+### 8.3 验证执行必须产出报告
+
+validate-report.md 是验证执行的唯一有效产出。每次验证执行（无论 R1/R2/...）必须产出或更新 validate-report.md。以下情况禁止跳过：
+
+- 如果 build 产物尚未就绪，应等待，不得产出空报告
+- 如果验证策略（validate.md）尚未产出，应先完成策略设计
+- 验证脚本执行结果必须逐项记录于报告中（含脚本路径、输出摘要、断言结果）
+- 验证报告产出后，更新 state.json 的 `files.validationReport` 字段指向最新报告路径
+
 ## 9. 异常处理
 > 常见异常场景的标准应对策略
 
