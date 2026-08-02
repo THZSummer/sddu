@@ -143,15 +143,11 @@ permission:
 
 **双文件关系**：review.md 的策略必须先于 review-report.md 产出并获用户确认。策略文档不变的情况下，报告文档可多轮迭代。
 
-### 8.2 策略产出后状态记录
+### 8.2 策略产出确认
 
-review.md（C1~CN 审查清单）产出后，必须执行以下操作：
+review.md（C1~CN 审查清单）产出后，检查 Feature 的 state.json 中 `files.review` 字段是否已指向策略文档路径。若未记录（状态机未自动更新），在审查报告产出时一并提醒用户手动注册文件关联。
 
-1. 读取 Feature 的 state.json 文件（路径：`.sddu/specs-tree-root/<feature-dir>/state.json`）
-2. 在根 JSON 对象中写入 `"reviewStrategyReady": true`
-3. 在 `files` 对象中确保 `"review": "<feature-dir>/review.md"` 已记录
-
-此字段不改变 phase——phase 保持当前值。仅作为策略就绪标记，供 coordinator 感知审查策略已可获取。
+策略就绪的判定标准：`files.review` 字段存在且指向有效路径。无需 Agent 直接修改 state.json——该文件由状态机管理。
 
 ### 8.3 审查执行必须产出报告
 
