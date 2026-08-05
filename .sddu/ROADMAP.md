@@ -1,11 +1,11 @@
 # SDDU 项目版本 Roadmap
 
-> **文档版本**: 16.0.0
-> **更新日期**: 2026-07-19 (FR-TREE-SKILL 新增 — @sddu-tree Agent 技能化评估)
+> **文档版本**: 17.0.0
+> **更新日期**: 2026-07-25 (FR-AGENT-SCOPE-001 新增 — plan/review/validate 职责回归改造提案)
 > **状态**: 规划中 (v3.0.0 待启动，v3.3.0 部分提前交付)
-> **生成方式**: `@sddu-roadmap` 全量扫描 19 Feature 的 state.json + spec.md + tasks.md + spec.json + validation-report.md + docs/ + TREE.md + 用户新需求评估 + Superpowers 竞品调研导入
+> **生成方式**: `@sddu-roadmap` 增量更新 — 用户提案「plan/review/validate 职责回归」纳入路线图
 > **当前项目版本**: v4.0.0
-> **全局状态**: 18 validated, 0 tracked, 1 terminated | 待处理项目: 45 | 新提案: 2 (FR-BUG-001/FR-TREE-SKILL) | Skill 化候选: 3 (FR-BUG-001/FR-WORKTREE-001/FR-TREE-SKILL → Skill 重评估) | 竞品借鉴: 3
+> **全局状态**: 18 validated, 0 tracked, 1 terminated | 待处理项目: 46 | 新提案: 3 (FR-BUG-001/FR-TREE-SKILL/FR-AGENT-SCOPE-001) | Skill 化候选: 3 (FR-BUG-001/FR-WORKTREE-001/FR-TREE-SKILL → Skill 重评估) | 竞品借鉴: 3
 
 ---
 
@@ -21,17 +21,17 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 
 | 指标 | 值 |
 |------|-----|
-| **Feature 总数** | 19 (含 3 个提议中的 Skill 化候选: FR-BUG-001/FR-WORKTREE-001/FR-TREE-SKILL) |
+| **Feature 总数** | 20 (含 3 个提议中的 Skill 化候选 + FR-AGENT-SCOPE-001 新提案) |
 | **已完成 (completed)** | 18 |
 | **已终止 (terminated/migrated)** | 1 |
 | **进行中 (tracked)** | **0** ⚠️ |
 | **搁置 (suspended)** | 0 |
-| **已知待解决问题** | **45 (A-F + I 核心 + BUG-001 + TREE-SKILL + 3 竞品借鉴 + 32 审计发现)** |
+| **已知待解决问题** | **46 (A-F + I 核心 + BUG-001 + TREE-SKILL + AGENT-SCOPE-001 + 3 竞品借鉴 + 32 审计发现)** |
 | **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (部分提前交付), v4.1.0 (远期) |
 
 ### ⚠️ 关键警示
 
-> **当前无活跃 Feature！** 自 2026-06-21 `specs-tree-framework-architecture` (FR-FRAMEWORK-ARCH-001) validated 后，项目处于无进行中 Feature 的空窗期。v3.0.0 的 6 个核心问题 (A-F) 已记录但尚未启动任何 Feature 的 discovery 流程。Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成。好消息是 FR-FAST-001 (快速模式 Agent) 和 FR-SKILL-001 (Skill 系统) 已提前交付（2026-07-12 / 2026-07-19），为后续 Feature 提供了「Skill 化降级」的新选项。FR-TREE-SKILL（@sddu-tree Agent 技能化）是最纯粹的 Agent→Skill 降级案例——将现有辅助 Agent 的整体职责降级为框架级 Skill。
+> **当前无活跃 Feature！** 自 2026-06-21 `specs-tree-framework-architecture` (FR-FRAMEWORK-ARCH-001) validated 后，项目处于无进行中 Feature 的空窗期。v3.0.0 的 6 个核心问题 (A-F) 已记录但尚未启动任何 Feature 的 discovery 流程 — 其中 Issue F 已通过 FR-AGENT-SCOPE-001 (plan/review/validate 职责回归) 获得根本解法方案。Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成。好消息是 FR-FAST-001 (快速模式 Agent) 和 FR-SKILL-001 (Skill 系统) 已提前交付（2026-07-12 / 2026-07-19），为后续 Feature 提供了「Skill 化降级」的新选项。FR-TREE-SKILL（@sddu-tree Agent 技能化）是最纯粹的 Agent→Skill 降级案例——将现有辅助 Agent 的整体职责降级为框架级 Skill。FR-AGENT-SCOPE-001 是 SDDU 框架 dogfooding 的里程碑——SDDU 用自身的流程改造自身的 Agent 模板。
 
 ### 版本总览表
 
@@ -44,7 +44,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **v2.6.0** | SDDU 特性状态增强 | 2026-06-13 | ✅ | phase(8) + status(5) v3.0.0 |
 | **v3.0.1** | 模板质量统一 | 2026-06-19 | ✅ | 17 模板格式统一 + 11 Agent 职责边界 |
 | **v4.0.0** | 源码架构重组 🆕 | 2026-06-21 | ✅ | FR-FRAMEWORK-ARCH-001 三域分层 + 平台适配器隔离 |
-| **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 |
+| **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 + FR-AGENT-SCOPE-001 (替换 Issue F) |
 | **v3.1.0** | Skill 化降级验证 | TBD | 💡 提议中 | FR-BUG-001 → sddu-bug Skill 🔄 + FR-WORKTREE-001 → sddu-worktree Skill 🔄 + FR-TREE-SKILL → sddu-tree Skill 🆕 |
 | **v3.2.0** | 项目知识基础设施 (H・I) | TBD | 🔄 部分完成 | FR-KB-001 全局配置 (💡 提议中) + FR-KB-002 知识沉淀 (✅ 已完成 — @sddu-docs) |
 | **v3.3.0** | Agent 行为强化 + 轻量入口 | 2026-07-19 | 🔄 部分完成 | FR-FAST-001 ✅ (快速模式) + FR-SKILL-001 ✅ (Skill 系统) + FR-RATIONAL-001 (理性化对抗，待启动) |
@@ -66,8 +66,8 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 🥇 | **FR-BUG-001**: Bug 流程框架化 (→ sddu-bug Skill) | v3.1.0 | 8 | 7 | 75% | 2 | **21.0** | P0 |
 | 🥈 | **FR-TREE-SKILL**: @sddu-tree Agent 技能化 🆕 | v3.1.0 | 5 | 6 | 85% | 1.5 | **17.0** | P0 |
 | 🥉 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 5 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
+| 4 | **FR-AGENT-SCOPE-001**: plan/review/validate 职责回归 🆕 | v3.0.0 | 9 | 9 | 75% | 5 | **12.2** | P0 |
+| 5 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
 
 > **注**: FR-FAST-001 (RICE 21.6) 和 FR-SKILL-001 (RICE 17.5 更新后) 已于 2026-07 提前交付完成，不参与排名。FR-BUG-001、FR-WORKTREE-001 和 FR-TREE-SKILL 已采纳 Skill 化降级路径——以上 RICE 分值均为 Skill 化后的评分（Effort 从 4d 降至 1.5~2d）。
 
@@ -80,6 +80,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | ✅ 2026-07-12 | FR-FAST-001 validated — @sddu-fast 快速模式 Agent 上线 | v3.3.0 (提前交付) |
 | ✅ 2026-07-19 | FR-SKILL-001 validated — SDDU Skill 系统上线 (三元闭环: discovery/creator/sync) | v3.3.0 (提前交付) |
 | 2026-07-19 | 首个 v3.0.0 Feature discovery 启动 (建议) | v3.0.0 |
+| 2026-07-25 | FR-AGENT-SCOPE-001 (plan/review/validate 职责回归) 提案纳入 Roadmap 🆕 | v3.0.0 |
 | 2026-08-02 | 首个 v3.0.0 Feature spec + plan 完成 | v3.0.0 |
 | 2026-08-16 | v3.0.0 首批 P0 Feature validated | v3.0.0 |
 | 2026-09-30 | v3.0.0 全部 Feature 完成 | v3.0.0 |
@@ -110,6 +111,8 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 2026-06-21  ✅  specs-tree-framework-architecture (架构重组 v4.0.0)
 2026-07-12  ✅  specs-tree-sddu-fast (快速模式 Agent v3.3.0)
 2026-07-19  ✅  specs-tree-skill-system (Skill 系统 v3.3.0-early)
+            ↓
+2026-07-25  📋  FR-AGENT-SCOPE-001 (plan/review/validate 职责回归) 提案纳入 Roadmap
             ↓
 2026-Q3    📋  v3.0.0 质量与工作流改进
 ```
@@ -176,7 +179,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **C** | ✅ **validate agent E2E 能力已完成** — v3.0.5 模板已重写为动手验证模式（测试覆盖、接口验证、构建验证、性能边界、漂移检测），ROADMAP 审计确认 (2026-07-11) | `sddu-validate` agent | 🟢 已解决 |
 | **D** | ✅ **sddu coordinator bash 工具问题已修复** — coordinator 模板已 `bash: deny`，opencode 环境已自愈。同时 sddu-roadmap.md.hbs 已同步 deny (2026-07-11) | `sddu` coordinator | 🟢 已解决 |
 | **E** | **SDDU 缺少框架级系统验证层** — 框架 Feature 需要验证"SDDU 本身还能正常工作"，无标准化流程 | SDDU 框架设计 | 🟡 中 |
-| **F** | **review/validate 阶段未经设计规划** — build 阶段经历设计规划产出质量高，review/validate 未经历 | SDDU 工作流设计 | 🟡 中 |
+| **F** | **review/validate 阶段未经设计规划** — build 阶段经历设计规划产出质量高，review/validate 未经历 → ⚡ 被 FR-AGENT-SCOPE-001 覆盖（根本解法：职责回归，review/validate 自主定义策略） | SDDU 工作流设计 | 🟡 中 |
 
 #### v3.0.0 提议 Feature 清单
 
@@ -184,23 +187,120 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 |---------|:----:|:------:|--------|------|
 | **FR-QUALITY-001**: Build Agent Wave 一体化 | A | 🥇 P0 | 3-5 天 | 重构 build agent 为单次调用完成全部 wave |
 | **FR-QUALITY-002**: Validate Agent E2E 能力增强 | C | ✅ 已完成 | — | v3.0.5 模板已重写为动手验证模式。ROADMAP 审计确认，从 v3.0.0 待办列表移除 |
-| **FR-QUALITY-003**: Review/Validate 阶段设计规划 | F | 🥈 P1 | 3-5 天 | 为 review/validate 引入设计规划阶段 |
+| **FR-QUALITY-003**: Review/Validate 阶段设计规划 | F | ⚡ 已被替换 (superseded) | — | 被 FR-AGENT-SCOPE-001 替代 — 新方案从根本上解决 Issue F：不让 plan 替下游写策略，而是 review/validate 各自自主定义审查/验证策略 |
 | **FR-QUALITY-004**: 框架级自验证流程 | E | 🥈 P1 | 5-7 天 | 建立标准化框架自验证流程 |
 | **FR-QUALITY-005**: Auto-updater Phase 推断修复 | B | P2 | 1-2 天 | 修复 phase 推断顺序 |
 | **FR-QUALITY-006**: Coordinator 工具兼容性 | D | ✅ 已完成 | — | coordinator 模板已 `bash: deny`，sddu-roadmap.md.hbs 同步修复。ROADMAP 审计确认，从 v3.0.0 待办列表移除 |
 
+---
+
+#### 🆕 FR-AGENT-SCOPE-001 — plan/review/validate 职责回归改造 (替换 FR-QUALITY-003)
+
+> **来源**: 用户提案 (2026-07-25) — SDDU 框架架构改进 (dogfooding)
+> **加入日期**: 2026-07-25
+
+| 属性 | 值 |
+|------|-----|
+| **Feature ID** | FR-AGENT-SCOPE-001 |
+| **优先级** | P0 (RICE 12.2，跨版本第 4 位) |
+| **Effort** | M/L (5-6 天) |
+| **来源** | 用户提案 — SDDU 框架自身 Agent 模板的架构级改造 |
+| **归属** | v3.0.0 (质量与工作流改进 — 替换 FR-QUALITY-003，是 Issue F 的根本解法) |
+| **建议目录名** | `specs-tree-agent-scope-realignment` |
+
+**背景**: 当前 `sddu-plan.md` §5.8「产物审查策略」和 §5.9「产物验证策略」是为下游 review/validate 代笔的工作清单。但 plan 的核心职责是技术设计（架构分析、方案对比、ADR、文件影响分析），它不是审查专家也不是验证专家。让"技术设计师"写"质检员该查什么"和"测试工程师该测什么"，导致：
+- plan 写得模板化、不具体（缺乏 review/validate 的领域视角）
+- plan 写得薄弱（不知道 C1~CN 审查清单、V1~VN 验证场景该落到什么粒度）
+- review/validate 被动消费 plan 的薄弱输出，每次审查/验证都"好似无准备的仗"
+
+**核心目标**: 实现 Agent 职责隔离——谁需要用，谁自己设计。
+- **plan 剥离 §5.8/§5.9** → 只做技术设计，不替下游写工作清单（不越界）
+- **review 自主定义审查策略** → 审查清单 C1~CN 由 review 基于 spec+plan+产物自己设计
+- **validate 自主定义验证策略** → 验证场景 V1~VN 由 validate 基于 spec+NFR+产物自己设计
+
+**改造触及面**:
+
+| # | 文件 | 变更类型 | 说明 |
+|:--|------|:------:|------|
+| 1 | `.opencode/agents/sddu-plan.md` | MODIFY | 删除 §5.8「产物审查策略」、§5.9「产物验证策略」（约 10 行），回归纯技术设计 |
+| 2 | `.opencode/agents/sddu-review.md` | MODIFY | 新增「§5.0 自主定义审查策略」能力（C1~CN 设计方法），去掉对 plan §5.8 的硬依赖（当前 §1/§3/§6 多处引用） |
+| 3 | `.opencode/agents/sddu-validate.md` | MODIFY | 新增「§5.0 自主定义验证策略」能力（V1~VN 设计方法），去掉对 plan §5.9 的硬依赖（当前 §1/§3/§5.0/§6 多处引用） |
+| 4 | `.opencode/plugins/sddu/agents/sddu-plan.md` | MODIFY | 同上 — plugin copy 同步 |
+| 5 | `.opencode/plugins/sddu/agents/sddu-review.md` | MODIFY | 同上 — plugin copy 同步 |
+| 6 | `.opencode/plugins/sddu/agents/sddu-validate.md` | MODIFY | 同上 — plugin copy 同步 |
+| 7 | `src/templates/outputs/sddu-plan.md.hbs` | MODIFY | 删除 §8「产物审查策略」、§9「产物验证策略」，重新编号 §10~ 为 §7~ |
+| 8 | `src/templates/outputs/sddu-review.md.hbs` | MODIFY | 可能需要新增「自主审查清单 (C1~CN)」章节承接 review 新生成的审查策略 |
+| 9 | `src/templates/outputs/sddu-validate.md.hbs` | MODIFY | 可能需要新增「自主验证场景 (V1~VN)」章节承接 validate 新生成的验证策略 |
+
+**⚠️ 待 spec 阶段决策的关键边界问题**:
+
+> **「产物清单归属 vs 策略归属」**：plan 做了文件影响分析（§5），最清楚"有哪些产物该被审查/验证"（产物清单）；但"怎么查/怎么验"（C1~CN 审查清单、V1~VN 验证场景）应归 review/validate 自己。需在 spec 阶段划清：
+> - **Option A**: plan 仍提供 `<file_manifest>`（产物清单），review/validate 自行生成策略（C1~CN/V1~VN）—— plan 有改动但小
+> - **Option B**: review/validate 完全自主，从 spec+plan+产物中自行提取产物清单 → 各 Agent 完全独立
+> - **Option C**: 拆分为 2 个子 Feature — 001a: plan 剥离 §5.8/§5.9 + 保留/增强产物清单；001b: review/validate 各自基于产物清单自主定义策略
+>
+> 此决策影响改造是单 Feature 还是拆分为多个子 Feature，需在 discovery/spec 阶段与用户确认。
+
+**RICE 详细分析**:
+
+| 维度 | 评分 | 依据 |
+|------|:---:|------|
+| Reach | **9** | 影响全部 3 个核心 Agent (plan/review/validate)、所有当前及未来 Feature、所有使用 SDDU 的项目 — 这是框架级架构改进，触及面是 SDDU 质量闭环的核心链路 |
+| Impact | **9** | 彻底解决"plan 代笔策略 → review/validate 被动消费薄弱输入"的结构性缺陷；提升 review/validate 输出质量（自主设计策略更有针对性）；建立 Agent 职责边界的范本（谁需要谁设计，不越界不代笔） |
+| Confidence | **75%** | 痛点明确且已详细论述，方案方向清晰（剥离+自主定义）。主要不确定性来自「产物清单 vs 策略」边界划分 — 需 spec 阶段决策，但无论选哪条路径，核心改造方向不变 |
+| Effort | **5** | M/L (5-6d)：plan agent 模板剥离 §5.8/§5.9 (0.5d) + review agent 模板重写（新增 §5.0 审查策略生成逻辑，1.5d）+ validate agent 模板重写（新增 §5.0 验证策略生成逻辑，1.5d）+ plugin copies 同步 (0.5d) + 输出模板调整 (0.5d) + discovery/spec + validation (1.5d) |
+| **RICE** | **12.2** | **(9 × 9 × 0.75) / 5** |
+
+**与 FR-QUALITY-003 的关系**:
+
+```
+FR-QUALITY-003 (Review/Validate 设计规划) ──⚡ 已被替换──→ FR-AGENT-SCOPE-001 (职责回归)
+    │                                                        │
+    │ 旧思路：为 review/validate 引入 "设计阶段"              │ 新思路：不让 plan 替下游写策略
+    │         让它们像 build 一样经历设计规划                │         review/validate 各自自主定义
+    │                                                        │        每个 Agent 职责隔离、边界划清
+    │ 问题：治标不治本                                       │ 优势：根治"越界代笔"的结构性问题
+    │       plan 还是写了策略（即使加了设计阶段）            │        review/validate 不再被动消费
+    └────────────────────────────────────────────────────────┘
+```
+
+**拆分建议** (供 spec 阶段决策):
+
+| 拆分方式 | 说明 | 优点 | 缺点 |
+|---------|------|------|------|
+| **单 Feature** (推荐) | FR-AGENT-SCOPE-001 一次性完成全部 3 个 Agent 的改造 | 一步到位，不产生中间状态；Effort 5d 仍属可控 | 改动面较宽（3 Agent + 3 模板），测试覆盖需同步 |
+| **2 个子 Feature** | 001a: plan 剥离 §5.8/§5.9；001b: review/validate 自主策略 | 渐进式交付，风险分散 | 001a 完成但 001b 未完成时，review/validate 失去策略输入 — 需在 001a 中预留兜底行为 |
+| **3 个子 Feature** | 001a: plan 剥离；001b: review 自主；001c: validate 自主 | 最细粒度控制 | 过度拆分，增加协调开销，001a 的"空窗期"问题仍存在 |
+
+> **推荐单 Feature 路径**，理由：Effort 5d 仍属 M 级，改动集中且协同性强。拆分只会增加协调成本，而「空窗期」（plan 已剥离但 review/validate 未就绪）产生中间缺陷状态。
+
+**与其他 Feature 的依赖关系**:
+
+```
+FR-AGENT-SCOPE-001 (职责回归) ──无硬依赖──→ 可独立启动，不依赖任何未完成 Feature
+FR-AGENT-SCOPE-001 (职责回归) ──与共用──→ FR-TPL-001 ✅ (模板系统) — 共用 Handlebars 引擎和分发机制
+FR-AGENT-SCOPE-001 (职责回归) ──影响──→ 3 个核心 Agent + 1-3 个输出模板
+FR-AGENT-SCOPE-001 (职责回归) ──替换──→ FR-QUALITY-003 (Issue F 原方案)
+```
+
+**与已有 Feature 产物的向后兼容**:
+
+> ⚠️ **关键考量**: 已有 18 个 validated Feature 的 `plan.md` 中包含 §5.8/§5.9（旧格式）。改造后 review/validate 不再依赖 plan 的策略章节，已完成的 Feature 不受影响（已完成，不再触发 review/validate）。但新 Feature 的 review/validate 必须能正确处理「plan 中无审查/验证策略」的情况 — 这正是改造的目标。
+
+---
 #### RICE 优先级分析 (v3.0.0 内部)
 
 | 排名 | Feature | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:-----:|:------:|:-----:|:------:|:--------:|:------:|
-| 🥇 | FR-QUALITY-001 (Build Wave) | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 🥈 | FR-QUALITY-003 (Review/Validate 设计) | 5 | 7 | 60% | 4 | **5.3** | P1 |
+| 🥇 | **FR-AGENT-SCOPE-001** (职责回归) 🆕 | 9 | 9 | 75% | 5 | **12.2** | P0 |
+| 🥈 | FR-QUALITY-001 (Build Wave) | 6 | 8 | 80% | 4 | **9.6** | P0 |
 | 🥉 | FR-QUALITY-005 (auto-updater) | 3 | 4 | 80% | 2 | **4.8** | P2 |
 | 4 | FR-QUALITY-004 (框架自验证) | 4 | 7 | 60% | 6 | **2.8** | P1 |
+| — | ~~FR-QUALITY-003 (Review/Validate 设计)~~ | — | — | — | — | — | ⚡ 被 FR-AGENT-SCOPE-001 替换 |
 
-**推荐启动顺序**:
-1. **FR-QUALITY-001** (Build Wave) — RICE 9.6，独立性好，改动集中
-2. **FR-QUALITY-003** (Review/Validate 设计) — RICE 5.3
+**推荐启动顺序** (更新):
+1. **FR-AGENT-SCOPE-001** (职责回归) — RICE 12.2，是 Issue F 的根本解法，改写 3 个核心 Agent 模板，影响力最大。建议优先启动
+2. **FR-QUALITY-001** (Build Wave) — RICE 9.6，独立性好，改动集中
 3. **FR-QUALITY-005** (auto-updater) — 快速修复，可穿插进行
 4. **FR-QUALITY-004** (框架自验证) — RICE 2.8
 
@@ -553,13 +653,14 @@ FR-RATIONAL-001 是 v3.3.0 仅剩的未启动 Feature。纯模板层改动，无
 | 🥇 | **FR-BUG-001**: Bug 流程框架化 🔄 | v3.1.0 | 8 | 7 | 75% | 2 | **21.0** | P0 |
 | 🥈 | **FR-TREE-SKILL**: @sddu-tree 技能化 🆕 🔄 | v3.1.0 | 5 | 6 | 85% | 1.5 | **17.0** | P0 |
 | 🥉 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 4 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 5 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
-| 6 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
-| 7 | **FR-AUTOTRIGGER-001**: 自动触发 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
-| 8 | **FR-QUALITY-003**: Review/Validate 设计 | v3.0.0 | 5 | 7 | 60% | 4 | **5.3** | P1 |
-| 9 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
-| 10 | **FR-WORKTREE-001**: Git Worktree 🔄 | v3.1.0 | 5 | 6 | 60% | 1.5 | **12.0** | P2 |
+| 4 | **FR-AGENT-SCOPE-001**: 职责回归 🆕 | v3.0.0 | 9 | 9 | 75% | 5 | **12.2** | P0 |
+| 5 | **FR-WORKTREE-001**: Git Worktree 🔄 | v3.1.0 | 5 | 6 | 60% | 1.5 | **12.0** | P2 |
+| 6 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
+| 7 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
+| 8 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
+| 9 | **FR-AUTOTRIGGER-001**: 自动触发 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
+| 10 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
+| 11 | ~~**FR-QUALITY-003**: Review/Validate 设计~~ | ~~v3.0.0~~ | — | — | — | — | — | ⚡ 被 FR-AGENT-SCOPE-001 替换 |
 | 11 | ~~**FR-FAST-001**: 快速模式 Agent~~ | ~~v3.3.0~~ | — | — | — | — | — | ✅ 已完成 |
 | 12 | ~~**FR-SKILL-001**: 项目级业务 Skills~~ | ~~v3.3.0~~ | — | — | — | — | — | ✅ 已完成 |
 | 13 | ~~**FR-KB-002**: 项目知识沉淀~~ | ~~v3.2.0~~ | — | — | — | — | — | ✅ 已完成 |
@@ -612,7 +713,8 @@ specs-tree-sdd-plugin-baseline ────────────────�
             ▼  ─── 📋 v3.0.0 规划中 ───
             ├── FR-QUALITY-001 (Build Wave 一体化) — Issue A
             ├── FR-QUALITY-002 (Validate E2E) — Issue C
-            ├── FR-QUALITY-003 (Review/Validate 设计规划) — Issue F
+            ├── ~~FR-QUALITY-003 (Review/Validate 设计规划)~~ → ⚡ 被 FR-AGENT-SCOPE-001 替换 — Issue F
+            ├── FR-AGENT-SCOPE-001 (plan/review/validate 职责回归改造) 🆕 — Issue F 根本解法
             ├── FR-QUALITY-004 (框架自验证) — Issue E
             ├── FR-QUALITY-005 (auto-updater 修复) — Issue B
             ├── FR-QUALITY-006 (coordinator 兼容) — Issue D
@@ -655,7 +757,10 @@ FR-RATIONAL-001 (理性化) ──借用──→ FR-TPL-001 (模板系统)  ←
 FR-RATIONAL-001 (理性化) ──部分 Skill 化──→ FR-SKILL-001 ✅ ← Rational 知识库以 Skill 承载，纪律约束硬编码模板
 FR-FAST-001 (快速模式) ✅ ──已完成──→ 2026-07-12         ← 轻量入口，无状态机，纯对话
 FR-SKILL-001 (Skill 系统) ✅ ──已完成──→ 2026-07-19      ← 三元闭环 + 双层架构 + Agent 门禁
-FR-QUALITY-001 (Build Wave) ──→ FR-QUALITY-003 (设计规划)    ← Wave 经验指导设计
+FR-AGENT-SCOPE-001 (职责回归) ──替换──→ FR-QUALITY-003 (Issue F 原方案) ← 新方案：不让 plan 替 downstream 写策略
+FR-AGENT-SCOPE-001 (职责回归) ──借用──→ FR-TPL-001 (模板系统) ✅           ← 共用 Handlebars 模板引擎
+FR-AGENT-SCOPE-001 (职责回归) ──影响──→ 3 个核心 Agent + 1-3 输出模板     ← 改动集中在 sddu-plan / sddu-review / sddu-validate
+FR-QUALITY-001 (Build Wave) ──→ FR-QUALITY-003 → ⚡ 被 FR-AGENT-SCOPE-001 替换
 FR-QUALITY-002 (Validate E2E) ──→ FR-QUALITY-004 (框架自验)  ← E2E 能力支撑自验证
 FR-QUALITY-005 + FR-QUALITY-006 — 可独立快速修复
 FR-CROSSPLAT-001 (多平台) ──依赖──→ FR-FRAMEWORK-ARCH-001 (v4.0.0) ← 基于 adapters/ 架构
@@ -663,6 +768,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 
 推荐并行组合:
 ┌─ Wave 1 (v3.0.0) ─────────────────┐
+│ FR-AGENT-SCOPE-001 (职责回归) 🆕    │ ← RICE 12.2, Issue F 根本解法, 建议首个启动
 │ FR-QUALITY-001 (Build Wave)        │ ← RICE 9.6, 独立
 │ FR-QUALITY-005 (auto-updater)      │ ← RICE 4.8, 快速修复
 │ FR-QUALITY-006 (coordinator)       │ ← RICE 2.4, 快速修复
@@ -674,10 +780,7 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 │ FR-WORKTREE-001 (Git Worktree → Skill) │ ← RICE 12.0, 无硬依赖，可独立启动
 │ FR-TREE-SKILL (Tree Agent → Skill) 🆕│ ← RICE 17.0, 建议首个启动 (Agent→Skill 降级验证) │
 └────────────────────────────────────┘
-┌─ Wave 3 (v3.0.0 收尾) ────────────┐
-│ FR-QUALITY-003 (Review/Validate)   │ ← 依赖 Wave 1 完成
-└────────────────────────────────────┘
-┌─ Wave 4 (v3.0.0) ─────────────────┐
+┌─ Wave 3 (v3.0.0) ─────────────────┐
 │ FR-QUALITY-004 (框架自验证)        │ ← 依赖 Wave 2 Validate E2E
 └────────────────────────────────────┘
 ┌─ Wave 5 (v3.2.0) ─────────────────┐
@@ -725,6 +828,10 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **FR-TREE-SKILL Agent→Skill 降级后能力丢失** 🆕 | 🟡 中 | 🟢 低 | @sddu-tree 降级为 Skill 后，TREE 生成由各 Agent 自行执行（按 Skill 指引），可能产生「各 Agent 生成的 TREE 格式不一致」问题。缓解：(1) Skill body 中定义严格的 TREE 格式模板；(2) sddu-validate 可新增 TREE 一致性检查；(3) 降级后对比原 Agent 生成的 TREE 输出确保等价性 |
 | **FR-TREE-SKILL 模板引用更新遗漏** 🆕 | 🟡 中 | 🟡 中 | 8+ Agent 模板中散落 `@sddu-tree` 调用指令（既有自动触发声明，也有显式引用），批量替换时可能遗漏。缓解：(1) 全局 grep 审计 `@sddu-tree` 所有引用位置；(2) 替换后运行现有验证确保无回归；(3) FR-SKILL-001 的 Skill 发现声明已在各 Agent 中注入 → 可自然过渡 |
 | **FR-TREE-SKILL 用户依赖 @sddu-tree 手动调用** 🆕 | 🟢 低 | 🟡 中 | 用户可能习惯 `@sddu-tree` 显式调用目录导航。Skill 化后用户无法直接 `@sddu-tree`，需通过 Agent 的 Skill 加载机制间接使用。缓解：(1) 在 ROADMAP 和 CHANGELOG 中说明变更；(2) `@sddu` coordinator 指令中新增「目录导航：加载 sddu-tree Skill」说明；(3) 保持向后兼容 — 如频繁收到用户反馈，可考虑保留轻量别名 |
+| **FR-AGENT-SCOPE-001 模板变更回归** 🆕 | 🟡 中 | 🟡 中 | 3 个核心 Agent 模板同时修改，可能引入不一致或 regression。(1) 逐个 Agent 修改 + 验证，不并行修改；(2) 修改后运行全量构建验证 (`node build-agents.cjs`)；(3) 对改造前已有的 Feature 手动跑一次 review + validate 验证兼容性 |
+| **FR-AGENT-SCOPE-001 review/validate 自主策略质量不足** 🆕 | 🟡 中 | 🟡 中 | review/validate 第一次"自主设计策略"可能不够成熟 — plan 代笔虽然薄弱但至少有一个基线。缓解：(1) agent 模板中提供 C1~CN/V1~VN 设计的结构化方法论和示例，而非空白起步；(2) 前 2-3 个 Feature 运行后收集反馈迭代 |
+| **FR-AGENT-SCOPE-001「产物清单 vs 策略」边界模糊导致的 scope 漂移** 🆕 | 🟡 中 | 🟡 中 | spec 阶段需决策产物清单是否仍由 plan 提供。决策不清会导致改造范围反复。缓解：在 discovery 阶段将此作为首要决策项，spec 阶段明确写出边界定义；Option A (plan 保留产物清单) 可降低改造风险 |
+| **FR-AGENT-SCOPE-001 向后兼容已有 Feature** 🆕 | 🟢 低 | 🟢 低 | 18 个 validated Feature 的 plan.md 含旧格式 §5.8/§5.9。改造后 review/validate 不再读取这些章节 — 已完成 Feature 不受影响。新 review/validate 在遇到 plan 中无对应章节时已设计兜底（原 validate §5.0 已有"如 plan 中无则跳过"逻辑） |
 
 ---
 
@@ -733,14 +840,16 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 ### 🔴 立即行动 (本周)
 
 1. **启动首个 v3.0.0 Feature** — 建议按以下决策树选择:
+   - **如优先解决架构级质量缺陷**: 启动 `FR-AGENT-SCOPE-001 (plan/review/validate 职责回归改造)` — RICE 12.2，是 Issue F 的根本解法，改写 3 个核心 Agent 模板，影响力覆盖全链路。🔥 推荐首启
    - **如优先解决最大痛点**: 启动 `FR-QUALITY-001 (Build Wave 一体化)` — RICE 9.6，独立性强
    - **如优先解决架构基础**: 启动 `FR-KB-001 (全局项目配置)` — RICE 15.8，全局影响力最大
    - **如优先快速收益**: 同时启动 `FR-QUALITY-005 (auto-updater)` + `FR-QUALITY-006 (coordinator)` — 总 Effort 仅 2-4 天
    - **如优先框架级质量能力 + Skill 化验证**: 启动 `FR-BUG-001 (Bug 流程框架化)` — 以 Skill 化路径（sddu-bug Skill），验证 FR-SKILL-001 的 Skill 化降级模型实战效果
-   - **🔥 推荐首启**: `FR-TREE-SKILL (@sddu-tree Agent 技能化)` — RICE 17.0，Effort 仅 1.5d，是 Skill 化降级最纯粹验证案例。成功后直接减少 1 个 Agent，建立「辅助 Agent 优先 Skill 化」范本
+   - **🔥 推荐首启**: `FR-AGENT-SCOPE-001 (职责回归)` — RICE 12.2，是长期结构性问题的一次性根除。同时 Effort 5d 可控，dogfooding 场景（SDDU 改造自身），完成后直接提升所有后续 Feature 的 review/validate 质量
 
 2. **确认 Feature 归属版本** — 当前方案:
-    - A-F → v3.0.0 (质量与工作流改进)
+    - A-F → v3.0.0 (质量与工作流改进) — 其中 F 已被 FR-AGENT-SCOPE-001 替换
+    - **FR-AGENT-SCOPE-001 (职责回归改造)** 🆕 → v3.0.0 (替代 FR-QUALITY-003，是 Issue F 的根本解法)
     - **FR-BUG-001 (Bug 流程框架化 → sddu-bug Skill 化)** + **FR-WORKTREE-001 (Git Worktree → sddu-worktree Skill 化)** + **FR-TREE-SKILL (@sddu-tree Agent 技能化 → sddu-tree Skill 化)** → v3.1.0 (Skill 化降级验证)
     - H → ✅ 已完成 (FR-KB-002)；I → v3.2.0 (知识基础设施)
     - G → ✅ 已完成 (FR-TPL-001, v3.0.1)
@@ -814,12 +923,12 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | 类别 | 数量 | 说明 |
 |------|:----:|------|
 | 🐛 Bug / 质量问题 | 10 | A-F + 4 预存测试失败 |
-| ✨ 增强特性 | 18→16 | H-I + BUG-001 + WORKTREE-001 + TREE-SKILL + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 — SKILL-001 和 FAST-001 从待实现移至已完成 |
+| ✨ 增强特性 | 18→16→17 | H-I + BUG-001 + WORKTREE-001 + TREE-SKILL + AGENT-SCOPE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + FR-014~016 + Skills/TUI/MCP + 文档模板化 + 命名标准化 + FeatureStateEnum 清理 — SKILL-001 和 FAST-001 从待实现移至已完成 |
 | 🔧 技术债务 | 9 | deprecated 类型、旧 schema、stale spec.json、仪表盘 TS 化、缺集成测试等 |
 | 📄 文档/配置 | 7 | TREE.md 过时、冗余 wave1 文件、路径引用错误、ROADMAP 结构混乱等 |
 | ⏸️ 搁置但需关注 | 4 | ETD 独立仓库、Skills/TUI/MCP 持续延期 |
 
-**总计: 45 个待处理项目** (↓2: FR-FAST-001 已于 2026-07-12 交付；↓2: FR-SKILL-001 已于 2026-07-19 交付；↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↓1: Issue H (FR-KB-002) 已由 @sddu-docs 完成；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001；↑1: FR-SKILL-001 新提案 → ✅；↑1: FR-TREE-SKILL 新提案；净变化 46→45)
+**总计: 46 个待处理项目** (↓2: FR-FAST-001 已于 2026-07-12 交付；↓2: FR-SKILL-001 已于 2026-07-19 交付；↓1: Issue G 已于 v3.0.1 解决；↓1: FR-FRAMEWORK-ARCH-001 已于 v4.0.0 交付；↓1: Issue H (FR-KB-002) 已由 @sddu-docs 完成；↑1: FR-BUG-001 新提案；↑5: 竞品借鉴 — FAST-001 + WORKTREE-001 + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001；↑1: FR-SKILL-001 新提案 → ✅；↑1: FR-TREE-SKILL 新提案；↑1: FR-AGENT-SCOPE-001 🆕；净变化 46→46)
 
 ### 🐛 一、待修复 Bug / 质量问题 (10 项)
 
@@ -830,7 +939,8 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | **C** | validate agent 不做真正 E2E 测试 | 🐛 Bug | 🔴 高 | L (5-7d) | **P0** | E2E | 当前只做静态合规检查（文件存在、spec 覆盖率），不执行端到端行为验证。E2E 应属于 validated 阶段核心职责 |
 | **D** | Coordinator 调用 bash 工具失败 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | E2E | opencode 环境中 bash 工具可能不可用，`invalid [tool=bash]` 错误（已自愈） |
 | **E** | 框架级系统验证层缺失 | 🐛 Bug | 🟡 中 | L (5-7d) | **P1** | E2E | 框架 Feature 需要验证"SDDU 本身还能正常工作"，当前无标准化流程 |
-| **F** | Review/Validate 阶段缺设计规划 | 🐛 Bug | 🟡 中 | M (3-5d) | **P1** | E2E | build 阶段经历设计规划产出质量高，同为实施阶段的 review/validate 未经历 |
+| **F** | Review/Validate 阶段缺设计规划 | 🐛 Bug | 🟡 中 | — | **P1** | E2E | build 阶段经历设计规划产出质量高，同为实施阶段的 review/validate 未经历 → ⚡ 被 FR-AGENT-SCOPE-001 覆盖 |
+| **AGENT-SCOPE-001** 🆕 | plan/review/validate 职责回归改造 | ✨ Enhancement | M/L (5-6d) | **P0** | v3.0.0 | 用户提案 (2026-07-25)。plan 剥离 §5.8/§5.9；review/validate 各自自主定义审查/验证策略。替换 FR-QUALITY-003 (Issue F 根本解法) |
 | **T2** | wf-state-optimization phaseHistory 重复 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | state.json | phaseHistory 中有重复条目（从 tasked 回退到 specified 又回到 tasked），数据虽不影响功能但混淆调试 |
 | **T3** | agent-output-templating spec.json state 过期 | 🐛 Bug | 🟢 低 | XS (<1d) | **P3** | spec.json | `"phase": "planned", "state": "specified"` — 实际 feature 早已 validated，spec.json 未同步更新 |
 
@@ -901,7 +1011,8 @@ FR-AUTOTRIGGER-001 (自动触发) — 无硬依赖，远期评估
 | 排名 | ID | 名称 | 类型 | 归属 | Effort | RICE | 优先级 |
 |:----:|----|------|:----:|------|:------:|:----:|:------:|
 | 🥇 | **I** | 全局项目配置文件 | ✨ | v3.2.0 | M | 15.8 | **P0** |
-| 🥈 | **TREE-SKILL** 🆕 | @sddu-tree Agent 技能化 (→ sddu-tree Skill) | ✨ | v3.1.0 | S | 17.0 | **P0** |
+| 🥈 | **AGENT-SCOPE-001** 🆕 | plan/review/validate 职责回归改造 | ✨ | v3.0.0 | M/L | 12.2 | **P0** |
+| 🥉 | **TREE-SKILL** 🆕 | @sddu-tree Agent 技能化 (→ sddu-tree Skill) | ✨ | v3.1.0 | S | 17.0 | **P0** |
 | 🥉 | **BUG-001** 🔄 | Bug 流程框架化 (→ sddu-bug Skill) | ✨ | v3.1.0 | S | 21.0 | **P0** |
 | 4 | **A** | Build Wave 一体化 | 🐛 | v3.0.0 | L | 9.6 | **P0** |
 | 4 | **RATIONAL-001** | Agent 理性化对抗 | ✨ | v3.3.0 | M | 9.6 | **P1** |
@@ -938,6 +1049,7 @@ Phase 0 — ✅ 已完成 (v3.0.1, 2026-06-19)
 └── ✅ FR-SKILL-001 (SDDU Skill 系统 v3.3.0-early) — RICE 17.5，2026-07-19
 
 Phase 1 — 🔥 立即启动 (本周)
+├── 🔴 P0: FR-AGENT-SCOPE-001 (职责回归改造) 🆕 — RICE 12.2, Issue F 根本解法
 ├── 🔴 P0: FR-QUALITY-001 (Build Wave 一体化) — RICE 9.6，独立性强
 ├── 🔴 P0: FR-KB-001 (全局项目配置) — RICE 15.8，全局影响力最大
 ├── 🔴 P0: FR-TREE-SKILL → sddu-tree Skill — RICE 17.0 (S, 1.5d)，Agent→Skill 降级最纯粹验证
@@ -1000,12 +1112,15 @@ Phase 5 — 🔄 v3.3.0 部分交付 + 收尾
 
 > **生成信息**: 本文档由 `@sddu-roadmap` Agent 于 2026-06-21 重大更新 (v9.0.0)，反映 FR-FRAMEWORK-ARCH-001 (v4.0.0) 已完成交付。
 > 
-> **最近更新 (v16.0.0)**: 2026-07-19 — FR-TREE-SKILL (@sddu-tree Agent 技能化) 新增。更新内容：
-> - **FR-TREE-SKILL 🆕**: @sddu-tree Agent 技能化提案 — RICE 17.0，Effort S(1.5d)，归属 v3.1.0。Agent→Skill 降级的最纯粹验证案例（区别于 FR-BUG-001/WORKTREE-001 的 Feature→Skill 降级）
-> - **v3.1.0 定位强化**: 从 2 个 Skill 化候选扩展到 3 个，新增 FR-TREE-SKILL 作为首个 Agent→Skill 降级验证
-> - **Skill 化影响总结**: 新增 FR-TREE-SKILL 行 + 「类型」列（Agent→Skill vs Feature→Skill），总 Effort 更新为 5d
-> - **RICE 排名刷新**: 插入 FR-TREE-SKILL (17.0, 🥈)；FR-BUG-001 Skill 化后 (21.0, 🥇)；FR-KB-001 降至 🥉
-> - **依赖关系更新**: 新增 FR-TREE-SKILL 依赖链（强依赖 FR-SKILL-001 + 影响 8 Agent 模板 + 自举性质）
-> - **风险评估更新**: 新增 3 项 FR-TREE-SKILL 专属风险（能力丢失、引用遗漏、用户依赖）
-> - **下一步行动更新**: FR-TREE-SKILL 推荐为首个 v3.1.0 启动项（最快验证，1.5d 交付）
-> - **统计数字变化**: 待处理项目 44→45，新提案 1→2，Skill 化候选 2→3
+> **最近更新 (v17.0.0)**: 2026-07-25 — FR-AGENT-SCOPE-001 (plan/review/validate 职责回归改造) 新增。更新内容：
+> - **FR-AGENT-SCOPE-001 🆕**: plan/review/validate 职责回归改造提案 — RICE 12.2，Effort M/L(5-6d)，归属 v3.0.0。plan 剥离 §5.8/§5.9；review/validate 各自自主定义审查/验证策略
+> - **FR-QUALITY-003 标记为 superseded**: 被 FR-AGENT-SCOPE-001 替换 — 旧方案（为 review/validate 引入设计阶段）改为新方案（职责回归，谁需要谁设计）
+> - **Issue F 状态更新**: 从"待处理"改为"已获根本解法方案（FR-AGENT-SCOPE-001）"
+> - **RICE 排名刷新**: 插入 FR-AGENT-SCOPE-001 (12.2, #4)；FR-QUALITY-003 从排名中移除
+> - **v3.0.0 推荐启动顺序更新**: FR-AGENT-SCOPE-001 列为优先启动项（Issue F 根本解法 + dogfooding）
+> - **依赖关系更新**: 新增 FR-AGENT-SCOPE-001 依赖链（替换 FR-QUALITY-003 + 借用 FR-TPL-001 模板系统）
+> - **风险评估更新**: 新增 4 项 FR-AGENT-SCOPE-001 专属风险（模板变更回归、策略质量、边界漂移、向后兼容）
+> - **拆分建议**: 推荐单 Feature 路径（Effort 5d 可控），提供 3 种拆分方案对比
+> - **待 spec 决策标注**: 「产物清单归属 vs 策略归属」边界问题标注为 spec 阶段首要决策项
+> - **下一步行动更新**: FR-AGENT-SCOPE-001 列为推荐首启项（RICE 12.2, dogfooding 里程碑）
+> - **统计数字变化**: 待处理项目 45→46，新提案 2→3

@@ -1,0 +1,21 @@
+{
+  "feature": "agent-scope-realignment",
+  "feature_name": "plan/review/validate 职责回归改造",
+  "feature_id": "FR-AGENT-SCOPE-001",
+  "phase": "validated",
+  "wave": 2,
+  "progress": {
+    "completed": 12,
+    "total": 12,
+    "pending": []
+  },
+  "verification": {
+    "build_exit_code": 0,
+    "total_checks": 62,
+    "pass": 58,
+    "warn": 3,
+    "fail": 0,
+    "verdict": "PASS — all FR-001~FR-014 and NFR-001~NFR-006 acceptance criteria met at source+dist level"
+  },
+  "last_updated": "2026-08-01T23:59"
+}

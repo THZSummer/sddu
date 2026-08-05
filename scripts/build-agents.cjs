@@ -8,6 +8,43 @@
  * 
  * 输出：
  *   - dist/templates/agents/*-sddu.md (所有 SDDU 独家代理定义)
+ * 
+ * ─────────────────────────────────────────────────────────
+ * 📁 三层文件同步关系（source-of-truth）
+ * ─────────────────────────────────────────────────────────
+ * 
+ * 本项目的 Agent 定义遵循三层文件路径模型，各层职责和同步规则如下：
+ * 
+ * 第 1 层：源模板（source-of-truth）
+ *   路径：src/templates/agents/*.md.hbs
+ *   角色：唯一可手动修改的模板源文件，所有 Agent 行为定义的根本来源
+ * 
+ * 第 2 层：构建产物
+ *   路径：dist/templates/agents/*.md
+ *   角色：由本脚本（build-agents.cjs）从源模板自动生成
+ *   同步方式：每次 npm run build 时全量重新生成，禁止手动编辑
+ * 
+ * 第 3 层：运行时副本
+ *   路径：.opencode/agents/*.md 和 .opencode/plugins/sddu/agents/*.md
+ *   角色：SDDU plugin 安装时从构建产物复制到 OpenCode 配置目录
+ *   同步方式：plugin 安装/更新流程自动维护，禁止手动编辑
+ * 
+ * ⚠️ 修改流程（同步维护规则）：
+ *   1. 需要修改 Agent 行为时 → 只改 src/templates/agents/*.md.hbs（第 1 层）
+ *   2. 运行 npm run build → 更新 dist/templates/agents/*.md（第 2 层）
+ *   3. 重新安装/更新 SDDU plugin → 更新 .opencode/ 下的运行时副本（第 3 层）
+ * 
+ * 🚫 禁止操作：
+ *   - 禁止直接修改 .opencode/agents/ 或 .opencode/plugins/sddu/agents/ 下的文件
+ *   - 禁止直接修改 dist/templates/agents/ 下的生成文件（会被构建覆盖）
+ *   - 禁止在运行时副本和第 1 层源模板之间产生漂移
+ * 
+ * ✅ 一致性验证规则：
+ *   - 构建后的 dist/ 产物必须与 src/templates/ 源模板内容一致（结构 + 语义）
+ *   - .opencode/ 运行时副本必须与 dist/ 构建产物内容一致（忽略 frontmatter diff）
+ *   - 可使用 diff 命令验证第 2 层 ↔ 第 3 层正文一致性：
+ *     diff <(sed -n '/^---$/,/^---$/!p' .opencode/plugins/sddu/agents/sddu-*.md)
+ *          <(sed -n '/^---$/,/^---$/!p' .opencode/agents/sddu-*.md)
  */
 
 const fs = require('fs');

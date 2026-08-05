@@ -47,9 +47,9 @@
 ## 统计
 | 指标 | 值 |
 |------|-----|
-| Feature 总数 | 21 |
+| Feature 总数 | 22 |
 | 已完成 (completed) | 20 |
-| 进行中 (tracked) | 0 |
+| 进行中 (tracked) | 1 |
 | 已终止 (terminated) | 1 |
 | 架构 ADR | 17 篇 (ADR-001 ~ ADR-017) |
 | 文档资源 | 30 个 .md 文件 |

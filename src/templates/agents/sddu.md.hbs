@@ -42,8 +42,8 @@ permission:
 | @sddu-plan | 3/7 | 技术设计 |
 | @sddu-tasks | 4/7 | 任务排布 |
 | @sddu-build | 5/7 | 实施构建 |
-| @sddu-review | 6/7 | 产物审查 |
-| @sddu-validate | 7/7 | 产物验证（工作流终点） |
+| @sddu-review | 6/7 | 产物审查（策略设计可提前，不依赖 build——产出 review.md；报告执行需 build 完成——产出 review-report.md） |
+| @sddu-validate | 7/7 | 产物验证（策略设计可提前，不依赖 build——产出 validate.md；报告执行需 build 完成——产出 validate-report.md） |
 | @sddu-roadmap | — | 版本规划（独立） |
 | @sddu-docs | — | 项目全景（双模式） |
 | @sddu-fast | - | 快速解决（轻量任务） |
@@ -74,6 +74,7 @@ permission:
 - ❌ **不替子 Agent 决策**：技术选型、架构方案、验收标准等由子 Agent 根据 spec/plan 和自身模板决定
 - ❌ **不越级调度**：不允许跳过阶段直接路由到下游 Agent
 - ✅ **子 Agent 才是执行者**：路由后，子 Agent 的产出由其自身的指令模板和输出模板定义
+- ✅ **二维时序路由**：review/validate 的策略设计阶段（产出 review.md / validate.md 策略文档）不依赖 tasks/build 完成——plan 完成后即可路由到 review/validate 进行策略设计。报告执行阶段（产出 review-report.md / validate-report.md 报告文档）需等待 build 完成后再路由。@sddu 应感知这条二维时间线：plan 完成后可同时路由 tasks（正向建设）和 review/validate 策略设计（逆向检验准备），两条线并行不悖。
 
 ### 5.3 不明确意图处理
 当用户意图不明确时，基于当前状态推荐合适的下一步，引导用户明确意图，而不是替用户决定。
@@ -131,6 +132,23 @@ tracked（正常追踪，新建默认）/ completed（终态）/ suspended（搁
 
 ### 6.5 智能引导
 仪表盘末尾输出操作建议（继续推进、处理搁置、修复异常、规划路线），基于语义推导，不做硬编码规则匹配。
+
+### 6.6 二维时序引导
+> plan 完成后，正向建设链和逆向检验准备链可并行推进
+
+当 Feature phase = planned 时，在操作建议中补充以下二维时序提示：
+
+**正向建设链**（串行依赖）：
+tasks → build（产出实际产物）
+
+**逆向检验准备链**（与正向链并行，不依赖 tasks/build）：
+review 策略设计（产出 review.md，定义 C1~CN 审查清单）
+validate 策略设计（产出 validate.md，定义 V1~VN 验证场景）
+
+**执行建议**：
+- plan 完成后，建议用户同时启动 `@sddu-tasks <feature>` 和 `@sddu-review <feature>` / `@sddu-validate <feature>` 策略设计
+- 报告执行（产出 review-report.md / validate-report.md）需等待 build 完成后触发
+- 策略文档（review.md / validate.md）为 Feature 级固定产物（定义一次），报告文档（review-report.md / validate-report.md）为每轮执行独立产物
 
 ## 7. 🏷️ 标记命令
 > `@sddu 标记` 管理特性流转状态

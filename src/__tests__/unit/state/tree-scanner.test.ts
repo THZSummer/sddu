@@ -42,7 +42,12 @@ describe('TreeScanner', () => {
 
     it('should find top level specs-tree features', async () => {
       mockAccess.mockResolvedValue(undefined);
-      mockReadDir.mockResolvedValue(['specs-tree-auth', 'specs-tree-user']);
+      mockReadDir.mockImplementation((dirPath: string) => {
+        if (dirPath === '/test-project') {
+          return Promise.resolve(['specs-tree-auth', 'specs-tree-user']);
+        }
+        return Promise.resolve([]);
+      });
       mockStat.mockImplementation((pathStr: string) => {
         if (pathStr.includes('auth') || pathStr.includes('user')) {
           return Promise.resolve({ isDirectory: () => true });
@@ -63,7 +68,7 @@ describe('TreeScanner', () => {
       mockReadDir.mockImplementation((dirPath: string) => {
         if (dirPath === '/test-project') {
           return Promise.resolve(['specs-tree-parent']);
-        } else if (dirPath.includes('specs-tree-parent')) {
+        } else if (dirPath === path.join('/test-project', 'specs-tree-parent')) {
           return Promise.resolve(['specs-tree-subfeature', 'other-file.txt']);
         }
         return Promise.resolve([]);
@@ -87,7 +92,12 @@ describe('TreeScanner', () => {
 
     it('should create flatMap with correct path lookups', async () => {
       mockAccess.mockResolvedValue(undefined);
-      mockReadDir.mockResolvedValue(['specs-tree-test']);
+      mockReadDir.mockImplementation((dirPath: string) => {
+        if (dirPath === '/test-project') {
+          return Promise.resolve(['specs-tree-test']);
+        }
+        return Promise.resolve([]);
+      });
       mockStat.mockResolvedValue({ isDirectory: () => true });
 
       const result = await scanTreeStructure('/test-project');
@@ -100,12 +110,17 @@ describe('TreeScanner', () => {
 
     it('should ignore .sddu and hidden directories', async () => {
       mockAccess.mockResolvedValue(undefined);
-      mockReadDir.mockResolvedValue([
-        'specs-tree-valid',
-        '.sddu-metadata',
-        '.hidden-folder',
-        'specs-tree-hidden'
-      ]);
+      mockReadDir.mockImplementation((dirPath: string) => {
+        if (dirPath === '/test-project') {
+          return Promise.resolve([
+            'specs-tree-valid',
+            '.sddu-metadata',
+            '.hidden-folder',
+            'specs-tree-hidden'
+          ]);
+        }
+        return Promise.resolve([]);
+      });
       mockStat.mockResolvedValue({ isDirectory: () => true });
 
       const result = await scanTreeStructure('/test-project');
@@ -117,11 +132,16 @@ describe('TreeScanner', () => {
 
     it('should handle mixed directory structures appropriately', async () => {
       mockAccess.mockResolvedValue(undefined);
-      mockReadDir.mockResolvedValue([
-        'specs-tree-regular',
-        'package.json',
-        'node_modules'
-      ]);
+      mockReadDir.mockImplementation((dirPath: string) => {
+        if (dirPath === '/test-project') {
+          return Promise.resolve([
+            'specs-tree-regular',
+            'package.json',
+            'node_modules'
+          ]);
+        }
+        return Promise.resolve([]);
+      });
       mockStat.mockImplementation((pathStr: string) => {
         if (pathStr.includes('specs-tree-regular')) {
           return Promise.resolve({ isDirectory: () => true });

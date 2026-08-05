@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="880" viewBox="0 0 1280 880" font-family="'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <filter id="rowShadow" x="-10%" y="-15%" width="120%" height="145%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+    <filter id="badgeShadow" x="-30%" y="-60%" width="160%" height="220%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.15"/>
+    </filter>
+    <marker id="flowArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#90a4ae"/>
+    </marker>
+    <marker id="redArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e53935"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="880" fill="#ffffff"/>
+
+  <!-- ============ Divider ============ -->
+  <line x1="645" y1="16" x2="645" y2="784" stroke="#90a4ae" stroke-width="3"/>
+
+  <!-- ============ Title bars ============ -->
+  <g>
+    <rect x="20" y="16" width="570" height="44" rx="8" fill="#ffebee" stroke="#ef9a9a" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <text x="305" y="44" font-size="16" font-weight="bold" fill="#c62828" text-anchor="middle">改造前 ❌  越界依赖</text>
+  </g>
+  <g>
+    <rect x="670" y="16" width="570" height="44" rx="8" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <text x="955" y="44" font-size="16" font-weight="bold" fill="#2e7d32" text-anchor="middle">改造后 ✅  职责隔离</text>
+  </g>
+
+  <!-- ============ LEFT ROWS (改造前) x0=20 ============ -->
+
+  <!-- Row 1 discovery y=72 (blue) -->
+  <g>
+    <rect x="20" y="72" width="600" height="88" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="28" y="80" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="122" y1="82" x2="122" y2="150"/>
+      <line x1="212" y1="82" x2="212" y2="150"/>
+      <line x1="575" y1="82" x2="575" y2="150"/>
+    </g>
+    <text x="37" y="119" font-size="16">🔍</text>
+    <text x="58" y="118" font-size="13" font-weight="bold" fill="#37474f">问题挖掘</text>
+    <text x="61" y="134" font-size="10" fill="#78909c">discovery</text>
+    <text x="134" y="91" font-size="9" fill="#78909c">职责</text>
+    <text x="134" y="110" font-size="12" font-weight="bold" fill="#37474f">问题挖掘</text>
+    <text x="134" y="126" font-size="9.5" fill="#78909c">辅导模式 · 7步工作流</text>
+    <text x="220" y="91" font-size="9" fill="#78909c">输入</text>
+    <text x="220" y="114" font-size="11" fill="#37474f">用户意图</text>
+    <text x="289" y="114" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="306" y="91" font-size="9" fill="#78909c">流程</text>
+    <text x="306" y="114" font-size="9.5" fill="#37474f" text-anchor="start">访谈 → 梳理 → 澄清</text>
+    <text x="460" y="114" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="477" y="91" font-size="9" fill="#78909c">输出</text>
+    <text x="477" y="112" font-size="10.5" fill="#37474f">discovery.md</text>
+    <text x="477" y="128" font-size="10" fill="#546e7a">问题清单</text>
+  </g>
+
+  <!-- Row 2 spec y=176 (blue) -->
+  <g>
+    <rect x="20" y="176" width="600" height="88" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="28" y="184" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="122" y1="186" x2="122" y2="254"/>
+      <line x1="212" y1="186" x2="212" y2="254"/>
+      <line x1="575" y1="186" x2="575" y2="254"/>
+    </g>
+    <text x="37" y="223" font-size="16">📋</text>
+    <text x="58" y="222" font-size="13" font-weight="bold" fill="#37474f">需求定义</text>
+    <text x="61" y="238" font-size="10" fill="#78909c">spec</text>
+    <text x="134" y="195" font-size="9" fill="#78909c">职责</text>
+    <text x="134" y="214" font-size="12" font-weight="bold" fill="#37474f">需求定义</text>
+    <text x="134" y="230" font-size="9.5" fill="#78909c">FR · NFR · EC</text>
+    <text x="220" y="195" font-size="9" fill="#78909c">输入</text>
+    <text x="220" y="218" font-size="11" fill="#37474f">discovery.md</text>
+    <text x="289" y="218" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="306" y="195" font-size="9" fill="#78909c">流程</text>
+    <text x="306" y="218" font-size="9.5" fill="#37474f" text-anchor="start">建模 → 提取 → 验证</text>
+    <text x="460" y="218" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="477" y="195" font-size="9" fill="#78909c">输出</text>
+    <text x="477" y="218" font-size="10.5" fill="#37474f">spec.md</text>
+  </g>
+
+  <!-- Row 3 plan y=280 (RED problem) -->
+  <g>
+    <rect x="20" y="280" width="600" height="88" rx="6" fill="#ffebee" stroke="#ef9a9a" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="28" y="288" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="122" y1="290" x2="122" y2="358"/>
+      <line x1="212" y1="290" x2="212" y2="358"/>
+      <line x1="575" y1="290" x2="575" y2="358"/>
+    </g>
+    <text x="37" y="327" font-size="16">📐</text>
+    <text x="58" y="326" font-size="13" font-weight="bold" fill="#37474f">技术设计</text>
+    <text x="61" y="342" font-size="10" fill="#78909c">plan</text>
+    <text x="134" y="299" font-size="9" fill="#78909c">职责</text>
+    <text x="134" y="318" font-size="12" font-weight="bold" fill="#37474f">技术设计</text>
+    <text x="134" y="334" font-size="9.5" font-weight="bold" fill="#d32f2f">代笔§5.8·§5.9</text>
+    <text x="220" y="299" font-size="9" fill="#78909c">输入</text>
+    <text x="220" y="322" font-size="11" fill="#37474f">spec.md</text>
+    <text x="289" y="322" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="306" y="299" font-size="9" fill="#78909c">流程</text>
+    <text x="306" y="320" font-size="9.5" fill="#37474f" text-anchor="start">方案对比 → ADR → 代笔策略 🔴</text>
+    <text x="460" y="322" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="477" y="299" font-size="9" fill="#78909c">输出</text>
+    <text x="477" y="320" font-size="10.5" fill="#37474f">plan.md</text>
+    <text x="477" y="336" font-size="10" fill="#546e7a">+ ADR</text>
+    <rect x="588" y="313" width="30" height="22" rx="11" fill="#e53935" filter="url(#badgeShadow)"/>
+    <text x="603" y="329" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">越界</text>
+  </g>
+
+  <!-- Row 4 tasks y=384 (blue) -->
+  <g>
+    <rect x="20" y="384" width="600" height="88" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="28" y="392" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="122" y1="394" x2="122" y2="462"/>
+      <line x1="212" y1="394" x2="212" y2="462"/>
+      <line x1="575" y1="394" x2="575" y2="462"/>
+    </g>
+    <text x="37" y="431" font-size="16">📊</text>
+    <text x="58" y="430" font-size="13" font-weight="bold" fill="#37474f">任务排布</text>
+    <text x="61" y="446" font-size="10" fill="#78909c">tasks</text>
+    <text x="134" y="403" font-size="9" fill="#78909c">职责</text>
+    <text x="134" y="422" font-size="12" font-weight="bold" fill="#37474f">任务排布</text>
+    <text x="134" y="438" font-size="9.5" fill="#78909c">依赖图 · 波次规划</text>
+    <text x="220" y="403" font-size="9" fill="#78909c">输入</text>
+    <text x="220" y="426" font-size="11" fill="#37474f">plan.md</text>
+    <text x="289" y="426" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="306" y="403" font-size="9" fill="#78909c">流程</text>
+    <text x="306" y="426" font-size="9.5" fill="#37474f" text-anchor="start">依赖分析 → 波次拆分</text>
+    <text x="460" y="426" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="477" y="403" font-size="9" fill="#78909c">输出</text>
+    <text x="477" y="424" font-size="10.5" fill="#37474f">tasks.md</text>
+    <text x="477" y="440" font-size="10" fill="#546e7a">+ tasks.json</text>
+  </g>
+
+  <!-- Row 5 build y=488 (blue) -->
+  <g>
+    <rect x="20" y="488" width="600" height="88" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="28" y="496" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="122" y1="498" x2="122" y2="566"/>
+      <line x1="212" y1="498" x2="212" y2="566"/>
+      <line x1="575" y1="498" x2="575" y2="566"/>
+    </g>
+    <text x="37" y="535" font-size="16">🔨</text>
+    <text x="58" y="534" font-size="13" font-weight="bold" fill="#37474f">实施构建</text>
+    <text x="61" y="550" font-size="10" fill="#78909c">build</text>
+    <text x="134" y="507" font-size="9" fill="#78909c">职责</text>
+    <text x="134" y="526" font-size="12" font-weight="bold" fill="#37474f">实施构建</text>
+    <text x="134" y="542" font-size="9.5" fill="#78909c">代码/配置 · 实现决策</text>
+    <text x="220" y="507" font-size="9" fill="#78909c">输入</text>
+    <text x="220" y="530" font-size="11" fill="#37474f">tasks.json</text>
+    <text x="289" y="530" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="306" y="507" font-size="9" fill="#78909c">流程</text>
+    <text x="306" y="528" font-size="9.5" fill="#37474f" text-anchor="start">编码 → 自洽检查 → build.md</text>
+    <text x="460" y="530" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="477" y="507" font-size="9" fill="#78909c">输出</text>
+    <text x="477" y="528" font-size="10.5" fill="#37474f">产物</text>
+    <text x="477" y="544" font-size="10" fill="#546e7a">+ build.md</text>
+  </g>
+
+  <!-- Row 6 review y=592 (GRAY passive) -->
+  <g>
+    <rect x="20" y="592" width="600" height="88" rx="6" fill="#f5f5f5" stroke="#b0bec5" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="28" y="600" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="122" y1="602" x2="122" y2="670"/>
+      <line x1="212" y1="602" x2="212" y2="670"/>
+      <line x1="575" y1="602" x2="575" y2="670"/>
+    </g>
+    <text x="37" y="639" font-size="16">🔎</text>
+    <text x="58" y="638" font-size="13" font-weight="bold" fill="#37474f">产物审查</text>
+    <text x="61" y="654" font-size="10" fill="#78909c">review</text>
+    <text x="134" y="611" font-size="9" fill="#78909c">职责</text>
+    <text x="134" y="630" font-size="12" font-weight="bold" fill="#37474f">被动审查</text>
+    <text x="134" y="646" font-size="9.5" fill="#e65100">无自主策略</text>
+    <text x="220" y="611" font-size="9" fill="#78909c">输入</text>
+    <text x="220" y="634" font-size="11" fill="#d32f2f">plan §5.8</text>
+    <text x="289" y="634" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="306" y="611" font-size="9" fill="#78909c">流程</text>
+    <text x="306" y="634" font-size="9.5" fill="#37474f" text-anchor="start">读策略 → 逐项审查</text>
+    <text x="460" y="634" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="477" y="611" font-size="9" fill="#78909c">输出</text>
+    <text x="477" y="634" font-size="10.5" fill="#37474f">review.md</text>
+    <rect x="572" y="625" width="46" height="22" rx="11" fill="#fb8c00" filter="url(#badgeShadow)"/>
+    <text x="595" y="641" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">⚠️ 依赖</text>
+  </g>
+
+  <!-- Row 7 validate y=696 (GRAY passive) -->
+  <g>
+    <rect x="20" y="696" width="600" height="88" rx="6" fill="#f5f5f5" stroke="#b0bec5" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="28" y="704" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="122" y1="706" x2="122" y2="774"/>
+      <line x1="212" y1="706" x2="212" y2="774"/>
+      <line x1="575" y1="706" x2="575" y2="774"/>
+    </g>
+    <text x="37" y="743" font-size="16">✅</text>
+    <text x="58" y="742" font-size="13" font-weight="bold" fill="#37474f">产物验证</text>
+    <text x="61" y="758" font-size="10" fill="#78909c">validate</text>
+    <text x="134" y="715" font-size="9" fill="#78909c">职责</text>
+    <text x="134" y="732" font-size="12" font-weight="bold" fill="#37474f">被动验证</text>
+    <text x="134" y="748" font-size="9.5" fill="#d32f2f">33%场景无法执行</text>
+    <text x="134" y="762" font-size="9.5" fill="#d32f2f">（源:spec.md）</text>
+    <text x="220" y="715" font-size="9" fill="#78909c">输入</text>
+    <text x="220" y="738" font-size="11" fill="#d32f2f">plan §5.9</text>
+    <text x="289" y="738" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="306" y="715" font-size="9" fill="#78909c">流程</text>
+    <text x="306" y="738" font-size="9.5" fill="#37474f" text-anchor="start">读策略 → 逐项验证</text>
+    <text x="460" y="738" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="477" y="715" font-size="9" fill="#78909c">输出</text>
+    <text x="477" y="738" font-size="10.5" fill="#37474f">validate.md</text>
+    <rect x="572" y="729" width="46" height="22" rx="11" fill="#fb8c00" filter="url(#badgeShadow)"/>
+    <text x="595" y="745" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">⚠️ 依赖</text>
+  </g>
+
+  <!-- ============ RIGHT ROWS (改造后) x0=670 ============ -->
+
+  <!-- Row 1 discovery y=72 (blue) -->
+  <g>
+    <rect x="670" y="72" width="600" height="88" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="678" y="80" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="772" y1="82" x2="772" y2="150"/>
+      <line x1="862" y1="82" x2="862" y2="150"/>
+      <line x1="1225" y1="82" x2="1225" y2="150"/>
+    </g>
+    <text x="687" y="119" font-size="16">🔍</text>
+    <text x="708" y="118" font-size="13" font-weight="bold" fill="#37474f">问题挖掘</text>
+    <text x="711" y="134" font-size="10" fill="#78909c">discovery</text>
+    <text x="784" y="91" font-size="9" fill="#78909c">职责</text>
+    <text x="784" y="110" font-size="12" font-weight="bold" fill="#37474f">问题挖掘</text>
+    <text x="784" y="126" font-size="9.5" fill="#78909c">辅导模式 · 7步工作流</text>
+    <text x="870" y="91" font-size="9" fill="#78909c">输入</text>
+    <text x="870" y="114" font-size="11" fill="#37474f">用户意图</text>
+    <text x="939" y="114" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="956" y="91" font-size="9" fill="#78909c">流程</text>
+    <text x="956" y="114" font-size="9.5" fill="#37474f" text-anchor="start">访谈 → 梳理 → 澄清</text>
+    <text x="1110" y="114" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="1127" y="91" font-size="9" fill="#78909c">输出</text>
+    <text x="1127" y="112" font-size="10.5" fill="#37474f">discovery.md</text>
+    <text x="1127" y="128" font-size="10" fill="#546e7a">问题清单</text>
+  </g>
+
+  <!-- Row 2 spec y=176 (blue) -->
+  <g>
+    <rect x="670" y="176" width="600" height="88" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="678" y="184" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="772" y1="186" x2="772" y2="254"/>
+      <line x1="862" y1="186" x2="862" y2="254"/>
+      <line x1="1225" y1="186" x2="1225" y2="254"/>
+    </g>
+    <text x="687" y="223" font-size="16">📋</text>
+    <text x="708" y="222" font-size="13" font-weight="bold" fill="#37474f">需求定义</text>
+    <text x="711" y="238" font-size="10" fill="#78909c">spec</text>
+    <text x="784" y="195" font-size="9" fill="#78909c">职责</text>
+    <text x="784" y="214" font-size="12" font-weight="bold" fill="#37474f">需求定义</text>
+    <text x="784" y="230" font-size="9.5" fill="#78909c">FR · NFR · EC</text>
+    <text x="870" y="195" font-size="9" fill="#78909c">输入</text>
+    <text x="870" y="218" font-size="11" fill="#37474f">discovery.md</text>
+    <text x="939" y="218" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="956" y="195" font-size="9" fill="#78909c">流程</text>
+    <text x="956" y="218" font-size="9.5" fill="#37474f" text-anchor="start">建模 → 提取 → 验证</text>
+    <text x="1110" y="218" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="1127" y="195" font-size="9" fill="#78909c">输出</text>
+    <text x="1127" y="218" font-size="10.5" fill="#37474f">spec.md</text>
+  </g>
+
+  <!-- Row 3 plan y=280 (GREEN fixed) -->
+  <g>
+    <rect x="670" y="280" width="600" height="88" rx="6" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="678" y="288" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="772" y1="290" x2="772" y2="358"/>
+      <line x1="862" y1="290" x2="862" y2="358"/>
+      <line x1="1225" y1="290" x2="1225" y2="358"/>
+    </g>
+    <text x="687" y="327" font-size="16">📐</text>
+    <text x="708" y="326" font-size="13" font-weight="bold" fill="#37474f">技术设计</text>
+    <text x="711" y="342" font-size="10" fill="#78909c">plan</text>
+    <text x="784" y="299" font-size="9" fill="#78909c">职责</text>
+    <text x="784" y="318" font-size="12" font-weight="bold" fill="#37474f">技术设计</text>
+    <text x="784" y="334" font-size="9" fill="#2e7d32">§5.1~§5.7 架构/方案/ADR</text>
+    <text x="870" y="299" font-size="9" fill="#78909c">输入</text>
+    <text x="870" y="322" font-size="11" fill="#37474f">spec.md</text>
+    <text x="939" y="322" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="956" y="299" font-size="9" fill="#78909c">流程</text>
+    <text x="956" y="320" font-size="9.5" fill="#37474f" text-anchor="start">方案对比 → ADR → 文件影响</text>
+    <text x="1110" y="322" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="1127" y="299" font-size="9" fill="#78909c">输出</text>
+    <text x="1127" y="320" font-size="10.5" fill="#37474f">plan.md</text>
+    <text x="1127" y="336" font-size="10" fill="#546e7a">+ ADR</text>
+    <rect x="1238" y="313" width="30" height="22" rx="11" fill="#66bb6a" filter="url(#badgeShadow)"/>
+    <text x="1253" y="329" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">回归</text>
+  </g>
+
+  <!-- Row 4 tasks y=384 (blue) -->
+  <g>
+    <rect x="670" y="384" width="600" height="88" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="678" y="392" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="772" y1="394" x2="772" y2="462"/>
+      <line x1="862" y1="394" x2="862" y2="462"/>
+      <line x1="1225" y1="394" x2="1225" y2="462"/>
+    </g>
+    <text x="687" y="431" font-size="16">📊</text>
+    <text x="708" y="430" font-size="13" font-weight="bold" fill="#37474f">任务排布</text>
+    <text x="711" y="446" font-size="10" fill="#78909c">tasks</text>
+    <text x="784" y="403" font-size="9" fill="#78909c">职责</text>
+    <text x="784" y="422" font-size="12" font-weight="bold" fill="#37474f">任务排布</text>
+    <text x="784" y="438" font-size="9.5" fill="#78909c">依赖图 · 波次规划</text>
+    <text x="870" y="403" font-size="9" fill="#78909c">输入</text>
+    <text x="870" y="426" font-size="11" fill="#37474f">plan.md</text>
+    <text x="939" y="426" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="956" y="403" font-size="9" fill="#78909c">流程</text>
+    <text x="956" y="426" font-size="9.5" fill="#37474f" text-anchor="start">依赖分析 → 波次拆分</text>
+    <text x="1110" y="426" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="1127" y="403" font-size="9" fill="#78909c">输出</text>
+    <text x="1127" y="424" font-size="10.5" fill="#37474f">tasks.md</text>
+    <text x="1127" y="440" font-size="10" fill="#546e7a">+ tasks.json</text>
+  </g>
+
+  <!-- Row 5 build y=488 (blue) -->
+  <g>
+    <rect x="670" y="488" width="600" height="88" rx="6" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="678" y="496" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="772" y1="498" x2="772" y2="566"/>
+      <line x1="862" y1="498" x2="862" y2="566"/>
+      <line x1="1225" y1="498" x2="1225" y2="566"/>
+    </g>
+    <text x="687" y="535" font-size="16">🔨</text>
+    <text x="708" y="534" font-size="13" font-weight="bold" fill="#37474f">实施构建</text>
+    <text x="711" y="550" font-size="10" fill="#78909c">build</text>
+    <text x="784" y="507" font-size="9" fill="#78909c">职责</text>
+    <text x="784" y="526" font-size="12" font-weight="bold" fill="#37474f">实施构建</text>
+    <text x="784" y="542" font-size="9.5" fill="#78909c">代码/配置 · 实现决策</text>
+    <text x="870" y="507" font-size="9" fill="#78909c">输入</text>
+    <text x="870" y="530" font-size="11" fill="#37474f">tasks.json</text>
+    <text x="939" y="530" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="956" y="507" font-size="9" fill="#78909c">流程</text>
+    <text x="956" y="528" font-size="9.5" fill="#37474f" text-anchor="start">编码 → 自洽检查 → build.md</text>
+    <text x="1110" y="530" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="1127" y="507" font-size="9" fill="#78909c">输出</text>
+    <text x="1127" y="528" font-size="10.5" fill="#37474f">产物</text>
+    <text x="1127" y="544" font-size="10" fill="#546e7a">+ build.md</text>
+  </g>
+
+  <!-- Row 6 review y=592 (GREEN autonomous) -->
+  <g>
+    <rect x="670" y="592" width="600" height="88" rx="6" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="678" y="600" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="772" y1="602" x2="772" y2="670"/>
+      <line x1="862" y1="602" x2="862" y2="670"/>
+      <line x1="1225" y1="602" x2="1225" y2="670"/>
+    </g>
+    <text x="687" y="639" font-size="16">🔎</text>
+    <text x="708" y="638" font-size="13" font-weight="bold" fill="#37474f">产物审查</text>
+    <text x="711" y="654" font-size="10" fill="#78909c">review</text>
+    <text x="784" y="611" font-size="9" fill="#78909c">职责</text>
+    <text x="784" y="630" font-size="12" font-weight="bold" fill="#2e7d32">自主审查</text>
+    <text x="784" y="646" font-size="9.5" fill="#2e7d32">逆向·静态分析</text>
+    <text x="870" y="611" font-size="9" fill="#78909c">输入</text>
+    <text x="896" y="634" font-size="9.5" fill="#37474f" text-anchor="middle">spec+plan+产物</text>
+    <text x="939" y="634" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="956" y="611" font-size="9" fill="#78909c">流程</text>
+    <text x="956" y="630" font-size="9.5" fill="#37474f" text-anchor="start">设计 C1~CN → 逐项审查</text>
+    <text x="956" y="647" font-size="8" fill="#78909c" text-anchor="start">(策略设计可与 build 并行)</text>
+    <text x="1110" y="634" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="1127" y="611" font-size="9" fill="#78909c">输出</text>
+    <text x="1123" y="632" font-size="10.5" fill="#37474f">review.md（策略）</text>
+    <text x="1123" y="648" font-size="8.5" fill="#78909c">review-report.md（报告）</text>
+    <rect x="1222" y="625" width="28" height="22" rx="11" fill="#43a047" filter="url(#badgeShadow)"/>
+    <text x="1236" y="641" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">自主</text>
+  </g>
+
+  <!-- Row 7 validate y=696 (GREEN autonomous) -->
+  <g>
+    <rect x="670" y="696" width="600" height="88" rx="6" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5" filter="url(#rowShadow)"/>
+    <rect x="678" y="704" width="90" height="72" rx="5" fill="#ffffff" fill-opacity="0.55"/>
+    <g stroke="#000000" stroke-opacity="0.06">
+      <line x1="772" y1="706" x2="772" y2="774"/>
+      <line x1="862" y1="706" x2="862" y2="774"/>
+      <line x1="1225" y1="706" x2="1225" y2="774"/>
+    </g>
+    <text x="687" y="743" font-size="16">✅</text>
+    <text x="708" y="742" font-size="13" font-weight="bold" fill="#37474f">产物验证</text>
+    <text x="711" y="758" font-size="10" fill="#78909c">validate</text>
+    <text x="784" y="715" font-size="9" fill="#78909c">职责</text>
+    <text x="784" y="732" font-size="12" font-weight="bold" fill="#2e7d32">自主验证</text>
+    <text x="784" y="748" font-size="9.5" fill="#2e7d32">逆向·动态验证</text>
+    <text x="870" y="715" font-size="9" fill="#78909c">输入</text>
+    <text x="896" y="736" font-size="9" fill="#37474f" text-anchor="middle">spec+NFR+产物</text>
+    <text x="896" y="752" font-size="8" fill="#78909c" text-anchor="middle">（plan 作上下文）</text>
+    <text x="939" y="738" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="956" y="715" font-size="9" fill="#78909c">流程</text>
+    <text x="956" y="734" font-size="9.5" fill="#37474f" text-anchor="start">设计 V1~VN → 编写脚本 → 验证</text>
+    <text x="956" y="751" font-size="8" fill="#78909c" text-anchor="start">(策略+脚本可与 build 并行)</text>
+    <text x="1110" y="738" font-size="14" fill="#90a4ae" text-anchor="middle">→</text>
+    <text x="1127" y="715" font-size="9" fill="#78909c">输出</text>
+    <text x="1123" y="736" font-size="10.5" fill="#37474f">validate.md（策略）</text>
+    <text x="1123" y="752" font-size="8.5" fill="#78909c">validate-report.md（报告）</text>
+    <rect x="1222" y="729" width="28" height="22" rx="11" fill="#43a047" filter="url(#badgeShadow)"/>
+    <text x="1236" y="745" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">自主</text>
+  </g>
+
+  <!-- ============ Pipeline flow arrows — LEFT ============ -->
+  <g stroke="#90a4ae" stroke-width="1.8" fill="none" marker-end="url(#flowArrow)">
+    <line x1="337" y1="160" x2="337" y2="176"/>
+    <line x1="337" y1="264" x2="337" y2="280"/>
+    <line x1="337" y1="368" x2="337" y2="384"/>
+    <line x1="337" y1="472" x2="337" y2="488"/>
+    <line x1="337" y1="576" x2="337" y2="592"/>
+    <line x1="337" y1="680" x2="337" y2="696"/>
+  </g>
+  <text x="322" y="430" transform="rotate(-90 322 430)" font-size="10" font-style="italic" fill="#90a4ae" text-anchor="middle">输出→下阶段输入</text>
+
+  <!-- ============ Pipeline flow arrows — RIGHT ============ -->
+  <g stroke="#90a4ae" stroke-width="1.8" fill="none" marker-end="url(#flowArrow)">
+    <line x1="987" y1="160" x2="987" y2="176"/>
+    <line x1="987" y1="264" x2="987" y2="280"/>
+    <line x1="987" y1="368" x2="987" y2="384"/>
+    <line x1="987" y1="472" x2="987" y2="488"/>
+    <line x1="987" y1="576" x2="987" y2="592"/>
+    <line x1="987" y1="680" x2="987" y2="696"/>
+  </g>
+  <text x="972" y="430" transform="rotate(-90 972 430)" font-size="10" font-style="italic" fill="#90a4ae" text-anchor="middle">输出→下阶段输入</text>
+
+  <!-- ============ Red dashed dependency arrows (LEFT only) ============ -->
+  <g>
+    <line x1="337" y1="368" x2="337" y2="592" stroke="#e53935" stroke-width="2" stroke-dasharray="7 4" marker-end="url(#redArrow)"/>
+    <line x1="347" y1="368" x2="347" y2="696" stroke="#e53935" stroke-width="2" stroke-dasharray="7 4" marker-end="url(#redArrow)"/>
+    <text x="342" y="525" font-size="11" font-weight="bold" fill="#e53935" text-anchor="middle" transform="rotate(-90 342 525)">代笔策略 → 被动消费</text>
+  </g>
+
+  <circle cx="645" cy="434" r="20" fill="#ffffff" stroke="#90a4ae" stroke-width="2.5"/>
+  <text x="645" y="444" font-size="22" font-weight="bold" fill="#546e7a" text-anchor="middle">→</text>
+
+  <!-- ============ Legend ============ -->
+  <rect x="20" y="790" width="1240" height="50" rx="10" fill="#fafbfc" stroke="#eceff1" stroke-width="1.5"/>
+  <g font-size="9.5" fill="#546e7a">
+    <circle cx="120" cy="815" r="5" fill="#42a5f5"/>
+    <text x="132" y="818">未变更</text>
+    <circle cx="360" cy="815" r="5" fill="#e53935"/>
+    <text x="372" y="818">越界代笔（plan 前）</text>
+    <circle cx="120" cy="831" r="5" fill="#b0bec5"/>
+    <text x="132" y="834">被动消费（review/validate 前）</text>
+    <circle cx="430" cy="831" r="5" fill="#fb8c00"/>
+    <text x="442" y="834">入口依赖</text>
+    <circle cx="600" cy="831" r="5" fill="#66bb6a"/>
+    <text x="612" y="834">职责回归 / 自主策略（plan/review/validate 后）</text>
+  </g>
+</svg>
