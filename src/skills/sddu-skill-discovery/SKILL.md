@@ -9,24 +9,27 @@ description: "当 SDDU Agent 需要发现可用的 SDDU Skill 时加载此 Skill
 
 阅读本章节即可使用本 Skill，无需阅读后续实现细节。
 
+发现操作的确定性步骤（目录扫描、frontmatter 解析、level 判定）由 `scripts/discover.cjs` 锁死实现——Agent 调用脚本即可，**不要**手动执行 `ls`/`read`/解析 YAML 等自由操作。
+
 ### 参数
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|:--:|------|
-| `action` | string | ✅ | `"list"` — 获取所有 Skill 目录名（会话初始、需要概览时）<br>`"summary"` — 读取指定 Skill 摘要（用户任务出现、需判断是否匹配时）<br>`"path"` — 获取指定 Skill 路径（确定使用、需加载 body 时） |
+| `action` | string | ✅ | `list` — 获取所有 Skill 目录名<br>`summary <name>` — 读取指定 Skill 摘要<br>`path <name>` — 获取指定 Skill 路径 |
 | `name` | string | 条件 | `summary` 和 `path` 需要——Skill 目录名 |
+| `--user-src` / `--fw-src` | string | ❌ | 覆盖源目录（默认 `.sddu/skills/` / `.opencode/plugins/sddu/skills/`） |
 
-### 返回值
+### 返回值（stdout JSON）
 
-**action = "list"** — 列出所有可用 Skill 目录名：
+**`list`**：
 ```
 ["sddu-skill-discovery", "sddu-skill-creator", "sddu-skill-sync", "payment-integration"]
 ```
 - 扫描 `.sddu/skills/`（用户级）+ `.opencode/plugins/sddu/skills/`（框架级）
-- 仅返回符合 `^[a-z0-9]+(-[a-z0-9]+)*$` 的目录名
+- 仅返回符合 `^[a-z0-9]+(-[a-z0-9]+)*$` 的目录名（隐藏目录跳过）
 - 源目录不存在时跳过，不报错
 
-**action = "summary"** — 读取指定 Skill 的摘要信息：
+**`summary <name>`**：
 ```
 { "name": "payment-integration", "description": "...", "level": "user", "source": ".sddu/skills/payment-integration/" }
 ```
@@ -35,8 +38,9 @@ description: "当 SDDU Agent 需要发现可用的 SDDU Skill 时加载此 Skill
 |------|--------|
 | 目录无 SKILL.md | `{ "error": "invalid", "reason": "missing SKILL.md" }` |
 | frontmatter 缺少必填字段 | `{ "error": "malformed", "reason": "missing name/description" }` |
+| 技能不存在 | `{ "error": "not_found", "name": "<name>" }` |
 
-**action = "path"** — 获取指定 Skill 的目录路径：
+**`path <name>`**：
 ```
 { "path": ".sddu/skills/payment-integration/", "level": "user" }
 ```
@@ -45,26 +49,28 @@ description: "当 SDDU Agent 需要发现可用的 SDDU Skill 时加载此 Skill
 ### 调用示例
 
 ```
-{ action: "list" }
+node scripts/discover.cjs list
 → ["sddu-skill-discovery", "sddu-skill-creator", ...]
 
-{ action: "summary", name: "payment-integration" }
+node scripts/discover.cjs summary payment-integration
 → { name: "...", description: "...", level: "user", ... }
 或 → { error: "invalid", reason: "missing SKILL.md" }
 
-{ action: "path", name: "payment-integration" }
+node scripts/discover.cjs path payment-integration
 → { path: ".sddu/skills/payment-integration/", level: "user" }
 ```
 
 ### 冷启动
 
-若 `{ action: "list" }` 结果包含 `sddu-skill-sync` 但实际目录 `.opencode/skills/` 为空——从源目录 `.opencode/plugins/sddu/skills/sddu-skill-sync/SKILL.md` 加载 `sddu-skill-sync` 执行同步。
+若 `list` 结果包含 `sddu-skill-sync` 但实际目录 `.opencode/skills/` 为空——从源目录 `.opencode/plugins/sddu/skills/sddu-skill-sync/SKILL.md` 加载 `sddu-skill-sync` 执行同步。
 
 ---
 
 ## 操作
 
-> 以下为接口的实现细节——LLM 按 ## 接口 中的参数调用即可，无需阅读本节。
+> 以下为接口的实现细节——LLM 按 ## 接口 中的参数调用即可。
+>
+> **执行方式**：本 Skill 的确定性步骤（扫描、frontmatter 解析、level 判定）由 `scripts/discover.cjs` 实现。Agent 只需调用脚本并解读 JSON；以下各操作为**原理说明**（知识背景），供理解与排障，不要求 Agent 手动执行。
 
 ### 操作 1：列出所有 Skill
 
@@ -209,8 +215,23 @@ sddu-skill-sync      ──→ 告诉 Agent 如何同步 Skill
 三者共同实现：「用 Skill 发现 Skill + 用 Skill 创建 Skill + 用 Skill 同步 Skill」
 ```
 
+---
+
+## 脚本
+
+### discover.cjs（确定性发现脚本）
+
+- **用途**：扫描源目录发现 SDDU Skill，实现 list / summary / path 三个确定性操作
+- **入参**：见 ## 接口 参数表（`action` + 可选 `name`，`--user-src` / `--fw-src` 覆盖源目录）
+- **出参**：stdout JSON（`list` → 名称数组；`summary` → `{name, description, level, source}`；`path` → `{path, level}`）
+- **独立实现**：本脚本与 `sddu-skill-sync` 的 `sync.cjs` 互相独立、不共享代码（两个技能解耦，各自零依赖）
+- **零依赖**：Node 内置模块（fs / path / util），无需安装
+
+---
+
 ## 修订记录
 
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 基于 spec FR-025 和 plan ADR-004 创建三阶段渐进披露模型 | 2026-07-19 | SDDU Build Agent |
+| v1.1 | 脚本化：新增 `scripts/discover.cjs` 锁死确定性步骤（目录扫描/frontmatter 解析/level 判定），替代 Agent 手动 ls/read；独立实现，与 sddu-skill-sync 解耦 | 2026-08-12 | @sddu-fast |
