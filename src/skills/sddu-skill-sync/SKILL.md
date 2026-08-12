@@ -9,38 +9,48 @@ description: "当需要将 SDDU Skill 从源目录同步到实际目录时加载
 
 阅读本章节即可使用本 Skill，无需阅读后续实现细节。
 
+同步的确定性操作（扫描、拷贝、manifest 更新、清理、备份/回滚）由 `scripts/sync.cjs` 锁死实现——Agent 调用脚本即可，**不要**手动执行 `ls`/`cp`/编辑 manifest 等自由操作。
+
 ### 参数
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|:--:|------|
-| — | — | — | 无参数——加载本 Skill 即执行同步 |
+| `--apply` | flag | ❌ | 实际执行。默认 dry-run 只输出预览报告，不写任何文件 |
+| `--dest` | string | ❌ | 实际目录（默认 `.opencode/skills/`） |
+| `--user-src` | string | ❌ | 用户级源目录（默认 `.sddu/skills/`） |
+| `--fw-src` | string | ❌ | 框架级源目录（默认 `.opencode/plugins/sddu/skills/`） |
+| `--backup-dir` | string | ❌ | 备份目录（默认 `<dest>/.backup/`） |
+| `--rollback` | string | ❌ | 回滚到指定备份时间戳 |
 
-### 返回值
-```
-=== SDDU Skill 同步报告 ===
-同步时间：...
-实际目录：.opencode/skills/
+### 返回值（stdout JSON）
 
-新增：N 个（源目录有、实际目录无）
-更新：N 个（源目录版本更新）
-清理：N 个（源目录已删除的残留）
-冲突：N 个（命名冲突，框架级优先覆盖）
 ```
+{ "mode": "dry-run" | "apply",
+  "dest": "<实际目录>",
+  "scanned": ["<技能名>"...],
+  "added": [...], "updated": [...], "skipped": [...],
+  "cleaned": [...], "protected": [...], "conflicts": [],
+  "backup": "<备份路径>" }        // 仅 apply 模式
+```
+
+- `protected`：实际目录中**非 SDDU 创建的第三方技能**——只报告，绝不拷贝/覆盖/清理/触碰
+- 退出码：成功 0；失败（回滚目标不存在等）1
 
 可能异常：
 
 | 情况 | 结果 |
 |------|------|
-| 实际目录无写入权限 | 报告权限不足，建议在 `opencode.json` 中为 `sddu-skill-sync` 设置 `allow` |
-| 无法识别 LLM Agent 工具 | 提示用户手动指定实际目录路径 |
-| 源目录为空 | 报告无操作，跳过 |
+| 实际目录无写入权限 | 报错退出，建议在 `opencode.json` 中为 `sddu-skill-sync` 设置 `allow` |
+| 源目录为空 | 报告 `scanned: []`，无操作 |
+| 回滚目标备份不存在 | 报错退出（exit 1） |
 
 ### 调用示例
 
 ```
 用户："同步 SDDU Skills"
-→ 加载本 Skill
-→ 扫描源目录 → 检测实际目录 → 拷贝 → 管辖标识 → 清理 → 输出报告
+→ 先干跑预览：node scripts/sync.cjs
+→ 确认无误后执行：node scripts/sync.cjs --apply
+→ 读 stdout JSON 报告，向用户汇报新增/更新/清理/受保护项
 ```
 
 ---
@@ -48,6 +58,8 @@ description: "当需要将 SDDU Skill 从源目录同步到实际目录时加载
 ## 操作
 
 > 以下为接口的实现细节——LLM 按 ## 接口 中的参数调用即可。
+>
+> **执行方式**：本 Skill 的确定性步骤（扫描、拷贝、manifest 更新、清理、备份/回滚）由 `scripts/sync.cjs` 实现。Agent 只需调用脚本并解读 JSON 报告；以下各步骤为**原理说明**（知识背景），供理解与排障，不要求 Agent 手动执行。
 
 ### 步骤 1：扫描源目录
 
@@ -226,6 +238,25 @@ SDDU 管辖 Skill 总数：5 个
 
 > **跨 LLM Agent 工具注意事项**：不同 LLM Agent 工具提供的文件操作工具名称和权限模型可能不同（如 OpenCode 使用 `bash` 工具，Claude Code 使用 `Write`/`Edit` 工具）。本 Skill body 使用通用自然语言描述操作意图（如「拷贝文件」「删除目录」），Agent 应根据当前环境自行选择可用的工具执行。如果当前环境缺少必要的文件操作权限，Agent 应在同步报告中说明并建议用户手动授予权限。
 
+---
+
+## 脚本
+
+### sync.cjs（确定性同步脚本）
+
+- **用途**：扫描源目录 → 全量覆盖拷贝到实际目录 → 更新 manifest → 清理残留 → 输出 JSON 报告
+- **入参**：见 ## 接口 参数表（`--apply` / `--dest` / `--user-src` / `--fw-src` / `--backup-dir` / `--rollback`）
+- **出参**：stdout JSON（`mode` / `scanned` / `added` / `updated` / `skipped` / `cleaned` / `protected` / `backup`）
+- **安全设计**：
+  - **备份先行**：`--apply` 执行前自动备份实际目录到 `<dest>/.backup/<时间戳>/`（含 manifest 快照），可用 `--rollback <时间戳>` 恢复
+  - **白名单保护**：只操作 `.sddu-manifest.txt` 中登记的 SDDU 管辖技能
+  - **第三方硬保护**：实际目录中存在但不在 manifest 且源目录无的技能（用户手动放置的第三方 Skill）→ 归入 `protected`，**绝不**拷贝/覆盖/清理/触碰
+  - **默认 dry-run**：不带 `--apply` 只输出预览，不写任何文件；确认后再实际执行
+  - **嵌套防御**：拷贝采用「先删目标再拷贝」或内容合并（`<src>/.` → `<dst>/`），**禁止**对已存在目标执行 `cp -r <src> <dst>`（会产生 `xxx/xxx/` 嵌套目录）
+- **零依赖**：Node 内置模块（fs / path / util），无需安装
+
+---
+
 ## 诊断与排错
 
 ### 常见问题
@@ -237,6 +268,7 @@ SDDU 管辖 Skill 总数：5 个
 | 用户级 Skill 被覆盖 | 用户级 Skill 使用了 `sddu-` 前缀（框架保留前缀） | 将用户级 Skill 重命名为无 `sddu-` 前缀的名称 |
 | 第三方 Skill 被误删 | `.sddu-manifest.txt` 损坏或手动编辑错误 | 恢复 `.sddu-manifest.txt` 备份，或手动重新构建清单 |
 | 同步提示缺少文件操作权限 | Agent 工具权限配置不足 | 在 `opencode.json` 中为 `sddu-skill-sync` 设置 `allow` 权限 |
+| 实际目录出现 `xxx/xxx/` 嵌套目录 | 手工执行 `cp -r <src> <dst>`（目标已存在）或旧版同步 | 删除嵌套层目录（`xxx/xxx/`），用 `scripts/sync.cjs --apply` 重跑（脚本先删后拷，不会嵌套） |
 
 ### 冷启动场景
 
@@ -264,3 +296,12 @@ sddu-skill-sync       ──→ 告诉 Agent 如何将 Skill 同步到实际目�
 - 同步完成后，LLM Agent 通过原生机制扫描实际目录，自动发现并加载 Skill
 
 三者共同实现「用 Skill 发现 Skill + 用 Skill 创建 Skill + 用 Skill 同步 Skill」的完整 Skill 生态闭环。
+
+---
+
+## 修订记录
+
+| 版本 | 变更说明 | 日期 | 修订人 |
+|------|---------|------|--------|
+| v1.0 | 初始创建 — 扫描源目录 → 拷贝 → 管辖标识 → 清理 → 报告 | 2026-07-19 | SDDU Build Agent |
+| v1.1 | 脚本化：新增 `scripts/sync.cjs` 锁死确定性步骤（扫描/拷贝/manifest/清理），杜绝 Agent 手动 `cp -r` 嵌套；默认 dry-run + `--apply` 执行；备份先行 + `--rollback` 回滚；第三方技能硬保护（`protected`） | 2026-08-12 | @sddu-fast |

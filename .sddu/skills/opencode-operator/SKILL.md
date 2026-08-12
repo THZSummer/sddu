@@ -474,7 +474,12 @@ node scripts/serve-api.cjs sessions --port 4096
 
 | 脚本 | 路径 | 用途 |
 |------|------|------|
-| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API。11 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）；**只读巡检** `ps`（列出运行中的 serve 进程加健康探测）、`sessions`（列出会话，默认摘要最近5条，支持 --grep/--limit/--full，会话数据全局共享）、`rm`（删除会话不可逆）。零依赖，stdout JSON。通用参数 `--port`（必填，默认 4096），`--hostname`（可选），`--timeout`/`--interval`（轮询控制）。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
+| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API（**Agent 接口**）。11 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）；**只读巡检** `ps`（列出运行中的 serve 进程加健康探测）、`sessions`（列出会话，默认摘要最近5条，支持 --grep/--limit/--full，会话数据全局共享）、`rm`（删除会话不可逆）。零依赖，stdout JSON。通用参数 `--port`（必填，默认 4096），`--hostname`（可选），`--timeout`/`--interval`（轮询控制）。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
+| restart.cjs | scripts/server/restart.cjs | 重启 opencode serve（**人工运维工具**）。杀旧进程（SIGTERM → kill -9 兜底）→ spawn detached 启动 → 30s 健康检查 → 日志/PID 落盘 `<dir>/.opencode/logs/`。人类友好输出。默认 `--port 14096`、`--dir` 默认当前工作目录（可用 `--dir <path>` 覆盖）。 |
+| stop.cjs | scripts/server/stop.cjs | 停止 opencode serve（**人工运维工具**）。终止占用端口进程（SIGTERM → kill -9 兜底），确认端口释放。人类友好输出。默认 `--port 14096`。 |
+| attach.cjs | scripts/server/attach.cjs | 一键 TUI attach 到运行中的 serve（**人工运维工具**）。健康检查通过后以 `stdio: inherit` 启动 `opencode attach`。参数同上（默认 `--port 14096`、`--dir` 默认当前工作目录）。 |
+
+> **分层约定**：`scripts/server/` 下为**人用**运维脚本（人类友好文本输出）；`serve-api.cjs` 为 **LLM Agent 用**接口（stdout JSON）。Agent 不得调用 server/ 脚本解析输出。
 
 ---
 
@@ -552,3 +557,4 @@ curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').re
 | v2.8 | 接口章节自发现提示扩展为全集块（serve-api + opencode CLI 并列） | 2026-07-26 | @sddu-fast |
 | v2.9 | sessions 加 --grep/--limit/--full 参数 + 文档说明会话数据全局共享 | 2026-07-26 | @sddu-fast |
 | v3.0 | sessions 默认 limit 从 20 改为 5 | 2026-07-26 | @sddu-fast |
+| v3.1 | 新增人工运维脚本 `scripts/server/`（restart.cjs / stop.cjs / attach.cjs，人用，CJS 人类友好输出）；分层约定：server/ 人用 vs serve-api.cjs Agent 用 | 2026-08-12 | @sddu-fast |
