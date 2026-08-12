@@ -224,38 +224,53 @@ async function cmdSend(opts) {
 
 // ─── 子命令：stop ───
 
+// 获取占用指定端口的进程 PID（lsof 优先，回退 fuser）
+function portPids(port) {
+  try {
+    const out = execSync(`lsof -ti:${port} 2>/dev/null`).toString().trim();
+    if (out) return out.split('\n');
+  } catch { /* lsof 无输出或不存在 */ }
+  try {
+    const out = execSync(`fuser ${port}/tcp 2>/dev/null`).toString().trim();
+    if (out) return out.split(/\s+/).filter(Boolean);
+  } catch { /* fuser 无输出或不存在 */ }
+  return [];
+}
+
 function cmdStop(opts) {
   const port = opts.port;
   requireOpts(opts, ['port']);
 
-  try {
-    const pidStr = execSync(`lsof -ti:${port} 2>/dev/null`).toString().trim();
-    if (!pidStr) {
-      output({ killed: false, port: parseInt(port), reason: '端口无进程' });
-      return;
-    }
-
-    const pids = pidStr.split('\n');
-    for (const p of pids) {
-      try { process.kill(parseInt(p), 'SIGTERM'); } catch {}
-    }
-
-    // 等待进程退出
-    let killed = false;
-    for (let i = 0; i < 10; i++) {
-      try {
-        execSync(`lsof -ti:${port} 2>/dev/null`);
-        // 端口仍被占用，同步等待 500ms
-        execSync('sleep 0.5');
-      } catch {
-        killed = true;
-        break;
-      }
-    }
-
-    output({ killed: true, port: parseInt(port), pids: pids.map(Number) });
-  } catch {
+  const pids = portPids(port);
+  if (pids.length === 0) {
     output({ killed: false, port: parseInt(port), reason: '端口无进程' });
+    return;
+  }
+
+  // 1. SIGTERM 优雅停止
+  for (const p of pids) {
+    try { process.kill(parseInt(p), 'SIGTERM'); } catch {}
+  }
+  try { execSync('sleep 1'); } catch {}
+
+  // 2. 残留检测 + kill -9 兜底
+  let forced = false;
+  const remain = portPids(port);
+  if (remain.length > 0) {
+    for (const p of remain) {
+      try { process.kill(parseInt(p), 'SIGKILL'); } catch {}
+    }
+    forced = true;
+    try { execSync('sleep 0.5'); } catch {}
+  }
+
+  // 3. 最终确认（真实状态，避免误报）
+  const after = portPids(port);
+  if (after.length === 0) {
+    output({ killed: true, port: parseInt(port), pids: pids.map(Number), forced });
+  } else {
+    output({ killed: false, port: parseInt(port), pids: after.map(Number), reason: '仍有进程残留，请手动检查' });
+    process.exit(1);
   }
 }
 
