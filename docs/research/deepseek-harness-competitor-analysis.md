@@ -58,6 +58,57 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
+```mermaid
+graph TB
+    subgraph Apps["apps/ 前端与 CLI"]
+        CLI["cli<br/>(dsh CLI)"]
+        WEB["web<br/>(Web UI @ 127.0.0.1:3080)"]
+    end
+
+    subgraph Profile["profile 分层组装"]
+        BASE["dsh-base<br/>(模型/工具/持久化/沙箱)"]
+        WEBAPP["dsh-web-app"]
+        HEADLESS["dsh-headless"]
+        PATCH["cordis.patch.yml<br/>(overlay patch)"]
+        BASE --> WEBAPP
+        BASE --> HEADLESS
+        PATCH -.patch.-> WEBAPP
+        PATCH -.patch.-> HEADLESS
+    end
+
+    subgraph Core["packages/core/ 产品 API 脊柱"]
+        SESSION["session<br/>(append-only 事件日志)"]
+        SPP["system-prompt<br/>(提示词组装)"]
+        TOOLS["tools<br/>(工具注册表 + 把关流水线)"]
+        AGENT["agent / agent-loop<br/>(接口 + 驱动器)"]
+        SCOPE["scope<br/>(作用域原语)"]
+        SESSION --> AGENT
+        SPP --> AGENT
+        TOOLS --> AGENT
+        SCOPE -.底层.-> SESSION
+        SCOPE -.底层.-> TOOLS
+    end
+
+    subgraph Caps["能力 seam 与方法论插件"]
+        LLM["llm/ 统一 LLM seam"]
+        SUB["subagent/ 子代理 seam"]
+        SKILL["skill/ 技能注册表"]
+        PLAN["plan/ plan mode"]
+        FS["fs/shell/lsp/web/e2b<br/>(能力 seam)"]
+    end
+
+    subgraph Platform["平台与协议"]
+        BOOT["boot/sdk/acp/api/typert"]
+        VENDOR["vendor/Cordis<br/>(pinned 同步)"]
+    end
+
+    Apps --> Profile
+    Profile --> Core
+    Core --> Caps
+    Caps --> Platform
+    VENDOR -.框架底座.-> Core
+```
+
 | 包族 | 职责 | 关键设计 |
 |------|------|---------|
 | `core/session` | append-only `SessionEvent` 日志（唯一事实源） | 模型历史从日志 `deriveMessages()` 派生，不单独存储 |
@@ -92,6 +143,32 @@ Cordis 五个核心概念（vendor 引入，`docs/cordis-primer.md`）：
 4. **类型化事件用于通信**（`emit` / `waterfall` / `parallel` / `serial` 四种分发模式）
 5. **注册是可逆的副作用**（`ctx.effect()` / `ctx.on()` 安装，reload/teardown 自动撤销）
 
+```mermaid
+graph LR
+    subgraph Kernel["❌ 无特权内核"]
+        direction LR
+        M["模型适配器<br/>(llm/)"]
+        T["工具注册表<br/>(tools/)"]
+        S["会话日志<br/>(session/)"]
+        L["agent loop 本身<br/>(agent-loop/)"]
+        M -.->|都是插件| C
+        T -.->|都是插件| C
+        S -.->|都是插件| C
+        L -.->|都是插件| C
+        C["Cordis 插件树<br/>(零特权内核)"]
+    end
+
+    subgraph Ext["扩展方式"]
+        P1["插件 A<br/>ctx.fs 提供方"]
+        P2["插件 B<br/>tools/* 事件监听"]
+        P3["插件 C<br/>ctx.llm 适配器"]
+    end
+
+    C <-->|挂载到其他插件旁边| Ext
+    style C fill:#f9f,stroke:#333,stroke-width:2px
+    style Kernel fill:#fff5f5,stroke:#d33
+```
+
 > **与 SDDU 对比**：SDDU 采用"固定 Agent 角色 + 可扩展 Skill"双层架构；dsh 是"一切皆插件"的单层插件树。SDDU 的 Agent 是流程角色（有明确阶段边界），dsh 的插件是能力单元（按 scope 叠加）。理念差异：SDDU 用**角色约束**保证流程纪律，dsh 用**作用域隔离**保证能力可组合。
 
 ### 3.2 append-only 会话事件日志（单一事实源）
@@ -113,11 +190,57 @@ dsh 的会话模型是 **append-only `SessionEvent` 日志**，12 种事件变�
 
 派生能力全部来自事件流：`deriveMessages()`（模型历史）、fork（分支）、resume（恢复）、compaction（压缩）、transcript（文本记录）、遥测、持久化。
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 用户
+    participant L as agent-loop 驱动器
+    participant LOG as 会话日志<br/>(append-only)
+    participant M as LLM (ctx.llm)
+    participant T as 工具流水线 (ctx.tools)
+
+    U->>L: 输入（inbox）
+    L->>LOG: turn/start（持久）
+    L->>L: 组装提示词 + 工具 schema
+    L->>LOG: step/start（持久）
+    L->>LOG: user/message（持久）
+    L->>M: llm/stream（实时）
+    M-->>LOG: assistant/chunk* → assistant/message（持久）
+    L->>T: tool/call（持久）
+    T-->>L: tool/result（持久）
+    L->>LOG: step/end（持久）
+    alt 工具欠下另一请求 或 有新输入
+        L->>L: claim → 下一个 step
+    else 工作全部完成
+        L->>LOG: turn/end（持久）
+    end
+```
+
 > **与 SDDU 对比**：SDDU 用 state.json（可变状态机，phase + status）追踪 Feature 状态；dsh 用 append-only 事件日志（可回放、可 fork、可恢复）。SDDU 的"文档即状态"是**产物级**日志（每阶段产出文档），dsh 的"事件即状态"是**事件级**日志（每个动作都有记录）。两者哲学一致（可追溯），但粒度不同：dsh 可精确回放到任意时间点，SDDU 只能看到阶段产物快照。
 
 ### 3.3 工具流水线：waterfall 事件 + 单调 guard
 
 `ctx.tools.execute()` 执行链：`tools/pre-execute`（可重排 allow/deny/ask）→ 注册的单调 guard → `tools/execute`（环绕包装层）→ `tools/post-execute`（检查/替换）→ `finalizeContent`（工具自有的内容收尾）→ `tools/result`（不可变权威结果）。
+
+```mermaid
+flowchart LR
+    IN["ToolExecutionInput<br/>(callId + args + signal)"]
+    MAT["物化 + 冻结<br/>lossless JSON 参数"]
+    PRE["tools/pre-execute<br/>waterfall: allow / deny / ask"]
+    GUARD{"单调 guard<br/>返回 reason?"}
+    EXEC["tools/execute<br/>环绕包装层<br/>(timeout/retry/metrics)"]
+    POST["tools/post-execute<br/>accept / replace / block"]
+    FINAL["finalizeContent<br/>(工具自有收尾)"]
+    RESULT["tools/result<br/>不可变权威结果"]
+
+    IN --> MAT --> PRE --> GUARD
+    GUARD -- "否 → 继续" --> EXEC --> POST --> FINAL --> RESULT
+    GUARD -- "是 → 拒绝<br/>(不可被后续翻转)" --> DENY["deny<br/>结构化错误"]
+    DENY --> RESULT
+
+    style GUARD fill:#fff5f5,stroke:#d33,stroke-width:2px
+    style RESULT fill:#f0fff0,stroke:#3a3,stroke-width:2px
+```
 
 **安全设计的三个亮点**：
 
@@ -132,6 +255,27 @@ dsh 的会话模型是 **append-only `SessionEvent` 日志**，12 种事件变�
 ### 3.4 Skill 系统：提供方注册表 + rank 优先级
 
 dsh 的 skill 能力族（`packages/skill/`）是一个**提供方注册表**：`ctx.skills` 组合本地、内嵌、远程或其他提供方，Provider 接口为 `list()` + `get()`（`docs/subsystems/skills.md`）。
+
+```mermaid
+graph TB
+    subgraph Providers["SkillProvider 提供方（list() + get()）"]
+        LOCAL["skill-filesystem<br/>本地文件系统"]
+        EMBED["内嵌提供方<br/>(dsh-skill-badge)"]
+        REMOTE["远程提供方<br/>(可选)"]
+    end
+
+    REG["ctx.skills 注册表<br/>(宿主层 + scope 分层)"]
+    CACHE["发现缓存<br/>(以 scope 链为键)"]
+    CONS["Consumer<br/>dsh-tool-skill<br/>面向模型的 skill 工具"]
+
+    LOCAL --> REG
+    EMBED --> REG
+    REMOTE --> REG
+    REG --> CACHE --> CONS
+    REG -. "skills/change 失效事件" .-> CONS
+
+    style REG fill:#eef,stroke:#33a,stroke-width:2px
+```
 
 **本地发现优先级**（rank 顺序，重名时最近层优先，单层内按 rank 裁决）：
 
@@ -155,6 +299,34 @@ dsh 的 skill 能力族（`packages/skill/`）是一个**提供方注册表**：
 ### 3.5 Subagent：可委派 + 可继续的 seam
 
 dsh 的子代理是一个 **seam**（`ctx.subagents`），与 bash 等能力不同——**同一上下文中可共存多个提供方实现**，按名称注册。6 个 provider：`spawn-in-process` / `fork` / `acp` / `codex` / `claude-code` / `dsh-sdk`。
+
+```mermaid
+graph LR
+    AGENT["父 Agent<br/>(模型)"]
+    TOOLSUB["tool-subagent<br/>(面向模型的 Consumer)"]
+    SEAM["ctx.subagents seam<br/>(按名称注册的注册表)"]
+
+    subgraph Providers["6 个 SubagentProvider"]
+        P1["spawn-in-process"]
+        P2["fork"]
+        P3["acp"]
+        P4["codex"]
+        P5["claude-code"]
+        P6["dsh-sdk"]
+    end
+
+    CHILD["子 Agent 会话<br/>(继承 cwd/谱系/深度)"]
+    REPORT["tool-subagent-report<br/>(child 作用域汇报)"]
+    CTL["tool-subagent-control<br/>(send/interrupt/list)"]
+
+    AGENT --> TOOLSUB --> SEAM
+    SEAM --> P1 & P2 & P3 & P4 & P5 & P6
+    P1 & P2 & P3 & P4 & P5 & P6 --> CHILD
+    CHILD --> REPORT
+    CHILD --> CTL
+
+    style SEAM fill:#eef,stroke:#33a,stroke-width:2px
+```
 
 两类能力：
 - **单次启动**：`SubagentProvider.start()`，通过能力 flag（outputSchema / depthLimit / toolFilter / persona）声明，请求依赖的能力缺失时明确拒绝（fail loud）
@@ -195,6 +367,21 @@ dsh 的 AGENTS.md 是目前看到最详尽的 agent 协作规范之一，值得�
 ---
 
 ## 5. 与 Pi 的关系（已调研竞品对照）
+
+```mermaid
+graph LR
+    subgraph Spectrum["agent harness 基础设施 → 开发方法论"]
+        P["Pi<br/>通用 agent 引擎<br/>无方法论元素"]
+        D["dsh<br/>通用 harness + 轻量方法论<br/>(plan/todo/skill)"]
+        S["SDDU<br/>方法论流程框架<br/>7 阶段硬强制"]
+        P -- "基础设施能力增强" --> D
+        D -- "流程强制力增强" --> S
+    end
+
+    style D fill:#fff3cd,stroke:#d9a300
+    style S fill:#e7f5e7,stroke:#2d7d2d
+    style P fill:#eee,stroke:#888
+```
 
 | 维度 | Pi (earendil-works) | DeepSeek Harness | SDDU |
 |------|--------------------|------------------|------|
