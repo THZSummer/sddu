@@ -1,11 +1,11 @@
 # SDDU 项目版本 Roadmap
 
-> **文档版本**: 18.0.0
-> **更新日期**: 2026-08-05 (Grillme 竞品调研发现纳入 — FR-CONTEXT-001 + FR-DISCOVERY-002)
-> **状态**: 规划中 (v3.0.0 待启动，v3.3.0 部分提前交付)
-> **生成方式**: `@sddu-roadmap` 增量更新 — Grillme 竞品调研 [报告](../../docs/research/grillme-competitor-analysis.md) 发现纳入路线图
+> **文档版本**: 19.0.0
+> **更新日期**: 2026-08-15 (用户提案「自主模式」FR-AUTONOMY-001 纳入 + 3 Feature 状态回补)
+> **状态**: 规划中 (v3.0.0/v3.1.0 大部分已交付，v3.3.0「自主-约束」双翼待启动)
+> **生成方式**: `@sddu-roadmap` 增量更新 — 用户提案「自主模式」纳入路线图
 > **当前项目版本**: v4.0.0
-> **全局状态**: 18 validated, 0 tracked, 1 terminated | 待处理项目: 48 | 新提案: 5 (FR-BUG-001/FR-TREE-SKILL/FR-AGENT-SCOPE-001/FR-CONTEXT-001/FR-DISCOVERY-002) | Skill 化候选: 3 (FR-BUG-001/FR-WORKTREE-001/FR-TREE-SKILL → Skill 重评估) | 竞品借鉴: 7 Feature + 2 内联改进
+> **全局状态**: 21 validated, 0 tracked, 1 terminated | 待处理项目: ~45 | 新提案: 6 (FR-BUG-001/FR-TREE-SKILL/FR-AGENT-SCOPE-001/FR-CONTEXT-001/FR-DISCOVERY-002/FR-AUTONOMY-001) | Skill 化候选: 3 (FR-BUG-001/FR-WORKTREE-001/FR-TREE-SKILL) | 竞品借鉴: 7 Feature + 2 内联改进
 
 ---
 
@@ -15,23 +15,23 @@
 
 SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范驱动工作流框架。通过 12 个专业化 Agent 协同工作（含快速模式 @sddu-fast），覆盖从问题挖掘 (discovery)、需求定义 (spec)、技术设计 (plan)、任务分解 (tasks)、实施构建 (build)、审查 (review) 到验证 (validate) 的完整开发生命周期。项目自 2026 年 3 月启动，已迭代至 v4.0.0，完成 18 个核心 Feature，当前聚焦 v3.0.0 质量与工作流改进。
 
-项目的长期愿景是成为 AI 辅助软件工程的标准工作流框架 — 让 AI Agent 不仅能写代码，更能通过规范化流程保证交付质量、沉淀项目知识、持续自我演进。v3.0.0 系列将重点解决框架自身的质量闭环问题（Build Wave 一体化、Validate E2E 能力、框架级自验证）。v3.3.0 的 FR-FAST-001（快速模式）和 FR-SKILL-001（Skill 系统）已提前交付，使 SDDU 正式进入「固定引擎 + 可扩展能力」的双层架构时代；Skill 系统的自举闭环（discovery + creator + sync）为后续 Feature 的 Skill 化降级提供了基础设施。v4.0.0 已完成三域分层架构重组，为 SDDU 的跨平台扩展奠定基础。FR-TREE-SKILL（@sddu-tree Agent 技能化）是 Agent→Skill 降级模型的**首个实战验证案例**——将现有辅助 Agent 降级为框架级 Skill，减少 Agent 数量的同时保持甚至提升能力。
+项目的长期愿景是成为 AI 辅助软件工程的标准工作流框架 — 让 AI Agent 不仅能写代码，更能通过规范化流程保证交付质量、沉淀项目知识、持续自我演进。v3.0.0 系列将重点解决框架自身的质量闭环问题（Build Wave 一体化、Validate E2E 能力、框架级自验证）。v3.3.0 的 FR-FAST-001（快速模式）和 FR-SKILL-001（Skill 系统）已提前交付，使 SDDU 正式进入「固定引擎 + 可扩展能力」的双层架构时代；Skill 系统的自举闭环（discovery + creator + sync）为后续 Feature 的 Skill 化降级提供了基础设施。v4.0.0 已完成三域分层架构重组，为 SDDU 的跨平台扩展奠定基础。FR-TREE-SKILL（@sddu-tree Agent 技能化）是 Agent→Skill 降级模型的**首个实战验证案例**——将现有辅助 Agent 降级为框架级 Skill，减少 Agent 数量的同时保持甚至提升能力。v3.3.0 起，SDDU 将引入「自主模式」（FR-AUTONOMY-001）——建立框架级自主决策引擎，让 Agent 在低风险可逆决策上自主推进、仅在高风险不可逆决策上询问用户，与 FR-RATIONAL-001（理性化对抗）构成「自主-约束」双翼，从「过度提问」走向「高效自主」。
 
 ### 项目状态速览
 
 | 指标 | 值 |
 |------|-----|
-| **Feature 总数** | 22 (含 3 个提议中的 Skill 化候选 + AGENT-SCOPE-001 + CONTEXT-001 + DISCOVERY-002) |
-| **已完成 (completed)** | 18 |
+| **Feature 总数** | 23 (含 3 个 Skill 化候选 + AGENT-SCOPE-001 + CONTEXT-001 + DISCOVERY-002 + AUTONOMY-001) |
+| **已完成 (completed)** | 21 |
 | **已终止 (terminated/migrated)** | 1 |
 | **进行中 (tracked)** | **0** ⚠️ |
 | **搁置 (suspended)** | 0 |
-| **已知待解决问题** | **48 (A-F + I 核心 + BUG-001 + TREE-SKILL + AGENT-SCOPE-001 + CONTEXT-001 + DISCOVERY-002 + 5 竞品借鉴 + 32 审计发现)** |
-| **规划中版本** | v3.0.0, v3.1.0, v3.2.0, v3.3.0 (部分提前交付), v4.1.0 (远期) |
+| **已知待解决问题** | **~45 (A-F + I 核心 + BUG-001 + TREE-SKILL + AGENT-SCOPE-001 + CONTEXT-001 + DISCOVERY-002 + AUTONOMY-001 + 5 竞品借鉴 + 32 审计发现)** |
+| **规划中版本** | v3.1.0, v3.2.0, v3.3.0 (含自主模式), v4.1.0 (远期) |
 
 ### ⚠️ 关键警示
 
-> **当前无活跃 Feature！** 自 2026-06-21 `specs-tree-framework-architecture` (FR-FRAMEWORK-ARCH-001) validated 后，项目处于无进行中 Feature 的空窗期。v3.0.0 的 6 个核心问题 (A-F) 已记录但尚未启动任何 Feature 的 discovery 流程 — 其中 Issue F 已通过 FR-AGENT-SCOPE-001 (plan/review/validate 职责回归) 获得根本解法方案。Issue G (模板质量) 已通过 FR-TPL-001 (v3.0.1) 解决完成。好消息是 FR-FAST-001 (快速模式 Agent) 和 FR-SKILL-001 (Skill 系统) 已提前交付（2026-07-12 / 2026-07-19），为后续 Feature 提供了「Skill 化降级」的新选项。FR-TREE-SKILL（@sddu-tree Agent 技能化）是最纯粹的 Agent→Skill 降级案例——将现有辅助 Agent 的整体职责降级为框架级 Skill。FR-AGENT-SCOPE-001 是 SDDU 框架 dogfooding 的里程碑——SDDU 用自身的流程改造自身的 Agent 模板。
+> **当前无活跃 Feature！** 自 2026-08-01 `specs-tree-agent-scope-realignment` (FR-AGENT-SCOPE-001) validated 后，项目再次进入无进行中 Feature 的空窗期。近期关键交付回补：FR-AGENT-SCOPE-001（职责回归，08-01）、FR-TREE-SKILL（@sddu-tree 技能化，07-22 有条件通过）、FR-DOCS-OPT-001（@sddu-docs 补全与优化，07-05）均已完成但此前未在 ROADMAP 中同步。v3.0.0 的 Issue F 已通过 FR-AGENT-SCOPE-001 获得根本解法并交付完成。v3.1.0 剩余 FR-BUG-001 + FR-WORKTREE-001（Skill 化）待启动。新提案「自主模式」（FR-AUTONOMY-001）已纳入 v3.3.0，是用户当前核心痛点（Agent 频繁提问、缺乏自主决策），与 FR-RATIONAL-001 构成「自主-约束」双翼。
 
 ### 版本总览表
 
@@ -47,17 +47,16 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 + FR-AGENT-SCOPE-001 (替换 Issue F) |
 | **v3.1.0** | Skill 化降级验证 | TBD | 💡 提议中 | FR-BUG-001 → sddu-bug Skill 🔄 + FR-WORKTREE-001 → sddu-worktree Skill 🔄 + FR-TREE-SKILL → sddu-tree Skill 🆕 |
 | **v3.2.0** | 项目知识基础设施 (H・I) | TBD | 🔄 部分完成 | FR-KB-001 全局配置 (💡 提议中) + FR-KB-002 知识沉淀 (✅ 已完成) + FR-CONTEXT-001 共享语言管理 (💡 提议中，低优先级 — 竞品借鉴) |
-| **v3.3.0** | Agent 行为强化 + 轻量入口 | 2026-07-19 | 🔄 部分完成 | FR-FAST-001 ✅ + FR-SKILL-001 ✅ + FR-RATIONAL-001 (待启动) + FR-DISCOVERY-002 (💡 提议中，低优先级 — 竞品借鉴) |
+| **v3.3.0** | Agent 行为强化 + 轻量入口 | 2026-07-19 | 🔄 部分完成 | FR-FAST-001 ✅ + FR-SKILL-001 ✅ + FR-AUTONOMY-001 🆕 (自主模式) + FR-RATIONAL-001 (待启动) + FR-DISCOVERY-002 (💡 提议中，低优先级 — 竞品借鉴) |
 | **v4.1.0** | 生态扩展 (远期) | TBD | 💡 远期 | 多平台适配 + 自动触发 (竞品借鉴 §5.3) |
 
-### 本周优先事项 (2026-06-21 ~ 2026-06-28)
+### 本周优先事项 (2026-08-15 ~ 2026-08-22)
 
-- [x] ~~**🟡 重要**: 评审 G 问题 (模板质量)，确认 scope 边界~~ → ✅ 已完成 (FR-TPL-001, v3.0.1)
-- [ ] **🔴 紧急**: 启动首个 v3.0.0 Feature (建议 FR-QUALITY-001 / FR-KB-001 / FR-BUG-001) 的 discovery 流程
-- [ ] **🟡 重要**: 评审 I 问题 (全局配置)，确认 scope 边界；H (知识沉淀) 已由 @sddu-docs 完成
-- [ ] **🟡 重要**: 决定 v3.0.0 / v3.1.0 / v3.2.0 的 Feature 归属和启动顺序
+- [ ] **🔴 紧急**: 启动 FR-AUTONOMY-001 (自主模式) discovery 流程 — 用户当前核心痛点
+- [ ] **🟡 重要**: 评审 FR-AUTONOMY-001 与 FR-DISCOVERY-002 的 scope 关系（合并 vs 独立）
+- [ ] **🟡 重要**: 决定 v3.1.0 剩余 Skill 化 Feature（FR-BUG-001 / FR-WORKTREE-001）与 v3.3.0 双翼的启动顺序
 - [ ] **🟢 日常**: 运行残留检查脚本，确保无回归
-- [ ] **⚡ 速赢**: 执行 5 项速赢任务 (~2h)：TREE.md 路径修正、FeatureStateEnum 清理、stale spec.json 同步、COMPLETION_CERTIFICATE 修正、phaseHistory 去重
+- [ ] **⚡ 速赢**: 执行速赢任务：TREE.md 路径修正、FeatureStateEnum 清理、stale spec.json 同步、COMPLETION_CERTIFICATE 修正、phaseHistory 去重
 
 ### 功能优先级 Top 5 (跨版本 RICE 排名)
 
@@ -66,10 +65,11 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 🥇 | **FR-DISCOVERY-002**: Discovery 访谈效率优化 🆕 | v3.3.0 | 7 | 6 | 80% | 1.5 | **22.4** | P2 (⏸️ 低优先，暂不启动) |
 | 🥈 | **FR-BUG-001**: Bug 流程框架化 (→ sddu-bug Skill) | v3.1.0 | 8 | 7 | 75% | 2 | **21.0** | P0 |
 | 🥉 | **FR-CONTEXT-001**: Feature 级共享语言管理 🆕 | v3.2.0 | 9 | 8 | 75% | 3 | **18.0** | P2 (⏸️ 低优先，暂不启动) |
-| 4 | **FR-TREE-SKILL**: @sddu-tree Agent 技能化 🆕 | v3.1.0 | 5 | 6 | 85% | 1.5 | **17.0** | P0 |
+| 4 | **FR-TREE-SKILL**: @sddu-tree Agent 技能化 ✅ | v3.1.0 | 5 | 6 | 85% | 1.5 | **17.0** | P0 (✅ 已交付) |
 | 5 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
+| 6 | **FR-AUTONOMY-001**: 自主模式 🆕 | v3.3.0 | 10 | 9 | 70% | 6 | **10.5** | P0 (战略升格) |
 
-> **注**: FR-FAST-001 (RICE 21.6) 和 FR-SKILL-001 (RICE 17.5 更新后) 已于 2026-07 提前交付完成，不参与排名。FR-BUG-001、FR-WORKTREE-001 和 FR-TREE-SKILL 已采纳 Skill 化降级路径——以上 RICE 分值均为 Skill 化后的评分（Effort 从 4d 降至 1.5~2d）。FR-DISCOVERY-002 (RICE 22.4) 和 FR-CONTEXT-001 (RICE 18.0) 来自 Grillme 竞品调研——RICE 分值高但明确标记为低优先级 (P2)，v3.0.0/v3.1.0 的 P0 Feature 优先。
+> **注**: FR-AUTONOMY-001（自主模式）RICE 10.5 虽非最高，但属于**用户当前核心痛点**（Agent 频繁提问、缺乏自主决策），战略价值高，故升格为 P0。FR-FAST-001、FR-SKILL-001、FR-TREE-SKILL、FR-AGENT-SCOPE-001 已交付完成，不参与活跃排名。
 
 ### 关键 milestones
 
@@ -82,6 +82,8 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 2026-07-19 | 首个 v3.0.0 Feature discovery 启动 (建议) | v3.0.0 |
 | 2026-07-25 | FR-AGENT-SCOPE-001 (plan/review/validate 职责回归) 提案纳入 Roadmap 🆕 | v3.0.0 |
 | 2026-08-05 | Grillme 竞品调研完成 — FR-CONTEXT-001 + FR-DISCOVERY-002 纳入 Roadmap (低优先级) 🆕 | v3.2.0 / v3.3.0 |
+| 2026-08-15 | FR-AUTONOMY-001（自主模式）提案纳入 Roadmap 🆕 | v3.3.0 |
+| 2026-08-31 | FR-AUTONOMY-001 discovery + spec + plan 完成 (建议) | v3.3.0 |
 | 2026-08-02 | 首个 v3.0.0 Feature spec + plan 完成 | v3.0.0 |
 | 2026-08-16 | v3.0.0 首批 P0 Feature validated | v3.0.0 |
 | 2026-09-30 | v3.0.0 全部 Feature 完成 | v3.0.0 |
@@ -114,9 +116,11 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 2026-07-19  ✅  specs-tree-skill-system (Skill 系统 v3.3.0-early)
             ↓
 2026-07-25  📋  FR-AGENT-SCOPE-001 (plan/review/validate 职责回归) 提案纳入 Roadmap
+2026-08-01  ✅  FR-AGENT-SCOPE-001 (职责回归改造) validated
 2026-08-05  📋  FR-CONTEXT-001 + FR-DISCOVERY-002 (Grillme 竞品借鉴) 纳入 Roadmap (低优先级)
+2026-08-15  📋  FR-AUTONOMY-001 (自主模式) 提案纳入 Roadmap (v3.3.0)
             ↓
-2026-Q3    📋  v3.0.0 质量与工作流改进
+2026-Q3    📋  v3.3.0「自主-约束」双翼 (FR-AUTONOMY-001 + FR-RATIONAL-001)
 ```
 
 ---
@@ -127,9 +131,9 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 
 #### Feature 全量状态扫描
 
-##### 已完成 Feature (15 个)
+##### 已完成 Feature (21 个)
 
-> **注**: 本表含最新完成的 FR-FRAMEWORK-ARCH-001 (v4.0.0)、FR-FAST-001 (v3.3.0)、FR-SKILL-001 (v3.3.0-early)。共 18 个已完成 Feature。
+> **注**: 本表含最新完成的 FR-FRAMEWORK-ARCH-001 (v4.0.0)、FR-FAST-001 (v3.3.0)、FR-SKILL-001 (v3.3.0-early)、FR-TREE-SKILL (v3.1.0)、FR-DOCS-OPT-001 (v3.0.1)、FR-AGENT-SCOPE-001 (v3.0.0)。共 21 个已完成 Feature。
 
 | # | Feature 目录 | ID | 名称 | Phase | Priority | 完成日期 |
 |:--|-------------|------|------|:-----:|:--------:|----------|
@@ -151,6 +155,9 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **16** | **`specs-tree-framework-architecture`** | **FR-FRAMEWORK-ARCH-001** | **SDDU 框架源码架构重组 v4.0.0 🆕** | **validated** | **P0** | **2026-06-21** |
 | **17** | **`specs-tree-sddu-fast`** | **FR-FAST-001** | **`@sddu-fast` 快速模式 Agent v3.3.0 🆕** | **validated** | **P0** | **2026-07-12** |
 | **18** | **`specs-tree-skill-system`** | **FR-SKILL-001** | **SDDU Skill 系统（用户级 + 框架级）v3.3.0-early 🆕** | **validated** | **P0** | **2026-07-19** |
+| **19** | **`specs-tree-tree-skill`** | **FR-TREE-SKILL** | **`@sddu-tree` Agent 技能化 v3.1.0 🆕** | **validated** | **P0** | **2026-07-22** |
+| **20** | **`specs-tree-docs-agent-optimization`** | **FR-DOCS-OPT-001** | **`@sddu-docs` Agent 补全与优化 v3.0.1 🆕** | **validated** | **P0** | **2026-07-05** |
+| **21** | **`specs-tree-agent-scope-realignment`** | **FR-AGENT-SCOPE-001** | **plan/review/validate 职责回归改造 v3.0.0 🆕** | **validated** | **P0** | **2026-08-01** |
 
 ##### 已终止 Feature (1 个)
 
@@ -717,6 +724,90 @@ FR-DISCOVERY-002 (访谈效率) ──与同类──→ FR-RATIONAL-001 — 同
 
 ---
 
+#### 🆕 FR-AUTONOMY-001 — 自主模式（Agent 自主决策引擎）
+
+> **来源**: 用户提案 (2026-08-15) — Agent 频繁提问、缺乏自主决策能力、效率偏低
+> **加入日期**: 2026-08-15
+
+| 属性 | 值 |
+|------|-----|
+| **Feature ID** | FR-AUTONOMY-001 |
+| **优先级** | P0 (RICE 10.5，战略升格) |
+| **Effort** | M/L (5-6 天) |
+| **来源** | 用户提案 — SDDU 框架级 Agent 行为范式改造 |
+| **归属** | v3.3.0 (Agent 行为强化 — 与 FR-RATIONAL-001 构成「自主-约束」双翼) |
+| **建议目录名** | `specs-tree-autonomous-mode` |
+
+**背景**: SDDU 的 8 阶段流水线为保证质量，让 Agent 在大量决策点向用户确认，导致「过度提问」。用户痛点：**Agent 频繁提问、没有自主决策能力、效率偏低**。期望让 Agent 在「低风险可逆」决策上自主推进，仅在「高风险不可逆」决策上询问，从而减少不必要提问、提升整体效率。这是继 FR-FAST-001（轻重双模入口）和 FR-AGENT-SCOPE-001（职责回归）之后，SDDU 对「Agent 行为」的又一次框架级范式改造——前两者分别解决「轻量任务走哪条路」和「各 Agent 该谁设计什么」，本 Feature 解决「Agent 该问什么、不该问什么」。
+
+**核心目标**: 建立框架级「自主决策引擎」——定义 Agent 何时该问、何时不该问的决策边界，引入分级自主级别 (autonomy level)，在保证质量闭环的前提下显著降低用户交互负担。
+
+**四维决策边界模型（核心设计）**:
+
+| 维度 | 自主执行条件 | 强制确认条件 (HARD-GATE) |
+|------|-------------|--------------------------|
+| **可逆性** | 决策可低成本回退 | 不可逆（删数据、破坏 API、git 历史改写） |
+| **影响半径** | 局部 / 单 Feature 内部 | 跨 Feature、全局、破坏向后兼容 |
+| **置信度** | Agent 有明确推荐答案 | 低置信、多等价方案 |
+| **成本** | 决策成本低 | 金钱 / 长时间 / 不可逆成本 |
+
+> 该模型与现有框架概念高度契合：ADR 触发三条件（不可逆 + 意外 + 权衡）是「必须问」的反向表达；FR-AGENT-SCOPE-001 的「谁需要谁设计」是「策略自主」；Grillme 推荐答案是「自主执行 + 推荐声明」；FR-RATIONAL-001 的 HARD-GATE 是「不可逆强制确认」的执行机制。
+
+**三级自主级别 (Autonomy Level)**:
+
+| 级别 | 行为 | 适用场景 |
+|------|------|----------|
+| **L0 全程确认** | 每个决策点都问（现状） | 新用户、高风险项目 |
+| **L1 推荐确认**（默认） | Agent 给出推荐答案，用户一键确认 / 覆盖 | 常规项目 |
+| **L2 自主执行** | 非 HARD-GATE 决策自主执行，事后报告 | 熟练用户、快速迭代 |
+
+**预期范围** (待 discovery 细化):
+1. **决策边界矩阵** — 定义「可逆性 × 影响半径 × 置信度 × 成本」四维判定规则，写入 `@sddu` coordinator 及所有阶段 Agent 模板（核心交付）
+2. **自主级别配置** — `project.json`（联动 FR-KB-001）新增 `autonomyLevel` 字段（L0/L1/L2），各 Agent 启动时读取
+3. **推荐答案机制** — 每个非 HARD-GATE 决策附带 `➡️ 推荐` 声明，降低用户确认成本（复用 Grillme 推荐格式，与 FR-DISCOVERY-002 同源）
+4. **HARD-GATE 强制确认** — 不可逆 / 跨 Feature / 破坏兼容的决策硬编码强制确认，不允许自主（借鉴 FR-RATIONAL-001 的 HARD-GATE 机制）
+5. **事后报告** — L2 自主执行后输出「自主决策日志」，用户可追溯所有被自主处理的决策
+
+**Skill 化可行性评估**: 🟡 部分适合（Skill + 模板混合，类似 FR-RATIONAL-001）
+- 决策边界矩阵（何时问 / 何时不问的判定知识）→ 可承载为 `sddu-autonomy` Skill 知识库
+- 但 HARD-GATE 强制确认 + autonomy level 路由 → 必须硬编码到模板才能保证执行纪律
+- 建议：Skill 承载「知识」，模板承载「纪律」
+
+**RICE 详细分析**:
+
+| 维度 | 评分 | 依据 |
+|------|:---:|------|
+| Reach | **10** | 影响全部 12 个 Agent、所有 8 阶段（尤其 discovery/spec 前期提问密集阶段）、所有 SDDU 用户 — 框架级核心交互范式改变 |
+| Impact | **9** | 直接解决用户核心痛点（提问过多、效率低）；预期交互轮次减少 50-70%；是框架的「效率倍增器」 |
+| Confidence | **70%** | 方案方向清晰（决策边界 + 推荐 + 自主级别），有 Grillme 推荐答案、ADR 触发条件、FR-AGENT-SCOPE-001 自主策略、FR-RATIONAL-001 HARD-GATE 等成熟参考。主要不确定性来自「自主边界」的精确设计 — 过度自主导致错误决策 vs 过度谨慎导致提问依旧 |
+| Effort | **6** | M/L (5-6d)：决策边界矩阵设计 (1d) + coordinator §5.3/5.4 保守策略改造 (0.5d) + discovery/spec 提问行为指令改造 (2d) + 自主级别配置与 KB-001 联动 (1d) + 模板同步 + 验证 (1.5d) |
+| **RICE** | **10.5** | **(10 × 9 × 0.70) / 6** |
+
+**与其他 Feature 的依赖关系**:
+
+```
+FR-AUTONOMY-001 (自主模式) ──借用──→ FR-TPL-001 ✅ (模板系统) — 纯模板层改动
+FR-AUTONOMY-001 (自主模式) ──联动──→ FR-KB-001 (全局配置) — autonomyLevel 写入 project.json
+FR-AUTONOMY-001 (自主模式) ──借鉴──→ FR-AGENT-SCOPE-001 ✅ (自主策略范式) — 已交付
+FR-AUTONOMY-001 (自主模式) ──借鉴──→ FR-RATIONAL-001 (HARD-GATE 纪律) — 不可逆决策强制确认机制
+FR-AUTONOMY-001 (自主模式) ──吸收──→ FR-DISCOVERY-002 (批量提问) — 作为「提问效率」战术子集，可合并或前置
+FR-AUTONOMY-001 (自主模式) ──延伸──→ FR-AUTOTRIGGER-001 (自动触发) — 「主动性」维度，远期
+```
+
+**与 FR-DISCOVERY-002 的关系（待 spec 决策）**:
+- FR-DISCOVERY-002（批量提问 + 推荐答案）本质是「自主模式」的提问效率战术
+- **Option A（推荐）**: 将 FR-DISCOVERY-002 合并为 FR-AUTONOMY-001 的子范围 — 避免两个 Feature 都改 discovery 模板的重复，统一「自主决策」叙事
+- **Option B**: 保留 FR-DISCOVERY-002 独立，作为 FR-AUTONOMY-001 的前置战术交付
+- 此决策影响改造是单 Feature 还是拆分，需在 discovery/spec 阶段确认
+
+**拆分建议**: 推荐单 Feature 路径（Effort 5-6d 可控），类似 FR-AGENT-SCOPE-001。若需拆分，可拆为「决策边界框架 + 自主级别配置」（001a）和「各阶段提问行为改造」（001b），但 001a 单独交付会产生「边界定义但无执行」的空窗期。
+
+**启动条件**: 无硬依赖，纯模板层改动，可立即启动。建议在 v3.1.0 剩余 Skill 化 Feature（FR-BUG-001 / FR-WORKTREE-001）交付后，与 FR-RATIONAL-001 并行启动（两者均触及 Agent 模板，可共享改造经验）。
+
+**建议**: FR-AUTONOMY-001 是用户当前核心痛点，虽 RICE 10.5 中等，但战略价值高（效率倍增器 + 框架范式确立）。建议优先级 P0，归属 v3.3.0，与 FR-RATIONAL-001 形成「自主-约束」双翼 — 自主模式赋予 Agent 决策权，理性化对抗防止 Agent 滥用决策权偷懒，二者缺一不可。**推荐作为 v3.3.0 的首个启动项**（无硬依赖 + 直接命中当前痛点 + 可与 RATIONAL-001 共享模板改造经验）。
+
+---
+
 ### v4.1.0 — 生态扩展 (远期)
 
 **预计时间**: TBD (依赖 v4.0.0 架构基础 + 需求评估)
@@ -757,19 +848,20 @@ FR-DISCOVERY-002 (访谈效率) ──与同类──→ FR-RATIONAL-001 — 同
 
 ---
 
-### 跨版本 RICE 总排名 (全部 18 项: A-F + H-I + BUG-001 + WORKTREE-001 + TREE-SKILL + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + CONTEXT-001 + DISCOVERY-002)
+### 跨版本 RICE 总排名 (全部 19 项: A-F + H-I + BUG-001 + WORKTREE-001 + TREE-SKILL + RATIONAL-001 + CROSSPLAT-001 + AUTOTRIGGER-001 + CONTEXT-001 + DISCOVERY-002 + AUTONOMY-001)
 
 | 排名 | Feature | 归属 | Reach | Impact | Conf. | Effort | **RICE** | 优先级 |
 |:----:|---------|:----:|:-----:|:------:|:-----:|:------:|:--------:|:------:|
 | 🥇 | **FR-DISCOVERY-002**: Discovery 访谈效率优化 🆕 ⏸️ | v3.3.0 | 7 | 6 | 80% | 1.5 | **22.4** | P2 (低优先级) |
 | 🥈 | **FR-BUG-001**: Bug 流程框架化 🔄 | v3.1.0 | 8 | 7 | 75% | 2 | **21.0** | P0 |
 | 🥉 | **FR-CONTEXT-001**: 共享语言管理 🆕 ⏸️ | v3.2.0 | 9 | 8 | 75% | 3 | **18.0** | P2 (低优先级) |
-| 4 | **FR-TREE-SKILL**: @sddu-tree 技能化 🆕 🔄 | v3.1.0 | 5 | 6 | 85% | 1.5 | **17.0** | P0 |
+| 4 | **FR-TREE-SKILL**: @sddu-tree 技能化 ✅ | v3.1.0 | 5 | 6 | 85% | 1.5 | **17.0** | P0 (✅ 已交付) |
 | 5 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 4 | **FR-AGENT-SCOPE-001**: 职责回归 🆕 | v3.0.0 | 9 | 9 | 75% | 5 | **12.2** | P0 |
-| 5 | **FR-WORKTREE-001**: Git Worktree 🔄 | v3.1.0 | 5 | 6 | 60% | 1.5 | **12.0** | P2 |
-| 6 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
-| 7 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
+| 6 | **FR-AGENT-SCOPE-001**: 职责回归 ✅ | v3.0.0 | 9 | 9 | 75% | 5 | **12.2** | P0 (✅ 已交付) |
+| 7 | **FR-WORKTREE-001**: Git Worktree 🔄 | v3.1.0 | 5 | 6 | 60% | 1.5 | **12.0** | P2 |
+| 8 | **FR-AUTONOMY-001**: 自主模式 🆕 | v3.3.0 | 10 | 9 | 70% | 6 | **10.5** | P0 (战略升格) |
+| 9 | **FR-QUALITY-001**: Build Wave 一体化 | v3.0.0 | 6 | 8 | 80% | 4 | **9.6** | P0 |
+| 10 | **FR-RATIONAL-001**: 理性化对抗 | v3.3.0 | 8 | 6 | 70% | 3.5 | **9.6** | P1 |
 | 8 | **FR-QUALITY-002**: Validate E2E | v3.0.0 | 8 | 9 | 70% | 6 | **8.4** | P0 |
 | 9 | **FR-AUTOTRIGGER-001**: 自动触发 | v4.1.0 | 6 | 5 | 50% | 2 | **7.5** | P3 |
 | 10 | **FR-QUALITY-005**: auto-updater 修复 | v3.0.0 | 3 | 4 | 80% | 2 | **4.8** | P2 |
@@ -844,8 +936,9 @@ specs-tree-sdd-plugin-baseline ────────────────�
             ▼  ─── 🔄 v3.3.0 部分提前交付 ───
             ├── FR-FAST-001 (快速模式 Agent) — ✅ 已完成 (2026-07-12)
             ├── FR-SKILL-001 (SDDU Skill 系统) — ✅ 已完成 (2026-07-19)
-            ├── FR-RATIONAL-001 (理性化对抗) — 📋 待启动 (v3.3.0 唯一剩余)
-            └── FR-DISCOVERY-002 (Discovery 访谈效率优化) 🆕 — Grillme 竞品借鉴 §7.1.1 → v3.3.0
+            ├── FR-AUTONOMY-001 (自主模式) 🆕 — 用户提案 → v3.3.0 (与 RATIONAL-001 构成「自主-约束」双翼)
+            ├── FR-RATIONAL-001 (理性化对抗) — 📋 待启动 (v3.3.0)
+            └── FR-DISCOVERY-002 (Discovery 访谈效率优化) 🆕 — Grillme 竞品借鉴 §7.1.1 → v3.3.0 (可并入 AUTONOMY-001)
 
             ▼  ─── 💡 v4.1.0 远期 ───
             ├── FR-CROSSPLAT-001 (多平台适配) 🆕 — 竞品借鉴 §5.3.1 → v4.1.0
@@ -887,6 +980,11 @@ FR-CONTEXT-001 (共享语言) ──被依赖──→ FR-DISCOVERY-002 ← 词�
 FR-DISCOVERY-002 (访谈效率) ──依赖──→ FR-TPL-001 ✅ (模板系统) ← 纯模板层改动
 FR-DISCOVERY-002 (访谈效率) ──受益于──→ FR-CONTEXT-001 ← 词汇表让术语更精确
 FR-DISCOVERY-002 (访谈效率) ──与同类──→ FR-RATIONAL-001 ← 同为纯模板层改动的 Agent 行为强化
+FR-AUTONOMY-001 (自主模式) ──借用──→ FR-TPL-001 ✅ (模板系统) ← 纯模板层改动
+FR-AUTONOMY-001 (自主模式) ──联动──→ FR-KB-001 (全局配置) ← autonomyLevel 写入 project.json
+FR-AUTONOMY-001 (自主模式) ──借鉴──→ FR-AGENT-SCOPE-001 ✅ (自主策略) + FR-RATIONAL-001 (HARD-GATE 纪律)
+FR-AUTONOMY-001 (自主模式) ──吸收──→ FR-DISCOVERY-002 (批量提问) ← 「提问效率」战术子集，可合并或前置
+FR-AUTONOMY-001 (自主模式) ──延伸──→ FR-AUTOTRIGGER-001 (自动触发) ← 「主动性」维度，远期
 
 推荐并行组合:
 ┌─ Wave 1 (v3.0.0) ─────────────────┐
@@ -912,8 +1010,9 @@ FR-DISCOVERY-002 (访谈效率) ──与同类──→ FR-RATIONAL-001 ← 同
 ┌─ Wave 6 (v3.3.0 部分交付完毕 + 剩余) ────┐
 │ FR-FAST-001 (快速模式 Agent) ✅            │ ← 已完成 (2026-07-12)
 │ FR-SKILL-001 (SDDU Skill 系统) ✅          │ ← 已完成 (2026-07-19)
-│ FR-RATIONAL-001 (理性化对抗) 📋            │ ← 待 v3.0~v3.2 交付后启动
-│ FR-DISCOVERY-002 (Discovery 访谈效率) 🆕 ⏸️│ ← RICE 22.4, P2 低优先级 (待 v3.0~v3.2 交付后评估) │
+│ FR-AUTONOMY-001 (自主模式) 🆕              │ ← RICE 10.5, P0 战略升格 (用户当前痛点, 建议首个启动) │
+│ FR-RATIONAL-001 (理性化对抗) 📋            │ ← 待 v3.0~v3.2 交付后启动, 与 AUTONOMY-001 并行 │
+│ FR-DISCOVERY-002 (Discovery 访谈效率) 🆕 ⏸️│ ← RICE 22.4, P2 低优先级 (可并入 AUTONOMY-001) │
 └────────────────────────────────────────────┘
 ┌─ Wave 7 (v4.1.0 远期) ────────────┐
 │ FR-CROSSPLAT-001 (多平台) 🆕        │ ← 依赖 v4.0.0 adapters 基础
@@ -959,6 +1058,10 @@ FR-DISCOVERY-002 (访谈效率) ──与同类──→ FR-RATIONAL-001 ← 同
 | **FR-CONTEXT-001 词汇表格式不一致** 🆕 | 🟡 中 | 🟡 中 | 各 Feature 的 CONTEXT.md 可能格式各异。缓解：(1) 定义标准格式模板（词条 + 定义的结构化格式）；(2) sddu-skill-creator 可辅助生成符合规范的 CONTEXT.md；(3) @sddu-docs 聚合时可做格式校验 |
 | **FR-DISCOVERY-002 批量提问导致用户信息过载** 🆕 | 🟡 中 | 🟡 中 | Grillme 每轮 3-8 个问题同时抛出，用户可能感到 overwhelmed。缓解：(1) 限制前沿大小（建议每轮最多 5 个问题）；(2) 每个问题带推荐答案降低决策成本；(3) 对复杂问题提供"一步步说"降级选项 |
 | **FR-CONTEXT-001/FR-DISCOVERY-002 低优先级 Feature 远期承诺** 🆕 | 🟢 低 | 🟡 中 | 标记为 P2 低优先级，可能长期搁置。缓解：每季度回顾一次是否达到启动条件；CONTEXT-001 可与 KB-001 并行为 v3.2.0 的首批 Feature |
+| **FR-AUTONOMY-001 自主边界定义模糊** 🆕 | 🔴 高 | 🟡 中 | 「何时该问何时不该问」的边界若定义不精确，可能导致过度自主（错误决策）或过度谨慎（提问依旧）。缓解：discovery 阶段将四维边界模型（可逆性/影响半径/置信度/成本）列为首要决策项，spec 阶段逐维写出判定规则 + 反例 |
+| **FR-AUTONOMY-001 过度自主导致不可逆错误** 🆕 | 🔴 高 | 🟢 低 | L2 自主执行下，Agent 可能误判「可逆」而执行不可逆操作。缓解：不可逆操作（删数据/破坏 API/git 改写）一律 HARD-GATE 强制确认，不允许任何级别自主；借鉴 FR-RATIONAL-001 的 HARD-GATE 机制 |
+| **FR-AUTONOMY-001 与 FR-DISCOVERY-002 scope 重叠** 🆕 | 🟡 中 | 🟡 中 | 两者都改 discovery 模板提问行为，可能重复改动。缓解：spec 阶段决策 Option A（合并）或 Option B（保留独立但明确边界），避免重复 |
+| **FR-AUTONOMY-001 autonomyLevel 配置漂移** 🆕 | 🟡 中 | 🟢 低 | autonomyLevel 写入 project.json（联动 FR-KB-001），若 KB-001 未交付则无配置载体。缓解：AUTONOMY-001 可先硬编码默认 L1，KB-001 交付后再迁移为配置项 |
 
 ---
 
@@ -966,13 +1069,10 @@ FR-DISCOVERY-002 (访谈效率) ──与同类──→ FR-RATIONAL-001 ← 同
 
 ### 🔴 立即行动 (本周)
 
-1. **启动首个 v3.0.0 Feature** — 建议按以下决策树选择:
-   - **如优先解决架构级质量缺陷**: 启动 `FR-AGENT-SCOPE-001 (plan/review/validate 职责回归改造)` — RICE 12.2，是 Issue F 的根本解法，改写 3 个核心 Agent 模板，影响力覆盖全链路。🔥 推荐首启
-   - **如优先解决最大痛点**: 启动 `FR-QUALITY-001 (Build Wave 一体化)` — RICE 9.6，独立性强
-   - **如优先解决架构基础**: 启动 `FR-KB-001 (全局项目配置)` — RICE 15.8，全局影响力最大
-   - **如优先快速收益**: 同时启动 `FR-QUALITY-005 (auto-updater)` + `FR-QUALITY-006 (coordinator)` — 总 Effort 仅 2-4 天
-   - **如优先框架级质量能力 + Skill 化验证**: 启动 `FR-BUG-001 (Bug 流程框架化)` — 以 Skill 化路径（sddu-bug Skill），验证 FR-SKILL-001 的 Skill 化降级模型实战效果
-   - **🔥 推荐首启**: `FR-AGENT-SCOPE-001 (职责回归)` — RICE 12.2，是长期结构性问题的一次性根除。同时 Effort 5d 可控，dogfooding 场景（SDDU 改造自身），完成后直接提升所有后续 Feature 的 review/validate 质量
+1. **启动下一个 Feature** — 建议按以下决策树选择:
+   - **🔥 推荐首启: FR-AUTONOMY-001 (自主模式)** — 用户当前核心痛点（Agent 频繁提问、缺乏自主决策），RICE 10.5 (P0 战略升格)，无硬依赖，纯模板层改动，可立即启动 discovery。与 FR-RATIONAL-001 并行可共享模板改造经验，构成 v3.3.0「自主-约束」双翼
+   - **如优先完成 v3.1.0 Skill 化降级验证**: 启动 `FR-BUG-001 (Bug 流程框架化)` + `FR-WORKTREE-001 (Git Worktree)` — 以 Skill 化路径（sddu-bug / sddu-worktree Skill），验证 FR-SKILL-001 的降级模型实战效果
+   - **如优先解决框架级架构基础**: 启动 `FR-KB-001 (全局项目配置)` — RICE 15.8，全局影响力最大，且为 FR-AUTONOMY-001 的 autonomyLevel 配置提供载体
 
 2. **确认 Feature 归属版本** — 当前方案:
     - A-F → v3.0.0 (质量与工作流改进) — 其中 F 已被 FR-AGENT-SCOPE-001 替换
@@ -983,7 +1083,7 @@ FR-DISCOVERY-002 (访谈效率) ──与同类──→ FR-RATIONAL-001 ← 同
     - **FR-FRAMEWORK-ARCH-001** → ✅ 已完成 (v4.0.0)
     - **FR-FAST-001** → ✅ 已完成 (v3.3.0 提前交付, 2026-07-12)
     - **FR-SKILL-001** → ✅ 已完成 (v3.3.0-early, 2026-07-19)
-    - **FR-RATIONAL-001** → v3.3.0 + **FR-DISCOVERY-002 (Discovery 访谈效率优化) 🆕** → v3.3.0 (Agent 行为强化，DISCOVERY-002 标记为 P2 低优先级)
+    - **FR-RATIONAL-001** → v3.3.0 + **FR-AUTONOMY-001 (自主模式) 🆕** → v3.3.0 (Agent 行为强化，与 RATIONAL-001 构成「自主-约束」双翼) + **FR-DISCOVERY-002 (Discovery 访谈效率优化) 🆕** → v3.3.0 (标记为 P2 低优先级，可并入 AUTONOMY-001)
     - **FR-CROSSPLAT-001 + FR-AUTOTRIGGER-001** → v4.1.0 (远期)
     - 是否需要调整归属？
 
@@ -993,15 +1093,15 @@ FR-DISCOVERY-002 (访谈效率) ──与同类──→ FR-RATIONAL-001 ← 同
 
 ### 🟡 短期行动 (2 周内)
 
-4. 对选中 Feature 执行完整 SDDU 工作流: `discovery → spec → plan → tasks`
-5. **对于 FR-BUG-001 / FR-WORKTREE-001 / FR-TREE-SKILL**: 优先以 Skill 化路径启动 — 使用 `sddu-skill-creator` 创建框架级 Skill，通过 `sddu-skill-sync` 同步，验证 FR-SKILL-001 的降级模型实战效果。建议启动顺序：FR-TREE-SKILL (Agent→Skill 降级，最快验证) → FR-BUG-001 (Feature→Skill 降级，高价值) → FR-WORKTREE-001 (Feature→Skill 降级)
-6. 在首个 v3.0.0 Feature 的 discovery 阶段，收集更多上下文信息
+4. 对选中 Feature 执行完整 SDDU 工作流: `discovery → spec → plan → tasks` — **首推 FR-AUTONOMY-001 (自主模式)**
+5. **对于 FR-BUG-001 / FR-WORKTREE-001 / FR-TREE-SKILL**: 优先以 Skill 化路径启动 — 使用 `sddu-skill-creator` 创建框架级 Skill，通过 `sddu-skill-sync` 同步，验证 FR-SKILL-001 的降级模型实战效果。建议启动顺序：FR-BUG-001 (Feature→Skill 降级，高价值) → FR-WORKTREE-001 (Feature→Skill 降级)
+6. 在 FR-AUTONOMY-001 的 discovery 阶段，收集用户对「自主边界」的具体反馈（哪些场景觉得被过度提问、哪些场景愿意放手让 Agent 自主）
 
 ### 🟢 中期行动 (1 个月内)
 
-7. 完成 v3.0.0 全部 P0 级 Feature
-8. 启动 v3.1.0 Feature — **优先以 Skill 化路径**，建议启动顺序: **FR-TREE-SKILL (Agent→Skill 降级，最快 1.5d 交付)** → FR-BUG-001 (sddu-bug Skill) → FR-WORKTREE-001 (sddu-worktree Skill)，验证三种降级模型
-9. 为 FR-KB-001 收拢需求，基于 v4.0.0 三域分层架构协同设计 (FR-KB-002 已由 @sddu-docs 提前完成)
+7. 完成 v3.0.0 剩余 P0 Feature（FR-QUALITY-001 Build Wave 等）+ v3.1.0 Skill 化 Feature（FR-BUG-001 / FR-WORKTREE-001）
+8. 启动 v3.3.0「自主-约束」双翼 — **FR-AUTONOMY-001 (自主模式)** 与 FR-RATIONAL-001 (理性化对抗) 并行，共享模板改造经验
+9. 为 FR-KB-001 收拢需求，基于 v4.0.0 三域分层架构协同设计 (FR-KB-002 已由 @sddu-docs 提前完成)，并为 FR-AUTONOMY-001 的 autonomyLevel 提供配置载体
 
 ### 🔵 远期行动 (季度回顾)
 
@@ -1243,7 +1343,17 @@ Phase 5 — 🔄 v3.3.0 部分交付 + 收尾
 
 > **生成信息**: 本文档由 `@sddu-roadmap` Agent 于 2026-06-21 重大更新 (v9.0.0)，反映 FR-FRAMEWORK-ARCH-001 (v4.0.0) 已完成交付。
 > 
-> **最近更新 (v18.0.0)**: 2026-08-05 — Grillme 竞品调研发现纳入 Roadmap。更新内容：
+> **最近更新 (v19.0.0)**: 2026-08-15 — 用户提案「自主模式」纳入 Roadmap + 3 Feature 状态回补。更新内容：
+> - **FR-AUTONOMY-001 🆕**: 自主模式（Agent 自主决策引擎）— RICE 10.5 (P0 战略升格)，Effort M/L(5-6d)，归属 v3.3.0。四维决策边界模型 + 三级自主级别 + HARD-GATE 强制确认，与 FR-RATIONAL-001 构成「自主-约束」双翼
+> - **状态回补**: FR-AGENT-SCOPE-001 (职责回归, 08-01 validated)、FR-TREE-SKILL (@sddu-tree 技能化, 07-22 有条件通过)、FR-DOCS-OPT-001 (@sddu-docs 补全, 07-05 completed) — 此三项此前未在 ROADMAP 同步
+> - **全局状态更新**: validated 18→21，新提案 5→6，待处理项目 ~48→~45
+> - **版本总览表更新**: v3.3.0 增加 FR-AUTONOMY-001
+> - **RICE 排名刷新**: FR-AUTONOMY-001 (10.5, #8) 入榜，标注 P0 战略升格
+> - **依赖关系更新**: 新增 FR-AUTONOMY-001 与 TPL-001/KB-001/AGENT-SCOPE-001/RATIONAL-001/DISCOVERY-002/AUTOTRIGGER-001 的依赖链
+> - **风险评估更新**: 新增 5 项 FR-AUTONOMY-001 专属风险（边界模糊、过度自主、scope 重叠、配置漂移等）
+> - **下一步行动更新**: FR-AUTONOMY-001 列为推荐首启项（用户当前核心痛点）
+
+> **上一版本 (v18.0.0)**: 2026-08-05 — Grillme 竞品调研发现纳入 Roadmap。更新内容：
 > - **FR-CONTEXT-001 🆕**: Feature 级共享语言管理（CONTEXT.md）— RICE 18.0，Effort S-M(2-4d)，归属 v3.2.0。与 FR-KB-001 互补（一个管"说什么"，一个管"怎么做"）
 > - **FR-DISCOVERY-002 🆕**: Discovery 访谈效率优化（前沿批量提问）— RICE 22.4，Effort XS-S(1-2d)，归属 v3.3.0。纯模板层改动，不改状态机引擎
 > - **FR-AGENT-SCOPE-001 连带改进**: 融入 2 项 Grillme 发现 — 代码一致性预检 (discovery/spec Agent 模板) + ADR 触发条件 (plan Agent 模板)
