@@ -14,6 +14,7 @@ specs-tree-root/
 │       ├── TREE.md                                   # ADR 导航
 │       └── ADR-001.md ~ ADR-017.md                   # 17 篇架构决策记录
 ├── specs-tree-agent-output-templating/               # Agent 输出模板化系统
+├── specs-tree-autonomous-mode/                       # FR-AUTONOMY-001 自主模式（sddu-auto 自动调度）🆕
 ├── specs-tree-deprecate-sdd-tools/                   # 废弃旧版 SDD 工具
 ├── specs-tree-directory-optimization/                # 目录结构命名优化
 ├── specs-tree-docs-agent-optimization/               # @sddu-docs Agent 补全与优化
@@ -41,8 +42,8 @@ specs-tree-root/
 | 指标 | 值 |
 |------|-----|
 | 项目版本 | v1.4.1 |
-| 最后修改 | 2026-07-19 |
-| 当前活跃 Feature | 1 |
+| 最后修改 | 2026-08-15 |
+| 当前活跃 Feature | 2 |
 | 已完成 Feature | 18 |
 | 已终止 Feature | 1 |
 
@@ -70,9 +71,10 @@ specs-tree-root/
 | specs-tree-docs-agent-optimization | FR-DOCS-OPT-001 | @sddu-docs Agent 补全与优化 — v4.0 最终验证通过 | validated | ✅ completed |
 | specs-tree-skill-system | FR-SKILL-001 | SDDU Skill 系统（双重定位：用户级 + 框架级）v3.3.0-early | validated | ✅ completed |
 
-### 进行中 Feature (2 个)
+### 进行中 Feature (3 个)
 | 目录 | Feature ID | 说明 | Phase | Status |
 |------|-----------|------|:-----:|:------:|
+| specs-tree-autonomous-mode | FR-AUTONOMY-001 | 自主模式（sddu-auto 自动调度） | 🟢 tracked [specified] |
 | specs-tree-sddu-fast | FR-FAST-001 | @sddu-fast 快速模式 Agent — validated 🔄 | validated | ✅ completed |
 | specs-tree-tree-skill |  |  | ⚠️ 状态异常 |
 

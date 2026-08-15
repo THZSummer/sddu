@@ -1,0 +1,184 @@
+{
+  "feature": "specs-tree-autonomous-mode",
+  "name": "自主模式（sddu-auto 自动调度）",
+  "featureId": "FR-AUTONOMY-001",
+  "version": "v1.0",
+  "createdAt": "2026-08-15",
+  "updatedAt": "2026-08-15",
+  "totalTasks": 7,
+  "waves": 3,
+  "complexity": {
+    "S": 2,
+    "M": 4,
+    "L": 1
+  },
+  "firstSpike": {
+    "id": "TASK-001",
+    "name": "spike — 决策代理层最小可行性实测",
+    "purpose": "验证 opencode 插件 API 是否暴露「订阅 question.asked + 调用 Question.reply」能力，决定方案 D 走插件通道 / HTTP API / 方案 C 降级"
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "spike — 决策代理层最小可行性实测",
+      "complexity": "L",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-004", "FR-006"],
+      "description": "方案 D（ADR-018）依赖 opencode 插件 API 是否暴露「订阅 question.asked + 调用 reply(requestID, answers) 代答」能力。当前安装 @opencode-ai/plugin 1.16.2 的 Event 类型不含 question 事件、SDK client 无 Question service（ADR-018 调研的是 1.18.18，存在版本差异）。在 e2e 测试项目实测：① event hook 能否收到 question.asked（必要时确认是否需升级 SDK 至 1.18.x）；② reply 通道是否存在（client 方法或 HTTP API session.question.reply）；③ task 子会话 sessionID 与 question 事件 sessionID 关联方式。结论判定落地路径：插件 hook / HTTP API / 方案 C 降级。",
+      "files": [
+        { "op": "NEW", "path": "e2e/（最小样本插件/测试脚本）" },
+        { "op": "MODIFY", "path": ".sddu/specs-tree-root/specs-tree-autonomous-mode/ADR-018.md" }
+      ],
+      "acceptance": [
+        "spike 报告落地，记录 question.asked 可订阅性 / reply 通道 / sessionID 关联三项实测结论",
+        "明确判定 decision-proxy 落地路径（插件 hook / HTTP API / 方案 C）",
+        "ADR-018 状态按实测结论更新（可行→ACCEPTED；均不可行→SUPERSEDED 转方案 C）"
+      ],
+      "verification": [
+        "bash e2e/scripts/basic/sddu-e2e.sh spike-probe",
+        "挂载 event hook 记录事件流，触发子 Agent question 工具，观察是否收到 question.asked",
+        "探测 reply 通道：client.question?.reply / HTTP API POST session.question.reply",
+        "记录 task 返回 task_id 与 question 事件 sessionID 关联；落盘 spike 报告并更新 ADR-018"
+      ]
+    },
+    {
+      "id": "TASK-002",
+      "name": "plugin.ts 纯重构拆分（tools.ts + hooks.ts + 瘦身组装入口）",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-005"],
+      "description": "按 ADR-021 将 plugin.ts（537 行）拆为 tools.ts（3 状态工具 + 辅助函数 legacyStatusToPhase/readFeatureState/writeFeatureState）、hooks.ts（4 生命周期 hook）、plugin.ts 瘦身为初始化+组装入口。全局单例由 plugin.ts 持有并注入 hooks.ts。对外 tool 名与 hook 名不变，行为零变化。",
+      "files": [
+        { "op": "NEW", "path": "src/adapters/opencode/tools.ts" },
+        { "op": "NEW", "path": "src/adapters/opencode/hooks.ts" },
+        { "op": "MODIFY", "path": "src/adapters/opencode/plugin.ts" }
+      ],
+      "acceptance": [
+        "npm run build 通过（tsc 编译新模块）",
+        "3 工具名不变：sddu_update_state / sddu_tag_feature / sddu_get_all_states",
+        "4 hook 名不变：session.created / file.edited / session.idle / session.end",
+        "npm run test:core 通过（state machine 行为不变）"
+      ],
+      "verification": [
+        "npm run build && npm run test:core",
+        "grep -rn \"sddu_update_state\\|sddu_tag_feature\\|sddu_get_all_states\" src/adapters/opencode/",
+        "grep -rn \"session.created\\|file.edited\\|session.idle\\|session.end\" src/adapters/opencode/"
+      ]
+    },
+    {
+      "id": "TASK-003",
+      "name": "decision-proxy.ts 实现 + 接入 plugin.ts",
+      "complexity": "M",
+      "dependencies": ["TASK-001", "TASK-002"],
+      "wave": 2,
+      "fr": ["FR-004", "FR-005", "FR-006", "NFR-003"],
+      "description": "按 TASK-001 结论落地 decision-proxy.ts 并接入重构后的 plugin.ts。核心四步：订阅 question.asked → 识别 sddu-auto 调度子会话（维护调度 sessionID→子会话 sessionID 映射）→ LLM 自主决策（拿不准也硬决策）→ reply(requestID, answers) 代答。只拦截 sddu-auto 子会话，不干扰普通 sddu/sddu-fast。若 TASK-001 结论为方案 C，本任务改为双会话代理 resume 实现并同步更新 ADR-018。",
+      "files": [
+        { "op": "NEW", "path": "src/adapters/opencode/decision-proxy.ts" },
+        { "op": "MODIFY", "path": "src/adapters/opencode/plugin.ts" }
+      ],
+      "acceptance": [
+        "npm run build 通过",
+        "decision-proxy 具备订阅+识别+决策+代答四步完整链路",
+        "仅对 sddu-auto 调度的子会话生效（sessionID 匹配逻辑可验证），非 sddu-auto 会话提问不受影响",
+        "信息不足时仍返回确定答案（不阻塞、不反问，NFR-003）"
+      ],
+      "verification": [
+        "npm run build",
+        "npx jest --selectProjects opencode -t decision-proxy --passWithNoTests 2>/dev/null || echo \"用 e2e 冒烟替代\""
+      ]
+    },
+    {
+      "id": "TASK-004",
+      "name": "sddu-auto.md.hbs 模板编写",
+      "complexity": "M",
+      "dependencies": ["TASK-001"],
+      "wave": 2,
+      "fr": ["FR-001", "FR-002", "FR-003", "FR-007", "FR-008", "FR-009", "FR-010", "NFR-001", "NFR-002", "NFR-003"],
+      "description": "编写 sddu-auto Agent 模板（第 1 层 source-of-truth）。含：① 角色定位（第三调度入口，进入即自主）；② 启动阶段六维问卷（ADR-019：背景/目标/范围必采最小充分信息集，验收期望/技术偏好/优先级尽力采，采满自动进入执行）；③ 执行阶段绝不问人 + 按 7 阶段顺序经 task 工具调度子 Agent（注入自主执行上下文）；④ auto-decisions.md 决策追溯（ADR-020：不参与状态机校验）；⑤ 复用 sddu_update_state + sddu-tree。frontmatter 含 description/mode/temperature/permission。",
+      "files": [
+        { "op": "NEW", "path": "src/templates/agents/sddu-auto.md.hbs" }
+      ],
+      "acceptance": [
+        "含 frontmatter（description/mode/temperature/permission）",
+        "含六维启动问卷定义，明确背景/目标/范围为必采",
+        "含执行阶段绝不问人硬约束 + 7 阶段顺序调度编排",
+        "含 auto-decisions.md 决策追溯说明且不参与状态机校验",
+        "npm run build:agents 生成 dist/templates/agents/sddu-auto.md"
+      ],
+      "verification": [
+        "npm run build:agents",
+        "grep -n \"背景\\|目标\\|范围\\|最小充分\\|绝不问人\\|auto-decisions\" src/templates/agents/sddu-auto.md.hbs",
+        "test -f dist/templates/agents/sddu-auto.md && echo \"OK: dist 产物已生成\""
+      ]
+    },
+    {
+      "id": "TASK-005",
+      "name": "注册 sddu-auto（opencode.json.hbs + build-agents.cjs）",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-001", "FR-008"],
+      "description": "两处注册：opencode.json.hbs 的 agent 块注册 sddu-auto（prompt 指向 {file:agents/sddu-auto.md}）；build-agents.cjs 的 specialAgents 加入 'sddu-auto'。完整构建验证在 TASK-007 统一执行。",
+      "files": [
+        { "op": "MODIFY", "path": "src/adapters/opencode/templates/opencode.json.hbs" },
+        { "op": "MODIFY", "path": "scripts/build-agents.cjs" }
+      ],
+      "acceptance": [
+        "opencode.json.hbs agent 块含 sddu-auto，prompt 指向 {file:agents/sddu-auto.md}",
+        "build-agents.cjs specialAgents 含 'sddu-auto'"
+      ],
+      "verification": [
+        "grep -n \"sddu-auto\" src/adapters/opencode/templates/opencode.json.hbs",
+        "grep -n \"specialAgents\\|sddu-auto\" scripts/build-agents.cjs"
+      ]
+    },
+    {
+      "id": "TASK-006",
+      "name": "e2e 脚本启用 --auto 标志（入口切 @sddu-auto）",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-001", "FR-002"],
+      "description": "两个 e2e 脚本启用内置 AUTO_MODE 变量：AUTO_MODE=true 时测试提示词入口从 @sddu 切换为 @sddu-auto（heredoc 与 echo 两处）；默认仍为 @sddu。",
+      "files": [
+        { "op": "MODIFY", "path": "e2e/scripts/basic/sddu-e2e.sh" },
+        { "op": "MODIFY", "path": "e2e/scripts/fullstack/sddu-e2e-fullstack.sh" }
+      ],
+      "acceptance": [
+        "bash -n 语法检查通过（两个脚本）",
+        "--auto 模式下生成的 sddu-test-prompt.md 入口为 @sddu-auto",
+        "默认（无 --auto）时入口仍为 @sddu"
+      ],
+      "verification": [
+        "bash -n e2e/scripts/basic/sddu-e2e.sh && bash -n e2e/scripts/fullstack/sddu-e2e-fullstack.sh",
+        "bash e2e/scripts/basic/sddu-e2e.sh user-login --auto",
+        "grep -n \"@sddu-auto\\|@sddu \" \"$HOME/sddu-test-projects/sddu-test-user-login/sddu-test-prompt.md\""
+      ]
+    },
+    {
+      "id": "TASK-007",
+      "name": "集成装配验证（构建产物 + 注册 + 入口冒烟）",
+      "complexity": "M",
+      "dependencies": ["TASK-003", "TASK-004", "TASK-005", "TASK-006"],
+      "wave": 3,
+      "fr": ["FR-001", "FR-002", "FR-007", "NFR-002"],
+      "description": "验证装配完整性（确定性、可自动化）：npm run build 全绿；dist 含 sddu-auto 产物；e2e 测试项目 install 成功（[2/3] 内置 install.sh）且 @sddu-auto 注册、入口正确。完整 7 流程端到端运行（决策代理代答、绝不问人、全套产物）属 validate 阶段职责，本任务只做装配冒烟。",
+      "files": [],
+      "acceptance": [
+        "npm run build 全绿（build:agents + build:ts）",
+        "dist/templates/agents/sddu-auto.md 存在，opencode.json 注册 sddu-auto",
+        "e2e 测试项目 install 成功，@sddu-auto 可用（opencode 启动无报错）",
+        "--auto 生成的提示词入口为 @sddu-auto"
+      ],
+      "verification": [
+        "npm run build",
+        "test -f dist/templates/agents/sddu-auto.md && echo \"OK: sddu-auto 产物存在\"",
+        "bash e2e/scripts/basic/sddu-e2e.sh user-login --auto",
+        "grep -n \"sddu-auto\" \"$HOME/sddu-test-projects/sddu-test-user-login/sddu-test-prompt.md\""
+      ]
+    }
+  ]
+}
