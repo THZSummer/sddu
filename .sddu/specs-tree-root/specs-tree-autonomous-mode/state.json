@@ -2,8 +2,8 @@
   "feature": "specs-tree-autonomous-mode",
   "name": "自主模式（sddu-auto 自动调度）",
   "version": "v3.0.0",
-  "phase": "tasked",
-  "status": "tracked",
+  "phase": "validated",
+  "status": "completed",
   "depth": 0,
   "phaseHistory": [
     {
@@ -35,6 +35,24 @@
       "timestamp": "2026-08-15T09:00:00.000Z",
       "triggeredBy": "sddu-tasks-agent",
       "comment": "任务分解完成 — 基于 plan.md v3.2 + ADR-018~021 分解 7 个原子任务（S×2 / M×4 / L×1），3 波次编排；首个 spike（TASK-001）前置实测决策代理层可行性（question.asked + reply），plugin.ts 拆分为纯重构独立验证"
+    },
+    {
+      "phase": "builded",
+      "timestamp": "2026-08-15T22:40:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "实施构建完成 — 7/7 任务全部 completed：TASK-001 spike（ADR-018 ACCEPTED，方案 D 插件 hook 通道）、TASK-002 plugin.ts 拆分（tools.ts + hooks.ts）、TASK-003 decision-proxy.ts（四步链路 + 18 单测）、TASK-004 sddu-auto.md.hbs 模板、TASK-005 注册 sddu-auto、TASK-006 e2e --auto 标志、TASK-007 集成装配验证（build 全绿 + dist 产物 + e2e 安装 + @sddu-auto 入口）"
+    },
+    {
+      "phase": "reviewed",
+      "timestamp": "2026-08-15T23:00:00.000Z",
+      "triggeredBy": "sddu-review-agent",
+      "comment": "静态审查完成 — 执行 C1~C21 清单（四维度），方案 D 四步链路正确且经 v2 SDK 类型逐字段核验，子 Agent 零改动 + 行为零变化经 git 历史确认，工程约束符合；结论：有条件通过（0 阻塞 / 4 改进项，核心为 auto-context.json 与 auto-decisions.md 生产者缺失）"
+    },
+    {
+      "phase": "validated",
+      "timestamp": "2026-08-16T00:10:00.000Z",
+      "triggeredBy": "sddu-validate-agent",
+      "comment": "动手验证完成 — V1~V14 场景（build 全绿 / test:core 131 通过 / e2e 端到端验证启动六维问卷+auto-context.json 写入+绝不问人+4/7 阶段顺序调度+产物沉淀 / 子 Agent 零改动+零漂移）；结论：⚠️ 有条件通过（1 个 P1 阻塞问题：flaky 单测 contextFile 缺失，根因 matchOption 单字符标签误匹配 projectDirectory，需修复后复跑 test:opencode）"
     }
   ],
   "dependencies": {
@@ -48,13 +66,17 @@
     "discovery": "discovery.md",
     "spec": "spec.md",
     "plan": "plan.md",
-    "tasks": "tasks.md"
+    "tasks": "tasks.md",
+    "review": "review.md",
+    "reviewReport": "review-report.md",
+    "validate": "validate.md",
+    "validationReport": "validate-report.md"
   },
   "metadata": {
     "priority": "P0",
     "featureId": "FR-AUTONOMY-001",
     "name": "自主模式（sddu-auto 自动调度）",
     "createdAt": "2026-08-15",
-    "updatedAt": "2026-08-15"
+    "updatedAt": "2026-08-16"
   }
 }

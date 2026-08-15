@@ -8,6 +8,10 @@ REPORT_MODE=false
 [[ "$*" == *"--auto"* ]] && AUTO_MODE=true
 [[ "$*" == *"--report"* ]] && REPORT_MODE=true
 
+# Entry agent: --auto switches to @sddu-auto, default stays @sddu
+ENTRY="@sddu"
+[[ "$AUTO_MODE" == true ]] && ENTRY="@sddu-auto"
+
 # Base dir
 BASE_DIR="${SDDU_TEST_DIR:-$HOME/sddu-test-projects}"
 mkdir -p "$BASE_DIR"
@@ -66,10 +70,10 @@ $DESC
 
 ## 入口
 
-@sddu $PROJECT_NAME
+$ENTRY $PROJECT_NAME
 EOF
 
 echo ""
 echo "✅ 测试项目就绪"
 echo "   cd $TEST_DIR && opencode"
-echo "   @sddu $PROJECT_NAME"
+echo "   $ENTRY $PROJECT_NAME"
