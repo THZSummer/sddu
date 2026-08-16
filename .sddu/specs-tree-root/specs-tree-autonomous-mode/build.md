@@ -7,7 +7,7 @@
 > **版本**: v1.0  
 > **更新人**: SDDU Build Agent  
 > **更新时间**: 2026-08-16  
-> **更新说明**: 追加 review R1 改进项修复（处置 4 项改进 1/3/4 fixed，2 recorded）+ 职责越界修复（FR-AUTONOMY-001：sddu-auto 模板补「调度者不实施」硬约束，7 处修改，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ 权限层面硬性落实（FR-AUTONOMY-001：sddu-auto frontmatter 完全禁用实施权限 edit/bash/webfetch=deny，所有实施动作含写文件一律派发子 Agent，§4.1/§5.2/§5.3/§8/§9/§10 六处修改，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ review 增量复核遗留项修复（R1-A/R1-B/R1-C：§7.2 改 task 派发子 Agent 执行 sddu-tree、删除 frontmatter 无效 task/skill 键、§9 措辞修正，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ TASK-008 方案 E 前置契约验证 spike（session.create/prompt 契约 + 决策会话权限 + @opencode-ai/sdk 依赖）+ TASK-009 decision-proxy 方案 E 改造（建决策会话 + prompt 思考 + 全局 reply 代答 + 30s 超时兜底 + 决策来源字段）
+> **更新说明**: 追加 review R1 改进项修复（处置 4 项改进 1/3/4 fixed，2 recorded）+ 职责越界修复（FR-AUTONOMY-001：sddu-auto 模板补「调度者不实施」硬约束，7 处修改，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ 权限层面硬性落实（FR-AUTONOMY-001：sddu-auto frontmatter 完全禁用实施权限 edit/bash/webfetch=deny，所有实施动作含写文件一律派发子 Agent，§4.1/§5.2/§5.3/§8/§9/§10 六处修改，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ review 增量复核遗留项修复（R1-A/R1-B/R1-C：§7.2 改 task 派发子 Agent 执行 sddu-tree、删除 frontmatter 无效 task/skill 键、§9 措辞修正，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ TASK-008 方案 E 前置契约验证 spike（session.create/prompt 契约 + 决策会话权限 + @opencode-ai/sdk 依赖）+ TASK-009 decision-proxy 方案 E 改造（建决策会话 + prompt 思考 + 全局 reply 代答 + 30s 超时兜底 + 决策来源字段）+ 根治 decision-proxy 空转（FR-AUTONOMY-001，decision_count=0：注入契约「绝不问人」改「正常提问」，删除暴露 auto 存在的词，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）
 
 ## 1. 构建概要
 > 本次构建的整体统计
@@ -135,6 +135,40 @@
 
 **验证**：`npm run build` 通过（tsc 无类型错误 + build:agents 产物齐备）；`npx jest --selectProjects opencode` 47 passed（25 → 47，新增 22 单测覆盖方案 E 纯函数 + 主链路 + 超时兜底 + 决策来源落盘）；`npm run test:core` 131 passed（state machine 行为不变）；`SessionRegistry` / 7 子 Agent 模板 / 权限模型经 `git diff` 确认零改动。
 
+## 11. 根治 decision-proxy 空转修复记录（FR-AUTONOMY-001，decision_count=0）
+> **根因**：sddu-auto 注入给子 Agent 的「自主执行契约」要求「绝不问人、拿不准硬决策、不要依赖人类介入」，导致 7 个子 Agent 全程从不调用 question 工具 → decision-proxy 是「被动拦截」，无输入则不响应 → 方案 E「决策会话 LLM 真思考代答」真实体验 0 触发。仅改 `src/templates/agents/sddu-auto.md.hbs`，7 子 Agent 模板零改动，`decision-proxy.ts` / `SessionRegistry` / 方案 E 决策会话机制 / edit/bash deny 权限模型均零改动。
+
+### 11.1 契约修改前后对比
+
+| 位置 | 修改前（旧） | 修改后（新） |
+|:--:|------|------|
+| §5.2 规则 3（核心注入契约） | 告知子 Agent：本会话由 `sddu-auto` 托管，其提问将由 sddu-auto 代答（决策代理层兜底），请基于给定上下文自主决策、拿不准也硬决策，不要依赖人类介入 | 告知子 Agent：请按你的标准阶段流程正常执行。如遇需要澄清或决策的点，可正常使用 question 工具提问（你的问题会得到即时回答），也可基于给定上下文自主判断后继续推进 |
+| §5.2 规则 3（职责边界契约） | 代码修复统一**由 sddu-auto 派发** `sddu-build` 执行 | 代码修复统一派发 `sddu-build` 执行（删除「由 sddu-auto」暴露词） |
+| §5.3 伪流程 b 行 | prompt=自主执行上下文 + **绝不问人契约** + 职责边界契约 + 上游产物路径 | prompt=自主执行上下文 + **正常提问契约** + 职责边界契约 + 上游产物路径 |
+| §5.3 伪流程 a 行 | 绝不问人，绝不亲自实施 | 绝不问用户，绝不亲自实施 |
+| §8 规则 3 | **绝不问人**：执行阶段所有问题由 sddu-auto 答复，拿不准也硬决策，不得中止、阻塞或反问 | **用户绝不被打断（子 Agent 正常提问）**：子 Agent 在决策点正常使用 question 工具提问（与普通 sddu 一致，FR-005），提问由协议层透明代答、用户无感知；你自身绝不向用户发起提问，拿不准也硬决策（FR-003/004/006/NFR-003） |
+| §8 规则 5 | 注入…+「**绝不问人**」契约 + 上游产物路径 | 注入…+「**正常提问**」契约 + 上游产物路径 |
+| §10 示例对话 | 子 Agent 若问「验收标准如何定」，由你基于诉求硬决策代答 | 子 Agent 若问「验收标准如何定」，正常提问 → 决策代理层透明代答 → 子 Agent 无感知继续 |
+| 全文「绝不问人」 | 混用（FR-004 不打断用户 vs 子 Agent 被要求别问，语义不清） | 统一收敛：FR-004 语境改「绝不问用户」（frontmatter/§3/§5/§5.1 标题/§5.1 注），子 Agent 语境改「正常提问」 |
+
+### 11.2 关键约束落实
+
+| 约束 | 落实 |
+|:--:|------|
+| ① 不暴露 auto 存在 | 注入契约删除「sddu-auto 托管 / sddu-auto 代答 / 决策代理层兜底 / 由 sddu-auto 派发 / 不要依赖人类介入」；注入文本（「告知子 Agent：」→「注意」之间）经 grep 确认零暴露词 |
+| ② FR-004「用户绝不被打断」语义不变 | 用户仍不被问——子 Agent 内部提问由协议层（decision-proxy）透明代答，用户无感知；全文「绝不问人」明确为「绝不问用户」（不打断用户）而非「子 Agent 别问」 |
+| ③ 子 Agent 提问行为与普通 sddu 一致（FR-005） | 契约明确「可正常使用 question 工具提问」，且「注意」保留「子 Agent 提问行为本身照常发生，由决策代理层协议层确定性拦截」 |
+
+### 11.3 验证
+
+| 项 | 结果 |
+|:--:|------|
+| 注入契约无暴露词（grep） | ✅ 注入文本「请按你的标准阶段流程正常执行…」无「sddu-auto / 托管 / 代答 / 决策代理层 / 不会到达终端用户 / 不要依赖人类介入」 |
+| 契约允许子 Agent 提问 | ✅ §5.2 规则 3「可正常使用 question 工具提问（你的问题会得到即时回答）」 |
+| 「用户绝不被打断」语义保留 | ✅ §5/§5.1 标题、§8 规则 3 均体现「绝不问用户 / 用户绝不被打断」 |
+| `npm run build:agents` 重新生成 dist | ✅ `dist/templates/agents/sddu-auto.md` 与 src 逐字节一致 |
+| 7 子 Agent 模板零改动 | ✅ `git diff --name-only` 无 7 子 Agent 模板路径（仅 `src/templates/agents/sddu-auto.md.hbs`） |
+
 ## 修订记录
 > 记录本文档的版本变更历史
 
@@ -153,3 +187,4 @@
 | v1.10 | review 增量复核遗留项修复（FR-AUTONOMY-001，R1-A/R1-B/R1-C）— 仅改 `src/templates/agents/sddu-auto.md.hbs`：① R1-A §7.2 改「task 派发子 Agent 执行 sddu-tree Skill 更新 TREE.md」（无 bash 权限不亲自执行，派 sddu-fast/general 跑 `node scripts/generate-tree.cjs`，§5.3/§8/§10 同步）；② R1-B 删除 frontmatter 无效 `task: allow`/`skill: allow` 键；③ R1-C §9「回退重跑」改「派发对应子 Agent 重跑」；`npm run build:agents` 重新生成 `dist/templates/agents/sddu-auto.md`（逐字节一致）；7 子 Agent 模板零改动 | 2026-08-16 | SDDU Build Agent |
 | v1.11 | TASK-008 完成 — 方案 E 前置契约验证 spike：session.create/prompt body 形状 + 同步等待（idle 无死锁、10.5s 一次 LLM 往返）+ 决策会话权限（read✅/edit❌/bash❌）+ @opencode-ai/sdk 可解析性三项契约运行时实测通过；代答通道判定 HTTP 全局端点；契约签名固定于 spike-decision-session.md §6 | 2026-08-16 | SDDU Build Agent |
 | v1.12 | TASK-009 完成 — decision-proxy 方案 E 改造：DecisionEngine 降级为 30s 超时兜底；新增建/复用决策会话（client.session.create + 缓存 sessionID）+ prompt LLM 真思考（client.session.prompt，agent=sddu-auto）+ 答案解析（parseDecisionAnswer）+ withTimeout 30s 兜底 + appendDecisions 决策来源字段；SessionRegistry / 全局 reply 通道 / 权限模型零改动；test:opencode 25 → 47 passed、test:core 131 passed、build 全绿 | 2026-08-16 | SDDU Build Agent |
+| v1.13 | 根治 decision-proxy 空转（FR-AUTONOMY-001，decision_count=0）— 仅改 `src/templates/agents/sddu-auto.md.hbs`：① §5.2 规则 3 核心注入契约「绝不问人」改「正常提问」（告知子 Agent「可正常使用 question 工具提问，问题会得到即时回答」，删除「sddu-auto 托管/代答/决策代理层兜底/不要依赖人类介入」暴露词）；② §5.2 职责边界契约删除「由 sddu-auto 派发」；③ §5.3 伪流程「绝不问人契约」改「正常提问契约」；④ §8 规则 3 改「用户绝不被打断（子 Agent 正常提问）」、规则 5 同步；⑤ 全文「绝不问人」收敛为「绝不问用户」（FR-004）或「正常提问」（子 Agent）；⑥ §10 示例更新为「子 Agent 正常提问 → 透明代答 → 继续」；`npm run build:agents` 重新生成 dist（逐字节一致）；7 子 Agent 模板零改动 | 2026-08-16 | SDDU Build Agent |
