@@ -1,25 +1,32 @@
-// OpenCode 平台适配 — 决策代理层（方案 D：Question 协议层拦截 + 代答）
-// 按 ADR-018 落地四步完整链路：
+// OpenCode 平台适配 — 决策代理层（ADR-018 方案 E：协议层拦截 + 插件内同步决策会话代答）
+// 按 ADR-018 v4.2 落地五步完整链路：
 //   ① 订阅 question.asked 事件（插件 event hook）
-//   ② 识别「sddu-auto 调度的子会话提问」（维护 主会话→子会话 映射）
-//   ③ LLM 自主决策答案（注入启动诉求 + 项目上下文，拿不准也硬决策，NFR-003）
-//   ④ 调用 reply(requestID, answers) 代答，问题全程不到达终端用户（FR-006）
+//   ② 识别「sddu-auto 调度的子会话提问」（SessionRegistry 维护 主会话→子会话 映射，识别机制不变）
+//   ③ 建/复用独立「决策会话」（client.session.create，agent=sddu-auto，注入种子上下文）
+//      → client.session.prompt 同步等 sddu-auto LLM 真思考（决策会话 idle、无死锁）
+//   ④ 解析答案 → 调用 reply(requestID, answers) 代答，问题全程不到达终端用户（FR-006）
+//   ⑤ 30s 超时兜底：决策会话未响应则降级 DecisionEngine 规则匹配（NFR-003 不阻塞不反问）
 // 只拦截 sddu-auto 调度的子会话，不干扰普通 sddu/sddu-fast 的既有提问行为（NG-004）。
 //
 // 规则：本模块自包含（不依赖业务域 / state / shared），可 import @opencode-ai/plugin。
 // 依赖注入：client / directory / serverUrl 由 plugin.ts 传入（ADR-021：依赖传递替代全局单例）。
 //
-// 类型说明（对齐 TASK-001 spike 结论）：
+// 类型说明（对齐 TASK-001 / TASK-008 spike 结论）：
 // - 运行时（1.18.18）把全部 server 事件以 {id, type, properties} 形状派发给插件 event hook，
 //   question.asked 也在其中，其 properties 含 {id(requestID), sessionID, questions, tool?}。
 // - 根 node_modules 的 @opencode-ai/sdk 为 1.16.2（v2 子路径损坏），故本模块采用
 //   「本地最小类型声明 + 运行时 client 动态访问」的方式，避免升级依赖带来的破坏风险。
 // - 运行实证（2026-08-16）发现：opencode 1.18.18 运行时注入插件的 client 为 v1 形态
-//   （成员 global/project/session/app/…，无 v2 / 无顶层 question 访问器），故通道 1/2
+//   （成员 global/project/session/app/…，无 v2 / 无顶层 question 访问器），故代答通道 1/2
 //   的 client 访问器在真实运行时均缺失、被可选链短路跳过；真正可用的代答通道是
 //   HTTP 全局端点 POST /question/{requestID}/reply（serve 模式，通道 3）。本模块保留
 //   通道 1/2 作为「若未来运行时 client 升级为 v2 则优先走进程内通道」的兼容探测，
 //   HTTP 全局端点作为可靠兜底。
+// - TASK-008 spike 实证（spike-decision-session.md）固定方案 E 契约：插件 v1 client 的
+//   `session.create({body:{agent,title}})`（agent 运行时接受并存储）返回 {data:Session}；
+//   `session.prompt({path:{id},body:{agent:'sddu-auto',parts:[{type:'text',text}]}})` 同步等待
+//   LLM 完整思考（≈10.5s、idle 无死锁、会话复用无死锁），返回 {data:{info,parts}}，答案文本
+//   在 type==="text" 的 part 中；决策会话权限 read✅/edit❌/bash❌ 由 prompt 的 body.agent 决定。
 
 // ============ 本地最小类型声明（对齐 v2 SDK EventQuestionAsked / Question 服务） ============
 
@@ -53,6 +60,34 @@ export interface OpenCodeEvent {
   id?: string;
   type?: string;
   properties?: Record<string, unknown>;
+}
+
+// ============ 方案 E：决策会话相关类型（对齐 TASK-008 spike 契约） ============
+
+/** 决策来源标注：sddu-auto 决策会话（LLM 真思考） vs 超时兜底（规则匹配） */
+export type DecisionSource = 'sddu-auto 决策会话' | '超时兜底';
+
+/** 决策会话思考超时（NFR-003：不阻塞不反问），默认 30s */
+export const DECISION_TIMEOUT_MS = 30_000;
+
+/** 决策会话文本 part 输入（对齐 SessionPromptData.body.parts[TextPartInput]） */
+export interface DecisionTextPart {
+  type: 'text';
+  text: string;
+}
+
+/** 决策会话 prompt 返回的 part（对齐 AssistantMessage.parts） */
+export interface DecisionSessionPart {
+  type?: string;
+  text?: string;
+}
+
+/** 决策会话 prompt 返回结构（hey-api {data, error} 形状，取 .data） */
+export interface DecisionPromptResult {
+  data?: {
+    info?: unknown;
+    parts?: Array<DecisionSessionPart>;
+  };
 }
 
 // ============ ① 识别：SessionRegistry（sddu-auto 调度子会话映射） ============
@@ -238,6 +273,141 @@ export class DecisionEngine {
   }
 }
 
+// ============ ②.5 方案 E：决策会话 LLM 真思考（建会话 + prompt + 解析 + 超时兜底） ============
+// 纯函数（不依赖 client / 不 IO），便于单元测试。方案 E 把「决策」从规则匹配升级为
+// sddu-auto 决策会话的 LLM 真思考；DecisionEngine 规则匹配降级为 30s 超时兜底（NFR-003）。
+
+/** 构造注入决策会话的种子上下文（启动诉求 + Feature + 项目上下文 + 上游产物提示） */
+export function buildSeedContext(context: DecisionContext): string {
+  const lines: string[] = [];
+  if (context.launchIntent) lines.push(`启动诉求：${context.launchIntent}`);
+  if (context.featureName) lines.push(`当前 Feature：${context.featureName}`);
+  if (context.projectDirectory) lines.push(`项目目录：${context.projectDirectory}`);
+  lines.push(
+    '上游产物：spec.md / plan.md / tasks.md 位于项目 .sddu/specs-tree-root/<feature>/ 下，可读取以了解已定论的需求、方案与任务。',
+  );
+  return lines.join('\n');
+}
+
+/** 构造单题决策 prompt（种子上下文 + 问题全文 + 选项），供 session.prompt 的 text part 使用 */
+export function buildDecisionPrompt(
+  context: DecisionContext,
+  question: DecisionQuestion,
+): string {
+  const seed = buildSeedContext(context);
+  const options = (question.options ?? []).filter((o) => o && o.label);
+  const header = question.header ? `标题：${question.header}` : '';
+  const body = question.question ? `问题：${question.question}` : '';
+  const optLines = options.map((o) => {
+    const desc = o.description ? `（${o.description}）` : '';
+    return `- ${o.label}${desc}`;
+  });
+  const optBlock =
+    options.length > 0 ? `可选答案（label）：\n${optLines.join('\n')}` : '';
+  const modeHint = question.multiple
+    ? '本题为多选题，请给出所有选中项的 label（多个用顿号「、」分隔）。'
+    : '本题为单选题，请给出唯一选中项的 label。';
+  const freeHint =
+    options.length > 0
+      ? '请只回复选项的 label，不要解释、不要反问。'
+      : '请直接给出确定的自由文本答案，不要反问。';
+
+  return [
+    '你是 sddu-auto 决策会话，负责为子 Agent 发起的提问做确定性自主决策。',
+    '基于以下种子上下文做出决策，绝不反问、绝不空答。',
+    '',
+    '【种子上下文】',
+    seed,
+    '',
+    '【待决策问题】',
+    ...[header, body].filter(Boolean),
+    optBlock,
+    modeHint,
+    freeHint,
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+/** 从决策会话 prompt 返回结构中提取答案文本（仅 type==="text" 的 part 拼接） */
+export function extractAnswerText(
+  result: DecisionPromptResult | undefined | null,
+): string {
+  const parts = result?.data?.parts ?? [];
+  return parts
+    .filter((p) => p?.type === 'text')
+    .map((p) => p?.text ?? '')
+    .join('\n')
+    .trim();
+}
+
+/**
+ * 从决策会话 LLM 回答文本解析答案（对齐 ADR-018 要素③）：
+ * - 有选项（单选）：命中文本中的 label → 返回该 label；无命中 → 保守回退首个选项；
+ * - 有选项（多选）：命中多个 label → 返回 label 数组；无命中 → 回退首个选项；
+ * - 无选项（自由文本）：返回 trimmed 文本；空文本 → 保守默认答案。
+ * 保证：始终返回非空确定答案（NFR-003 不阻塞不反问）。
+ */
+export function parseDecisionAnswer(
+  text: string,
+  question: DecisionQuestion,
+): string[] {
+  const options = (question.options ?? []).filter((o) => o && o.label);
+  const trimmed = (text ?? '').trim();
+
+  if (options.length === 0) {
+    if (trimmed) return [trimmed];
+    const header = question?.header ?? question?.question ?? '当前决策点';
+    return [`sddu-auto 自主决策：对「${header}」采用保守默认方案继续推进。`];
+  }
+
+  const matched = options.filter((o) => labelInText(trimmed, o.label));
+  if (matched.length === 0) return [options[0].label];
+  if (question.multiple) return matched.map((o) => o.label);
+  return [matched[0].label];
+}
+
+/** label 是否出现在回答文本中（单字符 label 用词边界匹配，防路径随机字符误命中） */
+function labelInText(text: string, label: string): boolean {
+  const hay = text.toLowerCase();
+  const lab = (label ?? '').toLowerCase();
+  if (!lab) return false;
+  if (lab.length < 2) {
+    return new RegExp(`(^|[^a-z0-9])${escapeRegExp(lab)}([^a-z0-9]|$)`, 'i').test(
+      text,
+    );
+  }
+  return hay.includes(lab);
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * 给 Promise 加超时（NFR-003：决策会话思考设 30s 上限，超时降级规则匹配）。
+ * 超时后原 Promise 的后续 reject 会被吞掉（避免 unhandledRejection 干扰 event hook）。
+ */
+export function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  reason = `decision session timeout after ${ms}ms`,
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(reason)), ms);
+    promise.then(
+      (v) => {
+        clearTimeout(timer);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(timer);
+        reject(e);
+      },
+    );
+  });
+}
+
 // ============ ③ 代答 + ④ 编排：DecisionProxy ============
 
 export type DecisionLogFn = (
@@ -257,6 +427,8 @@ export interface DecisionProxyDeps {
   featureName?: string;
   /** 启动诉求文件（sddu-auto 启动阶段写入，决策时代理层懒加载） */
   contextFile?: string;
+  /** 决策会话思考超时毫秒（默认 DECISION_TIMEOUT_MS=30s；测试可注入更短值） */
+  decisionTimeoutMs?: number;
   log?: DecisionLogFn;
 }
 
@@ -317,6 +489,95 @@ export function createDecisionProxy(deps: DecisionProxyDeps): DecisionProxy {
     }
   }
 
+  // ============ 方案 E：决策会话（建/复用 + prompt 思考 + 30s 超时兜底） ============
+  // 决策会话是独立 session（agent=sddu-auto），与主会话阻塞等待 task 的解耦，idle 无死锁
+  // （TASK-008 spike 实证）。首次创建后缓存 sessionID，后续决策点复用同一长生命周期会话。
+
+  const decisionTimeoutMs = deps.decisionTimeoutMs ?? DECISION_TIMEOUT_MS;
+  let decisionSessionID: string | undefined;
+
+  /** 读取运行时注入 client 的 session 命名空间（v1 形态；缺失返回 undefined） */
+  function sessionApi(): any {
+    const client = deps.client as any;
+    return client?.session ?? undefined;
+  }
+
+  /**
+   * 建/复用决策会话：首次创建（agent=sddu-auto，title 标注），后续复用缓存 sessionID。
+   * 返回 sessionID；client 无 session 能力或创建失败则抛错（由 decideViaSession 降级兜底）。
+   */
+  async function ensureDecisionSession(): Promise<string> {
+    if (decisionSessionID) return decisionSessionID;
+    const s = sessionApi();
+    if (!s?.create) {
+      throw new Error('decision-proxy: client.session.create unavailable');
+    }
+    const created = await s.create({
+      body: { agent: 'sddu-auto', title: 'sddu-auto 决策会话' },
+    });
+    const id = created?.data?.id;
+    if (!id) throw new Error('decision-proxy: session.create returned no id');
+    decisionSessionID = id;
+    await log('info', 'decision-proxy: decision session created', {
+      decisionSessionID: id,
+    });
+    return id;
+  }
+
+  /** 对单题做一次 LLM 真思考（同步等待，30s 超时）。失败/超时抛错，由 decideViaSession 统一降级。 */
+  async function promptOne(question: DecisionQuestion): Promise<string[]> {
+    const s = sessionApi();
+    if (!s?.prompt) {
+      throw new Error('decision-proxy: client.session.prompt unavailable');
+    }
+    const sessionID = await ensureDecisionSession();
+    const promptText = buildDecisionPrompt(engine.getContext(), question);
+    const result = await withTimeout(
+      s.prompt({
+        path: { id: sessionID },
+        body: {
+          agent: 'sddu-auto',
+          parts: [{ type: 'text', text: promptText }],
+        },
+      }),
+      decisionTimeoutMs,
+    );
+    const text = extractAnswerText(result as DecisionPromptResult);
+    if (!text) {
+      throw new Error('decision-proxy: decision session returned no text');
+    }
+    return parseDecisionAnswer(text, question);
+  }
+
+  /**
+   * 方案 E 决策主链路：对全部问题逐题 prompt 思考。
+   * - 成功 → { answers, source: 'sddu-auto 决策会话' }
+   * - 任一题失败 / 超时（client 无 session 能力 / create 失败 / prompt 超时 / 无文本）→
+   *   整体降级 DecisionEngine 规则匹配，source = '超时兜底'（NFR-003 不阻塞不反问）。
+   */
+  async function decideViaSession(
+    questions: Array<DecisionQuestion>,
+  ): Promise<{ answers: string[][]; source: DecisionSource }> {
+    const s = sessionApi();
+    if (!s?.create || !s?.prompt) {
+      return { answers: engine.decideAll(questions), source: '超时兜底' };
+    }
+    try {
+      const answers: string[][] = [];
+      for (const q of questions) {
+        answers.push(await promptOne(q));
+      }
+      return { answers, source: 'sddu-auto 决策会话' };
+    } catch (err) {
+      await log('warn', 'decision-proxy: decision session failed, degrading to rule engine', {
+        error: String(err),
+      });
+      // 超时后原会话可能仍在思考（busy），重置缓存，下次决策点重建干净会话
+      decisionSessionID = undefined;
+      return { answers: engine.decideAll(questions), source: '超时兜底' };
+    }
+  }
+
   /**
    * 决策追溯落盘（ADR-020）：将「被拦截提问 + 决策结果」追加写入
    * `<featureName>/auto-decisions.md`。
@@ -329,6 +590,7 @@ export function createDecisionProxy(deps: DecisionProxyDeps): DecisionProxy {
     sessionID: string,
     questions: Array<DecisionQuestion>,
     answers: string[][],
+    source: DecisionSource,
   ): Promise<void> {
     const { featureName, launchIntent } = engine.getContext();
     if (!featureName) {
@@ -357,11 +619,12 @@ export function createDecisionProxy(deps: DecisionProxyDeps): DecisionProxy {
         const header = q?.header ?? q?.question ?? '(未命名决策点)';
         lines.push(`- **决策点**：${header} — ${q?.question ?? ''}`);
         lines.push(`  - **采纳的决策**：${answer}`);
+        lines.push(`  - **决策来源**：${source}`);
         lines.push(
           `  - **决策依据**：启动诉求「${launchIntent ?? '未采集'}」+ 项目上下文`,
         );
         lines.push(
-          `  - **是否硬决策**：${launchIntent ? '基于启动诉求锚定' : '✅ 硬决策（无启动诉求，选首个选项 / 保守默认）'}`,
+          `  - **是否硬决策**：${source === 'sddu-auto 决策会话' ? 'LLM 真思考（sddu-auto 决策会话）' : '✅ 超时兜底（规则匹配：选首项 / 保守默认）'}`,
         );
       });
       const entry =
@@ -453,10 +716,11 @@ export function createDecisionProxy(deps: DecisionProxyDeps): DecisionProxy {
       return;
     }
 
-    // ③ 决策：注入启动诉求（懒加载）+ 项目上下文，硬决策
+    // ③ 决策：注入启动诉求（懒加载）+ 项目上下文，方案 E 主链路（决策会话 LLM 真思考，
+    //    30s 超时兜底降级规则匹配）
     await refreshLaunchIntent();
     const questions = props.questions ?? [];
-    const answers = engine.decideAll(questions);
+    const { answers, source } = await decideViaSession(questions);
 
     await log('info', 'decision-proxy intercepting question', {
       sessionID: props.sessionID,
@@ -464,10 +728,11 @@ export function createDecisionProxy(deps: DecisionProxyDeps): DecisionProxy {
       autoParent: registry.getAutoParent(props.sessionID),
       headers: questions.map((q) => q.header),
       answers,
+      decisionSource: source,
     });
 
     // ③.5 决策追溯落盘（ADR-020：生产者 = decision-proxy，协议层代答的主 Agent 不可见）
-    await appendDecisions(props.sessionID, questions, answers);
+    await appendDecisions(props.sessionID, questions, answers, source);
 
     // ④ 代答：问题全程不到达终端用户（FR-006）
     await replyQuestion(props.sessionID, props.id, answers);
@@ -510,6 +775,7 @@ export function createDecisionProxy(deps: DecisionProxyDeps): DecisionProxy {
     },
 
     async dispose(): Promise<void> {
+      decisionSessionID = undefined;
       registry.clear();
     },
   };

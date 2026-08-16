@@ -59,6 +59,12 @@
       "timestamp": "2026-08-16T05:30:00.000Z",
       "triggeredBy": "sddu-build-agent",
       "comment": "方案 E 前置契约验证 spike（TASK-008）完成 — session.create/prompt body 形状 + 同步等待（idle 无死锁、10.5s 一次 LLM 往返）+ 决策会话权限（read✅/edit❌/bash❌）+ @opencode-ai/sdk 可解析性（v2 client.question.reply 可用）三项契约实测通过；代答通道判定 HTTP 全局端点；契约签名见 spike-decision-session.md，供 TASK-009 实现"
+    },
+    {
+      "phase": "builded",
+      "timestamp": "2026-08-16T06:30:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "decision-proxy 方案 E 改造（TASK-009）完成 — 决策职责由 DecisionEngine 规则匹配升级为「插件内同步决策会话代答」：建/复用决策会话（client.session.create + 缓存 sessionID）+ prompt LLM 真思考（client.session.prompt，agent=sddu-auto，30s withTimeout）+ 答案解析（parseDecisionAnswer）+ appendDecisions 决策来源字段（sddu-auto 决策会话 vs 超时兜底）；DecisionEngine 降级为 30s 超时兜底；SessionRegistry / 全局 reply 通道 / 子 Agent / 权限模型零改动；test:opencode 47 passed、test:core 131 passed、build 全绿"
     }
   ],
   "dependencies": {

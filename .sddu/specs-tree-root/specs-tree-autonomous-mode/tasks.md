@@ -317,7 +317,7 @@ bash e2e/scripts/basic/sddu-e2e.sh spike-proxy-session
 | **前置依赖** | TASK-008（方案 E 前置契约验证结论）, TASK-003（已完成的 decision-proxy）, TASK-004（已完成的 sddu-auto 模板） |
 | **执行波次** | 5 |
 | **对应 FR** | FR-004, FR-005, FR-006, NFR-003 |
-| **状态** | ⬜ pending |
+| **状态** | ✅ completed |
 
 **描述**: 按 ADR-018 v4.2 方案 E 五要素改造决策代理层，将「决策」职责由 `DecisionEngine` 规则匹配（关键词匹配/选首项/保守默认，`decision-proxy.ts` L194-238）改为「插件内同步决策会话代答」：① 拦截 `question.asked` 后经 `SessionRegistry.getAutoParent` 确认 sddu-auto 子会话提问（识别机制不变）→ 用插件 v1 client 的 `client.session.create({ body: { agent: "sddu-auto", ... } })` **建/复用「决策会话」**（首次创建后缓存 sessionID，注入种子上下文：启动诉求 auto-context.json + 项目上下文 + 上游产物）；② `client.session.prompt()` **同步等 LLM 真思考**（决策会话 idle 无死锁，契约按 TASK-008 spike 结论）；③ 从回答解析答案（单题选 label / 多选 label 数组 / 自由文本保守默认）→ **全局端点 `POST /question/{requestID}/reply`（body `{answers}`）代答**（备选：自建 SDK client 走 `client.question.reply`，按 TASK-008 spike 结论选择）；④ **30s 超时兜底**（决策会话未响应则降级 `DecisionEngine` 规则匹配，NFR-003 不阻塞不反问）；⑤ `appendDecisions` 新增「决策来源」字段（`sddu-auto 决策会话` vs `超时兜底`）。`SessionRegistry`（拦截识别）/ 代答通道（全局端点）/ 子 Agent 零改动 / 权限模型（edit/bash deny）均不变。**sddu-auto 主会话与 7 个子 Agent 零改动**（方案 E 无需改造调度循环）。
 
@@ -328,11 +328,11 @@ bash e2e/scripts/basic/sddu-e2e.sh spike-proxy-session
 | MODIFY | `src/adapters/opencode/decision-proxy.ts`（决策职责改造：建决策会话 + prompt 思考 + reply 代答 + 超时兜底 + 决策来源字段） |
 
 **验收标准**:
-- [ ] `npm run build` 通过
-- [ ] decision-proxy 具备「拦截 + 识别 + 建决策会话 + prompt 思考 + reply 代答 + 超时兜底」完整链路，`DecisionEngine` 仅作 30s 超时兜底
-- [ ] 代答答案来自 sddu-auto 决策会话 LLM 思考（决策来源可验证），超时降级规则匹配且不阻塞（NFR-003）
-- [ ] `SessionRegistry` 拦截识别、子 Agent 零改动、权限模型（edit/bash deny）不变；非 sddu-auto 会话提问不受影响
-- [ ] `appendDecisions` 含「决策来源」字段；契约与 TASK-008 spike 结论对齐（session.create/prompt body 形状、代答通道选择）
+- [x] `npm run build` 通过
+- [x] decision-proxy 具备「拦截 + 识别 + 建决策会话 + prompt 思考 + reply 代答 + 超时兜底」完整链路，`DecisionEngine` 仅作 30s 超时兜底
+- [x] 代答答案来自 sddu-auto 决策会话 LLM 思考（决策来源可验证），超时降级规则匹配且不阻塞（NFR-003）
+- [x] `SessionRegistry` 拦截识别、子 Agent 零改动、权限模型（edit/bash deny）不变；非 sddu-auto 会话提问不受影响
+- [x] `appendDecisions` 含「决策来源」字段；契约与 TASK-008 spike 结论对齐（session.create/prompt body 形状、代答通道选择）
 
 **验证命令**:
 ```bash

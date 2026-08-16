@@ -7,15 +7,15 @@
 > **版本**: v1.0  
 > **更新人**: SDDU Build Agent  
 > **更新时间**: 2026-08-16  
-> **更新说明**: 追加 review R1 改进项修复（处置 4 项改进 1/3/4 fixed，2 recorded）+ 职责越界修复（FR-AUTONOMY-001：sddu-auto 模板补「调度者不实施」硬约束，7 处修改，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ 权限层面硬性落实（FR-AUTONOMY-001：sddu-auto frontmatter 完全禁用实施权限 edit/bash/webfetch=deny，所有实施动作含写文件一律派发子 Agent，§4.1/§5.2/§5.3/§8/§9/§10 六处修改，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ review 增量复核遗留项修复（R1-A/R1-B/R1-C：§7.2 改 task 派发子 Agent 执行 sddu-tree、删除 frontmatter 无效 task/skill 键、§9 措辞修正，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）
+> **更新说明**: 追加 review R1 改进项修复（处置 4 项改进 1/3/4 fixed，2 recorded）+ 职责越界修复（FR-AUTONOMY-001：sddu-auto 模板补「调度者不实施」硬约束，7 处修改，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ 权限层面硬性落实（FR-AUTONOMY-001：sddu-auto frontmatter 完全禁用实施权限 edit/bash/webfetch=deny，所有实施动作含写文件一律派发子 Agent，§4.1/§5.2/§5.3/§8/§9/§10 六处修改，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ review 增量复核遗留项修复（R1-A/R1-B/R1-C：§7.2 改 task 派发子 Agent 执行 sddu-tree、删除 frontmatter 无效 task/skill 键、§9 措辞修正，`npm run build:agents` 重新生成 dist/templates/agents/sddu-auto.md）+ TASK-008 方案 E 前置契约验证 spike（session.create/prompt 契约 + 决策会话权限 + @opencode-ai/sdk 依赖）+ TASK-009 decision-proxy 方案 E 改造（建决策会话 + prompt 思考 + 全局 reply 代答 + 30s 超时兜底 + 决策来源字段）
 
 ## 1. 构建概要
 > 本次构建的整体统计
 
 | 维度 | 数值 |
 |------|:--:|
-| 完成任务数 | 7 / 7 |
-| 复杂度分布 | S×2 / M×4 / L×1 |
+| 完成任务数 | 9 / 9 |
+| 复杂度分布 | S×2 / M×5 / L×2 |
 | 新增文件 | 5 个 |
 | 修改文件 | 5 个 |
 
@@ -35,6 +35,8 @@
 | NEW | `src/adapters/opencode/decision-proxy.ts` | TASK-003 | 决策代理层（方案 D 核心）：`SessionRegistry`（识别 sddu-auto 调度子会话映射，parentID 建父子关系）+ `DecisionEngine`（硬决策，NFR-003）+ 四步编排（订阅 event hook / 识别 question.asked / 决策 / 代答）；代答三级兜底 `client.v2.session.question.reply` → `client.question.reply` → HTTP `session.question.reply`；本地最小类型声明（规避根 1.16.2 v2 子路径损坏，无需升级依赖） |
 | NEW | `src/__tests__/unit/adapters/decision-proxy.test.ts` | TASK-003 | 18 个单元测试：SessionRegistry 匹配逻辑（子会话拦截 / 主会话与普通会话不拦截）+ DecisionEngine 硬决策（信息不足仍返回确定答案）+ DecisionProxy 四步编排（拦截代答 / 非目标透传 / session.created 登记 / chat.message 兜底 / dispose） |
 | MODIFY | `src/adapters/opencode/plugin.ts` | TASK-003 | 组装接入 decision-proxy：解构新增 `serverUrl`，返回对象新增 `event` / `"chat.message"` / `dispose`，注入 `contextFile`（启动诉求懒加载） |
+| MODIFY | `src/adapters/opencode/decision-proxy.ts` | TASK-009 | 方案 E 改造：`DecisionEngine` 降级为 30s 超时兜底；新增建/复用决策会话（`client.session.create`，缓存 sessionID）+ prompt LLM 真思考（`client.session.prompt`，agent=sddu-auto）+ 答案解析（`parseDecisionAnswer`：单/多选 label / 自由文本保守默认）+ `withTimeout` 30s 兜底 + `appendDecisions` 新增「决策来源」字段；`SessionRegistry` / 全局 reply 通道 / 权限模型不变 |
+| MODIFY | `src/__tests__/unit/adapters/decision-proxy.test.ts` | TASK-009 | 新增 22 个单测：方案 E 纯函数（parseDecisionAnswer/buildSeedContext/buildDecisionPrompt/extractAnswerText/withTimeout）+ 决策会话主链路（建会话/prompt/复用/答案解析）+ 超时兜底（降级规则匹配/缓存重置/无 session 能力）+ 决策来源落盘（sddu-auto 决策会话 vs 超时兜底），test:opencode 25 → 47 passed |
 
 ## 3. 任务完成清单
 > 每个任务的完成状态
@@ -48,12 +50,14 @@
 | TASK-005 | 注册 sddu-auto（opencode.json.hbs + build-agents.cjs） | S | ✅ completed | FR-001, FR-008 |
 | TASK-006 | e2e 脚本启用 --auto 标志 | S | ✅ completed | FR-001, FR-002 |
 | TASK-007 | 集成装配验证 | M | ✅ completed | FR-001, FR-002, FR-007, NFR-002 |
+| TASK-008 | 方案 E 前置契约验证（spike） | L | ✅ completed | FR-004, FR-006, NFR-003 |
+| TASK-009 | decision-proxy 方案 E 改造 | M | ✅ completed | FR-004, FR-005, FR-006, NFR-003 |
 
 ## 4. 下一步
 
 | 场景 | 操作 |
 |------|------|
-| 全部任务已完成（7/7） | 运行 `@sddu-review specs-tree-autonomous-mode` 开始审查 |
+| 全部任务已完成（9/9） | 运行 `@sddu-review specs-tree-autonomous-mode` 开始审查 |
 
 ## 5. review R1 改进项修复记录
 > 针对 review-report.md §5 的 4 项改进建议逐项处置（无阻塞项，2 中 2 低）
@@ -106,6 +110,31 @@
 
 **验证**：`npm run build:agents` 通过，重新生成 `dist/templates/agents/sddu-auto.md`（`diff` 逐字节一致）；grep 确认 frontmatter 无 `task: allow`/`skill: allow` 键（仅剩 edit/bash/webfetch deny）、§7.2 含「task 派发子 Agent 执行 sddu-tree」、7 子 Agent 模板零改动（`git diff --name-only` 无 7 子 Agent 模板路径）。
 
+## 9. TASK-008 方案 E 前置契约验证 spike 记录（FR-AUTONOMY-001）
+> 方案 E（插件内同步决策会话代答）的 build 实施前置契约验证。结论见 `spike-decision-session.md`，四项契约全部实测通过。
+
+| 契约 | 结论 |
+|------|------|
+| session.create/prompt body 形状 + 同步等待 | ✅ create body `{agent,title}`（agent 运行时接受并存储）；prompt body `{agent:'sddu-auto',parts:[text]}` 同步等待 ≈10.5s、idle 无死锁、会话复用无死锁 |
+| 决策会话权限 | ✅ read ✅ / edit ❌ / bash ❌（由 prompt body.agent 的 frontmatter 决定） |
+| @opencode-ai/sdk 可解析性 | ✅ v1/v2 均可 import，v2 `client.question.reply` 为 function（备选通道） |
+| 代答通道选择 | ⭐ HTTP 全局端点 `POST /question/{requestID}/reply`（已实证 + 零依赖） |
+
+**验证**：spike 插件在 e2e 测试项目运行时实测一次真实 LLM 往返，`spike-session-result.json` 落盘；契约签名固定于 `spike-decision-session.md` §6，供 TASK-009 直接实现。
+
+## 10. TASK-009 decision-proxy 方案 E 改造记录（FR-AUTONOMY-001）
+> 按 ADR-018 v4.2 方案 E 五要素，将决策职责由 `DecisionEngine` 规则匹配升级为「插件内同步决策会话代答」，规则匹配降级为 30s 超时兜底。仅改 `src/adapters/opencode/decision-proxy.ts`（+ 单测），`SessionRegistry` / 全局 reply 通道 / 子 Agent / 权限模型均零改动。
+
+| 要素 | 落地 |
+|:--:|------|
+| ① 建/复用决策会话 | `ensureDecisionSession()`：`client.session.create({body:{agent:'sddu-auto',title:'sddu-auto 决策会话'}})` 首次创建并缓存 `decisionSessionID`，后续决策点复用；注入种子上下文（启动诉求 + Feature + 项目目录 + 上游产物提示） |
+| ② prompt 思考 | `promptOne()`：`client.session.prompt({path:{id},body:{agent:'sddu-auto',parts:[{type:'text',text}]}})` 同步等 LLM 真思考（决策会话 idle 无死锁），30s 超时（`withTimeout`） |
+| ③ 答案解析 | `parseDecisionAnswer()`：`extractAnswerText` 提取 `type==="text"` part → 单选选 label / 多选 label 数组 / 自由文本保守默认（NFR-003 不空答） |
+| ④ 30s 超时兜底 | `decideViaSession()`：client 无 session 能力 / create 失败 / prompt 超时 / 无文本 → 整体降级 `DecisionEngine` 规则匹配，超时后重置缓存 sessionID（下次决策点重建干净会话） |
+| ⑤ 决策追溯 | `appendDecisions` 新增「决策来源」字段：`sddu-auto 决策会话`（LLM 真思考）vs `超时兜底`（规则匹配），「是否硬决策」行同步改为来源语义 |
+
+**验证**：`npm run build` 通过（tsc 无类型错误 + build:agents 产物齐备）；`npx jest --selectProjects opencode` 47 passed（25 → 47，新增 22 单测覆盖方案 E 纯函数 + 主链路 + 超时兜底 + 决策来源落盘）；`npm run test:core` 131 passed（state machine 行为不变）；`SessionRegistry` / 7 子 Agent 模板 / 权限模型经 `git diff` 确认零改动。
+
 ## 修订记录
 > 记录本文档的版本变更历史
 
@@ -122,3 +151,5 @@
 | v1.8 | 职责越界修复（FR-AUTONOMY-001）— 仅改 `src/templates/agents/sddu-auto.md.hbs`（7 处），补「调度者不实施」硬约束 + 「问题派发修复流程」；`npm run build:agents` 重新生成 `dist/templates/agents/sddu-auto.md`；7 子 Agent 模板零改动 | 2026-08-16 | SDDU Build Agent |
 | v1.9 | 权限层面硬性落实「调度者不实施」（FR-AUTONOMY-001）— 仅改 `src/templates/agents/sddu-auto.md.hbs`（7 处），frontmatter `edit`/`bash`/`webfetch` 由 allow 改 deny（保留 task/skill），§4.1 改「派发子 Agent 写入 auto-context.json」、§5.2 新增规则 6、§5.3/§8/§9/§10 同步强化；`npm run build:agents` 重新生成 `dist/templates/agents/sddu-auto.md`（逐字节一致）；7 子 Agent 模板零改动 | 2026-08-16 | SDDU Build Agent |
 | v1.10 | review 增量复核遗留项修复（FR-AUTONOMY-001，R1-A/R1-B/R1-C）— 仅改 `src/templates/agents/sddu-auto.md.hbs`：① R1-A §7.2 改「task 派发子 Agent 执行 sddu-tree Skill 更新 TREE.md」（无 bash 权限不亲自执行，派 sddu-fast/general 跑 `node scripts/generate-tree.cjs`，§5.3/§8/§10 同步）；② R1-B 删除 frontmatter 无效 `task: allow`/`skill: allow` 键；③ R1-C §9「回退重跑」改「派发对应子 Agent 重跑」；`npm run build:agents` 重新生成 `dist/templates/agents/sddu-auto.md`（逐字节一致）；7 子 Agent 模板零改动 | 2026-08-16 | SDDU Build Agent |
+| v1.11 | TASK-008 完成 — 方案 E 前置契约验证 spike：session.create/prompt body 形状 + 同步等待（idle 无死锁、10.5s 一次 LLM 往返）+ 决策会话权限（read✅/edit❌/bash❌）+ @opencode-ai/sdk 可解析性三项契约运行时实测通过；代答通道判定 HTTP 全局端点；契约签名固定于 spike-decision-session.md §6 | 2026-08-16 | SDDU Build Agent |
+| v1.12 | TASK-009 完成 — decision-proxy 方案 E 改造：DecisionEngine 降级为 30s 超时兜底；新增建/复用决策会话（client.session.create + 缓存 sessionID）+ prompt LLM 真思考（client.session.prompt，agent=sddu-auto）+ 答案解析（parseDecisionAnswer）+ withTimeout 30s 兜底 + appendDecisions 决策来源字段；SessionRegistry / 全局 reply 通道 / 权限模型零改动；test:opencode 25 → 47 passed、test:core 131 passed、build 全绿 | 2026-08-16 | SDDU Build Agent |
