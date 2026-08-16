@@ -5,7 +5,8 @@
 > **对照**: spec.md（FR-001~010 / NFR-001~003 / EC-001~005）、plan.md v3.2、ADR-018~021
 > **评价人**: SDDU 评价 Agent
 > **评价时间**: 2026-08-16
-> **结论**: **基本满足**（7/10 FR 满足，2 部分满足，1 未实证）
+> **结论**: **基本满足**（7/10 FR 满足，2 部分满足，1 运行实证失败——FR-006）
+> **2026-08-16 更新**: O1/P1-1 已补运行实证（`verify-decision-proxy.md`）。结论更新：decision-proxy 拦截/识别/决策/追溯四步真实工作（decision_count 首次 =1），但 **reply 代答通道失败，闭环断裂**；并查明既往 decision_count=0 的真正根因是插件加载失败（opencode 不加载子目录插件）。
 
 ---
 
@@ -13,8 +14,8 @@
 
 **总体结论：基本满足需求目标（FR-007 全套产物、FR-002 全流程、FR-004 绝不问人等核心目标达成），但存在两项结构性缺口：**
 
-1. **FR-006 核心机制未经运行实证**——方案 D「decision-proxy 协议层拦截代答」代码已实装并注册，但在本次真实体验中 **decision_count = 0，从未被真实触发**。7 个阶段靠的是 sddu-auto 在 task prompt 中注入的「自主执行契约」（即 plan 明确否决的**方案 A 软约束**）让子 Agent 主动不问。机制存在但零激活样本，「可靠性 100%」的承诺缺乏运行证据。
-2. **决策追溯（ADR-020）落地落空**——`auto-decisions.md` 全程未产出（决策追溯能力未激活），sddu-auto 自身的自主决策（跳过问卷、P1 修复、A-002/A-004 裁决）也未记录，用户事后无法回溯。
+1. **FR-006 核心机制运行实证失败**——已按 O1 补「强制提问」e2e 验证（`verify-decision-proxy.md`）：decision-proxy 能真实拦截 question.asked 并完成识别/决策/追溯（decision_count 首次 =1），但 **reply 代答步骤失败**，闭环断裂。同时查明既往 decision_count=0 的真正根因是**插件加载失败**（opencode 不加载子目录 `sddu/` 插件，event hook 从未注册），而非仅"子 Agent 从不提问"。机制存在但代答通道不可用，「可靠性 100%」的承诺缺乏运行证据。
+2. **决策追溯（ADR-020）运行实证可用但需修复 reply 通道**——`auto-decisions.md` 在运行实证中已由协议层真实产出（首次落盘，decision_count=1），证明追溯机制本身可用；但该产出依赖的 reply 通道 bug 需修复（见问题 2），sddu-auto 自身关键自主决策仍建议按 O3 记录。
 
 **产物沉淀疑点系误报**——`.sddu/specs-tree-root/specs-tree-user-login/` 下 discovery.md ~ validate-report.md 全套产物**完整存在**。初步 glob「无产物」是因 glob 工具默认忽略隐藏目录（`.sddu` 为 dot 目录），非路径错误、非写入失败、未违反 FR-007。
 
@@ -33,13 +34,13 @@
 | FR-003 | 启动阶段为唯一人机交互点，启动时提问澄清诉求 | ⚠️ 部分满足 | **全程零提问**。提示词已含完整六维信息，sddu-auto 判定「最小充分信息集采满 + 用户表态全程自动」直接切分进入执行（合规于 ADR-019），但字面验收「向用户发起提问」未发生，问卷从未呈现 |
 | FR-004 | 执行阶段绝不向用户提问，拿不准也硬决策 | ✅ 满足 | 全流程无任何面向用户的提问；决策通过注入契约实现（软约束路径） |
 | FR-005 | 7 个子 Agent 执行流程零改动 | ✅ 满足 | 所有约束经 task prompt 注入，未修改任何子 Agent prompt 文件 |
-| FR-006 | 子 Agent 提问接收方由用户变为 sddu-auto（协议层代答） | ⚠️ 未实证 | decision-proxy 已实装并注册（plugin.js:51-63），但 **decision_count=0，从未触发**。实际生效的是方案 A 软约束，「拦截代答」闭环无运行证据 |
+| FR-006 | 子 Agent 提问接收方由用户变为 sddu-auto（协议层代答） | ❌ 运行实证失败 | **已运行实证（见 `verify-decision-proxy.md`）**：拦截→识别→决策→追溯四步真实工作（decision_count 首次 =1，auto-decisions.md 落盘），但 **reply 代答步骤失败**（三级通道全失效：v2/client 访问器缺失 + session 级端点 404；正确通道为全局 `/question/{requestID}/reply` 未采用）。闭环在最后一步断裂 |
 | FR-007 | 沉淀全套过程产物（discovery.md ~ validate.md） | ✅ 满足 | Feature 目录下 9 份标准产物 + 4 个 ADR + state.json + TREE.md 全部落盘 |
 | FR-008 | 选择入口即进入自主决策模式，无判定/开关 | ✅ 满足 | 无复杂度判定、无配置项，直接进入执行阶段 |
 | FR-009 | 边界限定新增代理决策层，不改造子 Agent、无 autonomyLevel | ✅ 满足 | 子 Agent 定义未改；无 L0/L1/L2 分级配置 |
 | FR-010 | 跑完 7 流程 + 全套产物即完成，无修正/回退/迭代 | ✅ 满足 | validated 后收尾；P2 遗留（超长 body）保留未修（符合 NG-003）。⚠️ 注：sddu-auto 主动修复 review P1 行为经复核判定为**职责越界**（调度者不应亲自实施 bugfix），已作为 F7 记录并在 build.md §6 修复（补「调度者不实施」硬约束） |
 
-**FR 汇总：满足 8 项 / 部分满足 1 项（FR-003）/ 未实证 1 项（FR-006）**
+**FR 汇总：满足 8 项 / 部分满足 1 项（FR-003）/ 运行实证失败 1 项（FR-006，见 `verify-decision-proxy.md`）**
 
 ### 2.2 非功能需求（NFR）
 
@@ -97,7 +98,7 @@
 | build.md + src/ 22 文件 | ✅ build.md + src/ 完整 |
 | review.md + review-report.md | ✅ 存在 |
 | validate.md + validate-report.md | ✅ 存在（V13 场景 37 通过/1 偏差） |
-| **auto-decisions.md（决策追溯）** | ❌ **不存在**（声称由 decision-proxy 协议层追加，实际未产出） |
+| **auto-decisions.md（决策追溯）** | ✅ **运行实证已产出**（`verify-decision-proxy.md`，2026-08-16）：强制提问场景下由 decision-proxy 协议层真实追加 1 条决策记录（decision_count=1）。⚠️ 注：该产出伴随 reply 通道 bug（见问题 2），且既往 7 流程 run 未产出（插件未加载根因所致） |
 
 ---
 
@@ -105,8 +106,8 @@
 
 | # | 严重度 | 瑕疵 | 说明 |
 |---|:--:|------|------|
-| F1 | 🔴 高 | FR-006 协议层拦截未经运行实证 | decision-proxy 已实装（plugin.js 注册 event/chatMessage hooks），但本次 7 阶段 decision_count=0，从未真实拦截一次提问。「子 Agent 提问→代理层代答」的确定性闭环只有 spike 静态证据，无运行证据；实际保障是注入契约软约束 |
-| F2 | 🟡 中 | 决策追溯完全缺失 | ADR-020 已纳入范围的 `auto-decisions.md` 未产出；且 sddu-auto 自身关键自主决策（跳过问卷、P1 修复、A-002/A-004 裁决）也未记录，用户对「代答了什么/为什么」零可见 |
+| F1 | 🔴 高 | FR-006 协议层拦截未经运行实证（已实证，结论：闭环断裂） | 原判定「decision-proxy 已实装但从未触发」**根因已查明**：① 环境级——opencode 本地插件自动发现 glob `{plugin,plugins}/*.{ts,js}` 不匹配子目录 `sddu/`，serve/run 模式插件从未加载（无 `SDDU Plugin loaded` 日志），故 event hook 从未注册、任何提问都不可能被拦截（这才是既往 decision_count=0 的真正根因）；② 强制加载插件后运行实证：拦截/识别/决策/追溯四步真实工作（decision_count=1），但 **reply 三级通道全部失效**（v2/client 访问器缺失 + session 级端点 404，正确通道为全局 `/question/{requestID}/reply` 未被采用），代答闭环在最后一步断裂。详见 `verify-decision-proxy.md` |
+| F2 | 🟡 中 | 决策追溯运行实证已打通但存在通道 bug + 既往 run 未产出 | ADR-020 机制运行实证可用（`verify-decision-proxy.md`：decision_count=1、auto-decisions.md 落盘）；但 ① reply 通道 bug（见问题 2）需修复；② 既往 7 流程 run 因插件加载失败未产出；③ sddu-auto 自身关键自主决策（跳过问卷、P1 修复、A-002/A-004 裁决）仍未记录，用户对「代答了什么/为什么」零可见（O3 待办） |
 | F3 | 🟡 中 | 启动问卷被完全跳过 | 六维问卷从未呈现给用户。虽符合 ADR-019 切分点判定（信息已采满），但「启动问一次」的体验退化为「不问即跑」，用户无机会确认/修正 sddu-auto 对诉求的理解 |
 | F4 | 🟢 低 | 父链 TREE.md 缺失 | `.sddu/specs-tree-root/TREE.md` 与 `.sddu/TREE.md` 未生成（脚本 skip「文件不存在」），目录导航链不完整 |
 | F5 | 🟢 低 | 长任务无中间可见性 | 7 阶段耗时约 40 分钟，期间无阶段间进度输出；build 单次 task 阻塞 648s、validate 636s，用户全程静默等待 |
@@ -119,7 +120,7 @@
 
 | # | 优化项 | 价值 |
 |---|--------|------|
-| O1 | 补一条「强制提问注入」e2e 场景：让某个子 Agent 在特定条件下真实调用 question 工具，验证 decision-proxy 拦截→代答→回复闭环 | 补 FR-006 运行实证缺口，验证方案 D 真实可用性，消除最高风险 |
+| O1 | 补一条「强制提问注入」e2e 场景：让某个子 Agent 在特定条件下真实调用 question 工具，验证 decision-proxy 拦截→代答→回复闭环 | ✅ **已执行**（见 `verify-decision-proxy.md`）。拦截→识别→决策→追溯四步运行实证通过（decision_count=1），**但 reply 代答步骤失败**（三级通道全失效），闭环未闭合 → 转为修复项（问题 2），补 FR-006 运行实证缺口的目标部分达成（实证了拦截/决策可用，暴露了 reply 通道 bug） |
 | O2 | 启动问卷即使信息已齐，也应向用户展示一次「已识别诉求摘要 + 最小确认」（或显式声明「检测到完整诉求，直接进入执行」） | 恢复「启动问一次」体验，保证用户对诉求理解的知情与纠偏机会 |
 | O3 | 将 sddu-auto 自身关键自主决策（跳过问卷、P1 修复、A-002/A-004 裁决）写入 `auto-decisions.md` 或独立决策日志 | 使决策追溯有意义（当前追溯能力为零） |
 | O4 | generate-tree.cjs 对不存在的父目录改为创建（而非 skip），或明确定义为已知边界 | 补全目录导航链 |
@@ -132,11 +133,18 @@
 
 | # | 级别 | 问题 | 描述 |
 |---|:--:|------|------|
-| P1-1 | 🔴 P1 | FR-006 可靠性未经运行实证（方案 D 零激活样本） | decision-proxy 从未被真实触发，无法确认「子 Agent 提问被协议层拦截并代答」在真实运行时可用；若某子 Agent 真发起 question.asked 而代理层失效，用户将收到提问或流程卡死。**建议 build 阶段补强制提问 e2e 用例** |
-| P1-2 | 🔴 P1 | 决策追溯能力缺失（ADR-020 落地落空） | `auto-decisions.md` 未产出，用户事后无决策记录可回溯/纠偏，削弱 NG-003「改走其他入口」的前提（先得看清偏在哪） |
+| P1-1 | 🔴 P1 | FR-006 可靠性未经运行实证（方案 D 零激活样本） | ✅ **已运行实证**（见 `verify-decision-proxy.md`，2026-08-16）：构造强制提问场景，decision-proxy 真实拦截 question.asked 并完成识别/决策/追溯（decision_count 首次 =1，auto-decisions.md 落盘）。**但发现两个运行时 bug 导致闭环断裂**：① 环境级——opencode 插件自动发现不加载子目录 `sddu/`，serve/run 模式插件从未加载（既往 decision_count=0 的真正根因）；② decision-proxy reply 三级通道全失效（v2/client 访问器缺失 + session 级端点 404），代答无法送达子 Agent。**结论：拦截/决策可用，代答闭环未闭合**，需修复 reply 通道 + 插件加载布局后重验 |
+| P1-2 | 🔴 P1 | 决策追溯能力运行实证已打通，但 reply 通道 bug + 既往 run 未产出 | `auto-decisions.md` 已由协议层真实产出（运行实证 decision_count=1）；但 reply 通道 bug（问题 2）阻断闭环，且既往 7 流程 run 因插件加载失败未产出，用户事后仍无可回溯的决策记录（O3 待办） |
 | P2-1 | 🟡 P2 | 父链 TREE.md 未生成 | 导航链不完整（Feature 级 TREE.md 有，父级缺失） |
 | P2-2 | 🟡 P2 | glob 工具对隐藏目录（`.sddu`）假阴性 | 引发「产物丢失」误判；对 SDDU 这类产物全在 `.sddu/` 下的体系，建议排查工具链检测手段 |
 | P3 | 🟢 P3 | 产物中留有小偏差：超长 body 返回连接重置而非 400 JSON | validate V9 记录的非阻塞 P2 偏差，按 NG-003 保留未修 |
+
+### 2026-08-16 运行实证新增问题（详见 `verify-decision-proxy.md`）
+
+| # | 级别 | 问题 | 描述 |
+|---|:--:|------|------|
+| P1-3 | 🔴 P1 | **插件加载失败（环境级根因）** | opencode 本地插件自动发现 glob `{plugin,plugins}/*.{ts,js}` 只匹配 `.opencode/plugins/` 下直接 `.ts/.js` 文件，不匹配子目录 `sddu/`。SDDU 插件位于子目录 → serve/run 模式插件从未加载（无 `SDDU Plugin loaded` 日志、无 sddu_* 工具、event hook 从未注册）。这是既往 decision_count=0 的真正根因。修复方向：插件入口以直接文件形式放入 `.opencode/plugins/`（或安装脚本调整布局 / file: 路径引用）。**本次仅记录，未修复** |
+| P1-4 | 🔴 P1 | **decision-proxy replyQuestion 三级代答通道全部失效** | ① 通道 1/2（`client.v2.session.question.reply` / `client.question.reply`）访问器在运行时客户端（`OpencodeClient` v1 SDK）上不存在，被 `if` 短路静默跳过；② 通道 3（HTTP `POST /api/session/{sessionID}/question/{requestID}/reply`）返回 404 `QuestionNotFoundError`（子会话提问不在该 session 作用域）；③ 正确通道为全局 `POST /question/{requestID}/reply`（实测可用，能解除 pending 并让子 Agent 继续），未被采用。**FR-006 代答闭环在最后一步断裂**。本次仅记录，未修复 |
 
 ---
 

@@ -500,7 +500,7 @@ describe('DecisionProxy — HTTP 兜底与三级降级顺序（httpReplyQuestion
     expect(globalReply.mock.calls[0][0].answers).toEqual([['X']]);
   });
 
-  test('降级顺序：v2 与全局均缺失、serverUrl 存在 → 走 HTTP 兜底（成功）', async () => {
+  test('降级顺序：v2 与全局均缺失、serverUrl 存在 → 走 HTTP 全局兜底（成功）', async () => {
     const fetchSpy = jest.fn().mockResolvedValue({ ok: true } as any);
     global.fetch = fetchSpy as any;
 
@@ -523,7 +523,9 @@ describe('DecisionProxy — HTTP 兜底与三级降级顺序（httpReplyQuestion
 
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     const url = fetchSpy.mock.calls[0][0] as string;
-    expect(url).toContain('/api/session/ses-build/question/req-http/reply');
+    // 全局端点：POST /question/{requestID}/reply（不再用 session 级端点，其 404）
+    expect(url).toContain('/question/req-http/reply');
+    expect(url).not.toContain('/api/session/');
     const init = fetchSpy.mock.calls[0][1] as any;
     expect(JSON.parse(init.body)).toEqual({ answers: [['X']] });
   });

@@ -13,9 +13,13 @@
 // - 运行时（1.18.18）把全部 server 事件以 {id, type, properties} 形状派发给插件 event hook，
 //   question.asked 也在其中，其 properties 含 {id(requestID), sessionID, questions, tool?}。
 // - 根 node_modules 的 @opencode-ai/sdk 为 1.16.2（v2 子路径损坏），故本模块采用
-//   「本地最小类型声明 + 运行时 client 动态访问」的方式，避免升级依赖带来的破坏风险；
-//   运行时插件实际解析 .opencode/node_modules 的 1.17.4 / 运行时二进制 1.18.18，
-//   其 client 带 v2.session.question.reply 等访问器，代码以可选链 + 多级兜底覆盖。
+//   「本地最小类型声明 + 运行时 client 动态访问」的方式，避免升级依赖带来的破坏风险。
+// - 运行实证（2026-08-16）发现：opencode 1.18.18 运行时注入插件的 client 为 v1 形态
+//   （成员 global/project/session/app/…，无 v2 / 无顶层 question 访问器），故通道 1/2
+//   的 client 访问器在真实运行时均缺失、被可选链短路跳过；真正可用的代答通道是
+//   HTTP 全局端点 POST /question/{requestID}/reply（serve 模式，通道 3）。本模块保留
+//   通道 1/2 作为「若未来运行时 client 升级为 v2 则优先走进程内通道」的兼容探测，
+//   HTTP 全局端点作为可靠兜底。
 
 // ============ 本地最小类型声明（对齐 v2 SDK EventQuestionAsked / Question 服务） ============
 
@@ -412,11 +416,16 @@ export function createDecisionProxy(deps: DecisionProxyDeps): DecisionProxy {
       }
     }
 
-    // 通道 3：HTTP API POST /api/session/{sessionID}/question/{requestID}/reply（serve 模式）
+    // 通道 3：HTTP API POST /question/{requestID}/reply（全局，serve 模式）
+    // 实测结论（2026-08-16 运行实证）：session 级端点
+    //   POST /api/session/{sessionID}/question/{requestID}/reply
+    // 对子会话提问返回 404 QuestionNotFoundError（子会话提问的 requestID 未挂在该
+    // 会话作用域下），而全局端点 POST /question/{requestID}/reply（body {answers}）
+    // 能正确解除 pending 并让子 Agent 拿到答案继续。故 HTTP 兜底改用全局端点。
     // 异常在此捕获并记录日志，绝不冒泡中断 event hook（NFR-003 不阻塞）
     if (deps.serverUrl) {
       try {
-        await httpReplyQuestion(deps.serverUrl, sessionID, requestID, answers);
+        await httpReplyQuestion(deps.serverUrl, requestID, answers);
         return;
       } catch (err) {
         await log('error', 'decision-proxy: HTTP reply failed', {
@@ -508,14 +517,13 @@ export function createDecisionProxy(deps: DecisionProxyDeps): DecisionProxy {
 
 async function httpReplyQuestion(
   serverUrl: string | URL,
-  sessionID: string,
   requestID: string,
   answers: string[][],
 ): Promise<void> {
   const base = typeof serverUrl === 'string' ? serverUrl : serverUrl.toString();
-  const url = `${base.replace(/\/+$/, '')}/api/session/${encodeURIComponent(
-    sessionID,
-  )}/question/${encodeURIComponent(requestID)}/reply`;
+  const url = `${base.replace(/\/+$/, '')}/question/${encodeURIComponent(
+    requestID,
+  )}/reply`;
 
   const res = await fetch(url, {
     method: 'POST',

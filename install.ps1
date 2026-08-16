@@ -223,6 +223,19 @@ if (-not (Copy-DistributionToPlugin -SourceDir $DistSdduDir -DestDir $SdduPlugin
     exit 1
 }
 
+# Create plugin entry loader (opencode local plugin auto-discovery glob {plugin,plugins}/*.{ts,js}
+# only matches direct .ts/.js files, not subdirectories). SDDU plugin body lives in
+# .opencode/plugins/sddu/ (subdirectory), so place a direct entry file sddu.js that re-exports it,
+# ensuring the plugin (incl. decision-proxy event hook) is really loaded in serve/run mode.
+$SdduLoaderFile = Join-Path $TargetDir ".opencode\plugins\sddu.js"
+try {
+    Set-Content -Path $SdduLoaderFile -Value 'export { SDDUPlugin as default } from "./sddu/index.js";' -Encoding utf8NoBOM
+    Write-Host "[OK] Created plugin entry loader .opencode/plugins/sddu.js (auto-discovery)" -ForegroundColor Green
+}
+catch {
+    Write-Host "[WARN] Failed to create plugin entry loader: $_" -ForegroundColor Yellow
+}
+
 # Clean old SDDU/SDD agent files (only sddu-* and sdd-*, don't touch other plugins' agents)
 $agentsDir = Join-Path $TargetDir ".opencode\agents"
 if (Test-Path $agentsDir) {
@@ -324,7 +337,8 @@ if (Test-Path $OpencodeDestPath) {
         if ($existingConfig.plugin) { $existingPlugins = @($existingConfig.plugin) }
         $newPlugins = @()
         if ($newConfig.plugin) { $newPlugins = @($newConfig.plugin) }
-        $userPlugins = $existingPlugins | Where-Object { $_ -ne 'opencode-sdd-plugin' -and $_ -ne 'opencode-sddu-plugin' }
+        $staleSddu = @('opencode-sdd-plugin', 'opencode-sddu-plugin', './plugins/sddu/index.js', './.opencode/plugins/sddu/index.js', './plugins/sddu.js')
+        $userPlugins = $existingPlugins | Where-Object { $staleSddu -notcontains $_ }
         $mergedPlugins = ($newPlugins + $userPlugins) | Select-Object -Unique
         $existingConfig.plugin = $mergedPlugins
         

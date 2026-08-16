@@ -245,6 +245,20 @@ if ! copy_distribution_to_plugin "${SCRIPT_DIR}/dist/sddu" "$SDDU_PLUGIN_DEST" "
     exit 1
 fi
 
+# 创建插件直接入口 loader（opencode 本地插件自动发现只匹配直接 .ts/.js 文件）
+# opencode 的插件自动发现 glob 为 {plugin,plugins}/*.{ts,js}，只匹配 .opencode/plugins/ 下的
+# 直接 .ts/.js 文件，不递归子目录；SDDU 插件本体装在 .opencode/plugins/sddu/ 子目录，不会被
+# 自动发现，且 opencode.json 的 plugin 字段仅接受 npm 包名（本地 file 路径在 1.18.18 实测不
+# 生效）。故在 .opencode/plugins/ 下放一个直接入口文件 sddu.js，re-export 子目录入口，使插件
+# 在 serve/run 模式下被真实加载（含 decision-proxy 的 event hook 注册）。
+SDDU_LOADER_FILE="${TARGET_DIR}/.opencode/plugins/sddu.js"
+printf 'export { SDDUPlugin as default } from "./sddu/index.js";\n' > "$SDDU_LOADER_FILE"
+if [ -f "$SDDU_LOADER_FILE" ]; then
+    print_color "${GREEN}[OK] Created plugin entry loader .opencode/plugins/sddu.js (auto-discovery)${NC}"
+else
+    print_color "${YELLOW}[WARN] Failed to create plugin entry loader${NC}"
+fi
+
 # Copy agents from source to .opencode/agents/ - only SDDU agents
 if [ -d "${SCRIPT_DIR}/dist/sddu/agents" ]; then
     print_color "${GRAY}  Copying SDDU agents from dist/sddu/agents/...${NC}"
@@ -325,10 +339,14 @@ try {
     // Create backup
     fs.writeFileSync('${OPENCODE_JSON_PATH}.backup', JSON.stringify(existingConfig, null, 2));
     
-    // Merge plugin arrays: preserve user's existing plugins, add SDDU, remove old SDD
+    // Merge plugin arrays: preserve user's existing plugins, remove stale SDDU/SDD npm names
+    // 以及旧的本地 file 路径（历史 bug 期间写入的 ./plugins/sddu/index.js 等），
+    // 因为 SDDU 插件本体现由 .opencode/plugins/sddu.js loader 经自动发现加载，
+    // 不再需要（且不应）在 plugin 字段里声明（本地 file 路径在 opencode 1.18.18 不生效）。
     const existingPlugins = Array.isArray(existingConfig.plugin) ? existingConfig.plugin : [];
     const newPlugins = Array.isArray(newConfig.plugin) ? newConfig.plugin : [];
-    const userPlugins = existingPlugins.filter(p => p !== 'opencode-sdd-plugin' && p !== 'opencode-sddu-plugin');
+    const staleSddu = new Set(['opencode-sdd-plugin', 'opencode-sddu-plugin', './plugins/sddu/index.js', './.opencode/plugins/sddu/index.js', './plugins/sddu.js']);
+    const userPlugins = existingPlugins.filter(p => !staleSddu.has(p));
     existingConfig.plugin = [...new Set([...newPlugins, ...userPlugins])];
     
     // Merge SDDU agent definitions (preserve user's custom agents and model overrides)
