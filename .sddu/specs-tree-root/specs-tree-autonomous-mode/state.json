@@ -53,6 +53,12 @@
       "timestamp": "2026-08-16T00:10:00.000Z",
       "triggeredBy": "sddu-validate-agent",
       "comment": "动手验证完成 — V1~V14 场景（build 全绿 / test:core 131 通过 / e2e 端到端验证启动六维问卷+auto-context.json 写入+绝不问人+4/7 阶段顺序调度+产物沉淀 / 子 Agent 零改动+零漂移）；结论：⚠️ 有条件通过（1 个 P1 阻塞问题：flaky 单测 contextFile 缺失，根因 matchOption 单字符标签误匹配 projectDirectory，需修复后复跑 test:opencode）"
+    },
+    {
+      "phase": "builded",
+      "timestamp": "2026-08-16T05:30:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "方案 E 前置契约验证 spike（TASK-008）完成 — session.create/prompt body 形状 + 同步等待（idle 无死锁、10.5s 一次 LLM 往返）+ 决策会话权限（read✅/edit❌/bash❌）+ @opencode-ai/sdk 可解析性（v2 client.question.reply 可用）三项契约实测通过；代答通道判定 HTTP 全局端点；契约签名见 spike-decision-session.md，供 TASK-009 实现"
     }
   ],
   "dependencies": {

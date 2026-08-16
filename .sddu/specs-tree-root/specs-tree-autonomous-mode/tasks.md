@@ -1,13 +1,13 @@
 # 任务分解：自主模式（sddu-auto 自动调度）
 
 > **文档定位**: SDDU 任务清单 — 将技术方案分解为可并行执行的原子任务，作为 build 阶段的输入  
-> **前置依赖**: plan.md（技术方案 v3.2）、spec.md（需求规范 v1.0）、ADR-018~021（方案 D 决策链）  
+> **前置依赖**: plan.md（技术方案 v4.2）、spec.md（需求规范 v1.0）、ADR-018~021（方案 E 决策链）  
 > **创建人**: SDDU Tasks Agent  
 > **创建时间**: 2026-08-15  
-> **版本**: v1.0  
-> **更新人**: SDDU Tasks Agent  
-> **更新时间**: 2026-08-15  
-> **更新说明**: 全部 7 任务完成（TASK-001~007）— build 阶段收尾：补录 TASK-001 spike 状态、TASK-003 状态，TASK-007 集成装配验证通过（build 全绿 + dist 产物 + e2e 安装 + @sddu-auto 入口）
+> **版本**: v1.3  
+> **更新人**: SDDU Plan Agent  
+> **更新时间**: 2026-08-16  
+> **更新说明**: 调研（research-agent-reply.md）发现更优原生方案 E（插件内同步决策会话代答）→ 替代变体 B' 为首选、B' 降级备选；TASK-008 由「B' 调度循环改造」改为「方案 E 前置契约验证 spike」（session.create/prompt 契约 + 决策会话权限 + @opencode-ai/sdk 依赖）；TASK-009 由「写问题队列 + 读答案队列 + 超时兜底」改为「decision-proxy 方案 E 改造」（决策会话代答 + 30s 超时兜底）；TASK-008/009 由并行改为串行
 
 ## 1. 依赖拓扑总览
 > 任务依赖关系和执行顺序
@@ -25,12 +25,19 @@ Wave 2 ─── (依赖 Wave 1)
 
 Wave 3 ─── (依赖 Wave 2)
   TASK-007 [M]  集成装配验证（构建产物 + 注册 + 入口冒烟，依赖 TASK-003/004/005/006）
+
+Wave 4 ─── (方案 E 前置契约验证，依赖已完成的 TASK-003/004)
+  TASK-008 [L]  方案 E 前置契约验证：session.create/prompt 契约 + 决策会话权限 + SDK 依赖（依赖 TASK-003/004）
+
+Wave 5 ─── (方案 E 改造，依赖 TASK-008 spike 结论)
+  TASK-009 [M]  decision-proxy 方案 E 改造：建决策会话 + prompt 思考 + 全局 reply 代答 + 30s 超时兜底（依赖 TASK-008/003/004）
 ```
 
 > ⚠️ **依赖要点**（与 plan.md §4 待验证点对齐）：
 > - **TASK-001 是全局关键路径**：方案 D 的落地通道（插件 hook / HTTP API / 方案 C 降级）由其实测结论决定，直接决定 TASK-003 与 TASK-004 的实现方式。
 > - **TASK-002 纯重构独立于 spike**：行为零变化，可与 spike 并行推进，二者不互相阻塞。
 > - **TASK-003 与 TASK-002 均改 plugin.ts**，必须串行（TASK-003 在重构后的干净组装入口上接入 decision-proxy），避免编辑冲突。
+> - **⚠️ Wave 4/5（方案 E 改造，v1.3）**：方案 B 的打断能力先决条件已由反编译 opencode 1.18.18 实证否决（`verify-prompt-interrupt.md`），变体 B'（后台 task + 轮询）的全部复杂度源于该死锁事实；调研（`research-agent-reply.md`）确认 question 工具是「事件 + deferred + 任意 actor 可代答」的原生协议，据此确定**方案 E（插件内同步决策会话代答）为首选、B' 降级备选**。TASK-008（方案 E 前置契约验证 spike）固定 `session.create`/`session.prompt` 契约、决策会话权限、`@opencode-ai/sdk` 依赖三项签名；TASK-009（decision-proxy 方案 E 改造）依赖 TASK-008 spike 结论，二者**串行**（TASK-008 结论决定 TASK-009 的代答通道选择与契约形状）。
 
 ## 2. 任务列表
 > 每个任务的详细定义
@@ -265,16 +272,85 @@ bash e2e/scripts/basic/sddu-e2e.sh user-login --auto   # 创建即安装 + 入�
 grep -n "sddu-auto" "$HOME/sddu-test-projects/sddu-test-user-login/sddu-test-prompt.md"
 ```
 
+### TASK-008: 方案 E 前置契约验证（build 实施前置 spike）
+> 方案 E 的前置契约确认——验证插件 v1 client 的 session.create/prompt 能力，是实现前的契约固定，不是重新设计方案
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | L |
+| **前置依赖** | TASK-003（已完成的 decision-proxy）, TASK-004（已完成的 sddu-auto 模板） |
+| **执行波次** | 4 |
+| **对应 FR** | FR-004, FR-006, NFR-003 |
+| **状态** | ✅ completed |
+
+**描述**: 方案 E（插件内同步决策会话代答）已被调研（`research-agent-reply.md`）确定为替代变体 B' 的首选路径（B' 降级备选）。本任务是 build 实施前的**契约验证 spike**（非重新设计方案，方案 B/B'/E 的判定已由反编译 + 调研定论）——验证三点契约：① 插件 v1 client 的 `client.session.create()` / `client.session.prompt()` 的 **body 精确形状**（`agent`/`model`/`parts` 字段）与**同步等待行为**（决策会话 idle、无死锁，`prompt` 走 Idle 分支正常启动 run）；② **决策会话权限约束**（沿用 sddu-auto 的 `edit/bash/webfetch deny`，确认 `read` 可用）；③ 插件依赖 **@opencode-ai/sdk 的可解析性**（若插件自建完整 client 走 `client.question.reply` 替代 HTTP 全局端点，需在 `.opencode/package.json` 声明依赖；否则 HTTP 全局端点兜底，已实证无需额外依赖）。产出 spike 报告，固定 `session.create`/`session.prompt` 契约签名与代答通道选择（HTTP 全局端点 vs 自建 SDK client），供 TASK-009 直接实现。
+
+**涉及文件**:
+
+| 操作 | 文件路径 |
+|:--:|------|
+| NEW | `e2e/` 下最小样本插件/测试脚本（或临时测试项目内的 spike 脚本） |
+| MODIFY | `.sddu/specs-tree-root/specs-tree-autonomous-mode/ADR-018.md`（可选，spike 结论如需补充） |
+
+**验收标准**:
+- [x] spike 报告落地，明确记录「session.create/prompt body 形状」「同步等待行为（idle 无死锁）」「决策会话权限」「@opencode-ai/sdk 可解析性」四项实测结论
+- [x] 明确判定并固定代答通道选择（HTTP 全局端点 / 自建 SDK client）
+- [x] 决策会话跑通一次 LLM 往返（idle、无死锁）得到实证
+
+**验证命令**:
+```bash
+# 在 e2e 测试项目（$HOME/sddu-test-projects/）或最小样本插件中实测
+bash e2e/scripts/basic/sddu-e2e.sh spike-proxy-session
+# 1) client.session.create 建决策会话（agent=sddu-auto，注入种子上下文）
+# 2) client.session.prompt 同步等 LLM 思考，确认 idle 无死锁、body 形状正确
+# 3) 决策会话权限约束验证（edit/bash/webfetch deny、read 可用）
+# 4) 探测 @opencode-ai/sdk 依赖可解析性（插件自建 client）
+# 5) 落盘 spike 报告，固定契约签名
+```
+
+### TASK-009: decision-proxy 方案 E 改造 — 建决策会话 + prompt 思考 + 全局 reply 代答 + 30s 超时兜底
+> 方案 E 核心：decision-proxy 由「队列 + 轮询」改为「建/复用决策会话 + prompt 思考 + 全局 reply 代答 + 30s 超时兜底」
+
+| 属性 | 值 |
+|------|-----|
+| **复杂度** | M |
+| **前置依赖** | TASK-008（方案 E 前置契约验证结论）, TASK-003（已完成的 decision-proxy）, TASK-004（已完成的 sddu-auto 模板） |
+| **执行波次** | 5 |
+| **对应 FR** | FR-004, FR-005, FR-006, NFR-003 |
+| **状态** | ⬜ pending |
+
+**描述**: 按 ADR-018 v4.2 方案 E 五要素改造决策代理层，将「决策」职责由 `DecisionEngine` 规则匹配（关键词匹配/选首项/保守默认，`decision-proxy.ts` L194-238）改为「插件内同步决策会话代答」：① 拦截 `question.asked` 后经 `SessionRegistry.getAutoParent` 确认 sddu-auto 子会话提问（识别机制不变）→ 用插件 v1 client 的 `client.session.create({ body: { agent: "sddu-auto", ... } })` **建/复用「决策会话」**（首次创建后缓存 sessionID，注入种子上下文：启动诉求 auto-context.json + 项目上下文 + 上游产物）；② `client.session.prompt()` **同步等 LLM 真思考**（决策会话 idle 无死锁，契约按 TASK-008 spike 结论）；③ 从回答解析答案（单题选 label / 多选 label 数组 / 自由文本保守默认）→ **全局端点 `POST /question/{requestID}/reply`（body `{answers}`）代答**（备选：自建 SDK client 走 `client.question.reply`，按 TASK-008 spike 结论选择）；④ **30s 超时兜底**（决策会话未响应则降级 `DecisionEngine` 规则匹配，NFR-003 不阻塞不反问）；⑤ `appendDecisions` 新增「决策来源」字段（`sddu-auto 决策会话` vs `超时兜底`）。`SessionRegistry`（拦截识别）/ 代答通道（全局端点）/ 子 Agent 零改动 / 权限模型（edit/bash deny）均不变。**sddu-auto 主会话与 7 个子 Agent 零改动**（方案 E 无需改造调度循环）。
+
+**涉及文件**:
+
+| 操作 | 文件路径 |
+|:--:|------|
+| MODIFY | `src/adapters/opencode/decision-proxy.ts`（决策职责改造：建决策会话 + prompt 思考 + reply 代答 + 超时兜底 + 决策来源字段） |
+
+**验收标准**:
+- [ ] `npm run build` 通过
+- [ ] decision-proxy 具备「拦截 + 识别 + 建决策会话 + prompt 思考 + reply 代答 + 超时兜底」完整链路，`DecisionEngine` 仅作 30s 超时兜底
+- [ ] 代答答案来自 sddu-auto 决策会话 LLM 思考（决策来源可验证），超时降级规则匹配且不阻塞（NFR-003）
+- [ ] `SessionRegistry` 拦截识别、子 Agent 零改动、权限模型（edit/bash deny）不变；非 sddu-auto 会话提问不受影响
+- [ ] `appendDecisions` 含「决策来源」字段；契约与 TASK-008 spike 结论对齐（session.create/prompt body 形状、代答通道选择）
+
+**验证命令**:
+```bash
+npm run build
+grep -n "session.create\|session.prompt\|question.*reply\|决策来源" src/adapters/opencode/decision-proxy.ts
+npx jest --selectProjects opencode -t decision-proxy --passWithNoTests 2>/dev/null || echo "用 e2e 冒烟替代"
+```
+
 ## 3. 任务汇总
 > 任务数量、复杂度和波次的统计总览
 
 | 统计项 | 数值 |
 |--------|:--:|
-| 总任务数 | 7 |
+| 总任务数 | 9 |
 | S 级 (简单) | 2 |
-| M 级 (中等) | 4 |
-| L 级 (复杂) | 1 |
-| 执行波次 | 3 |
+| M 级 (中等) | 5 |
+| L 级 (复杂) | 2 |
+| 执行波次 | 5 |
 
 ## 4. 执行策略
 > 各波次的执行说明
@@ -284,6 +360,8 @@ grep -n "sddu-auto" "$HOME/sddu-test-projects/sddu-test-user-login/sddu-test-pro
 | 1 | TASK-001, TASK-002, TASK-005, TASK-006 | 并行执行（无依赖）：spike 实测优先级最高，重构与配置/脚本可同步推进 |
 | 2 | TASK-003, TASK-004 | 并行执行（均依赖 Wave 1）：TASK-003 依赖 001 结论 + 002 重构，TASK-004 依赖 001 落地方式 |
 | 3 | TASK-007 | 串行（依赖 003/004/005/006 全部完成） |
+| 4 | TASK-008 | 串行（方案 E 前置契约验证，依赖已完成的 003/004）：spike 固定 session.create/prompt 契约 + 决策会话权限 + @opencode-ai/sdk 依赖，结论决定 TASK-009 实现方式 |
+| 5 | TASK-009 | 串行（方案 E 改造，依赖 TASK-008 spike 结论 + 003/004）：decision-proxy 按 spike 固定契约实现「决策会话代答 + 30s 超时兜底」 |
 
 > **执行要点**：
 > - **TASK-001 必须最先启动并优先出结论**——它是全局关键路径，其结论决定 TASK-003/004 的实现方向；若结论为方案 C 降级，TASK-003 实现方式随之改变且需更新 ADR-018。
@@ -296,3 +374,6 @@ grep -n "sddu-auto" "$HOME/sddu-test-projects/sddu-test-user-login/sddu-test-pro
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 基于 plan.md v3.2 + ADR-018~021 分解 7 个原子任务，首个 spike 前置实测决策代理层可行性，plugin.ts 拆分为纯重构独立验证，3 波次编排 | 2026-08-15 | SDDU Tasks Agent |
+| v1.1 | 方案变更记录 — plan v4.0 / ADR-018 v4.0 将「代答机制」由方案 D（协议层拦截 + 规则匹配）修正为方案 B（协议层拦截 + 回传 sddu-auto 思考）；新增 Wave 4：TASK-008（sddu-auto 打断能力 spike）+ TASK-009（决策引擎改造：回传 sddu-auto 思考），总任务 7→9、波次 3→4 | 2026-08-16 | SDDU Plan Agent |
+| v1.2 | 反编译实证否决方案 B → 确定变体 B' — plan v4.1 / ADR-018 v4.1 将方案 B（prompt_async 注入打断）判死锁不可行，确定变体 B'（后台 task + 轮询 + 间隙响应）；TASK-008 由「打断能力 spike」（已反编译定论，无需实测）改造为「B' 调度循环改造」实施任务（改 sddu-auto.md.hbs）；TASK-009 由「注入打断回传」改为「写问题队列 + 读答案队列 + 超时兜底」（改 decision-proxy.ts）；TASK-008/009 由串行改为并行（契约已固定、改不同文件）；总任务数 9、复杂度 S×2/M×5/L×2、波次 4 不变 | 2026-08-16 | SDDU Plan Agent |
+| v1.3 | 调研发现更优原生方案 E → 替代变体 B' 为首选 — plan v4.2 / ADR-018 v4.2 将变体 B'（后台 task + 轮询 + 间隙响应）降级为备选，确定方案 E（插件内同步决策会话代答：建决策会话 + prompt 思考 + 全局 reply 代答 + 30s 超时兜底，无队列无轮询无注入，主会话与子 Agent 零改动）；TASK-008 由「B' 调度循环改造」改为「方案 E 前置契约验证 spike」（验证 session.create/prompt body 形状 + 决策会话权限 + @opencode-ai/sdk 依赖）；TASK-009 由「写问题队列 + 读答案队列 + 超时兜底」改为「decision-proxy 方案 E 改造」（建决策会话 + prompt 思考 + 全局 reply 代答 + 30s 超时兜底 + 决策来源字段）；TASK-008/009 由并行改为串行（TASK-009 依赖 TASK-008 spike 结论）；总任务数 9、复杂度 S×2/M×5/L×2 不变、波次 4→5 | 2026-08-16 | SDDU Plan Agent |
