@@ -43,7 +43,29 @@ esac
 
 # Write prompt
 echo "[3/3] 生成测试提示词..."
-cat > "$TEST_DIR/sddu-test-prompt.md" << EOF
+if [[ "$AUTO_MODE" == true ]]; then
+  # auto 模式：简洁聚焦，只保留业务需求 + 技术要求 + 入口
+  cat > "$TEST_DIR/sddu-test-prompt.md" << EOF
+# $PROJECT_NAME
+
+## 业务需求
+
+$DESC
+
+## 技术要求
+
+- TypeScript + Node.js
+- 零外部中间件依赖（不用 MySQL/Redis/MQ）
+- 数据存储在内存或本地 JSON 文件
+- 代码可直接 \`npm install && npm start\` 运行
+
+## 入口
+
+$ENTRY $PROJECT_NAME
+EOF
+else
+  # 默认模式：完整提示词（含约束/执行要求强制命令）
+  cat > "$TEST_DIR/sddu-test-prompt.md" << EOF
 # $PROJECT_NAME
 
 ## 业务需求
@@ -72,6 +94,7 @@ $DESC
 
 $ENTRY $PROJECT_NAME
 EOF
+fi
 
 echo ""
 echo "✅ 测试项目就绪"

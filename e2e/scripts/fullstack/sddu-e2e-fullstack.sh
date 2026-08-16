@@ -34,7 +34,35 @@ case "$PROJECT_NAME" in
 esac
 
 echo "[3/3] 生成测试提示词..."
-cat > "$TEST_DIR/sddu-test-prompt.md" << EOF
+if [[ "$AUTO_MODE" == true ]]; then
+  # auto 模式：简洁聚焦，只保留业务需求 + 技术栈 + 项目结构 + 入口
+  cat > "$TEST_DIR/sddu-test-prompt.md" << EOF
+# $PROJECT_NAME
+
+## 业务需求
+
+$DESC
+
+## 技术栈
+
+- 后端：Java 21 + SpringBoot 3.4.6 + MyBatis 3.0.4 + H2 + Maven
+- 前端：React 18 + TypeScript 5 + Vite 5 + Axios
+- 部署：Docker Compose
+
+## 项目结构
+
+\`\`\`
+backend/    ← SpringBoot 后端
+frontend/   ← React 前端
+\`\`\`
+
+## 入口
+
+$ENTRY $PROJECT_NAME
+EOF
+else
+  # 默认模式：完整提示词（含约束/执行要求强制命令）
+  cat > "$TEST_DIR/sddu-test-prompt.md" << EOF
 # $PROJECT_NAME
 
 ## 业务需求
@@ -69,6 +97,7 @@ frontend/   ← React 前端
 
 $ENTRY $PROJECT_NAME
 EOF
+fi
 
 echo ""
 echo "✅ 测试项目就绪"
