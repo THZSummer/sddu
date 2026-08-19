@@ -29,15 +29,24 @@ SDDU 是一个 OpenCode 插件，用 **AI Agent 协作** 的方式把软件开�
 
 把「做一个功能」想象成「看一次病」——SDDU 的 7 个阶段 Agent，就是诊疗流程中的每一个环节：
 
-| 阶段 | 🏥 医生看病 | 💻 软件开发 | Agent |
-|:--:|-----------|-----------|-------|
-| 1/7 | 🩺 问诊：病人哪里不舒服？症状、频率、多久了？**先诊断，不开药** | 把模糊想法挖成清晰问题（5 Whys 追问，只挖问题不预设方案） | `@sddu-discovery` |
-| 2/7 | 📋 开药方：这病需要什么药？**"药到病除"是可验证的** | 把问题定义成可测试的需求规范（FR/NFR/EC） | `@sddu-spec` |
-| 3/7 | 💊 定给药方式：外敷还是内服？用 A 药还是 B 药？**为什么这么选记在病历（ADR）** | 对比 2-3 个技术方案，推荐一个并记录决策 | `@sddu-plan` |
-| 4/7 | 📅 定服药计划：一天两次、每次一片、饭后服、持续一周，**可执行可核对** | 把方案拆成原子任务：Wave 并行、S/M/L 分级、验收标准 | `@sddu-tasks` |
-| 5/7 | 🧪 照方抓药：药师按药方配药，**每味药称量核对** | 按任务清单逐项实现代码 + 写测试验证 | `@sddu-build` |
-| 6/7 | 🔍 核对医嘱：药方对吗？抓的药对吗？用法用量对吗？**只核对，不吃药** | 静态审查：查代码质量、规范符合、架构一致、测试质量（只"看"） | `@sddu-review` |
-| 7/7 | 🏥 复查体检：实际化验检查，**病到底好了没有？** | 动态验证：跑测试、调接口、测性能、查漂移（只"做"） | `@sddu-validate` |
+```mermaid
+flowchart LR
+    A["🩺 问诊<br/><b>1/7 @sddu-discovery</b><br/>病人哪里不舒服？"] --> B["📋 开药方<br/><b>2/7 @sddu-spec</b><br/>需要什么药能治好？"]
+    B --> C["💊 定给药方式<br/><b>3/7 @sddu-plan</b><br/>外敷还是内服？"]
+    C --> D["📅 定服药计划<br/><b>4/7 @sddu-tasks</b><br/>一天两次，吃一周"]
+    D --> E["🧪 照方抓药<br/><b>5/7 @sddu-build</b><br/>按药方把药配出来"]
+    E --> F["🔍 核对医嘱<br/><b>6/7 @sddu-review</b><br/>药吃对了吗？"]
+    F --> G["🏥 复查体检<br/><b>7/7 @sddu-validate</b><br/>病好了吗？"]
+
+    classDef plan fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+    classDef build fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20
+    classDef check fill:#fff3e0,stroke:#ef6c00,color:#e65100
+    class A,B,C,D plan
+    class E build
+    class F,G check
+```
+
+> 🏷️ **图例**：🔵 方案期（想清楚要做什么）→ 🟢 执行期（把东西做出来）→ 🟠 检查期（验证做得对不对）
 
 **一句话记住 review 和 validate 的区别**：`@sddu-review` 核对**过程**——药吃对了吗？`@sddu-validate` 验证**结果**——病好了吗？
 
