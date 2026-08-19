@@ -31,9 +31,9 @@ SDDU 是一个 OpenCode 插件，用 **AI Agent 协作** 的方式把软件开�
 
 ```mermaid
 flowchart LR
-    A["🩺 问诊<br/><b>1/7 @sddu-discovery</b><br/>病人哪里不舒服？"] --> B["📋 开药方<br/><b>2/7 @sddu-spec</b><br/>需要什么药能治好？"]
-    B --> C["💊 定给药方式<br/><b>3/7 @sddu-plan</b><br/>外敷还是内服？"]
-    C --> D["📅 定服药计划<br/><b>4/7 @sddu-tasks</b><br/>一天两次，吃一周"]
+    A["🩺 询问病情<br/><b>1/7 @sddu-discovery</b><br/>病人哪里不舒服？"] --> B["📋 开具药方<br/><b>2/7 @sddu-spec</b><br/>需要什么药能治好？"]
+    B --> C["💊 确定疗法<br/><b>3/7 @sddu-plan</b><br/>外敷还是内服？"]
+    C --> D["📅 安排疗程<br/><b>4/7 @sddu-tasks</b><br/>一天两次，吃一周"]
     D --> E["💉 配药给药<br/><b>5/7 @sddu-build</b><br/>按方配药，交病人服用"]
     E --> F["🔍 核对医嘱<br/><b>6/7 @sddu-review</b><br/>药吃对了吗？"]
     F --> G["🏥 复查体检<br/><b>7/7 @sddu-validate</b><br/>病好了吗？"]
