@@ -11,22 +11,56 @@
 
 ## 🎯 什么是 SDDU
 
-SDDU 是一个 OpenCode 插件，用 **AI Agent 协作** 的方式把软件开发变成了一个结构化流程。你不是在和一个万能 AI 对话——你是在和 **12 个专业 AI Agent** 协作，每个负责一个阶段：
+SDDU 是一个 OpenCode 插件，用 **AI Agent 协作** 的方式把软件开发变成了一个结构化流程。你不是在和一个万能 AI 对话——你是在和 **11 个专业 AI Agent** 协作：7 个负责主流程各阶段，4 个提供辅助能力。
 
 | 阶段 | Agent | 做什么 |
 |:--:|-------|--------|
 | 1/7 | `@sddu-discovery` | 把模糊想法挖成清晰问题 |
 | 2/7 | `@sddu-spec` | 把问题定义成可测试的需求规范 |
 | 3/7 | `@sddu-plan` | 把需求设计成技术方案 |
-| 4/7 | `@sddu-tasks` | 把方案拆成可并行的原子任务 |
-| 5/7 | `@sddu-build` | 逐任务实现代码 |
-| 6/7 | `@sddu-review` | 静态审查代码质量 |
-| 7/7 | `@sddu-validate` | 动态验证——跑测试、调接口、测性能 |
+| 4/7 | `@sddu-tasks` | 把方案拆成可并行、可独立验证的原子任务 |
+| 5/7 | `@sddu-build` | 逐任务实现代码（测试先行） |
+| 6/7 | `@sddu-review` | 静态审查——"看"：查代码质量、规范符合、架构一致、测试质量 |
+| 7/7 | `@sddu-validate` | 动态验证——"做"：跑测试、调接口、测性能、跑构建、查漂移 |
+
+> 💡 术语速览：**静态审查** = 只读代码、不执行；**原子任务** = 拆到最小、可独立验证的任务；**ADR** = 架构决策记录（解释"为什么这么设计"）
+
+### 🎬 一个例子秒懂：7 个 Agent 就像「看一次病」
+
+把「做一个功能」想象成「看一次病」——SDDU 的 7 个阶段 Agent，就是诊疗流程中的每一个环节：
+
+```mermaid
+flowchart LR
+    A["🩺 询问病情<br/><b>1/7 @sddu-discovery</b><br/>病人哪里不舒服？"] --> B["📋 开具药方<br/><b>2/7 @sddu-spec</b><br/>需要什么药能治好？"]
+    B --> C["💊 确定疗法<br/><b>3/7 @sddu-plan</b><br/>外敷还是内服？"]
+    C --> D["📅 安排疗程<br/><b>4/7 @sddu-tasks</b><br/>一天两次，吃一周"]
+    D --> E["💉 配药给药<br/><b>5/7 @sddu-build</b><br/>按方配药，交病人服用"]
+    E --> F["🔍 核对医嘱<br/><b>6/7 @sddu-review</b><br/>药吃对了吗？"]
+    F --> G["🏥 复查体检<br/><b>7/7 @sddu-validate</b><br/>病好了吗？"]
+
+    classDef plan fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+    classDef build fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20
+    classDef check fill:#fff3e0,stroke:#ef6c00,color:#e65100
+    class A,B,C,D plan
+    class E build
+    class F,G check
+```
+
+> 🏷️ **图例**：🔵 方案期（想清楚要做什么）→ 🟢 执行期（把东西做出来）→ 🟠 检查期（验证做得对不对）
+
+**一句话记住 review 和 validate 的区别**：`@sddu-review` 核对**过程**——药吃对了吗？`@sddu-validate` 验证**结果**——病好了吗？
+
+**三个设计原则，用看病重说一遍**：
+- 🚫 **不跳步**：没有问诊就开药是庸医——没有 discovery 不能 spec
+- 🤝 **不越界**：医生不替药师配药——plan 不写代码
+- 📄 **文档即状态**：病历、药方、服药记录就是整个诊疗——每份文档是下一环节的输入
 
 **三个设计原则**：
 - 🚫 **不跳步**：没有 spec 不能 plan，没有 plan 不能 tasks
 - 🤝 **不越界**：每个 Agent 只做自己阶段的事，discovery 不定义需求，plan 不写代码
 - 📄 **文档即状态**：每个阶段的产出就是下一阶段的输入，全程可追溯
+
+> 🌍 **方法论定位**：SDDU 的 7 阶段本质是一套通用问题解决流程——发现 → 定义 → 设计 → 拆解 → 执行 → 核验 → 验证，不局限于编程（看病、装修、创业同样适用）。当前模板与术语为软件开发场景定制，未来可延展至 **产品设计、业务咨询、项目管理、个人规划** 等领域。
 
 ---
 
@@ -88,8 +122,8 @@ sequenceDiagram
     P->>T: plan.md（技术方案）
     T->>B: tasks.md（任务列表）
     B->>R: build.md + 源代码
-    R->>V: review.md（审查报告）
-    V->>U: validation.md ✅ 验证通过
+    R->>V: review-report.md（审查报告）
+    V->>U: validate-report.md ✅ 验证通过
 ```
 
 每个阶段自动生成对应文档，状态自动推进。支持暂停、终止、迁出等完整生命周期管理。
@@ -105,10 +139,10 @@ sequenceDiagram
 | `@sddu-discovery` | 1/7 | 模糊想法 | `discovery.md` — 问题清单 |
 | `@sddu-spec` | 2/7 | 问题清单 | `spec.md` — 需求规范 |
 | `@sddu-plan` | 3/7 | 需求规范 | `plan.md` — 技术方案 + ADR |
-| `@sddu-tasks` | 4/7 | 技术方案 | `tasks.md` — 原子任务 |
-| `@sddu-build` | 5/7 | 任务列表 | 源代码 + `build.md` |
-| `@sddu-review` | 6/7 | 代码 + 规范 | `review.md` — 审查报告 |
-| `@sddu-validate` | 7/7 | 审查报告 | `validation.md` — 验证结果 |
+| `@sddu-tasks` | 4/7 | 技术方案 | `tasks.md` + `tasks.json` — 原子任务 |
+| `@sddu-build` | 5/7 | 任务列表 | 源代码 + 测试 + `build.md` |
+| `@sddu-review` | 6/7 | 代码 + 规范 | `review.md`（审查策略）+ `review-report.md`（审查报告）|
+| `@sddu-validate` | 7/7 | 审查报告（passed） | `validate.md`（验证策略）+ `validate-report.md`（验证报告）|
 
 ### 辅助 Agent
 
@@ -156,13 +190,15 @@ SDDU 将每个 Feature 的工作产物组织在 `.sddu/specs-tree-root/` 下：
 ├── ROADMAP.md                 # 版本路线图
 └── specs-tree-root/
     └── specs-tree-<feature>/
-        ├── discovery.md       # 阶段 0 产出
-        ├── spec.md            # 阶段 1 产出
-        ├── plan.md            # 阶段 2 产出
+        ├── discovery.md       # 阶段 1/7 产出
+        ├── spec.md            # 阶段 2/7 产出
+        ├── plan.md            # 阶段 3/7 产出
         ├── tasks.md / tasks.json
-        ├── build.md           # 阶段 4 产出
-        ├── review.md          # 阶段 5 产出
-        ├── validation.md      # 阶段 6 产出
+        ├── build.md           # 阶段 5/7 产出
+        ├── review.md          # 阶段 6/7 产出（审查策略）
+        ├── review-report.md   # 阶段 6/7 报告（每轮执行）
+        ├── validate.md        # 阶段 7/7 产出（验证策略）
+        ├── validate-report.md # 阶段 7/7 报告（每轮执行）
         └── state.json         # 状态文件（phase + status）
 ```
 
