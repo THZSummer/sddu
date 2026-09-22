@@ -1,0 +1,149 @@
+{
+  "feature": "specs-tree-roadmap-output-template",
+  "name": "@sddu-roadmap 输出模板补全",
+  "version": "v4.1.0",
+  "phase": "specified",
+  "status": "tracked",
+  "depth": 0,
+  "phaseHistory": [
+    {
+      "phase": "registered",
+      "timestamp": "2026-09-22T00:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent",
+      "comment": "Feature 目录创建 — 提案为 @sddu-roadmap 补充专属输出模板，填补 11 Agent 中唯一「有真实落盘产物却无输出模板」的缺口"
+    },
+    {
+      "phase": "discovered",
+      "timestamp": "2026-09-22T00:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent",
+      "comment": "问题挖掘完成（v1.0）— 10 个问题（3 核心 Q-001~003 / 4 次要 Q-004~007 / 3 潜在 Q-008~010）+ 8 假设 + 7 风险；识别 5 项关键待用户澄清决策（RT-001~RT-005）"
+    },
+    {
+      "phase": "discovered",
+      "timestamp": "2026-09-22T12:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent",
+      "comment": "决策收口（v2.0）— 用户答复 RT-001~RT-005 全部落定：①统一逻辑支持覆盖（修订 EC-004）②动机=消除结构漂移（当前 ROADMAP 为反面教材）③单文件+增量更新（排除多文件）④不迁移现存 ROADMAP ⑤roadmap/docs 互相独立。据此修正问题陈述/动机/范围/边界/约束，新增附录 A（决策记录）/附录 B（范围与边界落定）/附录 C（开放问题 OP-001~007，移交 spec/plan）；无待澄清项"
+    },
+    {
+      "phase": "specified",
+      "timestamp": "2026-09-22T18:00:00.000Z",
+      "triggeredBy": "sddu-spec-agent",
+      "comment": "需求规范完成（v1.0）— 12 FR / 8 NFR / 10 EC；新增 §5.1 SUP-001 显式修订并取代 FR-TPL-001 EC-004（roadmap 并入统一两级模板逻辑、支持用户覆盖，不经由修改旧 Feature spec 实现）；OP-001/003/004/005/006/007 已在本 spec 决策，OP-002（增量与骨架共存机制）移交 plan；产出 2 项非阻塞待用户确认（FR-006 量化上限、FR-004 元数据头部对齐），均含默认值；实现目标严格限于 src/（scripts/ 经核实无需改动）"
+    }
+  ],
+  "metadata": {
+    "featureId": "FR-ROADMAP-TPL-001",
+    "name": "@sddu-roadmap 输出模板补全",
+    "version": "v4.1.0",
+    "priority": "P1",
+    "effort": "S",
+    "type": "输出模板补全",
+    "createdAt": "2026-09-22",
+    "updatedAt": "2026-09-22T18:00:00.000Z",
+    "discoveryStats": {
+      "problemCount": 10,
+      "coreProblems": 3,
+      "secondaryProblems": 4,
+      "potentialProblems": 3,
+      "assumptionCount": 8,
+      "riskCount": 6,
+      "openQuestions": 7,
+      "pendingClarifications": 0
+    },
+    "specStats": {
+      "frCount": 12,
+      "nfrCount": 8,
+      "ecCount": 10,
+      "supersedeClauses": 1,
+      "decidedOpenQuestions": 6,
+      "deferredToPlan": 1,
+      "pendingUserConfirmations": 2
+    }
+  },
+  "decisions": {
+    "RT-001": {
+      "question": "是否接受显式修订 FR-TPL-001 EC-004，让 roadmap 使用可覆盖的外部模板？",
+      "decision": "统一逻辑，支持覆盖 — 修订 EC-004，所有 agent 输出模板走统一逻辑，roadmap 不再作为『内置固定格式』例外"
+    },
+    "RT-002": {
+      "question": "触发补模板的真实动机？",
+      "decision": "消除结构漂移 / 输出混乱 — 当前 .sddu/ROADMAP.md 作为反面教材（用户原话：AI 简直是随心所欲，完全看不懂）"
+    },
+    "RT-003": {
+      "question": "输出粒度与模板化方式？",
+      "decision": "单文件 + 增量更新，明确排除多文件；roadmap 定位为精简的顶层规划，内容须克制"
+    },
+    "RT-004": {
+      "question": "是否对现存 .sddu/ROADMAP.md 做一次性结构对齐迁移？",
+      "decision": "不迁移 — 本 Feature 只升级 SDDU 框架本身（src/）；现存 ROADMAP 仅作反面参考素材，用户后续自行按新模板迁移"
+    },
+    "RT-005": {
+      "question": "roadmap 与 docs 边界是否一并收敛？范围是否仅限 roadmap？",
+      "decision": "互相独立，不做关联；范围仅限 roadmap"
+    }
+  },
+  "boundaries": {
+    "targets": {
+      "create": [
+        "src/templates/outputs/sddu-roadmap.md.hbs"
+      ],
+      "modify": [
+        "src/templates/agents/sddu-roadmap.md.hbs"
+      ],
+      "adaptIfNeeded": [
+        "scripts/ (仅当现有递归裸拷贝无法覆盖时)"
+      ]
+    },
+    "nonGoals": [
+      "不迁移/不重写当前 .sddu/ROADMAP.md",
+      "不拆分多文件",
+      "不做 roadmap ↔ docs 关联",
+      "不修改旧 Feature specs-tree-template-quality-unification/spec.md（EC-004 以本 Feature spec 显式声明修订/取代的方式记录）",
+      "不把 .opencode/（安装产物）、.sddu/（流程产物）列为修改/创建/删除目标",
+      "不涉及 sddu-fast / sddu 的模板豁免统一"
+    ],
+    "constraints": [
+      "单文件 + 增量更新（天然单文件，不考虑多文件）",
+      "roadmap 定位 = 精简的顶层规划，内容须克制",
+      "Handlebars <<变量名>> + 两级模板查找（用户 .sddu/templates/ > 插件内置）",
+      "工程边界：修改目标只限设计态源码；改运行时行为走『改 src/ + npm run build』（README §209-211）",
+      "EC-004 修订不得通过修改旧 Feature 的 .sddu/ 产物实现",
+      "与 @sddu-docs 相互独立，不做关联"
+    ]
+  },
+  "dependencies": {
+    "on": [
+      "FR-TEMPLATE-001",
+      "FR-TPL-001",
+      "FR-DOCS-OPT-001"
+    ],
+    "blocking": [],
+    "notes": "依赖已交付的模板化基础设施与辅助 Agent 模板先例；RT-001 已决策修订 EC-004（FR-TPL-001 FR-021），该修订已由本 Feature spec §5.1 SUP-001 条款落实（不经由修改旧 Feature spec），R-001 已关闭"
+  },
+  "specDecisions": {
+    "SUP-001": "本 Feature spec §5.1 — 修订并取代 FR-TPL-001 EC-004 / FR-021 中涉及 @sddu-roadmap 的例外条款：roadmap 不再声明内置固定格式，并入统一两级模板查找（.sddu/templates/agents/output/sddu-roadmap.md.hbs 优先 > .opencode/plugins/sddu/templates/output/sddu-roadmap.md.hbs 兜底），支持用户覆盖；不经由修改旧 Feature 的 .sddu/ 产物实现",
+    "OP-001": "本 spec 决策（FR-003）— 骨架抽象边界：7 个 H2 章节 + 元数据头部；固化（变量填充）/增量保留区/运行时变量三类切分已落定",
+    "OP-002": "移交 plan（FR-005 定结构要求：模板须显式区分重写区/保留区；标记语法与合并算法归 plan）",
+    "OP-003": "本 spec 决策（FR-004）— 元数据头部对齐统一 8 字段 + 追加 3 个 roadmap 专属字段",
+    "OP-004": "本 spec 决策（FR-006）— H2 ≤ 8、篇幅指导上限 ≤ 400 行、内容准入=仅跨版本/项目级信息（默认值，待用户非阻塞确认）",
+    "OP-005": "本 spec 决策（FR-009）— §1『不输出版本路线图』修正为『不输出目录树』",
+    "OP-006": "本 spec 决策（FR-010 + SUP-001 第 4 条）— 补通用判定标准『有固定落盘产物即须模板化』",
+    "OP-007": "本 spec 决策=不涉及（NG-007）— 本 Feature 采纳 Agent + 模板路径；Skill 降级评估归档为未来框架级决策",
+    "A-006": "已验证 — scripts/build-agents.cjs 递归裸拷贝 + .hbs 过滤可自动覆盖根级新增模板，scripts/ 无需改动（FR-011）"
+  },
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md"
+  },
+  "openQuestions": [
+    "已决策 OP-001（FR-003 骨架边界）",
+    "已决策 OP-003（FR-004 元数据头部对齐统一约定 + 追加专属字段）",
+    "已决策 OP-004（FR-006 H2 ≤ 8 / 篇幅 ≤ 400 行 / 内容准入，默认值待非阻塞确认）",
+    "已决策 OP-005（FR-009 §1 边界笔误修正）",
+    "已决策 OP-006（FR-010 + SUP-001 通用判定标准）",
+    "已决策 OP-007 = 不涉及（NG-007，Skill 降级归档为未来框架决策）",
+    "移交 plan：OP-002 增量保留区标记语法与合并算法（spec 已定结构要求 FR-005）",
+    "待用户非阻塞确认 1：FR-006 量化上限（默认 H2 ≤ 8、篇幅 ≤ 400 行）是否接受",
+    "待用户非阻塞确认 2：FR-004 元数据头部字段对齐（版本/更新时间/全局状态 取代旧 文档版本/更新日期/状态）是否接受"
+  ]
+}
