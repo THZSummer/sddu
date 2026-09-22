@@ -3,7 +3,7 @@
   "name": "自主模式（sddu-auto 自动调度）",
   "version": "v3.0.0",
   "phase": "validated",
-  "status": "completed",
+  "status": "suspended",
   "depth": 0,
   "phaseHistory": [
     {
@@ -65,8 +65,44 @@
       "timestamp": "2026-08-16T06:30:00.000Z",
       "triggeredBy": "sddu-build-agent",
       "comment": "decision-proxy 方案 E 改造（TASK-009）完成 — 决策职责由 DecisionEngine 规则匹配升级为「插件内同步决策会话代答」：建/复用决策会话（client.session.create + 缓存 sessionID）+ prompt LLM 真思考（client.session.prompt，agent=sddu-auto，30s withTimeout）+ 答案解析（parseDecisionAnswer）+ appendDecisions 决策来源字段（sddu-auto 决策会话 vs 超时兜底）；DecisionEngine 降级为 30s 超时兜底；SessionRegistry / 全局 reply 通道 / 子 Agent / 权限模型零改动；test:opencode 47 passed、test:core 131 passed、build 全绿"
+    },
+    {
+      "phase": "suspended",
+      "timestamp": "2026-09-13T00:00:00.000Z",
+      "triggeredBy": "user-decision",
+      "comment": "需求搁置（长期，无恢复期限）— 搁置原因：auto 效果不稳定（用户实测反馈：很不稳定）。决策：实施代码整体保留在 feature/autonomous-mode 分支（含远端 origin/feature/autonomous-mode），不合入 main；main 仅归档设计文档（本目录），以提供「需求存在但已搁置」的感知。未来如需该能力，单独重新实施或参考该分支还原，不与此需求挂钩。"
     }
   ],
+  "shelf": {
+    "suspendedAt": "2026-09-13",
+    "reason": "auto 效果不稳定（用户实测反馈：很不稳定）",
+    "type": "长期搁置，无恢复期限",
+    "suspendedUntil": null,
+    "implementation": {
+      "branch": "feature/autonomous-mode",
+      "remoteBranch": "origin/feature/autonomous-mode",
+      "headAtShelf": "f84c3c0f307bbb5fc554f8dd74b91a2e15131858",
+      "commitRange": "28f374a..6dc17c6",
+      "uniqueCommitCount": 8,
+      "commits": [
+        "28f374a feat(autonomous-mode): FR-AUTONOMY-001 discovery/spec/plan/tasks 四阶段产物 + Roadmap v20.0.0",
+        "66df1e9 feat(autonomous-mode): build/review/validate 完成 — decision-proxy + sddu-auto 模板 + e2e 入口 + 全套验证产物",
+        "482c0e8 fix(autonomous-mode): 调度者不实施 — sddu-auto 权限收敛(edit/bash deny) + auto-context 派发写入 + review 遗留修复",
+        "6f1fa94 fix(autonomous-mode): FR-006 运行实证修复 — 插件加载 loader + reply 全局通道 + install 布局修复",
+        "3ec619b feat(autonomous-mode): auto 模式体验提示词优化 — 去掉强制自主决策命令，提示词更简洁聚焦",
+        "1efab0a docs(autonomous-mode): 代答机制方案演进 B→B'→E + TASK-008 方案E契约验证(spike-decision-session)",
+        "4c91fd4 feat(autonomous-mode): TASK-009 方案E实现 — decision-proxy 建决策会话 + prompt LLM 真思考代答 + 30s 超时兜底",
+        "6dc17c6 fix(autonomous-mode): 根治 decision-proxy 空转 — 注入契约\"绝不问人\"→\"正常提问\"(不暴露auto) + 真实路径验证(decision_count=1)"
+      ],
+      "keyCommits": {
+        "4c91fd4": "方案 E 实现 — decision-proxy 建决策会话 + prompt LLM 真思考代答 + 30s 超时兜底",
+        "6dc17c6": "契约根因修复 — 注入契约「绝不问人」→「正常提问」（不暴露 auto）+ 真实路径验证"
+      }
+    },
+    "restoreGuidance": "未来如需该能力，单独重新实施或参考 feature/autonomous-mode 分支还原，不与此需求挂钩",
+    "mainArchive": "main 仅包含本目录的设计文档，不含任何实施代码（src/、install*、scripts/、e2e/、dist/ 均在 feature/autonomous-mode）",
+    "detailDoc": "SHELF.md"
+  },
   "dependencies": {
     "on": [
       "FR-TPL-001",
@@ -82,13 +118,14 @@
     "review": "review.md",
     "reviewReport": "review-report.md",
     "validate": "validate.md",
-    "validationReport": "validate-report.md"
+    "validationReport": "validate-report.md",
+    "shelf": "SHELF.md"
   },
   "metadata": {
     "priority": "P0",
     "featureId": "FR-AUTONOMY-001",
     "name": "自主模式（sddu-auto 自动调度）",
     "createdAt": "2026-08-15",
-    "updatedAt": "2026-08-16"
+    "updatedAt": "2026-09-13"
   }
 }
