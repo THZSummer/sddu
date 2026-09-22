@@ -27,7 +27,7 @@
     │   └── adr/                                 # ADR 文档集合
     │       ├── TREE.md                          # ADR 目录导航
     │       └── ADR-001.md ~ ADR-017.md          # 主 ADR 集合 (17 篇)
-    └── specs-tree-[feature]/                    # 标准化 Feature 目录 (19 个)
+    └── specs-tree-[feature]/                    # 标准化 Feature 目录 (20 个，含 1 搁置)
 ```
 
 ## 文件说明
@@ -42,14 +42,15 @@
 |------|------|------|
 | docs/ | SDDU 文档资源 — FAQ、迁移指南、迁移状态记录 (30 个文档) | ✅ 存在 |
 | docs-tree-root/ | 项目全景产物目录 — 5 大领域全景文档 (Agent体系/工作流引擎/插件工程架构/模板体系/项目结构管理) | ✅ 存在 |
-| specs-tree-root/ | 规范文件根目录 — 19 个 Feature 目录 + 架构 ADR | ✅ 存在 |
+| specs-tree-root/ | 规范文件根目录 — 20 个 Feature 目录（含 1 搁置）+ 架构 ADR | ✅ 存在 |
 
 ## 统计
 | 指标 | 值 |
 |------|-----|
-| Feature 总数 | 22 |
+| Feature 总数 | 23 |
 | 已完成 (completed) | 20 |
 | 进行中 (tracked) | 1 |
+| 已搁置 (suspended) | 1（`specs-tree-autonomous-mode` — FR-AUTONOMY-001） |
 | 已终止 (terminated) | 1 |
 | 架构 ADR | 17 篇 (ADR-001 ~ ADR-017) |
 | 文档资源 | 30 个 .md 文件 |

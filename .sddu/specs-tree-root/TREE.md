@@ -1,7 +1,7 @@
 # Directory: .sddu/specs-tree-root/
 
 ## 目录简介
-SDDU 规范文件根目录，存放 21 个 Feature 的完整 SDDU 工作流产物（discovery → spec → plan → tasks → build → review → validate）以及架构决策记录。
+SDDU 规范文件根目录，存放 22 个 Feature 的完整 SDDU 工作流产物（discovery → spec → plan → tasks → build → review → validate）以及架构决策记录。其中 `specs-tree-autonomous-mode` 已完成工作流但被**搁置**（suspended），实施代码保留在 `feature/autonomous-mode` 分支。
 
 ## 目录结构
 ```
@@ -14,6 +14,7 @@ specs-tree-root/
 │       ├── TREE.md                                   # ADR 导航
 │       └── ADR-001.md ~ ADR-017.md                   # 17 篇架构决策记录
 ├── specs-tree-agent-output-templating/               # Agent 输出模板化系统
+├── specs-tree-autonomous-mode/                       # FR-AUTONOMY-001 自主模式 🅿️ suspended（搁置）
 ├── specs-tree-deprecate-sdd-tools/                   # 废弃旧版 SDD 工具
 ├── specs-tree-directory-optimization/                # 目录结构命名优化
 ├── specs-tree-docs-agent-optimization/               # @sddu-docs Agent 补全与优化
@@ -44,6 +45,7 @@ specs-tree-root/
 | 最后修改 | 2026-07-19 |
 | 当前活跃 Feature | 1 |
 | 已完成 Feature | 18 |
+| 已搁置 Feature | 1 |
 | 已终止 Feature | 1 |
 
 ## Feature 目录一览
@@ -75,6 +77,13 @@ specs-tree-root/
 |------|-----------|------|:-----:|:------:|
 | specs-tree-sddu-fast | FR-FAST-001 | @sddu-fast 快速模式 Agent — validated 🔄 | validated | ✅ completed |
 | specs-tree-tree-skill |  |  | ⚠️ 状态异常 |
+
+### 已搁置 Feature (1 个)
+| 目录 | Feature ID | 说明 | Phase | Status |
+|------|-----------|------|:-----:|:------:|
+| specs-tree-autonomous-mode | FR-AUTONOMY-001 | 自主模式（sddu-auto 自动调度）— 搁置原因：auto 效果不稳定；实施代码保留在 `feature/autonomous-mode` | validated | 🅿️ suspended |
+
+> 详见 `specs-tree-autonomous-mode/SHELF.md`（搁置说明 + 实施内容位置 + 恢复指引）。
 
 ### 已终止 Feature (1 个)
 | 目录 | Feature ID | 说明 | Status | 去向 |

@@ -1,11 +1,11 @@
 # SDDU 项目版本 Roadmap
 
 > **文档版本**: 19.0.0
-> **更新日期**: 2026-08-15 (用户提案「自主模式」FR-AUTONOMY-001 纳入 + 3 Feature 状态回补)
-> **状态**: 规划中 (v3.0.0/v3.1.0 大部分已交付，v3.3.0「自主-约束」双翼待启动)
+> **更新日期**: 2026-09-13 (FR-AUTONOMY-001「自主模式」需求搁置 — auto 效果不稳定；实施代码保留在 `feature/autonomous-mode`，main 仅留设计文档；此前 2026-08-15 提案纳入)
+> **状态**: 规划中 (v3.0.0/v3.1.0 大部分已交付，v3.3.0「自主-约束」双翼中 AUTONOMY-001 已搁置)
 > **生成方式**: `@sddu-roadmap` 增量更新 — 用户提案「自主模式」纳入路线图
 > **当前项目版本**: v4.0.0
-> **全局状态**: 21 validated, 0 tracked, 1 terminated | 待处理项目: ~45 | 新提案: 6 (FR-BUG-001/FR-TREE-SKILL/FR-AGENT-SCOPE-001/FR-CONTEXT-001/FR-DISCOVERY-002/FR-AUTONOMY-001) | Skill 化候选: 3 (FR-BUG-001/FR-WORKTREE-001/FR-TREE-SKILL) | 竞品借鉴: 7 Feature + 2 内联改进
+> **全局状态**: 21 validated, 0 tracked, 1 terminated, 1 suspended (FR-AUTONOMY-001 ⏸️) | 待处理项目: ~45 | 新提案: 6 (FR-BUG-001/FR-TREE-SKILL/FR-AGENT-SCOPE-001/FR-CONTEXT-001/FR-DISCOVERY-002/FR-AUTONOMY-001 ⏸️搁置) | Skill 化候选: 3 (FR-BUG-001/FR-WORKTREE-001/FR-TREE-SKILL) | 竞品借鉴: 7 Feature + 2 内联改进
 
 ---
 
@@ -25,9 +25,9 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **已完成 (completed)** | 21 |
 | **已终止 (terminated/migrated)** | 1 |
 | **进行中 (tracked)** | **0** ⚠️ |
-| **搁置 (suspended)** | 0 |
+| **搁置 (suspended)** | **1** ⏸️ (FR-AUTONOMY-001 自主模式 — 长期搁置，无恢复期限；原因: auto 效果不稳定；实施代码保留在 `feature/autonomous-mode`) |
 | **已知待解决问题** | **~45 (A-F + I 核心 + BUG-001 + TREE-SKILL + AGENT-SCOPE-001 + CONTEXT-001 + DISCOVERY-002 + AUTONOMY-001 + 5 竞品借鉴 + 32 审计发现)** |
-| **规划中版本** | v3.1.0, v3.2.0, v3.3.0 (含自主模式), v4.1.0 (远期) |
+| **规划中版本** | v3.1.0, v3.2.0, v3.3.0 (自主模式已搁置 ⏸️), v4.1.0 (远期) |
 
 ### ⚠️ 关键警示
 
@@ -47,13 +47,13 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | **v3.0.0** | 质量与工作流改进 (A-F) | 2026-Q3 | 📋 规划中 | 6 个问题修复 + FR-AGENT-SCOPE-001 (替换 Issue F) |
 | **v3.1.0** | Skill 化降级验证 | TBD | 💡 提议中 | FR-BUG-001 → sddu-bug Skill 🔄 + FR-WORKTREE-001 → sddu-worktree Skill 🔄 + FR-TREE-SKILL → sddu-tree Skill 🆕 |
 | **v3.2.0** | 项目知识基础设施 (H・I) | TBD | 🔄 部分完成 | FR-KB-001 全局配置 (💡 提议中) + FR-KB-002 知识沉淀 (✅ 已完成) + FR-CONTEXT-001 共享语言管理 (💡 提议中，低优先级 — 竞品借鉴) |
-| **v3.3.0** | Agent 行为强化 + 轻量入口 | 2026-07-19 | 🔄 部分完成 | FR-FAST-001 ✅ + FR-SKILL-001 ✅ + FR-AUTONOMY-001 🆕 (自主模式) + FR-RATIONAL-001 (待启动) + FR-DISCOVERY-002 (💡 提议中，低优先级 — 竞品借鉴) |
+| **v3.3.0** | Agent 行为强化 + 轻量入口 | 2026-07-19 | 🔄 部分完成 | FR-FAST-001 ✅ + FR-SKILL-001 ✅ + FR-AUTONOMY-001 ⏸️ 已搁置 (自主模式 — auto 效果不稳定) + FR-RATIONAL-001 (待启动) + FR-DISCOVERY-002 (💡 提议中，低优先级 — 竞品借鉴) |
 | **v4.1.0** | 生态扩展 (远期) | TBD | 💡 远期 | 多平台适配 + 自动触发 (竞品借鉴 §5.3) |
 
 ### 本周优先事项 (2026-08-15 ~ 2026-08-22)
 
-- [ ] **🔴 紧急**: 启动 FR-AUTONOMY-001 (自主模式) discovery 流程 — 用户当前核心痛点
-- [ ] **🟡 重要**: 评审 FR-AUTONOMY-001 与 FR-DISCOVERY-002 的 scope 关系（合并 vs 独立）
+- [x] **⏸️ 已搁置**: FR-AUTONOMY-001 (自主模式) — 2026-09-13 长期搁置（原因: auto 效果不稳定）；实施代码保留在 `feature/autonomous-mode`，原「启动 discovery」项作废
+- [x] **⏸️ 已搁置**: 评审 FR-AUTONOMY-001 与 FR-DISCOVERY-002 的 scope 关系 — 随 AUTONOMY-001 搁置一并作废（若未来重启该能力，单独重新实施，不复活本需求）
 - [ ] **🟡 重要**: 决定 v3.1.0 剩余 Skill 化 Feature（FR-BUG-001 / FR-WORKTREE-001）与 v3.3.0 双翼的启动顺序
 - [ ] **🟢 日常**: 运行残留检查脚本，确保无回归
 - [ ] **⚡ 速赢**: 执行速赢任务：TREE.md 路径修正、FeatureStateEnum 清理、stale spec.json 同步、COMPLETION_CERTIFICATE 修正、phaseHistory 去重
@@ -67,9 +67,9 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 🥉 | **FR-CONTEXT-001**: Feature 级共享语言管理 🆕 | v3.2.0 | 9 | 8 | 75% | 3 | **18.0** | P2 (⏸️ 低优先，暂不启动) |
 | 4 | **FR-TREE-SKILL**: @sddu-tree Agent 技能化 ✅ | v3.1.0 | 5 | 6 | 85% | 1.5 | **17.0** | P0 (✅ 已交付) |
 | 5 | **FR-KB-001**: 全局项目配置 | v3.2.0 | 10 | 9 | 70% | 4 | **15.8** | P0 |
-| 6 | **FR-AUTONOMY-001**: 自主模式 🆕 | v3.3.0 | 10 | 9 | 70% | 6 | **10.5** | P0 (战略升格) |
+| 6 | **FR-AUTONOMY-001**: 自主模式 | v3.3.0 | 10 | 9 | 70% | 6 | **10.5** | ⏸️ 已搁置 (2026-09-13) |
 
-> **注**: FR-AUTONOMY-001（自主模式）RICE 10.5 虽非最高，但属于**用户当前核心痛点**（Agent 频繁提问、缺乏自主决策），战略价值高，故升格为 P0。FR-FAST-001、FR-SKILL-001、FR-TREE-SKILL、FR-AGENT-SCOPE-001 已交付完成，不参与活跃排名。
+> **注**: FR-AUTONOMY-001（自主模式）RICE 10.5 虽非最高，但属于**用户当前核心痛点**（Agent 频繁提问、缺乏自主决策），战略价值高，故升格为 P0。FR-FAST-001、FR-SKILL-001、FR-TREE-SKILL、FR-AGENT-SCOPE-001 已交付完成，不参与活跃排名。**FR-AUTONOMY-001 已于 2026-09-13 长期搁置**：auto 效果不稳定（用户实测反馈），实施代码保留在 `feature/autonomous-mode`，main 仅留设计文档（见 `specs-tree-autonomous-mode/SHELF.md`）。
 
 ### 关键 milestones
 
@@ -84,6 +84,7 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 | 2026-08-05 | Grillme 竞品调研完成 — FR-CONTEXT-001 + FR-DISCOVERY-002 纳入 Roadmap (低优先级) 🆕 | v3.2.0 / v3.3.0 |
 | 2026-08-15 | FR-AUTONOMY-001（自主模式）提案纳入 Roadmap 🆕 | v3.3.0 |
 | 2026-08-31 | FR-AUTONOMY-001 discovery + spec + plan 完成 (建议) | v3.3.0 |
+| ⏸️ 2026-09-13 | FR-AUTONOMY-001（自主模式）长期搁置 — auto 效果不稳定；实施代码保留在 `feature/autonomous-mode` | v3.3.0 |
 | 2026-08-02 | 首个 v3.0.0 Feature spec + plan 完成 | v3.0.0 |
 | 2026-08-16 | v3.0.0 首批 P0 Feature validated | v3.0.0 |
 | 2026-09-30 | v3.0.0 全部 Feature 完成 | v3.0.0 |
@@ -119,8 +120,10 @@ SDDU (Spec-Driven Development Unified) 是一套面向 AI 辅助开发的规范�
 2026-08-01  ✅  FR-AGENT-SCOPE-001 (职责回归改造) validated
 2026-08-05  📋  FR-CONTEXT-001 + FR-DISCOVERY-002 (Grillme 竞品借鉴) 纳入 Roadmap (低优先级)
 2026-08-15  📋  FR-AUTONOMY-001 (自主模式) 提案纳入 Roadmap (v3.3.0)
+2026-08-16  🧪  FR-AUTONOMY-001 完成 build/review/validate + 方案 E 改造 (实施代码在 feature/autonomous-mode)
+2026-09-13  ⏸️  FR-AUTONOMY-001 (自主模式) 长期搁置 — auto 效果不稳定；main 仅留设计文档
             ↓
-2026-Q3    📋  v3.3.0「自主-约束」双翼 (FR-AUTONOMY-001 + FR-RATIONAL-001)
+2026-Q3    📋  v3.3.0「自主-约束」双翼 (FR-RATIONAL-001；FR-AUTONOMY-001 ⏸️ 已搁置)
 ```
 
 ---

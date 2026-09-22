@@ -1,0 +1,131 @@
+{
+  "feature": "specs-tree-autonomous-mode",
+  "name": "自主模式（sddu-auto 自动调度）",
+  "version": "v3.0.0",
+  "phase": "validated",
+  "status": "suspended",
+  "depth": 0,
+  "phaseHistory": [
+    {
+      "phase": "registered",
+      "timestamp": "2026-08-15T00:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent",
+      "comment": "Feature 提案纳入 Roadmap v3.3.0（FR-AUTONOMY-001）"
+    },
+    {
+      "phase": "discovered",
+      "timestamp": "2026-08-15T00:00:00.000Z",
+      "triggeredBy": "sddu-discovery-agent",
+      "comment": "问题挖掘完成 — 核心痛点：简单项目走 7 流程逐步交互效率低，缺「启动问清诉求 + 后续全自主跑完」的 sddu-auto 入口"
+    },
+    {
+      "phase": "specified",
+      "timestamp": "2026-08-15T00:00:00.000Z",
+      "triggeredBy": "sddu-spec-agent",
+      "comment": "需求规范完成 — 明确「新增 sddu-auto 代理决策层」边界（非改造现有 Agent），转译硬约束：启动问诉求 + 执行全自主绝不问人 + 子 Agent 零改动 + 进入即自主"
+    },
+    {
+      "phase": "planned",
+      "timestamp": "2026-08-15T08:34:26.118Z",
+      "triggeredBy": "sddu-plan-agent",
+      "comment": "技术规划完成 — 解决核心难点#3（上下文指令注入方案），产出 ADR-018~020，文件影响 7 项（5 NEW + 2 MODIFY）"
+    },
+    {
+      "phase": "tasked",
+      "timestamp": "2026-08-15T09:00:00.000Z",
+      "triggeredBy": "sddu-tasks-agent",
+      "comment": "任务分解完成 — 基于 plan.md v3.2 + ADR-018~021 分解 7 个原子任务（S×2 / M×4 / L×1），3 波次编排；首个 spike（TASK-001）前置实测决策代理层可行性（question.asked + reply），plugin.ts 拆分为纯重构独立验证"
+    },
+    {
+      "phase": "builded",
+      "timestamp": "2026-08-15T22:40:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "实施构建完成 — 7/7 任务全部 completed：TASK-001 spike（ADR-018 ACCEPTED，方案 D 插件 hook 通道）、TASK-002 plugin.ts 拆分（tools.ts + hooks.ts）、TASK-003 decision-proxy.ts（四步链路 + 18 单测）、TASK-004 sddu-auto.md.hbs 模板、TASK-005 注册 sddu-auto、TASK-006 e2e --auto 标志、TASK-007 集成装配验证（build 全绿 + dist 产物 + e2e 安装 + @sddu-auto 入口）"
+    },
+    {
+      "phase": "reviewed",
+      "timestamp": "2026-08-15T23:00:00.000Z",
+      "triggeredBy": "sddu-review-agent",
+      "comment": "静态审查完成 — 执行 C1~C21 清单（四维度），方案 D 四步链路正确且经 v2 SDK 类型逐字段核验，子 Agent 零改动 + 行为零变化经 git 历史确认，工程约束符合；结论：有条件通过（0 阻塞 / 4 改进项，核心为 auto-context.json 与 auto-decisions.md 生产者缺失）"
+    },
+    {
+      "phase": "validated",
+      "timestamp": "2026-08-16T00:10:00.000Z",
+      "triggeredBy": "sddu-validate-agent",
+      "comment": "动手验证完成 — V1~V14 场景（build 全绿 / test:core 131 通过 / e2e 端到端验证启动六维问卷+auto-context.json 写入+绝不问人+4/7 阶段顺序调度+产物沉淀 / 子 Agent 零改动+零漂移）；结论：⚠️ 有条件通过（1 个 P1 阻塞问题：flaky 单测 contextFile 缺失，根因 matchOption 单字符标签误匹配 projectDirectory，需修复后复跑 test:opencode）"
+    },
+    {
+      "phase": "builded",
+      "timestamp": "2026-08-16T05:30:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "方案 E 前置契约验证 spike（TASK-008）完成 — session.create/prompt body 形状 + 同步等待（idle 无死锁、10.5s 一次 LLM 往返）+ 决策会话权限（read✅/edit❌/bash❌）+ @opencode-ai/sdk 可解析性（v2 client.question.reply 可用）三项契约实测通过；代答通道判定 HTTP 全局端点；契约签名见 spike-decision-session.md，供 TASK-009 实现"
+    },
+    {
+      "phase": "builded",
+      "timestamp": "2026-08-16T06:30:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "decision-proxy 方案 E 改造（TASK-009）完成 — 决策职责由 DecisionEngine 规则匹配升级为「插件内同步决策会话代答」：建/复用决策会话（client.session.create + 缓存 sessionID）+ prompt LLM 真思考（client.session.prompt，agent=sddu-auto，30s withTimeout）+ 答案解析（parseDecisionAnswer）+ appendDecisions 决策来源字段（sddu-auto 决策会话 vs 超时兜底）；DecisionEngine 降级为 30s 超时兜底；SessionRegistry / 全局 reply 通道 / 子 Agent / 权限模型零改动；test:opencode 47 passed、test:core 131 passed、build 全绿"
+    },
+    {
+      "phase": "suspended",
+      "timestamp": "2026-09-13T00:00:00.000Z",
+      "triggeredBy": "user-decision",
+      "comment": "需求搁置（长期，无恢复期限）— 搁置原因：auto 效果不稳定（用户实测反馈：很不稳定）。决策：实施代码整体保留在 feature/autonomous-mode 分支（含远端 origin/feature/autonomous-mode），不合入 main；main 仅归档设计文档（本目录），以提供「需求存在但已搁置」的感知。未来如需该能力，单独重新实施或参考该分支还原，不与此需求挂钩。"
+    }
+  ],
+  "shelf": {
+    "suspendedAt": "2026-09-13",
+    "reason": "auto 效果不稳定（用户实测反馈：很不稳定）",
+    "type": "长期搁置，无恢复期限",
+    "suspendedUntil": null,
+    "implementation": {
+      "branch": "feature/autonomous-mode",
+      "remoteBranch": "origin/feature/autonomous-mode",
+      "headAtShelf": "f84c3c0f307bbb5fc554f8dd74b91a2e15131858",
+      "commitRange": "28f374a..6dc17c6",
+      "uniqueCommitCount": 8,
+      "commits": [
+        "28f374a feat(autonomous-mode): FR-AUTONOMY-001 discovery/spec/plan/tasks 四阶段产物 + Roadmap v20.0.0",
+        "66df1e9 feat(autonomous-mode): build/review/validate 完成 — decision-proxy + sddu-auto 模板 + e2e 入口 + 全套验证产物",
+        "482c0e8 fix(autonomous-mode): 调度者不实施 — sddu-auto 权限收敛(edit/bash deny) + auto-context 派发写入 + review 遗留修复",
+        "6f1fa94 fix(autonomous-mode): FR-006 运行实证修复 — 插件加载 loader + reply 全局通道 + install 布局修复",
+        "3ec619b feat(autonomous-mode): auto 模式体验提示词优化 — 去掉强制自主决策命令，提示词更简洁聚焦",
+        "1efab0a docs(autonomous-mode): 代答机制方案演进 B→B'→E + TASK-008 方案E契约验证(spike-decision-session)",
+        "4c91fd4 feat(autonomous-mode): TASK-009 方案E实现 — decision-proxy 建决策会话 + prompt LLM 真思考代答 + 30s 超时兜底",
+        "6dc17c6 fix(autonomous-mode): 根治 decision-proxy 空转 — 注入契约\"绝不问人\"→\"正常提问\"(不暴露auto) + 真实路径验证(decision_count=1)"
+      ],
+      "keyCommits": {
+        "4c91fd4": "方案 E 实现 — decision-proxy 建决策会话 + prompt LLM 真思考代答 + 30s 超时兜底",
+        "6dc17c6": "契约根因修复 — 注入契约「绝不问人」→「正常提问」（不暴露 auto）+ 真实路径验证"
+      }
+    },
+    "restoreGuidance": "未来如需该能力，单独重新实施或参考 feature/autonomous-mode 分支还原，不与此需求挂钩",
+    "mainArchive": "main 仅包含本目录的设计文档，不含任何实施代码（src/、install*、scripts/、e2e/、dist/ 均在 feature/autonomous-mode）",
+    "detailDoc": "SHELF.md"
+  },
+  "dependencies": {
+    "on": [
+      "FR-TPL-001",
+      "FR-AGENT-SCOPE-001"
+    ],
+    "blocking": []
+  },
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "tasks": "tasks.md",
+    "review": "review.md",
+    "reviewReport": "review-report.md",
+    "validate": "validate.md",
+    "validationReport": "validate-report.md",
+    "shelf": "SHELF.md"
+  },
+  "metadata": {
+    "priority": "P0",
+    "featureId": "FR-AUTONOMY-001",
+    "name": "自主模式（sddu-auto 自动调度）",
+    "createdAt": "2026-08-15",
+    "updatedAt": "2026-09-13"
+  }
+}
