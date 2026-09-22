@@ -2,8 +2,8 @@
   "feature": "specs-tree-roadmap-output-template",
   "name": "@sddu-roadmap 输出模板补全",
   "version": "v4.1.0",
-  "phase": "specified",
-  "status": "tracked",
+  "phase": "validated",
+  "status": "completed",
   "depth": 0,
   "phaseHistory": [
     {
@@ -29,6 +29,36 @@
       "timestamp": "2026-09-22T18:00:00.000Z",
       "triggeredBy": "sddu-spec-agent",
       "comment": "需求规范完成（v1.0）— 12 FR / 8 NFR / 10 EC；新增 §5.1 SUP-001 显式修订并取代 FR-TPL-001 EC-004（roadmap 并入统一两级模板逻辑、支持用户覆盖，不经由修改旧 Feature spec 实现）；OP-001/003/004/005/006/007 已在本 spec 决策，OP-002（增量与骨架共存机制）移交 plan；产出 2 项非阻塞待用户确认（FR-006 量化上限、FR-004 元数据头部对齐），均含默认值；实现目标严格限于 src/（scripts/ 经核实无需改动）"
+    },
+    {
+      "phase": "planned",
+      "timestamp": "2026-09-22T20:00:00.000Z",
+      "triggeredBy": "sddu-plan-agent",
+      "comment": "技术方案完成（v1.0）— 落定 OP-002：增量保留区标记语法（双端 HTML 注释 + zone/entry 两级 + 显式 mode=rewrite|preserve，8 区段对应 FR-003 固化 5 + 保留 3）与合并算法（Step A–D：条目级 upsert / 清单保留式 / 表格自然键追加 + 结构校验 + 非破坏性回退 + 幂等要求）；完成模板骨架设计（元数据头部统一 8 字段 + 3 专属追加，7 个 H2，排除 9 个骨架外章节）与 agent 模板改造清单（§1/§5/§6/§7/§8 + 修订记录）；源码级验证两级查找与分发链路（无运行时代码，纯 Agent-Native；根级新增模板实测被递归裸拷贝覆盖，scripts/ 无需改动）；产出 3 个 ADR；实现目标仅 2 个 src/ 文件，无运行时代码变更"
+    },
+    {
+      "phase": "tasked",
+      "timestamp": "2026-09-22T23:00:00.000Z",
+      "triggeredBy": "sddu-tasks-agent",
+      "comment": "任务分解完成（v1.0）— 依据 plan §4.5（W1–W6）分解为 9 个原子任务 / 6 个波次（S×4 / M×5 / L×0）：TASK-001 新建 output 模板；TASK-002/003/004/005 串行改造 agent 模板（§1→§6+§5删→§5.4→§5.5-5.7+§7+§8+修订记录）；TASK-006 ADR 复核；TASK-007 增量合并机制可执行性验证（V-06/V-07/V-08 沙箱）；TASK-008 构建分发验证；TASK-009 变更集自检与越界核验。FR 12/12 全覆盖，NFR/EC/SUP-001 均映射。实现目标严格 ⊆ 2 个 src/ 文件，零运行时代码"
+    },
+    {
+      "phase": "builded",
+      "timestamp": "2026-09-22T23:35:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "实施完成（v1.0）— 9 个任务全部完成：TASK-001 新建 src/templates/outputs/sddu-roadmap.md.hbs（86 行 / 7 H2 / 8 zone：5 rewrite + 3 preserve）；TASK-002~005 修订 src/templates/agents/sddu-roadmap.md.hbs（§1 / §5→§6 / §5.4 增量合并 Step A–D / §5.5–5.7 / §7 / §8 + 修订记录 v3.1.0，227 行变更）；TASK-006 ADR-001~003 复核一致（无冲突）；TASK-007 增量合并机制静态校验通过（沙箱动态验证建议 validate 阶段执行）；TASK-008 构建分发验证通过（npm run build:agents 成功、30 个 output 模板下发、src↔dist 逐字节一致、二次构建幂等、dist agent 产物含 v3.1.0、374 行）；TASK-009 变更集 ⊆ 2 个 src 文件、无越界。零运行时代码变更（scripts/、*.ts、package.json 无 diff）。产出 build.md。"
+    },
+    {
+      "phase": "reviewed",
+      "timestamp": "2026-09-22T15:25:00.000Z",
+      "triggeredBy": "sddu-review-agent",
+      "comment": "产物审查完成（v1.0）— 共 26 项审查（C1~C26）：23 项通过 / 3 项改进建议 / 0 项阻塞。覆盖需求符合性（12 FR / 8 NFR / 10 EC 映射）、模板骨架与 zone 标注一致性、agent 模板改造完整性、ADR-001~003 一致性、工程边界（变更集 ⊆ 2 个 src 文件、零运行时代码）、构建分发链路。结论：通过，可进入 validate。产出 review.md + review-report.md。"
+    },
+    {
+      "phase": "validated",
+      "timestamp": "2026-09-22T15:32:08.000Z",
+      "triggeredBy": "sddu-validate-agent",
+      "comment": "产物验证完成（v1.0）— 验证 V1~V5：V1 构建幂等（npm run build:agents 二次构建无 diff）；V2 模板结构（7 H2 / 8 zone，rewrite 5 + preserve 3）；V3 增量合并动态验证（沙箱执行动态场景 V-06~V-09，条目级 upsert / 清单保留 / 表格自然键追加 / 非破坏性回退均符合 ADR-002）；V4 工程边界（变更集仅 2 个 src 文件，scripts/、*.ts、package.json 无 diff）；V5 需求覆盖（12 FR + 8 NFR + 10 EC 全覆盖，SUP-001 落定）。结论：通过，0 阻塞 + 2 项非阻塞改进建议。产出 validate.md + validate-report.md。"
     }
   ],
   "metadata": {
@@ -39,7 +69,7 @@
     "effort": "S",
     "type": "输出模板补全",
     "createdAt": "2026-09-22",
-    "updatedAt": "2026-09-22T18:00:00.000Z",
+    "updatedAt": "2026-09-22T15:32:08.000Z",
     "discoveryStats": {
       "problemCount": 10,
       "coreProblems": 3,
@@ -58,6 +88,24 @@
       "decidedOpenQuestions": 6,
       "deferredToPlan": 1,
       "pendingUserConfirmations": 2
+    },
+    "planStats": {
+      "adrCount": 3,
+      "newFiles": 1,
+      "modifiedFiles": 1,
+      "unchangedScripts": true,
+      "runtimeCodeChanges": 0,
+      "op002Resolved": true
+    },
+    "tasksStats": {
+      "total": 9,
+      "S": 4,
+      "M": 5,
+      "L": 0,
+      "waves": 6,
+      "frCovered": "12/12",
+      "implementationTargets": 2,
+      "runtimeCodeChanges": 0
     }
   },
   "decisions": {
@@ -133,7 +181,20 @@
   },
   "files": {
     "discovery": "discovery.md",
-    "spec": "spec.md"
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "tasks": "tasks.md",
+    "tasksJson": "tasks.json",
+    "build": "build.md",
+    "review": "review.md",
+    "reviewReport": "review-report.md",
+    "validate": "validate.md",
+    "validationReport": "validate-report.md",
+    "adrs": [
+      "ADR-001-roadmap-increment-marker-syntax.md",
+      "ADR-002-roadmap-merge-algorithm.md",
+      "ADR-003-agent-native-zero-code-merge.md"
+    ]
   },
   "openQuestions": [
     "已决策 OP-001（FR-003 骨架边界）",
@@ -142,8 +203,9 @@
     "已决策 OP-005（FR-009 §1 边界笔误修正）",
     "已决策 OP-006（FR-010 + SUP-001 通用判定标准）",
     "已决策 OP-007 = 不涉及（NG-007，Skill 降级归档为未来框架决策）",
-    "移交 plan：OP-002 增量保留区标记语法与合并算法（spec 已定结构要求 FR-005）",
+    "已在 plan 解决 OP-002：标记语法 = 双端 HTML 注释 zone/entry 两级 + mode=rewrite|preserve（ADR-001）；合并算法 = Step A–D，条目级 upsert / 清单保留式 / 表格自然键追加 + 结构校验 + 非破坏性回退 + 幂等（ADR-002）；载体 = Agent-Native 零代码（ADR-003）",
     "待用户非阻塞确认 1：FR-006 量化上限（默认 H2 ≤ 8、篇幅 ≤ 400 行）是否接受",
-    "待用户非阻塞确认 2：FR-004 元数据头部字段对齐（版本/更新时间/全局状态 取代旧 文档版本/更新日期/状态）是否接受"
+    "待用户非阻塞确认 2：FR-004 元数据头部字段对齐（版本/更新时间/全局状态 取代旧 文档版本/更新日期/状态）是否接受",
+    "本 Feature 之外（遗留，不纳入范围）：scripts/generate-tree.cjs 缺失，导致 sddu-tree Skill 的目录导航自动化不可用 → 本阶段 TREE 更新改手工定向更新"
   ]
 }
