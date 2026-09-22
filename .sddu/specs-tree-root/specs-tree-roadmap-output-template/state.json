@@ -59,6 +59,13 @@
       "timestamp": "2026-09-22T15:32:08.000Z",
       "triggeredBy": "sddu-validate-agent",
       "comment": "产物验证完成（v1.0）— 验证 V1~V5：V1 构建幂等（npm run build:agents 二次构建无 diff）；V2 模板结构（7 H2 / 8 zone，rewrite 5 + preserve 3）；V3 增量合并动态验证（沙箱执行动态场景 V-06~V-09，条目级 upsert / 清单保留 / 表格自然键追加 / 非破坏性回退均符合 ADR-002）；V4 工程边界（变更集仅 2 个 src 文件，scripts/、*.ts、package.json 无 diff）；V5 需求覆盖（12 FR + 8 NFR + 10 EC 全覆盖，SUP-001 落定）。结论：通过，0 阻塞 + 2 项非阻塞改进建议。产出 validate.md + validate-report.md。"
+    },
+    {
+      "phase": "validated",
+      "type": "fix",
+      "timestamp": "2026-09-23T00:00:00.000Z",
+      "triggeredBy": "sddu-validate-agent",
+      "comment": "修复记录 R1 — 标题格式一致性修正：一致性核查发现 roadmap 输出模板 H1 `# <<项目名称>> 版本 Roadmap` 偏离 A 组惯例 `# <中文类型>：<<变量>>`；修正 src/templates/outputs/sddu-roadmap.md.hbs 第 1 行为 `# 版本 Roadmap：<<项目名称>>`（全角冒号）。agent 模板无 H1 格式引用，无需同步。验证：npm run build:agents 成功、dist 与 src 逐字节一致、旧标题计数 0 / 新标题计数 1。仅 1 处实现改动，未触及其余 28 个输出模板；已同步 build.md §6 与 review-report.md §7。"
     }
   ],
   "metadata": {
@@ -69,7 +76,7 @@
     "effort": "S",
     "type": "输出模板补全",
     "createdAt": "2026-09-22",
-    "updatedAt": "2026-09-22T15:32:08.000Z",
+    "updatedAt": "2026-09-23T00:00:00.000Z",
     "discoveryStats": {
       "problemCount": 10,
       "coreProblems": 3,

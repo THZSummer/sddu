@@ -58,3 +58,13 @@ FR 覆盖：12/12（见 tasks.md §4 矩阵）。
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | v1.0 | 2026-09-22 | 初次产出：9 任务完成状态、变更清单、验证证据、TASK-007 静态校验说明 |
+| R1 | 2026-09-23 | 标题格式一致性修正（见 §6） |
+
+---
+
+## §6 修复记录 R1 — 标题格式一致性修正
+
+- **背景**: 一致性核查发现既有输出模板存在两套 H1 惯例 —— A 组（主流程 9 个模板）为 `# <中文类型>：<<feature_name>>`（全角冒号），B 组（docs 20 个模板）为 `# <<doc_subject>> — <类型>`；本 Feature 的 roadmap 模板 H1 为 `# <<项目名称>> 版本 Roadmap`，属第三种风格，与 A、B 两组均不符。
+- **改动**: `src/templates/outputs/sddu-roadmap.md.hbs` 第 1 行 `# <<项目名称>> 版本 Roadmap` → `# 版本 Roadmap：<<项目名称>>`，对齐 A 组 `# <中文类型>：<<变量>>` 格式（全角冒号 `：`）。仅此 1 处实现改动，未触及其余 28 个输出模板。
+- **同步检查**: 在 `src/templates/agents/sddu-roadmap.md.hbs` 中 grep 关键词 `版本 Roadmap` / `# <<项目名称>>` —— 该文件仅以文件名引用输出模板（§6 两级模板查找），未引用/规定 H1 标题格式，**无需同步**。
+- **验证结果**: `npm run build:agents` 构建成功；`dist/templates/output/sddu-roadmap.md.hbs` 与 src 逐字节一致（`diff` 空输出）；`grep -c "版本 Roadmap："` = 1，旧标题计数 = 0。
