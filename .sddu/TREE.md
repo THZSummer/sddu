@@ -47,9 +47,9 @@
 ## 统计
 | 指标 | 值 |
 |------|-----|
-| Feature 总数 | 23 |
+| Feature 总数 | 24 |
 | 已完成 (completed) | 20 |
-| 进行中 (tracked) | 1 |
+| 进行中 (tracked) | 2 |
 | 已搁置 (suspended) | 1（`specs-tree-autonomous-mode` — FR-AUTONOMY-001） |
 | 已终止 (terminated) | 1 |
 | 架构 ADR | 17 篇 (ADR-001 ~ ADR-017) |
