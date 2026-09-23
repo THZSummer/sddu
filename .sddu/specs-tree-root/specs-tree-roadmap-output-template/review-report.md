@@ -109,6 +109,10 @@
 |------|---------|------|--------|
 | v1.0 | 初始创建 — R1 静态审查 3 个对象（NEW 输出模板 / MODIFY agent 模板 / build.md），逐项执行 C1~C26（规范符合性 17 / 架构一致性 3 / 模板质量 3 / 工程边界 3），识别 3 个改进项（0 阻塞），结论：✅ 通过 | 2026-09-22 | SDDU Review Agent |
 | R1 | 2026-09-23 | 追加修复记录 §7：说明 NFR-001「一致性」维度漏检及 R1 修复闭环 | SDDU Review Agent |
+| R2 | 2026-09-23 | 追加修复记录 §8：post-validation 模板结构性缺口修复（G1~G4）追踪指针 | SDDU Review Agent |
+| R3 | 2026-09-23 | 追加修复记录 §9：post-validation 结构级修复（新增「特性索引」章节）追踪；标明受影响审查项与建议重开范围 | SDDU Review Agent |
+| R4 | 2026-09-24 | 追加修复记录 §10：post-validation backlog 承接修正 + 规则空白补齐追踪指针 | SDDU Review Agent |
+| R5 | 2026-09-24 | 追加修复记录 §11：post-validation G-F 回退 + 一致性残留清理追踪指针 | SDDU Review Agent |
 
 ---
 
@@ -117,3 +121,48 @@
 - **漏检说明**: 原 R1 审查的 NFR-001「一致性」核查未延伸至文件 H1 标题格式，遗漏了 roadmap 输出模板 `# <<项目名称>> 版本 Roadmap` 与 A 组惯例 `# <中文类型>：<<变量>>` 的偏离。此为审查覆盖盲区（一致性维度未逐项核对 H1 标题），非实现缺陷。
 - **修复**: 已通过本 Feature 修复记录 R1 修正 —— `src/templates/outputs/sddu-roadmap.md.hbs` H1 对齐 A 组全角冒号格式：`# 版本 Roadmap：<<项目名称>>`。
 - **复查结论**: 修正后 H1 与 A 组 9 个主流程模板惯例一致；NFR-001 一致性维度的覆盖缺口已补齐，审查盲区关闭。
+
+## 8. 修复记录 R2 — post-validation 模板结构性缺口修复（G1~G4）
+
+- **来源**: 用户以新模板试渲染 `.sddu/ROADMAP.preview.md`（114 行），经三名评审 Agent（静态审查 / 动手验证 / 定位符合性）交叉评审，确认模板**规则本身**存在结构性缺口，用户批准修复。
+- **实施方**: 由 `sddu-build` 落地，属 **build 阶段的 post-validation 修复**（照本 Feature `state.json` 中 R1 先例记录），**非重新审查**。
+- **范围**: 主线 `src/templates/agents/sddu-roadmap.md.hbs`（G1 / G2 / G4 + §5.7 + 修订记录 v3.1.1）；`src/templates/outputs/sddu-roadmap.md.hbs`（G3）。详见 `build.md` §7。
+- **追踪说明**: 本报告 §2 的 C1~C26 审查结论（23 通过 / 3 改进 / 0 阻塞，结论 ✅ 通过）**不受本轮修复影响** —— 本轮针对的是模板规则缺口（原审查对象外的新增缺陷），非原审查对象本身的实现缺陷，故不重开 C1~C26。R2 仅作追踪指针，不改变 v1.0 审查结论与「可进入 validate」判定。
+- **关联修复项（供后续 review/validate 复核）**: G1（排除内容表承接方 + next-actions 指针规则）/ G2（Step C3 结构校验 4→8 项）/ G3（输出模板填写说明泄漏路径消除）/ G4（版本号语义定义）；其中 G2 第 6 项为 C22「编写期说明与产物隔离」规则的强制化、G4 为 G2 第 8 项校验的前提定义。
+
+## 9. 修复记录 R3 — post-validation 结构级修复（新增「特性索引」章节）
+
+- **来源**: 用户查看 R2 修复后模板试渲染产物 `.sddu/ROADMAP.preview-v2.md`（133 行）后反馈「**缺少特性清单，与 specs-tree 承接不起来，有了断层，那么多特性哪里来的**」；经核实为本 Feature **规格内部矛盾**（§1 承诺「特性清单」，但骨架 7 个 H2 无承载位、且明示「不含逐 Feature 明细表」；24 Feature 仅 5 点名、0 目录锚点）。用户已拍板**方案 B**：新增第 8 个 H2「特性索引」。
+- **实施方**: 由 `sddu-build` 落地，属 **build 阶段的 post-validation 修复**（照本 Feature R1 / R2 先例记录），**非重新审查**。实施明细见 `build.md` §9。
+- **范围**: 输出模板（新增「特性索引」H2 + `feature-index` zone + 序号顺延 + `version-plan` 锚点 + NOTE 7→8）；agent 模板（§1 / §5.4.1 / §5.4.4 / §5.5 / §5.7 / 修订记录 v3.1.2 全量交叉引用同步）；`spec.md` §5.1 **SUP-002** + 修订记录 v1.1；新建 **ADR-004**；`plan.md` 定向增补。
+
+- **对既有 C1~C26 结论的影响（**与 R1 / R2 不同，本轮**为结构级变更）**:**
+  - **直接受影响（原结论以「7 H2 / 8 zone」为前提，现已失效）**:
+    - **C3**（7 H2 集合与顺序 == spec FR-003 表）→ 数量与顺序变更，需按 **8 H2** 重核（新增「特性索引」居「版本总览」之后，原章节顺延）。
+    - **C4**（8 zone 与固化/保留划分）→ zone 数由 8（5+3）变为 **9（6+3）**，需重核 `feature-index` 的 `mode="rewrite"` 归属。
+    - **C7**（H2 = 7 ≤ 8）→ 需改按 **8 ≤ 8** 重核。
+    - **C21**（标记语法自洽，含「模板 8 zone 全部双端配对」）→ 需改按 **9 zone** 重核。
+    - **§1 审查概要 / §2 C3·C4 取证行 / §6 结论**中「7 H2 / 8 zone」的数字取证 → 失效，需更新。
+  - **不受影响（其结论为规则 / 边界 / 构建层面，与 H2 数量无关）**: C1、C2、C5、C6、C8~C20、C22~C26（其中 C10 §1 四字段自洽、C22 编写期说明隔离、C25 未触碰禁区、C26 基线计数等均不因新增章节改变；C10 的 §1 表述在本轮仅为「特性清单」补承载位，仍然自洽）。
+- **是否需重开审查**: **建议重开**——不同于 R1（标题格式）/ R2（规则缺口）的局部修正，本轮**改变了审查对象本身的结构基线**（章节集合、zone 数量、模板行数）。建议在 validate 之前，对上述**受影响项（C3 / C4 / C7 / C21）执行定向重审**（或开一次增量 review 轮次），并将 §1 概要 / §6 结论中的「7 H2 / 8 zone」取证更新为「8 H2 / 9 zone = 6+3」。其余 C1~C26 结论维持原判，不因本轮修复而需重核。
+- **对 validate 的影响（提示）**: `validate-report.md` 的 V2（模板结构：7 H2 / 8 zone）与 V5（需求覆盖：FR-003）同样以旧结构为前提，建议 validate 阶段重跑 V2 及结构相关检查（预期：H2 = 8、zone = 9 = 6 rewrite + 3 preserve）。
+- **追踪说明**: 本 §9 为**追踪指针**，不改变 v1.0 审查报告的原始记录（保留历史真实性）；受影响项的正式复判应由后续 review 轮次产出。
+
+## 10. 修复记录 R4 — backlog 承接修正 + 规则空白补齐（post-validation）
+
+- **来源**: 用户对 R3 后产物提出进一步质疑「**只有特性没有问题吗，问题清单是不是缺少了？**」。独立核查确认：R2 在 G1 中把「项目级非 Feature 待办」外移给 `@sddu-docs` 是**悬空指针**（该 Agent 模板全文 0 命中 backlog/待办/issues/bug，其产物为 `.sddu/docs-tree-root/` 现状聚合），且该 backlog 现实无归属。用户拍板**方案 B**：放回 roadmap，以 `next-actions` 行动项粒度承载；其余缺口（G-B / G-F / R-1~R-4）一并修。
+- **实施方**: 由 `sddu-build` 落地，属 **build 阶段的 post-validation 修复**（照本 Feature R1 / R2 / R3 先例记录），**非重新审查**。实施明细见 `build.md` §10。
+- **范围**: `src/templates/agents/sddu-roadmap.md.hbs`（G-A / G-B / R-1~R-4 / §5.7 / 修订记录 v3.1.3）；`src/templates/outputs/sddu-roadmap.md.hbs`（§7 编写期说明同步）；`src/templates/agents/sddu-docs.md.hbs`（G-F 仅 1 行落盘路径修正）。
+- **对既有 C1~C26 / R3 复判建议的影响**: **不受影响**。本轮为**规则级 / 局部**修正，**未改变审查对象的结构基线**（H2 仍 8、zone 仍 9 = 6 rewrite + 3 preserve、output 模板结构未变），故 R3 §9 中对 C3 / C4 / C7 / C21 的定向重审建议维持原状、无需因 R4 扩展；C1~C26 其余结论亦不因本轮改动而需重核。唯一需登记的是 **G-A 承接归属变更**（backlog 由 roadmap 自身承载，原指针指向 `@sddu-docs` 的表述作废），该变更属「修正原实现缺陷」而非「原审查对象本身缺陷」，不重开审查。
+- **关联修复项（供后续 review/validate 复核）**: G-A（排除内容表删 backlog 行 + 项目级待办承载规则 + 准入增列）/ G-B（待用户决策项契约）/ G-F（`@sddu-docs` §8.1 roadmap 落盘路径修正）/ R-1（锚点豁免）/ R-2（锚点适用范围）/ R-3（版本归属取值链）/ R-4（featureId 别名回退与 ID 形态判定）。
+- **追踪说明**: 本 §10 为**追踪指针**，不改变 v1.0 审查报告的原始记录（保留历史真实性）。
+
+## 11. 修复记录 R5 — G-F 回退 + 一致性残留清理（post-validation，收尾轮）
+
+- **来源**: G7（定向重审 + validate 重跑）结果 —— review 的 **C3 / C4 / C7 / C21 定向重审全部维持「通过」**（建议合并）；validate 的 V2 ✅ 通过、**V5 ⚠️ 部分不通过**。V5 根因：R4 的 **G-F**（`sddu-docs.md.hbs` §8.1 roadmap 落盘路径修正）实际改动**第 3 个 src 文件**，突破本 Feature **NFR-003**（变更集 ⊆ 2 个 src 文件）与 **NFR-008**（不影响其他 Agent 指令内容），并连带使原 **V4**（工程边界）结论失效。用户决策：**G-F 回退 + 单独登记**（不改 NFR-003 边界）；低风险一致性残留一并修。
+- **实施方**: 由 `sddu-build` 落地，属 **build 阶段的 post-validation 修复**（照本 Feature R1~R4 先例记录），**非重新审查**。实施明细见 `build.md` §11。
+- **范围**: `src/templates/agents/sddu-docs.md.hbs`（**G-F 回退**，使该文件相对基线**零 diff**）；`spec.md`（N-1：FR-003 骨架表回填「特性索引」+ OP-001）；`plan.md`（N-2 旧计数校正 + ⑤ 模板计数口径统一）；`src/templates/outputs/sddu-roadmap.md.hbs`（N-3 编写期说明关键词清除 / N-4 占位符说明同步 R-3·R-4）；`src/templates/agents/sddu-roadmap.md.hbs`（N-6 `meta` 例外 / N-7 `ENTRY_ID` 非版本类例外 + 键稳定性规则 + 修订记录 v3.1.4）；`review.md` / `validate-report.md`（N-5 结构计数复判）；`state.json` / `build.md`（§11）/ 本报告。
+- **对既有 C1~C26 结论的影响**: **不受影响** —— R5 未改变审查对象的结构基线（H2 仍 **8**、zone 仍 **9 = 6 rewrite + 3 preserve**；输出模板**结构零破坏**，仅改编写期说明措辞与占位符说明文字）。N-3 关键词清除后，C7 的「排除关键词 grep 命中 0」判据**恢复为 0**（R4 后一度为 1）；N-6 / N-7 为 §5.4.1 表述自洽化（规则表 +1 行），不改变合并机制语义。
+- **对 G-F 的处置（关键）**: G7 已复判 C3 / C4 / C7 / C21 维持「通过」；R4 §10「关联修复项」中登记的 **G-F** 经 R5 **回退**（不再作为本 Feature 的修复项）。其路径笔误（`.sddu/specs-tree-root/ROADMAP.md` 应为 `.sddu/ROADMAP.md`）作为**独立待办**移交 `sddu-docs` / 框架级处理（见 `build.md` §11「遗留」）。
+- **对原 V4（工程边界）的影响说明**: R4 因 G-F 越界导致原 V4 结论失效；R5 回退后 `git diff --name-only -- src/` 仅剩 **2 个 src 文件**（`src/templates/outputs/sddu-roadmap.md.hbs`、`src/templates/agents/sddu-roadmap.md.hbs`），`git diff src/templates/agents/sddu-docs.md.hbs` 输出为空 —— **NFR-003 / NFR-008 合规恢复**，工程边界结论重新成立（由后续 validate 重跑确认）。
+- **追踪说明**: 本 §11 为**追踪指针**，不改变 v1.0 审查报告的原始记录（保留历史真实性）；受影响项的正式复判应由后续 review 轮次产出。

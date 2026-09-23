@@ -131,6 +131,14 @@
       "timestamp": "2026-07-05T18:00:00.000Z",
       "triggeredBy": "sddu-validate-agent",
       "note": "v4.0 fourth-round validation (completed): plan v3.3 dual-mode architecture — Layer A v3.3 6/6 + base 9/9 all pass; Layer B default mode (specs-tree) B1~B7 all pass; Layer B code scan mode (v3.3 new) all pass including C1~C4 conflict detection + rules 11~15 + EC-012. 0 blocking issues. Test dir: /tmp/sddu-validate-docs-20260705-164547"
+    },
+    {
+      "phase": 7,
+      "status": "completed",
+      "type": "fix",
+      "timestamp": "2026-09-24T00:00:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "note": "G-F fix (cross-feature, from Feature specs-tree-roadmap-output-template post-validation R4): corrected §8.1 three-agent boundary table roadmap 落盘路径 from '.sddu/specs-tree-root/ROADMAP.md' to '.sddu/ROADMAP.md' (aligns with README.md:190 and the roadmap output template L5). Exactly 1 line changed in src/templates/agents/sddu-docs.md.hbs; no other content of this template modified. phase/status untouched."
     }
   ],
   "files": {

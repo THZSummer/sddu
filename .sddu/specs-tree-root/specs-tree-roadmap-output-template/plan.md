@@ -28,7 +28,7 @@
 
 | 环节 | 载体 | 关键行为 | 证据 |
 |------|------|---------|------|
-| ① 设计态源文件 | `src/templates/outputs/*.hbs` | 9 个根级 + `docs/` 20 个 = 当前 29 个 | `ls src/templates/outputs/` |
+| ① 设计态源文件 | `src/templates/outputs/*.hbs` | 既有 9 个根级 + `docs/` 20 个 = **29 个**（本 Feature 新增 `sddu-roadmap.md.hbs` 后：根级 10 / 实测总数 30） | `ls src/templates/outputs/` + `find … -name '*.hbs' \| wc -l` |
 | ② Agent 指令构建 | `scripts/build-agents.cjs:118-156` | 7 个主流程 Agent 走 frontmatter 改造；`specialAgents`（含 `sddu-roadmap`）走**裸拷贝** | `readSdduTemplate()` + `generateShortAgentSddu()` |
 | ③ 输出模板构建 | `scripts/build-agents.cjs:158-185` | `fs.readdirSync(OUTPUT_SRC_DIR,{recursive:true})` → `.hbs` 过滤 → `copyFileSync` 裸拷贝 | `dist/templates/output/` |
 | ④ 打包 | `scripts/package.cjs:126-133` | `dist/templates/output/` 整体 `fs.copy` → `dist/sddu/templates/output/`（**不做 SDD→SDDU 名称替换**） | 逐字复制 |
@@ -47,7 +47,7 @@
    │ 读 agent 指令 §6（两级查找声明）
    ├─① .sddu/templates/agents/output/sddu-roadmap.md.hbs   （用户自定义，优先）
    └─② .opencode/plugins/sddu/templates/output/sddu-roadmap.md.hbs （内置兜底，← src/templates/outputs/ 经 ②③④⑤ 下发）
-   │ 读模板 → 按 zone 标记区分 重写区(5)/保留区(3)
+   │ 读模板 → 按 zone 标记区分 重写区(6)/保留区(3)
    │ 读 既有 .sddu/ROADMAP.md → 解析 zone/entry 快照（OP-002）
    │ 扫描 specs-tree-root/*/state.json + 用户输入 → 刷新重写区 + 生成保留区候选条目
    │ 合并（rewrite 全量替换 / preserve 键控 upsert+保留）
@@ -79,7 +79,7 @@ flowchart LR
 |------|------|
 | 新增 | 1 个设计态模板文件（`src/templates/outputs/sddu-roadmap.md.hbs`） |
 | 修改 | 1 个设计态指令模板（`src/templates/agents/sddu-roadmap.md.hbs`） |
-| 不变 | `scripts/`（实测无需改动）、其他 28 个输出模板、10 个其他 Agent 指令、全部 `src/**/*.ts`（无运行时代码变更）、`.opencode/`、`.sddu/ROADMAP.md` |
+| 不变 | `scripts/`（实测无需改动）、其他 **29** 个输出模板（既有口径 = 9 根级 + 20 `docs/`）、10 个其他 Agent 指令、全部 `src/**/*.ts`（无运行时代码变更）、`.opencode/`、`.sddu/ROADMAP.md` |
 
 ## 3. 方案对比
 > 2-3 个可行方案的对比分析
@@ -149,7 +149,7 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
 | R7 | 标记随产物写出（双端）。下游按 H2 字符串解析不受影响（EC-010）；标记在 Markdown 渲染视图中不可见。 |
 | R8 | 缺省安全语义：**未标注 == rewrite**。因此标记丢失会退化为「重写」而非「乱合并」；而「既有产物整体无标记」被显式判定为**非模板结构**（EC-004，不静默重写）。 |
 
-**zone 布局（8 个区段 = spec FR-003 的「固化 5 + 保留 3」）**
+**zone 布局（ADR-001 原基线：8 个区段 = 「固化 5 + 保留 3」；经 ADR-004 修订为 9 个区段 = 6 rewrite + 3 preserve，见下方修订说明）**
 
 | # | 区段 | ZONE_ID | MODE | 合并粒度 |
 |---|------|---------|------|---------|
@@ -161,6 +161,8 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
 | 5 | §5 依赖与风险 | `dependencies-risks` | rewrite | 整块 |
 | 6 | §6 下一步行动 | `next-actions` | **preserve** | 条目级（键 = 行动项文本） |
 | 7 | §7 修订记录 | `revision-log` | **preserve** | 行级（键 = `版本` 列） |
+
+> **修订说明（R3 / ADR-004，2026-09-23；R5 扩写，2026-09-24）**: 上表 zone 布局基线（原 **7 H2 / 8 zone = 5 rewrite + 3 preserve**）经 **ADR-004** 修订为 **8 H2 / 9 zone = 6 rewrite + 3 preserve** —— 新增 `feature-index` 区（`mode="rewrite"`），对应输出模板在「版本总览」之后新增的「**特性索引**」H2 章节；`version-plan` / `next-actions` / `revision-log` 三个保留区与其余 rewrite 区均不变。spec FR-003 的「7 个 H2」已由 `spec.md` §5.1 **SUP-002** 显式修订为 8 个。**R5（2026-09-24）已把本修订的适用范围扩写至全文旧计数位置并逐处更正**：§2.2 数据流「重写区(5)」→ (6)、§2.4 变更边界「28 个输出模板」→ 29、§4.1.2 Step C3-①「7 个」→ 8、§4.2 结构「7 个 H2」→ 8、§4.5 W1（`mode="rewrite"` = 5 → 6）、§5.1 变更清单（「8 个 zone；7 个 H2」→「9 个 zone；8 个 H2」+「其他 28 个」→ 29）、§6 回滚策略（28 → 29）、§7.1 审查清单（7 → 8）、§8 V-04/V-05（28 → 29；V-05 期望值 `3/5/2/7` → `3/6/2/8`）—— 以上各处均已按当前基线更正，本文档不再含「7 个 H2 / 8 个 zone / 5 rewrite」的活动（非历史）表述。模板计数口径统一为：**既有 29 个输出模板**（9 根级 + 20 `docs/`），新增 roadmap 模板后实测总数 **30**。决策全文见 `ADR-004-feature-index-section.md`。
 
 #### 4.1.2 合并算法（agent 指令 §5.4 的正文，逐步可执行）
 
@@ -184,7 +186,7 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
   - `next-actions`（**清单保留式**）：既有条目逐字保留；新行动项追加；已完成项仅在**用户显式确认后**才勾选 ✅ 或移除，否则记「保留」。
   - `revision-log`（**追加式**）：既有行逐字保留；本次变更以新行追加；若同「版本」列已存在 ⇒ 更新该行而非重复追加。
 - C3 **结构校验**（失败即中止，不写文件）：
-  1. H2 集合与顺序 == 模板定义的 7 个（NFR-006）；
+  1. H2 集合与顺序 == 模板定义的 8 个（NFR-006）；
   2. zone/entry 标记全部配对、ZONE_ID 合法且与模板一致；
   3. H2 计数 ≤ 8；行数 > 400 → 提示收敛或外移（EC-007），用户确认后方可写；
   4. 各 Markdown 表格列数与表头一致（避免旧骨架「列数不一致」缺陷复现）。
@@ -211,7 +213,7 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
 
 ### 4.2 模板章节骨架设计（`src/templates/outputs/sddu-roadmap.md.hbs`）
 
-- **结构**：元数据头部（blockquote，`meta` zone）+ 7 个 H2（顺序固定，见 §4.1.1 zone 布局表）；H2 数 = 7 ≤ 8（FR-006）。
+- **结构**：元数据头部（blockquote，`meta` zone）+ 8 个 H2（顺序固定，见 §4.1.1 zone 布局表及修订说明）；H2 数 = 8 ≤ 8（FR-006）。
 - **元数据头部字段**（12 行，FR-002 + FR-004）：`文档定位` / `输出文件名: .sddu/ROADMAP.md` / `前置依赖`（固定值「无硬性前置依赖（可基于现有 spec/plan 或从零规划）」）/ `创建人` / `创建时间` / `版本` / `更新人` / `更新时间` / `更新说明` + 专属追加 `当前项目版本` / `全局状态` / `生成方式`。`输出文件名` 紧随 `文档定位`（对齐 docs 模板自描述约定，`src/templates/outputs/docs/sddu-docs-api.md.hbs:3-5` 先例）。
 - **占位符命名**：采用**中文描述式**（`<<版本号，如 v4.1.0>>`、`<<日期，如 2026-09-22>>`），与 NFR-001 指定的基准文件 `src/templates/outputs/sddu-plan.md.hbs` 逐项一致；spec §5.2 末尾的 snake_case 清单视为**语义方向**，实际命名以「既有模板风格一致性」优先（NFR-001 > 示例方向）。映射：`project_name→项目名称`、`vision→愿景陈述`、`doc_version→版本`、`created_at→创建时间`、`updated_at→更新时间`、`updated_by→更新人`、`update_note→更新说明`、`current_project_version→当前项目版本`、`overall_status→全局状态`、`generation_mode→生成方式`。
 - **内容职责**：§2 版本总览 = 5 列表（版本/主题/时间窗/状态/核心目标，修正旧骨架的列数不一致）；§3 = 4 列表（排名/特性/目标版本/RICE Score）；§5 = 4 列表（类型/依赖·风险/影响/缓解措施）。
@@ -251,10 +253,10 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
 
 | 步骤 | 内容 | 完成判据 |
 |:--:|------|---------|
-| W1 | 新建 `src/templates/outputs/sddu-roadmap.md.hbs`（§4.2 骨架 + §4.1.1 标记；含 NOTE 块） | 文件存在；`grep -c 'mode="preserve"'` = 3、`mode="rewrite"` = 5、`sddu:entry` = 2；行数 ≤ 200 |
+| W1 | 新建 `src/templates/outputs/sddu-roadmap.md.hbs`（§4.2 骨架 + §4.1.1 标记；含 NOTE 块） | 文件存在；`grep -c 'mode="preserve"'` = 3、`mode="rewrite"`（zone）= 6、`sddu:entry` = 2；行数 ≤ 200 |
 | W2 | 改造 `src/templates/agents/sddu-roadmap.md.hbs` §6（FR-007）、删除 §5 内联骨架（FR-008） | §6 与 `sddu-plan.md.hbs` §6 规范化 diff 为空；`内置固定格式`/`不通过外部模板文件定义`/`## 执行摘要 (前 20%)` 计数均为 0 |
 | W3 | 改造 §1（FR-009）、§5 新增 §5.4/§5.5/§5.6/§5.7、§7 追加规则 5–8（FR-010）、§8 追加 4 行、修订记录追加 | 逐条 grep 验收；`不输出版本路线图` 计数 = 0 |
-| W4 | `npm run build` 并验证分发（FR-011 / NFR-002 / NFR-008） | `dist/templates/output/sddu-roadmap.md.hbs` 存在且与 src 逐字节一致；连续两次 build 后 dist 哈希一致；其余 28 个 dist 模板哈希不变 |
+| W4 | `npm run build` 并验证分发（FR-011 / NFR-002 / NFR-008） | `dist/templates/output/sddu-roadmap.md.hbs` 存在且与 src 逐字节一致；连续两次 build 后 dist 哈希一致；其余 29 个 dist 模板哈希不变 |
 | W5 | 产出 ADR-001/002/003（本阶段已产出，build 阶段仅复核） | 3 个 ADR 文件存在于 Feature 目录 |
 | W6 | 变更集自检与 TREE/state 更新 | `git status` 变更集 ⊆ `{src/templates/outputs/sddu-roadmap.md.hbs, src/templates/agents/sddu-roadmap.md.hbs}` |
 
@@ -267,11 +269,11 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
 
 | 操作 | 文件路径 | 说明 |
 |:--:|------|------|
-| NEW | `src/templates/outputs/sddu-roadmap.md.hbs` | 专属输出模板（~110–130 行；8 个 zone；7 个 H2；≤ 200 行） |
+| NEW | `src/templates/outputs/sddu-roadmap.md.hbs` | 专属输出模板（~110–130 行；9 个 zone；8 个 H2；≤ 200 行） |
 | MODIFY | `src/templates/agents/sddu-roadmap.md.hbs` | §1 笔误修正；§5 删内联骨架 + 新增 §5.4/5.5/5.6/5.7；§6 统一两级引用；§7 追加规则 5–8；§8 追加 4 行；修订记录追加 v3.1.0 |
 | — | `scripts/` | **不变**（FR-011 实测确认） |
 | — | `src/**/*.ts` / `package.json` / `tsconfig.json` | **不变**（无运行时代码变更；不引入 handlebars 依赖） |
-| — | 其他 10 个 Agent 指令 + 28 个输出模板 | **不变**（NFR-008） |
+| — | 其他 10 个 Agent 指令 + 29 个输出模板 | **不变**（NFR-008） |
 
 ### 5.2 流程产物（非实现目标，属 SDDU 工作流维护）
 
@@ -306,7 +308,7 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
 | R7 用户对既有旧结构 ROADMAP 的期望为「零操作迁移」 | 中 | 低 | EC-004 非破坏性三选项 + FR-012 明示不自动迁移 |
 | R8 `scripts/generate-tree.cjs` 缺失 → TREE 自动化不可用（既有框架缺陷，非本 Feature 引入） | 高 | 低 | 本阶段改手工定向更新 TREE（feature 级 + 父级补登）；该缺陷记为本 Feature 之外的遗留项，不在本次修复（避免范围蔓延） |
 
-**回滚策略**：变更仅 2 个源文件、无运行时代码。回滚 = `git checkout src/templates/agents/sddu-roadmap.md.hbs && rm src/templates/outputs/sddu-roadmap.md.hbs && npm run build`；对既有 28 个模板与其他 Agent 行为零影响（NFR-008），无数据迁移、无不可逆副作用。
+**回滚策略**：变更仅 2 个源文件、无运行时代码。回滚 = `git checkout src/templates/agents/sddu-roadmap.md.hbs && rm src/templates/outputs/sddu-roadmap.md.hbs && npm run build`；对既有 29 个模板与其他 Agent 行为零影响（NFR-008），无数据迁移、无不可逆副作用。
 
 ## 7. 审查清单（供 sddu-review 阶段逐项勾检）
 > 本清单为验证入口，逐项对应 spec 条款
@@ -314,7 +316,7 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
 ### 7.1 FR（12 项）
 - [ ] FR-001 模板文件存在、单文件、含 `<<变量>>` 占位符、无渲染期逻辑（无 `{{#…}}`）
 - [ ] FR-002 头部含 `> **文档定位**: …` 与 `> **输出文件名**: .sddu/ROADMAP.md`
-- [ ] FR-003 7 个 H2 与 spec FR-003 表**顺序一致**；固化章节含占位符；保留区有显式标注
+- [ ] FR-003 8 个 H2 与 spec FR-003 表**顺序一致**；固化章节含占位符；保留区有显式标注
 - [ ] FR-004 统一 8 字段齐全 + 3 个专属字段以**追加**形式出现；`前置依赖` 取固定值
 - [ ] FR-005 模板显式区分 rewrite/preserve（`mode` 计数 5/3）
 - [ ] FR-006 H2 ≤ 8；篇幅规则与内容准入以「配套规则文本」形式给出（§5.5）；模板不含审计/覆盖率/全量审计章节
@@ -350,8 +352,8 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
 | V-01 | 构建下发 | `npm run build` → `ls dist/templates/output/sddu-roadmap.md.hbs` | 存在 |
 | V-02 | 逐字节一致（FR-001/FR-011） | `diff src/templates/outputs/sddu-roadmap.md.hbs dist/templates/output/sddu-roadmap.md.hbs` | 无差异（退出码 0） |
 | V-03 | 构建幂等（NFR-002） | `npm run build` 两次 → `md5sum dist/templates/output/*.hbs dist/templates/output/docs/*.hbs` 比对 | 哈希一致 |
-| V-04 | 既有模板不受影响（NFR-008） | `git stash` 前后对 28 个既有 dist 模板 `md5sum` 比对 | 哈希不变 |
-| V-05 | 标记静态校验（FR-005/NFR-006） | `grep -c 'mode="preserve"'` / `mode="rewrite"` / `sddu:entry` / H2 计数 / `wc -l` | 3 / 5 / 2 / 7（≤8）/ ≤200 |
+| V-04 | 既有模板不受影响（NFR-008） | `git stash` 前后对 29 个既有 dist 模板 `md5sum` 比对 | 哈希不变 |
+| V-05 | 标记静态校验（FR-005/NFR-006） | `grep -c 'mode="preserve"'` / `mode="rewrite"`（zone）/ `sddu:entry` / H2 计数 / `wc -l` | 3 / 6 / 2 / 8（≤8）/ ≤200 |
 | V-06 | 增量合并幂等（OP-002 核心） | 以模板渲染一份产物 → 二次运行合并流程 → `diff` | 除首行时间戳字段外逐字节一致；`revision-log` 未重复追加 |
 | V-07 | 保留区保留（OP-002 核心） | 构造含 3 个既有 entry 的产物 → 本次仅新增 1 个版本 | 既有 3 个 entry 逐字保留 + 新 entry 追加（计数 4）；顺序不变 |
 | V-08 | 非模板结构非破坏性（EC-004/FR-012） | 用当前 `.sddu/ROADMAP.md`（1382 行、无标记）作为既有产物 | 提示「当前文档非模板结构」+ 三选项；文件 `md5sum` **不变** |
@@ -368,6 +370,7 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
 | ADR-001 | roadmap 增量保留区标记语法：双端 HTML 注释 + zone/entry 两级 + 显式 mode | ACCEPTED |
 | ADR-002 | roadmap 合并算法：条目级 upsert + 清单保留式 + 表格自然键追加 | ACCEPTED |
 | ADR-003 | 合并机制载体：沿用 Agent-Native 零代码路径（不新增运行时脚本） | ACCEPTED |
+| ADR-004 | 新增「特性索引」章节：第 8 个 H2 + `feature-index`（`mode="rewrite"`）投影区；修订 ADR-001 的 zone 基线为 9（6+3） | ACCEPTED（R3 增补） |
 
 ## 10. 修订记录
 > 记录本文档的版本变更历史
@@ -375,6 +378,7 @@ ENTRY_ID ::= 渲染后不含空格/引号/斜杠的稳定键（roadmap 取版本
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 完成 §2 分发链路与两级查找的源码级验证（含根级新模板拷贝实测）；落定 OP-002 标记语法（§4.1.1）与合并算法（§4.1.2）；完成模板骨架设计（§4.2）与 agent 改造清单（§4.3）；产出 3 个 ADR | 2026-09-22 | SDDU Plan Agent |
+| v1.1 | post-validation 结构级修复（R3）增补 — zone 布局基线经 ADR-004 修订为 8 H2 / 9 zone（6 rewrite + 3 preserve，新增 `feature-index`）；§4.1.1 加修订说明指向 ADR-004、§9 追加 ADR-004 行；同步 spec §5.1 SUP-002（FR-003 7→8）。定向增补，未重写全文 | 2026-09-23 | SDDU Plan Agent |
 
 ---
 

@@ -66,6 +66,34 @@
       "timestamp": "2026-09-23T00:00:00.000Z",
       "triggeredBy": "sddu-validate-agent",
       "comment": "修复记录 R1 — 标题格式一致性修正：一致性核查发现 roadmap 输出模板 H1 `# <<项目名称>> 版本 Roadmap` 偏离 A 组惯例 `# <中文类型>：<<变量>>`；修正 src/templates/outputs/sddu-roadmap.md.hbs 第 1 行为 `# 版本 Roadmap：<<项目名称>>`（全角冒号）。agent 模板无 H1 格式引用，无需同步。验证：npm run build:agents 成功、dist 与 src 逐字节一致、旧标题计数 0 / 新标题计数 1。仅 1 处实现改动，未触及其余 28 个输出模板；已同步 build.md §6 与 review-report.md §7。"
+    },
+    {
+      "phase": "validated",
+      "type": "fix",
+      "timestamp": "2026-09-23T12:00:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "修复记录 R2 — post-validation 模板结构性缺口修复（G1~G4）：三名评审 Agent（静态审查 / 动手验证 / 定位符合性）交叉评审确认模板规则存在结构性缺口，用户批准修复。G1 §5.5 排除内容表增补「项目级非 Feature 待办（技术债 / 文档配置 / 增强类 backlog）」行，指定承接方 @sddu-docs，并补『next-actions 指针规则』（不承载明细、必留指针）；G2 §5.4.4 Step C3 结构校验由 4 项扩为 8 项（新增：无 `<<…>>` 占位符残留 / 无非 `sddu:` 前缀 HTML 注释残留 / 各表格单元格非空且不含注释 / version-overview 行序按时间窗单调）；G3 输出模板 7 行 `> …` 填写说明改写为非 `sddu:` 前缀编写期注释（消除其位于 zone 之外必然泄漏进产物的路径），并同步尾部 NOTE 第 5 条；G4 §5.5 新增「版本号语义」小节，明确 version-overview「版本」列取发布版本号、与 Feature state.json.version 是两套口径不得混用，并规定排序依据一致性。同步：§5.7 生成后自检清单补 4 项勾选、agent 修订记录追加 v3.1.1、build.md §7 与 review-report.md §8。验证：npm run build:agents 成功、src↔dist 逐字节一致；grep 自检全部通过；.sddu/ROADMAP.md 仍 1382 行、.sddu/ROADMAP.preview.md 仍 114 行（未触碰）。"
+    },
+    {
+      "phase": "validated",
+      "type": "fix",
+      "timestamp": "2026-09-23T18:00:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "修复记录 R3 — post-validation 结构级修复：新增第 8 个 H2「特性索引」章节。触发：用户查看 R2 试渲染产物（ROADMAP.preview-v2.md）反馈「缺少特性清单，与 specs-tree 承接不起来，有了断层」——§1 职责边界承诺输出「特性清单」但 7 个 H2 中无承载位，24 Feature 仅 5 点名、0 目录锚点，与 specs-tree 断层（属本 Feature 规格内部矛盾）。产出：① src/templates/outputs/sddu-roadmap.md.hbs 在「版本总览」之后新增 §3「特性索引」+ 新 zone `feature-index`（mode=rewrite，实时投影各 Feature state.json），列 = Feature ID / 名称 / specs-tree 目录 / 状态 / 版本归属，章节内声明排序依据；既有章节顺延为 4~8（「修订记录」恒为末位 H2）；尾部 NOTE 与编写期说明注释 7→8；version-plan 关键特性引用补 specs-tree 目录锚点。② src/templates/agents/sddu-roadmap.md.hbs 全量交叉引用同步：§1 职责边界补承载位、§5.4.1 重写区 5→6（加 feature-index）、§5.4.4 C1 加入 feature-index / C3-① 7→8 / C3-② ZONE 配对计数 9（6+3）、§5.5 结构与篇幅 7→8（列 8 名称）/ 准入增列特性索引 / 排除表增「逐 Feature 明细表」行 + 「索引 ≠ 明细」说明 / 新增「特性索引语义」小节（数据来源 / 缺失字段推断规则 / 排序依据 / Feature 引用锚点 / 边界）、§5.7 自检第 2 项 7→8 且明确「含特性索引、不含明细」、修订记录追加 v3.1.2。③ spec.md 新增 §5.1 SUP-002 显式修订 FR-003「7 个 H2 → 8 个」+ 修订记录 v1.1。④ 新建 ADR-004-feature-index-section.md（位置论证 / rewrite 理由 / 索引 vs 明细 / 修订 ADR-001 zone 基线 5+3→6+3）。⑤ plan.md 定向增补（§4.1.1 修订说明指向 ADR-004、§9 追加 ADR-004 行、§10 v1.1）。⑥ build.md §9 + review-report.md §9。验证：npm run build:agents 成功、src↔dist 逐字节一致；grep 自检（模板 H2=8 / zone=9=6 rewrite+3 preserve / 重写区（6 个））无过期表述残留；硬约束 .sddu/ROADMAP.md 仍 1382 行、.sddu/ROADMAP.preview.md 仍 114 行、.sddu/ROADMAP.preview-v2.md 仍 133 行（均未触碰）。"
+    },
+    {
+      "phase": "validated",
+      "type": "fix",
+      "timestamp": "2026-09-24T00:00:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "修复记录 R4 — post-validation backlog 承接修正 + 规则空白补齐。触发：用户质疑「只有特性没有问题吗，问题清单是不是缺少了？」；独立核查确认 R2 在 G1 中把『项目级非 Feature 待办（技术债 / 文档配置 / 增强类 backlog）』外移给 @sddu-docs 是悬空指针（sddu-docs 模板职责/输入/输出均不含 backlog，全文检索 backlog|待办|issues|bug 0 命中），且该 backlog 在现实中无任何归属。用户拍板方案 B：放回 roadmap，以 next-actions 行动项粒度承载。产出（均 ⊆ 硬约束白名单）：① src/templates/agents/sddu-roadmap.md.hbs——G-A 删除 §5.5 排除内容表 backlog 外移行、将『next-actions 指针规则』改写为『项目级待办承载规则』（roadmap 自身承载 / 行动项粒度 / 禁台账表 / 与 @sddu-docs 现状描述明确区分 / 超 400 行提示收敛）、准入内容增列『项目级待办（以行动项粒度）』；G-B 补『待用户决策项』作为 next-actions 子类的承载契约（不新增 H2/zone、措辞可区分）；R-1 未立项提案锚点义务豁免（须就地标注无 specs-tree 目录）；R-2 锚点义务适用范围（version-plan 关键特性/里程碑强制、其余章节建议、feature-index 以目录列承担）；R-3 版本归属取值链 顶层 version > metadata.version > 不适用并标注来源；R-4 featureId 别名回退顺序 featureId > feature_id > metadata.featureId > feature 与 ID 形态判定（specs-tree-skill-system 取 FR-SKILL-001（feature），不再误推断为 FR-SKILL-SYSTEM）；§5.7 自检补 2 项；修订记录追加 v3.1.3。② src/templates/outputs/sddu-roadmap.md.hbs——§7 next-actions 编写期说明同步（承载项目级待办与待用户决策项，行动项粒度）。③ src/templates/agents/sddu-docs.md.hbs——G-F 仅修正 §8.1 roadmap 落盘路径 .sddu/specs-tree-root/ROADMAP.md → .sddu/ROADMAP.md（该模板 git diff 恰 1 行，其他内容未变）。验证：npm run build:agents 成功、src↔dist 逐字节一致（output 模板 diff IDENTICAL；agent 模板去 frontmatter 后 398 行正文 IDENTICAL）；grep 自检（悬空指针 0、R-1~R-4 四条明文均在、§5.5/§5.7 语义一致、旧指针文字仅存于 v3.1.1 历史行）；硬约束 .sddu/ROADMAP.md 仍 1382 行、preview 114 行、preview-v2 133 行、preview-v3 186 行（均未触碰）。仅 3 个 src 模板文件改动，零运行时代码、零 git 操作。"
+    },
+    {
+      "phase": "validated",
+      "type": "fix",
+      "timestamp": "2026-09-24T06:00:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "修复记录 R5 — post-validation G-F 回退 + 一致性残留清理。触发：G7 定向重审（C3/C4/C7/C21 维持通过，建议合并）+ validate 重跑（V2 通过 / V5 部分不通过）；V5 根因 = R4 的 G-F 修正 sddu-docs.md.hbs 的 roadmap 落盘路径实际改动了第 3 个 src 文件，突破本 Feature NFR-003（变更集 ⊆ 2 个 src 文件）与 NFR-008（不影响其他 Agent 指令内容），并连带使原 V4（工程边界）结论失效。用户决策：G-F 回退 + 单独登记；低风险一致性残留一并修。产出（均 ⊆ 硬约束白名单）：① [G-F 回退] src/templates/agents/sddu-docs.md.hbs §8.1 边界表 roadmap 落盘路径由 .sddu/ROADMAP.md 恢复为基线原值 .sddu/specs-tree-root/ROADMAP.md，使该文件相对基线零 diff（git diff 输出为空）→ 变更集恢复为 2 个 src 文件，NFR-003 / NFR-008 合规恢复；该路径笔误（应为 .sddu/ROADMAP.md）作为独立待办登记（属 sddu-docs 范畴，不在本 Feature 范围，未修复）。② [N-1] spec.md FR-003 骨架表回填「特性索引」（7→8 行，插于「版本总览」之后并顺延编号）+ 表下注明由 SUP-002 修订；OP-001 同步为 8 个 H2 / 固化 6 个（含 feature-index）并注明与 SUP-002 / ADR-004 一致。③ [N-2/⑤] plan.md 逐处校正旧计数（§2.2 重写区(5)→(6)、§2.4/§5.1/§6 其他 28→29、§4.1.2 Step C3-① 7→8、§4.2 结构 7 H2→8、§4.5 W1 rewrite 5→6、§5.1 变更清单 8 zone/7 H2→9 zone/8 H2、§7.1 7→8、§8 V-04 28→29、V-05 期望值 3/5/2/7→3/6/2/8）；§4.1.1 zone 表头标注为 ADR-001 原基线 + 修订说明扩写至覆盖以上位置；模板计数口径统一为既有 29 个（实测总数 30，find src/templates/outputs -name '*.hbs' | wc -l = 30）。④ [N-3] 输出模板 feature-index 编写期说明去除「覆盖率 / 代码级盘点」等被排除章节关键词（改用「逐 Feature 的实现级罗列」），恢复 C7 静态 grep 判据确定性。⑤ [N-4] 输出模板 feature-index 占位符说明同步 R-3（取值链 顶层 version > metadata.version > 不适用，回退须标注来源）/ R-4（别名回退 featureId > feature_id > metadata.featureId > feature + ID 形态判定），5 列表结构与列数不变。⑥ [N-5] review.md C3/C4 与 validate-report.md V2a/V2b/V2d/结论 结构计数复判更新为 8 H2 / 9 zone = 6+3，并加注由 R3/R4/R5 复判更新。⑦ [N-6] agent §5.4.1「与标题解耦」补 meta zone 例外；[N-7] §5.4.1 ENTRY_ID 为非版本类 entry（如 unplanned 提案池）留明确例外并新增「entry 键稳定性」规则行。⑧ agent 修订记录追加 v3.1.4。记录落地：build.md §11 + review-report.md §11。验证：npm run build:agents 成功、src↔dist 逐字节一致；git diff --name-only -- src/ 仅 2 个文件、git diff src/templates/agents/sddu-docs.md.hbs 输出为空、git diff --stat 无 scripts/*.ts/package.json/.opencode；硬约束 .sddu/ROADMAP.md 仍 1382 行、四个 preview 仍 114/133/186/213 行（均未触碰）；未重新渲染 ROADMAP。"
     }
   ],
   "metadata": {
