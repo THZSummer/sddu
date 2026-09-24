@@ -66,8 +66,20 @@ FR 覆盖：12/12（FR-001~FR-012，见 tasks.md §3.2 矩阵）。
 - **TREE 范围**：sddu-tree Skill 同时更新了父链 `.sddu/specs-tree-root/TREE.md` 与 `.sddu/TREE.md` 的状态统计；为保持变更集 ⊆「2 个 src 文件 + 本 Feature 产物」，父链 TREE 改动已回退，仅保留本 Feature `TREE.md`。
 - 本阶段未执行 `git push`。
 
-## §5 修订记录
+## §5 修复记录 R1（v3.2.1 / post-validation）
+
+**背景（review 通过条件）**：review-report §5 改进 1（严重度中-高）—— 模板 §4 `issue-list` / §8 `revision-log` 用 entry HTML 注释逐行包裹表格行，经 marked 18 + remark-gfm 双实测会**截断 GFM 表格**（分隔行后仅剩表头，数据行退化为 `<p>|…|</p>`），属对 v4.1.0「自然键规避」的回归。修复方向：表格类 preserve 区改**行自然键合并**（首列键），去 entry 注释；块级 preserve 区（§5/§6/§7）保留 entry 注释（安全）。另将产物行数预算 450 → 600（全量迁移实测 576 行）。
+
+| 文件 | 改动 |
+|------|------|
+| `src/templates/outputs/sddu-roadmap.md.hbs` | §4/§8 删除 entry 注释对；§4 示例行占位统一 `<<P-xxx>>`（消除硬编码 `P-001`）；两区编写期说明改「行自然键合并 + 行间禁 HTML 注释」；尾部 NOTE 条目 2 改「entry 键控 / 行自然键」二分、条目 8 预算 450→600。169 → **165 行**（≤170 仍满足） |
+| `src/templates/agents/sddu-roadmap.md.hbs` | §5.4.1 合并语义拆两行（entry 键控（块级）/ 行自然键合并（表格））+ 缘由行；§5.4.3 B2/B3、§5.4.4 C2-②③ 同步；§5.4.4 C3-⑦、§5.7 自检补「表格 preserve 区行间无注释」；所有 450 → 600（C3-③ / §5.5 / §5.7 / §7）；修订记录追加 v3.2.1。468 → **473 行** |
+
+**回归结果**：`npm run build:agents` 成功且 `dist ≡ src`；`entry` 注释计数 = 6 行（仅 §5/§6/§7 三对）；`mermaid`=8 / H2=8 / zone 9/9 不变；模板 `wc -l` = 165 ≤ 170。**表格渲染回归**：复用 validate 的 node 渲染法（marked + remark-gfm，安装于 `/tmp/opencode/md-render`），对修复后模板做 `<<>>` → token 替换后按 zone 渲染 —— §4 / §8 均输出完整 `<table>`（1 表 / 表头 + 数据 2 行），数据行位于 `<td>`，`<p>|…|</p>` 退化为 **false**；双渲染器断言 PASS（强度：**实测**）。
+
+## §6 修订记录
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | v1.0 | 2026-09-24 | 初次产出：9 任务完成状态、变更清单、8 项自检 + 构建证据、Note（骨架忠实度 / 沙箱演练交接 / TREE 范围） |
+| v1.1 | 2026-09-24 | 追加 §5「修复记录 R1」：v3.2.1 表格类 preserve 区行自然键合并（消除 entry 注释截断 GFM 表格回归）+ 预算 450→600；含双渲染器回归实测 |

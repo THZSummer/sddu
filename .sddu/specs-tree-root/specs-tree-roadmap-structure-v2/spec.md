@@ -151,7 +151,7 @@
 | ID | 类别 | 需求描述 | 验收标准 |
 |----|------|---------|---------|
 | NFR-001 | 篇幅 / 可维护性 | 输出模板源文件 ≤170 行（新增 4 图与详情骨架后仍须收敛） | `wc -l src/templates/outputs/sddu-roadmap.md.hbs` ≤ 170 |
-| NFR-002 | 篇幅 / 产物 | 生成的 ROADMAP 产物 ≤450 行 | 沙箱渲染产物 `wc -l` ≤ 450 |
+| NFR-002 | 篇幅 / 产物 | 生成的 ROADMAP 产物 ≤600 行 | 沙箱渲染产物 `wc -l` ≤ 600 |
 | NFR-003 | 构建一致性 / 确定性 | `npm run build:agents` 幂等且 dist ≡ src（逐字节一致） | 连续两次构建后 dist 产物 `diff` 无差异；`dist/templates/output/sddu-roadmap.md.hbs` 与 src 逐字节一致 |
 | NFR-004 | 一致性 | 风格对齐 A 组（标题格式 / 占位符写法 `<<变量名>>` / 表格写法 / 无 Tab 缩进） | 与 `src/templates/outputs/sddu-plan.md.hbs` 等既有模板逐项比对，风格一致 |
 | NFR-005 | 可渲染性 | Mermaid 语法合法（GitHub 可渲染），节点名无空格陷阱（必要时引号包裹或使用无空格标识符） | `/tmp` 沙箱中图表可被 Mermaid 解析；无裸空格节点名；` ```mermaid ` 围栏配对完整 |
@@ -191,3 +191,4 @@
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 消化 discovery v1.0 决策 D1~D5；把 ROADMAP 模板从"扁平 8 章"重构为"概览 / 详情分层"结构；落定 12 FR / 8 NFR / 10 EC；零待澄清 | 2026-09-24 | SDDU Spec Agent |
+| v1.1 | 修订说明：NFR-002 产物行数预算 450 → 600（全量迁移实测 576 行），配合 R1 表格类 preserve 区行自然键合并修复 | 2026-09-24 | SDDU Team |

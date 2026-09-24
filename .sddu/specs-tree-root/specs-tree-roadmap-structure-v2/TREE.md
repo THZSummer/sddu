@@ -47,6 +47,12 @@ specs-tree-roadmap-structure-v2/
 | Feature ID | FR-ROADMAP-STRUCT-001 |
 | Phase | 验证完成 (7/7) |
 | Status | ✅ completed [validated] |
+| 版本 | v3.2.1（R1 修复） |
+
+## 修复记录
+| 轮次 | 版本 | 日期 | 内容 |
+|------|------|------|------|
+| R1 | v3.2.1 | 2026-09-24 | 表格类 preserve 区（§4 问题清单 / §8 修订记录）由 entry 注释包裹改**行自然键合并**（首列键），消除 HTML 注释截断 GFM 表格回归；块级 preserve 区（§5/§6/§7）保留 entry 注释；产物行数预算 450→600（全量迁移实测 576）；双渲染器（marked 18 + remark-gfm）回归 PASS |
 
 ## 上级目录
 - [返回上级](../TREE.md)
