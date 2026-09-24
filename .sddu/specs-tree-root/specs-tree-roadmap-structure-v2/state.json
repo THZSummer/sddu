@@ -2,8 +2,8 @@
   "feature": "specs-tree-roadmap-structure-v2",
   "name": "Roadmap 模板结构重构 v2",
   "version": "v3.2.0",
-  "phase": "builded",
-  "status": "tracked",
+  "phase": "validated",
+  "status": "completed",
   "depth": 0,
   "childrens": [],
   "phaseHistory": [
@@ -42,6 +42,18 @@
       "timestamp": "2026-09-24T00:00:00.000Z",
       "triggeredBy": "sddu-build-agent",
       "comment": "实施完成（v1.0）— TASK-001 输出模板全量重写（98→169 行；8 H2 / 8 content zone（3 rewrite + 5 preserve）+ meta = 9 zone 标记 / 8 章首 Mermaid / 3 清单表 + 3 类详情 entry）；TASK-002~005 agent 模板定向改造（§5 新增章节定义表 / §5.4 zone 清单与合并语义含旧 zone 迁移提示 / §5.5 各章语义 + 8 行信息归属判定表 + P·PR 编码 / §8 增补 2 行 / 修订记录 bump v3.2.0 / 全文一致性清理）；TASK-006 构建分发验证通过（npm run build:agents 成功、dist≡src 逐字节一致、二次构建幂等、30 output + agent 模板哈希稳定）；TASK-007 结构静态自检 8/8 通过（169 行 / 8 H2 / 9 zone open+close / 8 mermaid / 0 handlebars / v3.2.0 ≥1）；TASK-008 沙箱演练转 validate（D5）；TASK-009 变更集 ⊆ 2 个 src 文件 + 本 Feature 产物、无越界。零运行时代码变更（scripts/ / *.ts / package.json 零 diff）。产出 build.md 与 TREE.md。"
+    },
+    {
+      "phase": "reviewed",
+      "timestamp": "2026-09-24T00:00:00.000Z",
+      "triggeredBy": "SDDU Review Agent",
+      "comment": "审查完成（v1.0 / R1）— 静态审查 3 个对象（输出模板 169 行全量重写 + agent 模板 468 行定向改造 + build.md），逐项执行 C1~C24（规范符合性 21 / 架构一致性 1 / 模板质量 1 / 工程边界 1）：21 通过 / 3 改进 / 0 失败 / 0 阻塞，规范符合率 100%（12 FR + 8 NFR + 10 EC 全部落地）；结论 ⚠️ 有条件通过（改进项 5 个：1 中-高 + 4 低/信息）。核心发现：§4 issue-list / §8 revision-log 用 entry 注释逐行包裹表格行 → GFM 表格被 HTML 块截断（marked 18 + remark-gfm 双实测，属对 v4.1.0 自然键规避的回归）；其余为 plan/tasks 流程文档计数漂移（entry 组数 3→5、其他输出模板 30→29）、§4 entry id 占位口径、全量迁移超 450 行容量信息。产出 review.md / review-report.md。"
+    },
+    {
+      "phase": "validated",
+      "timestamp": "2026-09-24T00:00:00.000Z",
+      "triggeredBy": "SDDU Validate Agent",
+      "comment": "验证完成（v1.0 / R1）— 执行 V1~V6 六组场景（20 检查项，20 通过 / 0 失败 / 0 阻塞），结论 ✅ 通过。V1 构建幂等（递归 41 文件哈希一致）+ dist≡src（output + agent 两处）；V2 结构静态（H2=8 / zone 9 = 4 rewrite[含 meta] + 5 preserve / entry 5 组 / 表列 6·5·6 / `{{`=0 / Tab=0 / 169 行 / 淘汰术语零生效残留）；V3 Mermaid 8 块静态核查 OK（本机无 mmdc，强度=静态）；V4 兼容旧结构推演（next-actions→旧结构迁移提示 / 无标记→非模板结构 / 新标记→增量更新）；V5 /tmp 沙箱演练（git show docs/roadmap-rewrite 275 行 → 新结构 432 行抽样 / 全量 576 行；四类内容零丢失：版本 12/12、特性 24/24、风险依赖 30/30、行动 43/43；marked/remark-gfm 复现表格截断）；V6 边界（实现变更集恰 2 个 src 文件、禁区 0 diff、.sddu/ROADMAP.md md5 未变）。遗留 1 项非阻塞改进（继承 review：表格 entry 注释截断，建议 post-validation 修复）。产出 validate.md / validate-report.md。"
     }
   ],
   "metadata": {
@@ -177,6 +189,10 @@
       "ADR-003-chapter-mermaid-diagrams.md"
     ],
     "build": "build.md",
+    "review": "review.md",
+    "reviewReport": "review-report.md",
+    "validate": "validate.md",
+    "validationReport": "validate-report.md",
     "tree": "TREE.md"
   },
   "openQuestions": []
