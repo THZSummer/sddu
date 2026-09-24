@@ -1,0 +1,268 @@
+{
+  "feature": "specs-tree-roadmap-structure-v2",
+  "featureId": "FR-ROADMAP-STRUCT-001",
+  "name": "Roadmap 模板结构重构 v2（概览 / 详情分层）",
+  "version": "v1.0",
+  "createdAt": "2026-09-24",
+  "createdBy": "SDDU Tasks Agent",
+  "inputs": {
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "adrs": [
+      "ADR-001-overview-detail-layering.md",
+      "ADR-002-zone-mode-allocation.md",
+      "ADR-003-chapter-mermaid-diagrams.md"
+    ]
+  },
+  "implementationTargets": [
+    "src/templates/outputs/sddu-roadmap.md.hbs",
+    "src/templates/agents/sddu-roadmap.md.hbs"
+  ],
+  "constraints": [
+    "实现目标仅限 src/（README 项目约束）；.opencode/ 与 .sddu/ 不得列为实现目标",
+    "零运行时代码：scripts/、src/**/*.ts、package.json 不改（FR-011/NFR-006）",
+    "当前分支 feature/roadmap-structure-v2；禁止切 main、禁止合入 main",
+    "不重排/不迁移当前 .sddu/ROADMAP.md（D5/NG-001）；沙箱演练仅用 /tmp 与 git show 分支素材"
+  ],
+  "statistics": {
+    "total": 9,
+    "S": 4,
+    "M": 5,
+    "L": 0,
+    "waves": 7
+  },
+  "waves": [
+    { "wave": 1, "tasks": ["TASK-001"], "strategy": "产物端独立文件先行（输出模板全量重写）" },
+    { "wave": 2, "tasks": ["TASK-002"], "strategy": "串行（agent 模板同文件，依赖 TASK-001）" },
+    { "wave": 3, "tasks": ["TASK-003"], "strategy": "串行（同文件，依赖 TASK-002）" },
+    { "wave": 4, "tasks": ["TASK-004"], "strategy": "串行（同文件，依赖 TASK-003）" },
+    { "wave": 5, "tasks": ["TASK-005"], "strategy": "串行（同文件，依赖 TASK-004）" },
+    { "wave": 6, "tasks": ["TASK-006", "TASK-007", "TASK-008"], "strategy": "并行执行（构建验证 / 静态自检 / 沙箱演练互不冲突）" },
+    { "wave": 7, "tasks": ["TASK-009"], "strategy": "收尾（依赖 TASK-006/007/008）" }
+  ],
+  "frCoverage": {
+    "FR-001": ["TASK-001", "TASK-007"],
+    "FR-002": ["TASK-001", "TASK-007"],
+    "FR-003": ["TASK-001", "TASK-007", "TASK-008"],
+    "FR-004": ["TASK-001", "TASK-004", "TASK-007"],
+    "FR-005": ["TASK-001", "TASK-004", "TASK-007"],
+    "FR-006": ["TASK-001", "TASK-004", "TASK-007"],
+    "FR-007": ["TASK-001", "TASK-004", "TASK-007"],
+    "FR-008": ["TASK-001", "TASK-007"],
+    "FR-009": ["TASK-001", "TASK-007"],
+    "FR-010": ["TASK-001", "TASK-007"],
+    "FR-011": ["TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-007"],
+    "FR-012": ["TASK-003", "TASK-005", "TASK-008"]
+  },
+  "nfrCoverage": {
+    "NFR-001": ["TASK-001", "TASK-007"],
+    "NFR-002": ["TASK-008"],
+    "NFR-003": ["TASK-006"],
+    "NFR-004": ["TASK-001", "TASK-007"],
+    "NFR-005": ["TASK-001", "TASK-007", "TASK-008"],
+    "NFR-006": ["TASK-001", "TASK-006"],
+    "NFR-007": ["TASK-006"],
+    "NFR-008": ["TASK-004", "TASK-007"]
+  },
+  "ecCoverage": {
+    "EC-001": ["TASK-003", "TASK-005", "TASK-008"],
+    "EC-002": ["TASK-003", "TASK-005", "TASK-008"],
+    "EC-003": ["TASK-003", "TASK-007"],
+    "EC-004": ["TASK-004", "TASK-008"],
+    "EC-005": ["TASK-004"],
+    "EC-006": ["TASK-004"],
+    "EC-007": ["TASK-001", "TASK-007"],
+    "EC-008": ["TASK-004"],
+    "EC-009": ["TASK-003", "TASK-004", "TASK-008"],
+    "EC-010": ["TASK-004"]
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "输出模板全量重写为 8 章分层结构",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "fr": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-010"],
+      "nfr": ["NFR-001", "NFR-004", "NFR-005", "NFR-006"],
+      "ec": ["EC-007"],
+      "files": [
+        { "op": "MODIFY", "path": "src/templates/outputs/sddu-roadmap.md.hbs" }
+      ],
+      "acceptance": [
+        "H2 恰为 8 个且顺序固定：1 项目愿景与定位 / 2 版本清单 / 3 特性清单 / 4 问题清单 / 5 版本详情 / 6 特性详情 / 7 问题详情 / 8 修订记录；「修订记录」恒为末位",
+        "8 个 content zone 与 mode 一一对应：rewrite = vision / version-list / feature-list；preserve = issue-list / version-detail / feature-detail / issue-detail / revision-log；meta 沿用（不计入 8）",
+        "3 张清单表列数与列名固定：§2 六列（版本/主题/时间窗/状态/特性数/开放问题数）、§3 五列（Feature ID/名称/类型[特性·提案]/状态/版本归属）、§4 六列（ID/类型/摘要/影响/归属/状态）",
+        "3 类详情 entry 键 / 字段固定：§5 键=版本号（目标/关联特性/关联问题/里程碑/风险与依赖）、§6 键=Feature ID 或 PR-xxx（定位/优先级/版本归属/关联问题/状态与去向/详档锚点/风险与依赖）、§7 键=P-ID（描述[客观陈述，禁行动指令]/影响/归属/建议处置/状态与流转）",
+        "8 个章节各含恰 1 个 ```mermaid 块；每图 ≤10 行；rewrite 区图随区重建、preserve 区图在 entry 外 / zone 内逐字保留；节点名无空格陷阱",
+        "含 8 条对应 8 章的「编写期说明」注释（zone 外、非 sddu: 前缀）+ 末尾单块 NOTE（编写期说明，不写入产物）",
+        "元数据头 12 字段与 H1 `# 版本 Roadmap：<<项目名称>>` 与既有模板逐项一致（FR-010）；全文字样不含 RICE / Top N / Phase / Wave / 立即 / 短期 / 中期 / 远期 作为结构或字段",
+        "篇幅 ≤170 行（NFR-001）；无 `{{#…}}` 渲染期逻辑、无 `<script>`"
+      ],
+      "verification": "f=src/templates/outputs/sddu-roadmap.md.hbs; wc -l \"$f\"; grep -c '^## ' \"$f\"; grep -c 'mode=\"rewrite\"' \"$f\"; grep -c 'mode=\"preserve\"' \"$f\"; grep -c 'sddu:entry' \"$f\"; grep -c '```mermaid' \"$f\"; grep -c 'RICE\\|Top N\\|Phase\\|Wave' \"$f\"; grep -c '{{#' \"$f\""
+    },
+    {
+      "id": "TASK-002",
+      "name": "agent 模板 §5 章节定义表重写",
+      "complexity": "M",
+      "dependencies": ["TASK-001"],
+      "wave": 2,
+      "fr": ["FR-011"],
+      "nfr": ["NFR-004"],
+      "files": [
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-roadmap.md.hbs" }
+      ],
+      "acceptance": [
+        "§5 章节定义表列出的 8 个 H2 与 TASK-001 产物端一致（集合与顺序），且标注「清单层 / 详情层 / 首尾」与「修订记录恒为末位」",
+        "表格标注每个章节的 zone id 与 mode，与 plan §4.1 一致",
+        "章节命名口径「XX 清单」/「XX 详情」显式；旧章名（版本总览 / 特性索引 / 优先级 / 版本规划详述 / 依赖与风险 / 下一步行动）不再作为当前定义出现（仅允许出现在历史 / 迁移语境）"
+      ],
+      "verification": "a=src/templates/agents/sddu-roadmap.md.hbs; grep -c '项目愿景与定位' \"$a\"; grep -c '版本清单' \"$a\"; grep -c '特性清单' \"$a\"; grep -c '问题清单' \"$a\"; grep -c '版本详情' \"$a\"; grep -c '特性详情' \"$a\"; grep -c '问题详情' \"$a\""
+    },
+    {
+      "id": "TASK-003",
+      "name": "agent 模板 §5.4 zone 清单 + 合并语义（含旧 zone 迁移提示）",
+      "complexity": "M",
+      "dependencies": ["TASK-002"],
+      "wave": 3,
+      "fr": ["FR-011", "FR-012"],
+      "ec": ["EC-001", "EC-002", "EC-003", "EC-009"],
+      "files": [
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-roadmap.md.hbs" }
+      ],
+      "acceptance": [
+        "§5.4 zone 清单更新为 8 content zone（3 rewrite + 5 preserve）+ meta，与 FR-002 / plan §4.1 一致；重写区计数由 6 改为 3、保留区由 3 改为 5",
+        "合并语义更新：rewrite 整块替换；preserve 按 entry 键控 upsert（version-detail / feature-detail / issue-detail）、清单保留式（issue-list）、表格自然键更新（revision-log）",
+        "新增旧 zone 识别清单（next-actions / version-overview / priority / dependencies-risks / version-plan / feature-index）→ 判定「旧结构」→ 输出迁移提示、不静默重写（FR-012 / EC-002）",
+        "保留「非模板结构 → 不修改文件 + 三选项」（EC-001）；保留标记不成对 → 中止 + 诊断（EC-003）",
+        "Step C3 结构校验：H2 集合与顺序 == 新 8 章；zone/entry 配对计数 = 8 content zone + 3 类 entry；无未替换占位符；无非 sddu: 注释"
+      ],
+      "verification": "a=src/templates/agents/sddu-roadmap.md.hbs; grep -c 'version-list' \"$a\"; grep -c 'issue-detail' \"$a\"; grep -c 'next-actions' \"$a\"; grep -c '旧结构' \"$a\"; grep -c '非模板结构' \"$a\""
+    },
+    {
+      "id": "TASK-004",
+      "name": "agent 模板 §5.5 各章语义 + 信息归属判定表 + P/PR 编码规则",
+      "complexity": "M",
+      "dependencies": ["TASK-003"],
+      "wave": 4,
+      "fr": ["FR-004", "FR-005", "FR-006", "FR-007", "FR-011"],
+      "nfr": ["NFR-008"],
+      "ec": ["EC-004", "EC-005", "EC-006", "EC-008", "EC-009", "EC-010"],
+      "files": [
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-roadmap.md.hbs" }
+      ],
+      "acceptance": [
+        "§5.5 新增「信息归属判定表」：版本级 → §5 entry「风险与依赖」；特性级 → §6 entry「风险与依赖」；项目级 → §4/§7 类型 = 风险/依赖；判定顺序显式、可一次性判定（NFR-008）",
+        "§5.5 各章语义更新：8 章逐章说明「写什么 / 什么归这里」，淘汰 RICE / Top N / Phase / Wave / 立即-短期-中期-远期 表述",
+        "P/PR 编码规则：P-xxx（P-001 起、不复用已关闭编号、开放项在前同状态按影响降序）、类型枚举（问题/技术债/文档债/风险/依赖/决策）、状态枚举（开放/已转化/已关闭）、PR-xxx（PR-001 起，类型=提案）",
+        "详情 entry 禁实现明细，详档锚点指向 specs-tree（EC-010）；§5 内应登记问题外移 §4/§7（EC-008）；缺失 state.json 标注「推断」不丢弃（EC-006）；P-ID 冲突追加新号（EC-005）；未立项提案缺码按规则生成（EC-004）",
+        "preserve 区既有内容逐字保留语义保留（EC-009）"
+      ],
+      "verification": "a=src/templates/agents/sddu-roadmap.md.hbs; grep -c '风险与依赖' \"$a\"; grep -c '归属判定' \"$a\"; grep -c 'P-xxx' \"$a\"; grep -c 'PR-xxx' \"$a\"; grep -c 'P0' \"$a\"; grep -c 'RICE' \"$a\""
+    },
+    {
+      "id": "TASK-005",
+      "name": "agent 模板修订记录 bump v3.2.0 + §8 异常处置增补",
+      "complexity": "S",
+      "dependencies": ["TASK-004"],
+      "wave": 5,
+      "fr": ["FR-011", "FR-012"],
+      "ec": ["EC-001", "EC-002"],
+      "files": [
+        { "op": "MODIFY", "path": "src/templates/agents/sddu-roadmap.md.hbs" }
+      ],
+      "acceptance": [
+        "修订记录新增 v3.2.0 行，摘要覆盖：8 章分层重构 / 8 zone（3 rewrite + 5 preserve）/ 每章 Mermaid 图 / 依赖风险三主体归属 / P-xxx·PR-xxx 登记制 / P0-P2 / 旧 zone 非破坏迁移",
+        "§8 异常处理表新增「既有产物含旧 zone id → 判定旧结构 + 迁移提示，不静默重写」行；既有「非模板结构」行保留",
+        "§8 既有「`.sddu/ROADMAP.md` 已存在」行仍指向 §5.4 Step A 判定；全文无「自动迁移 / 静默重写」要求",
+        "§5.7 自检清单同步新结构（8 章命名、8 zone 配对计数、无淘汰术语）"
+      ],
+      "verification": "a=src/templates/agents/sddu-roadmap.md.hbs; grep -c 'v3.2.0' \"$a\"; grep -c '旧 zone' \"$a\"; grep -c '自动迁移' \"$a\"; grep -n '^| v3.2.0' \"$a\""
+    },
+    {
+      "id": "TASK-006",
+      "name": "构建分发验证：npm run build:agents + dist≡src（幂等 / 其他模板不变）",
+      "complexity": "S",
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
+      "wave": 6,
+      "fr": ["FR-011"],
+      "nfr": ["NFR-003", "NFR-006", "NFR-007"],
+      "files": [
+        { "op": "READ", "path": "dist/templates/output/sddu-roadmap.md.hbs" },
+        { "op": "READ", "path": "dist/templates/agents/sddu-roadmap.md" }
+      ],
+      "acceptance": [
+        "`npm run build:agents` 成功，输出含 30 个 output 模板（含 sddu-roadmap.md.hbs）",
+        "`diff src/templates/outputs/sddu-roadmap.md.hbs dist/templates/output/sddu-roadmap.md.hbs` 无差异（NFR-003）",
+        "dist 的 agent 产物 `dist/templates/agents/sddu-roadmap.md` 与 src agent 模板逐字一致且含 v3.2.0 修订行",
+        "连续两次构建后 dist 全部 `*.hbs` 哈希一致（幂等）",
+        "其他 30 个输出模板与 10 个其他 Agent 指令哈希不变（NFR-007）",
+        "`scripts/`、`src/**/*.ts`、`package.json` 无 diff（NFR-006）"
+      ],
+      "verification": "npm run build:agents && diff src/templates/outputs/sddu-roadmap.md.hbs dist/templates/output/sddu-roadmap.md.hbs && grep -c 'v3.2.0' dist/templates/agents/sddu-roadmap.md && md5sum dist/templates/output/*.hbs > /tmp/h1 && npm run build:agents && md5sum dist/templates/output/*.hbs > /tmp/h2 && diff /tmp/h1 /tmp/h2 && git status --porcelain scripts/ package.json '*.ts'"
+    },
+    {
+      "id": "TASK-007",
+      "name": "结构静态自检（H2 / zone 配对 / 表列数 / mermaid 围栏 / 行数预算 / 淘汰术语）",
+      "complexity": "S",
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004"],
+      "wave": 6,
+      "fr": ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "FR-009", "FR-010", "FR-011"],
+      "nfr": ["NFR-001", "NFR-004", "NFR-005", "NFR-008"],
+      "ec": ["EC-003", "EC-007"],
+      "files": [
+        { "op": "READ", "path": "src/templates/outputs/sddu-roadmap.md.hbs" },
+        { "op": "READ", "path": "src/templates/agents/sddu-roadmap.md.hbs" }
+      ],
+      "acceptance": [
+        "产物端 H2 = 8 且顺序 == plan §4.1；zone open/close 配对；`mode=\"rewrite\"` = 4（含 meta）、`mode=\"preserve\"` = 5；`sddu:entry` open/close 各 3",
+        "3 张清单表列数与表头一致；3 类 entry 键 / 字段与 plan §4.4 一致",
+        "```mermaid 计数 = 8 且围栏配对；每图 ≤10 行；无裸空格节点名",
+        "模板 ≤170 行（NFR-001）；与 `sddu-plan.md.hbs` 风格一致、无 Tab 缩进（NFR-004）",
+        "agent 模板淘汰术语（RICE / Top N / Phase / Wave / 立即 / 短期 / 中期 / 远期）计数 = 0；含 v3.2.0；§5 / §5.4 / §5.5 与新结构一致",
+        "无跨文件不一致项；发现偏差记录为 review / validate 待办（本任务不改实现）"
+      ],
+      "verification": "f=src/templates/outputs/sddu-roadmap.md.hbs; a=src/templates/agents/sddu-roadmap.md.hbs; wc -l \"$f\" \"$a\"; grep -c '^## ' \"$f\"; grep -c '```mermaid' \"$f\"; grep -c 'mode=\"preserve\"' \"$f\"; grep -c 'RICE\\|Top N\\|Phase\\|Wave' \"$a\"; grep -c 'v3.2.0' \"$a\""
+    },
+    {
+      "id": "TASK-008",
+      "name": "沙箱演练：275 行旧 ROADMAP → 新结构映射 + 零丢失抽查",
+      "complexity": "M",
+      "dependencies": ["TASK-001", "TASK-003"],
+      "wave": 6,
+      "fr": ["FR-003", "FR-012"],
+      "nfr": ["NFR-005"],
+      "ec": ["EC-001", "EC-002", "EC-004", "EC-009"],
+      "files": [
+        { "op": "READ", "path": "src/templates/outputs/sddu-roadmap.md.hbs" }
+      ],
+      "acceptance": [
+        "在 /tmp 隔离沙箱中 `git show docs/roadmap-rewrite:.sddu/ROADMAP.md`（275 行）导出为既有产物，**不改动工作区、不改动 .sddu/ROADMAP.md**",
+        "按 plan §2.2 旧→新 zone 映射逐节演练：version-overview→version-list、feature-index→feature-list、version-plan→version-detail、next-actions→issue-list；priority / dependencies-risks 正确分流三主体",
+        "旧 zone id 被识别为「旧结构」并输出迁移提示，文件 md5 不变（非破坏，FR-012 / EC-002）",
+        "零丢失抽查：抽 10 条内容（版本主题 / 特性 / 问题 / 风险条目）在新结构中均有承载位，无遗失（EC-009）",
+        "新结构下 8 个 mermaid 块可被解析 / 围栏配对（NFR-005）；产出 /tmp 演练产物供 validate 复查"
+      ],
+      "verification": "mkdir -p /tmp/opencode/roadmap-struct-v2 && git show docs/roadmap-rewrite:.sddu/ROADMAP.md > /tmp/opencode/roadmap-struct-v2/legacy.md && wc -l /tmp/opencode/roadmap-struct-v2/legacy.md && md5sum /tmp/opencode/roadmap-struct-v2/legacy.md > /tmp/opencode/roadmap-struct-v2/before.md5 && md5sum -c /tmp/opencode/roadmap-struct-v2/before.md5 && git -C /home/usb/wks/sddu status --porcelain .sddu/ROADMAP.md src/"
+    },
+    {
+      "id": "TASK-009",
+      "name": "状态收尾与越界核验（state.json / TREE / 变更集）",
+      "complexity": "S",
+      "dependencies": ["TASK-006", "TASK-007", "TASK-008"],
+      "wave": 7,
+      "fr": [],
+      "nfr": ["NFR-006", "NFR-007"],
+      "files": [
+        { "op": "MODIFY", "path": ".sddu/specs-tree-root/specs-tree-roadmap-structure-v2/state.json" }
+      ],
+      "acceptance": [
+        "`git status` 实现变更集 ⊆ {src/templates/outputs/sddu-roadmap.md.hbs, src/templates/agents/sddu-roadmap.md.hbs}（流程产物除外）",
+        "`scripts/`、`src/**/*.ts`、`package.json` 无 diff；`.opencode/` 无变更；`.sddu/ROADMAP.md` 无变更（NG-001 / NG-005）",
+        "state.json phase 推进到 `builded`；phaseHistory 追加 build 记录",
+        "Feature 目录 TREE.md 补登 plan.md / 3 ADR / tasks.md / tasks.json（如尚不存在则创建）"
+      ],
+      "verification": "git status --porcelain; git status --porcelain .opencode/ .sddu/ROADMAP.md scripts/; git diff --stat -- src '*.ts' package.json"
+    }
+  ]
+}

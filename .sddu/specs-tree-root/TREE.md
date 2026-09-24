@@ -22,6 +22,7 @@ specs-tree-root/
 ├── specs-tree-plugin-rename-sddu/                    # 插件改名 SDDU V1 (父)
 ├── specs-tree-plugin-rename-sddu-v2/                 # 插件改名 SDDU V2 (子)
 ├── specs-tree-roadmap-output-template/               # FR-ROADMAP-TPL-001 @sddu-roadmap 输出模板补全 🆕
+├── specs-tree-roadmap-structure-v2/                  # FR-ROADMAP-STRUCT-001 Roadmap 模板结构重构 v2（概览/详情分层）🆕
 ├── specs-tree-sdd-discovery-feature/                 # Discovery 需求挖掘
 ├── specs-tree-sdd-multi-module/                      # 子 Feature 并行开发
 ├── specs-tree-sdd-plugin-baseline/                   # 插件基线建立
@@ -43,15 +44,15 @@ specs-tree-root/
 | 指标 | 值 |
 |------|-----|
 | 项目版本 | v1.4.1 |
-| 最后修改 | 2026-09-22 |
-| 当前活跃 Feature | 1 |
-| 已完成 Feature | 19 |
+| 最后修改 | 2026-09-24 |
+| 当前活跃 Feature | 0 |
+| 已完成 Feature | 20 |
 | 已搁置 Feature | 1 |
 | 已终止 Feature | 1 |
 
 ## Feature 目录一览
 
-### 已完成 Feature (19 个)
+### 已完成 Feature (20 个)
 | 目录 | Feature ID | 说明 | Phase | Status |
 |------|-----------|------|:-----:|:------:|
 | specs-tree-sdd-plugin-baseline | SDD-PLUGIN-BASE | SDD 插件基线建立 | validated | ✅ completed |
@@ -73,6 +74,7 @@ specs-tree-root/
 | specs-tree-docs-agent-optimization | FR-DOCS-OPT-001 | @sddu-docs Agent 补全与优化 — v4.0 最终验证通过 | validated | ✅ completed |
 | specs-tree-skill-system | FR-SKILL-001 | SDDU Skill 系统（双重定位：用户级 + 框架级）v3.3.0-early | validated | ✅ completed |
 | specs-tree-roadmap-output-template | FR-ROADMAP-TPL-001 | @sddu-roadmap 输出模板补全 — 消除 ROADMAP 结构漂移 + 并入统一两级模板逻辑（v4.1.0，分支 feature/roadmap-output-template） | validated | ✅ completed |
+| specs-tree-roadmap-structure-v2 | FR-ROADMAP-STRUCT-001 | Roadmap 模板结构重构 v2 — 概览/详情分层（8 章 / 8 zone / 每章 Mermaid，v3.2.0；分支 feature/roadmap-structure-v2） | validated | ✅ completed |
 
 ### 进行中 Feature (2 个)
 | 目录 | Feature ID | 说明 | Phase | Status |
