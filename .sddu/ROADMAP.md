@@ -64,9 +64,8 @@ timeline
 <!-- sddu:zone id="feature-list" mode="rewrite" -->
 ```mermaid
 pie title 特性状态分布
-    "进行中" : 0
     "已完成" : 23
-    "搁置/终止" : 2
+    "搁置、终止" : 2
 ```
 
 | Feature ID | 名称 | 类型 | 状态 | 版本归属 |
@@ -118,10 +117,9 @@ pie title 特性状态分布
 <!-- sddu:zone id="issue-list" mode="preserve" -->
 ```mermaid
 pie title 问题类型分布
-    "问题" : 0
     "技术债" : 12
     "文档债" : 8
-    "风险/依赖" : 13
+    "风险、依赖" : 13
     "决策" : 3
 ```
 
