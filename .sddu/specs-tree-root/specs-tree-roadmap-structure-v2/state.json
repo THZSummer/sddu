@@ -2,7 +2,7 @@
   "feature": "specs-tree-roadmap-structure-v2",
   "name": "Roadmap 模板结构重构 v2",
   "version": "v3.2.0",
-  "phase": "tasked",
+  "phase": "builded",
   "status": "tracked",
   "depth": 0,
   "childrens": [],
@@ -36,6 +36,12 @@
       "timestamp": "2026-09-24T00:00:00.000Z",
       "triggeredBy": "SDDU Tasks Agent",
       "comment": "任务分解完成（v1.0）— 依据 plan §4.7（W1–W6）分解为 9 个原子任务 / 7 个波次（S×4 / M×5 / L×0）：TASK-001 输出模板全量重写；TASK-002~005 agent 模板串行改造（§5 章节定义表 → §5.4 zone 清单 + 合并语义 → §5.5 各章语义 + 归属判定表 + P/PR 编码 → 修订记录 v3.2.0 + §8 增补）；TASK-006 构建分发验证；TASK-007 结构静态自检；TASK-008 沙箱演练（275 行旧 ROADMAP → 新结构映射 + 零丢失抽查）；TASK-009 状态收尾与越界核验。FR 12/12 全覆盖，NFR/EC 均映射。实现目标严格 ⊆ 2 个 src 文件，零运行时代码"
+    },
+    {
+      "phase": "builded",
+      "timestamp": "2026-09-24T00:00:00.000Z",
+      "triggeredBy": "sddu-build-agent",
+      "comment": "实施完成（v1.0）— TASK-001 输出模板全量重写（98→169 行；8 H2 / 8 content zone（3 rewrite + 5 preserve）+ meta = 9 zone 标记 / 8 章首 Mermaid / 3 清单表 + 3 类详情 entry）；TASK-002~005 agent 模板定向改造（§5 新增章节定义表 / §5.4 zone 清单与合并语义含旧 zone 迁移提示 / §5.5 各章语义 + 8 行信息归属判定表 + P·PR 编码 / §8 增补 2 行 / 修订记录 bump v3.2.0 / 全文一致性清理）；TASK-006 构建分发验证通过（npm run build:agents 成功、dist≡src 逐字节一致、二次构建幂等、30 output + agent 模板哈希稳定）；TASK-007 结构静态自检 8/8 通过（169 行 / 8 H2 / 9 zone open+close / 8 mermaid / 0 handlebars / v3.2.0 ≥1）；TASK-008 沙箱演练转 validate（D5）；TASK-009 变更集 ⊆ 2 个 src 文件 + 本 Feature 产物、无越界。零运行时代码变更（scripts/ / *.ts / package.json 零 diff）。产出 build.md 与 TREE.md。"
     }
   ],
   "metadata": {
@@ -169,7 +175,9 @@
       "ADR-001-overview-detail-layering.md",
       "ADR-002-zone-mode-allocation.md",
       "ADR-003-chapter-mermaid-diagrams.md"
-    ]
+    ],
+    "build": "build.md",
+    "tree": "TREE.md"
   },
   "openQuestions": []
 }
