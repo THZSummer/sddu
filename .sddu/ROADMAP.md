@@ -102,6 +102,13 @@ pie title 特性状态分布
 | PR-004 | 全局项目配置（FR-KB-001） | 提案 | 提案 | v3.2.0 |
 | PR-005 | Feature 级共享语言 CONTEXT.md（FR-CONTEXT-001） | 提案 | 提案 | v3.2.0 |
 | PR-006 | Discovery 访谈效率优化（FR-DISCOVERY-002） | 提案 | 提案 | v3.3.0 |
+| PR-007 | 多平台适配（FR-CROSSPLAT-001） | 提案 | 提案待决 | v4.1.0 |
+| PR-008 | Agent 自动触发（FR-AUTOTRIGGER-001） | 提案 | 提案待决 | v4.1.0 |
+| PR-009 | Agent 理性化对抗（FR-RATIONAL-001） | 提案 | 提案待决 | v3.3.0 |
+| PR-010 | Build Agent Wave 一体化（FR-QUALITY-001） | 提案 | 提案待决 | v3.0.0 |
+| PR-011 | 框架级自验证流程（FR-QUALITY-004） | 提案 | 提案待决 | v3.0.0 |
+| PR-012 | auto-updater phase 推断修复（FR-QUALITY-005） | 提案 | 提案待决 | v3.0.0 |
+| FR-KB-002 | 项目级知识自动沉淀 | 提案 | 已交付 | v3.2.0 |
 
 排序依据：按「状态（非 completed 在前）→ 版本归属升序 → specs-tree 目录字典序」。本区为实时投影（`mode="rewrite"`），随 `.sddu/specs-tree-root/` 下各 Feature `state.json` 变化整体重建；`Feature ID` 与 `版本归属` 回退取值 / 推断均已就地标注来源。
 <!-- /sddu:zone -->
