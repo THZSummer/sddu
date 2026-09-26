@@ -33,33 +33,13 @@
  */
 
 const { spawn, execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const { program, InvalidArgumentError } = require('commander');
 const http = require('http');
 const { parseArgs } = require('util');
 
 // ─── 参数解析 ───
-
-function parseCliArgs(args) {
-  const { values } = parseArgs({
-    args,
-    options: {
-      port:      { type: 'string' },
-      hostname:  { type: 'string' },
-      dir:       { type: 'string' },
-      message:   { type: 'string' },
-      agent:     { type: 'string' },
-      timeout:   { type: 'string' },
-      interval:  { type: 'string' },
-      session:   { type: 'string' },
-      grep:      { type: 'string' },
-      limit:     { type: 'string' },
-      full:      { type: 'boolean' },
-      allow:     { type: 'string', multiple: true },
-      action:    { type: 'string' },
-    },
-    strict: false,
-  });
-  return values;
-}
 
 function requireOpts(opts, keys) {
   const missing = keys.filter(k => opts[k] === undefined);
@@ -121,14 +101,9 @@ async function getSurface(url) {
   const paths = new Set();
   let docAvailable = false;
   // /doc 首次命中时服务端需生成完整 OpenAPI 规范（可达数百 KB），可能超过 10s——15s 超时 + 1 次重试
-  const fetchDoc = async () => {
-    const doc = await httpGet(`${url}/doc`, 15000);
-    return (doc && doc.paths && typeof doc.paths === 'object') ? doc : null;
-  };
   try {
-    let doc = await fetchDoc();
-    if (!doc) doc = await fetchDoc(); // 重试一次（首次可能仍在生成）
-    if (doc) {
+    const doc = await httpGetRetry(`${url}/doc`, 15000, 2); // 首访需生成完整规范（可达数百 KB）
+    if (doc && doc.paths && typeof doc.paths === 'object') {
       Object.keys(doc.paths).forEach(p => paths.add(p));
       docAvailable = paths.size > 0;
     }
@@ -201,11 +176,13 @@ function parseAllowRules(allowArr) {
 }
 
 // 创建会话。代别选择：v2 prompt 可用时优先 v2 链路（保证 revert/compact/v2 视图一致性），否则 v1。
-// 传入 allowRules 且服务端支持时附加 permissions（尝试数组与 {rules:[...]} 两种形态）。
+// 传入 allowRules 时附加 permissions（尝试数组与 {rules:[...]} 两种形态）。
+// 传入 locationDir 时以 v2 location 指定会话项目目录（一 server 多项目；v1 无此能力则报错）。
 async function createSession(url, surface, opts = {}) {
   const title = opts.title || 'serve-api-task';
   const allowRules = opts.allowRules || null;
   const agent = opts.agent || null;
+  const locationDir = opts.locationDir || null;
   const preferV2 = surface.v2.session && surface.v2.prompt;
 
   const tryCreate = async (path, body) => {
@@ -213,6 +190,14 @@ async function createSession(url, surface, opts = {}) {
     const id = extractSessionId(resp);
     return { resp, id };
   };
+
+  // 会话级项目目录（location）是 v2 能力：v1 会话目录绑定 serve 启动 cwd，无法覆盖
+  if (locationDir && !surface.v2.session) {
+    output({ error: `当前服务器不支持会话级 location（v1）。会话目录由 serve 启动时 cwd 决定——多项目请 restart --dir <目标目录> 或升级 opencode v2`, requestedDir: locationDir });
+    process.exit(1);
+  }
+
+  const locationField = locationDir ? { location: { directory: path.resolve(locationDir) } } : {};
 
   // v2 创建：按序尝试 [全量附加字段] -> [rules 对象形态] -> [无附加字段]；仅 400（形态不符）时降级
   if (preferV2) {
@@ -228,11 +213,12 @@ async function createSession(url, surface, opts = {}) {
       if (seen.has(key)) continue; // 跳过重复形态（如无任何附加字段时 full===wrapped==={}）
       seen.add(key);
       try {
-        const r = await tryCreate('/api/session', { title, ...extra });
+        const r = await tryCreate('/api/session', { title, ...locationField, ...extra });
         if (r.id) {
           let via = 'v2:/api/session';
           if (extra.permissions) via += Array.isArray(extra.permissions) ? '+rules(array)' : '+rules(object)';
           if (extra.agent) via += '+agent';
+          if (locationDir) via += '+location';
           const dropped = Object.keys(full).filter(k => !(k in extra));
           if (dropped.length) process.stderr.write(`警告: 以下字段被服务端拒绝已降级忽略: ${dropped.join(', ')}\n`);
           return { sessionId: r.id, via };
@@ -381,12 +367,40 @@ function httpGet(url, timeoutMs) {
   return httpRequest('GET', url, undefined, timeoutMs);
 }
 
+// GET 带重试：大端点（/doc、/api/skill、/session 列表）首访服务端惰性构建，可能瞬时超时
+async function httpGetRetry(url, timeoutMs, retries = 2) {
+  let lastErr;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await httpGet(url, timeoutMs);
+    } catch (e) {
+      lastErr = e;
+      if (i < retries) await sleep(1000 * (i + 1)); // 1s, 2s 退避
+    }
+  }
+  throw lastErr;
+}
+
 function httpPost(url, body, timeoutMs) {
   return httpRequest('POST', url, body === undefined ? {} : body, timeoutMs);
 }
 
 function httpDelete(url, timeoutMs) {
   return httpRequest('DELETE', url, undefined, timeoutMs);
+}
+
+// DELETE 带重试：服务端预热期可能瞬时超时
+async function httpDeleteRetry(url, timeoutMs, retries = 1) {
+  let lastErr;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await httpDelete(url, timeoutMs);
+    } catch (e) {
+      lastErr = e;
+      if (i < retries) await sleep(1500);
+    }
+  }
+  throw lastErr;
 }
 
 // ─── 子命令：start ───
@@ -396,31 +410,45 @@ async function cmdStart(opts) {
   const hostname = opts.hostname || '127.0.0.1';
   const dir = opts.dir || '.';
 
-  // 启动 serve 进程（detached，父进程退出后存活）
-  const child = spawn('opencode', ['serve', '--port', String(port), '--hostname', hostname], {
-    cwd: dir,
-    detached: true,
-    stdio: 'ignore',
-  });
-  child.unref();
-
-  const pid = child.pid;
   const url = `http://${hostname}:${port}`;
 
-  // 等待健康检查通过（最多 45 秒——冷启动可能超过 10s）
-  for (let i = 0; i < 45; i++) {
-    await sleep(1000);
-    try {
-      const surface = await getSurface(url);
-      const health = await healthCheck(url, surface);
-      if (health) {
-        output({ url, port, pid, status: 'running', version: health.version || 'unknown' });
-        return;
-      }
-    } catch { /* 还没启动 */ }
+  // 预检：端口已占用时绝不重复 spawn（幂等返回或明确报错）
+  const existing = portPids(port);
+  if (existing.length > 0) {
+    const h = await probeHealthDirect(url, 3000);
+    if (h) {
+      output({ status: 'running', alreadyRunning: true, port, pids: existing.map(Number), url, version: (h && h.version) || 'unknown', hint: 'serve 已在运行；如需换新进程用 restart' });
+      return;
+    }
+    output({ error: `端口 ${port} 已被占用且探测不健康（pids: ${existing.join(', ')}）。请先 stop 清理或换 --port`, port, pids: existing.map(Number) });
+    process.exit(1);
   }
 
-  output({ error: `serve 启动超时，端口 ${port} 无响应`, pid });
+  // 启动 serve 进程（detached + 日志/PID 落盘）
+  const { pid, logFile, pidFile } = spawnServeDetached(port, hostname, path.resolve(dir));
+
+  // --no-wait：后台模式，立即返回（冷启动需 15-30s，稍后用 status/ps 确认）
+  if (opts.wait === false) {
+    output({ status: 'starting', url, port, pid, logFile, pidFile, hint: '后台启动中（冷启动约 15-30s），用 status --port 或 ps 确认就绪' });
+    return;
+  }
+
+  // 等待健康检查通过（最多 45 秒——冷启动通常 15-30s）；逐段输出进度避免用户以为卡死
+  for (let i = 0; i < 45; i++) {
+    await sleep(1000);
+    if (i === 0) process.stderr.write(`等待健康检查（最多 45s，冷启动通常 15-30s）...\n`);
+    else if ((i + 1) % 3 === 0) process.stderr.write(`  [${i + 1}s] 仍在等待就绪...\n`);
+    const health = await probeHealthDirect(url, 5000);
+    if (health) {
+      // 拿到带 version 的响应才算完全就绪；超 38s 仍无版本字段则兜底接受（避免版本差异导致死等）
+      if (health.version || i >= 38) {
+        output({ url, port, pid, status: 'running', version: (health && health.version) || 'unknown', logFile, pidFile });
+        return;
+      }
+    }
+  }
+
+  output({ error: `serve 启动超时，端口 ${port} 无响应`, pid, logFile, hint: `查看日志: tail -f ${logFile}` });
   process.exit(1);
 }
 
@@ -440,7 +468,7 @@ async function cmdSend(opts) {
   const allowRules = parseAllowRules(opts.allow);
 
   // 1. 创建会话
-  const { sessionId, via } = await createSession(url, surface, { allowRules });
+  const { sessionId, via } = await createSession(url, surface, { allowRules, locationDir: opts.dir });
 
   // 2. 发送消息
   const promptVia = await sendPrompt(url, surface, sessionId, message, agent);
@@ -503,23 +531,42 @@ function portPids(port) {
   return [];
 }
 
-function cmdStop(opts) {
-  const port = opts.port;
-  requireOpts(opts, ['port']);
+// 从 pidfile 读取 PID（start/restart 落盘在 <dir>/.opencode/logs/opencode-serve-<port>.pid）
+function pidFromPidfile(dir, port) {
+  try {
+    const pidFile = path.join(dir, '.opencode', 'logs', `opencode-serve-${port}.pid`);
+    const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
+    if (!Number.isNaN(pid) && pid > 0) return pid;
+  } catch { /* 无 pidfile 或读取失败 */ }
+  return null;
+}
 
-  const pids = portPids(port);
-  if (pids.length === 0) {
-    output({ killed: false, port: parseInt(port), reason: '端口无进程' });
-    return;
+// 判断进程是否仍存活且确为 opencode serve（避免 pidfile 陈旧、PID 被复用误杀）
+function isOpencodeServe(pid) {
+  try {
+    const out = execSync(`ps -p ${pid} -o command= 2>/dev/null`).toString().trim();
+    return /opencode\s+serve/.test(out);
+  } catch { return false; }
+}
+
+// 杀掉占用端口的进程（SIGTERM -> 1s -> SIGKILL 兜底），返回结果供 stop/restart 复用。
+// dir 用于 pidfile 兜底：serve 刚 spawn 尚未绑定端口时 lsof/fuser 查不到，改读 pidfile 按 PID 杀。
+async function killByPort(port, dir) {
+  let pids = portPids(port);
+  if (pids.length === 0 && dir) {
+    const pid = pidFromPidfile(dir, port);
+    if (pid && isOpencodeServe(pid)) {
+      pids = [String(pid)];
+      process.stderr.write(`端口 ${port} 暂无监听进程，但 pidfile 指向存活 serve（pid ${pid}），按 PID 清理\n`);
+    }
   }
+  if (pids.length === 0) return { hadProcess: false, killed: false, reason: '端口无进程' };
 
-  // 1. SIGTERM 优雅停止
   for (const p of pids) {
     try { process.kill(parseInt(p), 'SIGTERM'); } catch {}
   }
   try { execSync('sleep 1'); } catch {}
 
-  // 2. 残留检测 + kill -9 兜底
   let forced = false;
   const remain = portPids(port);
   if (remain.length > 0) {
@@ -530,14 +577,127 @@ function cmdStop(opts) {
     try { execSync('sleep 0.5'); } catch {}
   }
 
-  // 3. 最终确认（真实状态，避免误报）
   const after = portPids(port);
-  if (after.length === 0) {
-    output({ killed: true, port: parseInt(port), pids: pids.map(Number), forced });
-  } else {
-    output({ killed: false, port: parseInt(port), pids: after.map(Number), reason: '仍有进程残留，请手动检查' });
+  if (after.length === 0) return { hadProcess: true, killed: true, pids: pids.map(Number), forced };
+  return { hadProcess: true, killed: false, pids: after.map(Number), reason: '仍有进程残留，请手动检查' };
+}
+
+async function cmdStop(opts) {
+  const port = opts.port;
+  const dir = path.resolve(opts.dir || '.');
+  const r = await killByPort(port, dir);
+  if (!r.killed) {
+    output({ killed: false, port: parseInt(port), reason: r.reason });
     process.exit(1);
   }
+  output({ killed: true, port: parseInt(port), ...(r.hadProcess ? {} : { reason: '端口无进程' }), pids: r.pids, forced: r.forced });
+}
+
+// ─── serve 进程管理（start/restart/attach 公共） ───
+
+// 直接健康探测（不依赖 /doc 自探测，冷启动更快）：依次试 v1/v2 健康端点。
+// 优先返回带 version 的响应（/api/health 在部分版本无 version 字段，仅作兜底）
+async function probeHealthDirect(url, timeoutMs = 5000) {
+  let fallback = null;
+  for (const p of ['/global/health', '/api/health', '/api/info']) {
+    try {
+      const h = await httpGet(`${url}${p}`, timeoutMs);
+      if (h && !isNoBody(h)) {
+        if (h.version) return h;
+        fallback = fallback || h;
+      }
+    } catch { /* 尝试下一个 */ }
+  }
+  return fallback;
+}
+
+// detached 启动 serve，日志/PID 落盘 <dir>/.opencode/logs/
+function spawnServeDetached(port, hostname, dir) {
+  const logDir = path.join(dir, '.opencode', 'logs');
+  fs.mkdirSync(logDir, { recursive: true });
+  const logFile = path.join(logDir, `opencode-serve-${port}.log`);
+  const pidFile = path.join(logDir, `opencode-serve-${port}.pid`);
+  const logFd = fs.openSync(logFile, 'a');
+  const child = spawn('opencode', ['serve', '--port', String(port), '--hostname', hostname], {
+    cwd: dir,
+    detached: true,
+    stdio: ['ignore', logFd, logFd],
+  });
+  child.unref();
+  fs.writeFileSync(pidFile, String(child.pid));
+  return { pid: child.pid, logFile, pidFile };
+}
+
+// ─── 子命令：restart（杀旧 -> detached 重启 -> 健康检查；原 scripts/server/restart.cjs 融合） ───
+
+async function cmdRestart(opts) {
+  const port = parseInt(opts.port);
+  const hostname = opts.hostname || '127.0.0.1';
+  const dir = path.resolve(opts.dir || '.');
+  const url = `http://${hostname}:${port}`;
+  const start = Date.now();
+
+  // 1. 杀旧进程（无旧进程也继续，restart 兼容 start 语义）；残留杀不掉则中止
+  const killed = await killByPort(port, dir);
+  process.stderr.write(`[${elapsed(start)}] 旧进程清理: ${JSON.stringify(killed)}\n`);
+  if (killed.hadProcess && !killed.killed) {
+    output({ error: `旧进程未能停止（${(killed.pids || []).join(', ')}），为避免同端口双进程已中止`, port, previousKilled: killed });
+    process.exit(1);
+  }
+
+  // 2. detached 启动 + 日志/PID 落盘
+  const { pid, logFile, pidFile } = spawnServeDetached(port, hostname, dir);
+  process.stderr.write(`[${elapsed(start)}] 已启动 pid=${pid}，日志: ${logFile}\n`);
+
+  // --no-wait：后台模式，立即返回
+  if (opts.wait === false) {
+    output({ status: 'starting', url, port, pid, logFile, pidFile, previousKilled: killed, hint: '后台启动中（冷启动约 15-30s），用 status --port 或 ps 确认就绪' });
+    return;
+  }
+
+  // 3. 健康检查（最多 30 秒）；逐段输出进度避免用户以为卡死
+  for (let i = 0; i < 30; i++) {
+    await sleep(1000);
+    if (i === 0) process.stderr.write(`[${elapsed(start)}] 等待健康检查（最多 30s，冷启动通常 15-30s）...\n`);
+    else if ((i + 1) % 3 === 0) process.stderr.write(`  [${elapsed(start)}] 仍在等待就绪（第 ${i + 1}/30 次）...\n`);
+    const h = await probeHealthDirect(url, 3000);
+    if (h) {
+      // 拿到带 version 的响应才算完全就绪；超 26s 仍无版本字段则兜底接受（实测 /global/health 完全就绪约 25s）
+      if (h.version || i >= 26) {
+        output({ status: 'running', url, port, pid, version: (h && h.version) || 'unknown', logFile, pidFile, previousKilled: killed, duration: elapsed(start) });
+        return;
+      }
+    }
+  }
+
+  output({ error: `serve 启动超时（30s）`, port, pid, logFile, hint: `查看日志: tail -f ${logFile}` });
+  process.exit(1);
+}
+
+// ─── 子命令：attach（TUI 附加到运行中的 serve；原 scripts/server/attach.cjs 融合） ───
+
+async function cmdAttach(opts) {
+  // 交互式命令：需 TTY（Agent 请改用 send/submit/result 等会话命令）
+  if (!process.stdout.isTTY || !process.stdin.isTTY) {
+    output({ error: 'attach 为交互式 TUI 命令，需要 TTY 终端。Agent 请通过 send/submit/result 使用会话' });
+    process.exit(1);
+  }
+
+  const port = parseInt(opts.port);
+  const hostname = opts.hostname || '127.0.0.1';
+  const dir = path.resolve(opts.dir || '.');
+  const url = `http://${hostname}:${port}`;
+
+  const h = await probeHealthDirect(url, 3000);
+  if (!h) {
+    output({ error: `opencode serve 未运行（${url}），请先 start 或 restart`, url });
+    process.exit(1);
+  }
+
+  // TUI 必须接管 stdio（本命令不输出 JSON，退出码透传 opencode attach）
+  // 对齐官方逻辑：--dir 默认当前目录（不传时等价 opencode attach 在 cwd 运行）
+  const child = spawn('opencode', ['attach', url, '--dir', dir], { stdio: 'inherit' });
+  child.on('exit', (code) => process.exit(code ?? 0));
 }
 
 // ─── 子命令：sessions（列出会话） ───
@@ -549,9 +709,9 @@ async function cmdSessions(opts) {
   const surface = await getSurface(url);
   let list;
   if (surface.v1.session) {
-    list = await httpGet(`${url}/session`, 15000);
+    list = await httpGetRetry(`${url}/session`, 30000);
   } else if (surface.v2.session) {
-    const r = await httpGet(`${url}/api/session?limit=100`, 15000);
+    const r = await httpGetRetry(`${url}/api/session?limit=100`, 30000);
     list = Array.isArray(r) ? r : (unwrap(r) || []);
   } else {
     output({ error: '无可用的会话列表端点' });
@@ -605,10 +765,10 @@ async function cmdRm(opts) {
   const surface = await getSurface(url);
   let via;
   if (surface.v1.session) {
-    await httpDelete(`${url}/session/${sessionId}`, 15000); // v1: 200 true
+    await httpDeleteRetry(`${url}/session/${sessionId}`, 30000); // v1: 200 true
     via = 'v1:/session/{id}';
   } else {
-    await httpDelete(`${url}/api/session/${sessionId}`, 15000); // v2: 204 无体
+    await httpDeleteRetry(`${url}/api/session/${sessionId}`, 30000); // v2: 204 无体
     via = 'v2:/api/session/{id}';
   }
   output({ deleted: true, sessionId, via });
@@ -620,12 +780,16 @@ async function cmdPs(opts) {
   const psOutput = execSync('ps -eo pid,etime,command', { encoding: 'utf8' });
   const lines = psOutput.split('\n').filter(line => /[o]pencode\s+serve/.test(line));
 
+  // 从 /proc/<pid>/cwd 读真实工作目录（spawn 走 cwd 不带 --dir 参数，命令行解析不到）
+  const procCwd = (pid) => {
+    try { return fs.realpathSync(`/proc/${pid}/cwd`); } catch { return null; }
+  };
+
   const processes = [];
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    // 解析：PID（行首数字）、etime（第二列非空）、command（剩余）
     const m = trimmed.match(/^(\d+)\s+(\S+)\s+(.+)$/);
     if (!m) continue;
 
@@ -633,50 +797,57 @@ async function cmdPs(opts) {
     const etime = m[2];
     const command = m[3];
 
-    // 从 command 提取参数
     const portMatch = command.match(/--port\s+(\d+)/);
     const hostMatch = command.match(/--hostname\s+(\S+)/);
-    const dirMatch  = command.match(/--(?:dir|cwd)\s+(\S+)/);
 
     const port     = portMatch ? parseInt(portMatch[1]) : 4096;
     const hostname = hostMatch ? hostMatch[1] : '127.0.0.1';
-    const dir      = dirMatch  ? dirMatch[1]  : null;
 
-    // 可选按端口过滤
     if (opts.port && String(port) !== String(opts.port)) continue;
 
-    processes.push({ pid, etime, port, hostname, dir });
+    processes.push({ pid, etime, port, hostname, dir: procCwd(pid) });
   }
 
-  // 对每个进程做健康探测（依次尝试 v1/v2 健康端点）
+  // 健康探测按 (hostname, port) 只做一次，避免同端口多进程时结果张冠李戴
+  const healthCache = new Map();
+  const probe = async (hostname, port) => {
+    const key = `${hostname}:${port}`;
+    if (healthCache.has(key)) return healthCache.get(key);
+    let r = { health: 'down', version: null };
+    try {
+      const h = await probeHealthDirect(`http://${hostname}:${port}`, 3000);
+      if (h) r = { health: 'alive', version: (h && h.version) || 'unknown' };
+    } catch { /* down */ }
+    healthCache.set(key, r);
+    return r;
+  };
+
+  // 同端口多进程 => conflict 标记（多见于 start 未预检的历史残留或手工误启）
+  const portCount = new Map();
+  for (const proc of processes) {
+    const key = `${proc.hostname}:${proc.port}`;
+    portCount.set(key, (portCount.get(key) || 0) + 1);
+  }
+
   const results = [];
   for (const proc of processes) {
-    const url = `http://${proc.hostname}:${proc.port}`;
-    let health  = 'down';
-    let version = null;
-
-    try {
-      const surface = await getSurface(url);
-      const h = await healthCheck(url, surface);
-      if (h) {
-        health  = 'alive';
-        version = (h && h.version) ? h.version : 'unknown';
-      }
-    } catch { /* 探测失败视为 down */ }
-
+    const { health, version } = await probe(proc.hostname, proc.port);
+    const conflict = portCount.get(`${proc.hostname}:${proc.port}`) > 1;
     results.push({
-      pid:      proc.pid,
-      etime:    proc.etime,
-      port:     proc.port,
+      pid: proc.pid,
+      etime: proc.etime,
+      port: proc.port,
       hostname: proc.hostname,
-      dir:      proc.dir,
+      dir: proc.dir,
       health,
       version,
+      ...(conflict ? { conflict: true, hint: '同端口存在多个 serve 进程，健康结果为端口实际持有者；建议 stop 后 restart' } : {}),
     });
   }
 
   output(results);
 }
+
 
 // ─── 子命令：submit（非阻塞提交） ───
 
@@ -690,7 +861,7 @@ async function cmdSubmit(opts) {
   const allowRules = parseAllowRules(opts.allow);
 
   // 创建会话 + 发送消息，不等结果
-  const { sessionId, via } = await createSession(url, surface, { allowRules });
+  const { sessionId, via } = await createSession(url, surface, { allowRules, locationDir: opts.dir });
   const promptVia = await sendPrompt(url, surface, sessionId, message, agent);
 
   output({ sessionId, status: 'submitted', url, via: { create: via, prompt: promptVia.via } });
@@ -829,7 +1000,7 @@ async function cmdRun(opts) {
   try {
     const surface = await getSurface(url);
     const allowRules = parseAllowRules(opts.allow);
-    const { sessionId, via } = await createSession(url, surface, { allowRules });
+    const { sessionId, via } = await createSession(url, surface, { allowRules, locationDir: opts.dir });
     const promptVia = await sendPrompt(url, surface, sessionId, message, agent);
 
     const r = await waitForCompletion(url, surface, sessionId, promptVia.via.startsWith('v2') ? 'v2' : 'v1', timeoutSec, 5, start);
@@ -894,7 +1065,7 @@ async function cmdSkills(opts) {
     process.exit(1);
   }
 
-  const r = await httpGet(`${url}/api/skill`, 15000);
+  const r = await httpGetRetry(`${url}/api/skill`, 30000);
   let list = Array.isArray(r) ? r : (unwrap(r) || []);
   if (!Array.isArray(list)) list = [];
 
@@ -1077,136 +1248,207 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-const args = process.argv.slice(2);
-const cmd = args[0];
-const opts = parseCliArgs(args.slice(1));
+// ─── Commander CLI 入口（标准 CLI 框架：每命令 --help / help <cmd>，用法错误 exit 2） ───
 
-switch (cmd) {
-  case 'start':
-    cmdStart(opts);
-    break;
-  case 'submit':
-    cmdSubmit(opts);
-    break;
-  case 'send':
-    cmdSend(opts);
-    break;
-  case 'status':
-    cmdStatus(opts);
-    break;
-  case 'result':
-    cmdResult(opts);
-    break;
-  case 'abort':
-    cmdAbort(opts);
-    break;
-  case 'stop':
-    cmdStop(opts);
-    break;
-  case 'run':
-    cmdRun(opts);
-    break;
-  case 'ps':
-    cmdPs(opts);
-    break;
-  case 'sessions':
-    cmdSessions(opts);
-    break;
-  case 'rm':
-    cmdRm(opts);
-    break;
-  case 'detect':
-    cmdDetect(opts);
-    break;
-  case 'wait':
-    cmdWait(opts);
-    break;
-  case 'skills':
-    cmdSkills(opts);
-    break;
-  case 'stats':
-    cmdStats(opts);
-    break;
-  case 'revert':
-    cmdRevert(opts);
-    break;
-  case 'fork':
-    cmdFork(opts);
-    break;
-  case 'compact':
-    cmdCompact(opts);
-    break;
-  case 'diff':
-    cmdDiff(opts);
-    break;
-  default:
-    process.stderr.write(`Usage: node serve-api.cjs <command> [options]
+const intOpt = (label) => (v) => {
+  const n = parseInt(v, 10);
+  if (Number.isNaN(n)) throw new InvalidArgumentError(`${label}应为数字，收到 "${v}"`);
+  return n;
+};
 
- 阻塞模式：
-   run    --message "..." [--agent sddu] [--dir .] [--port 4096] [--timeout 600] [--allow "edit:src/**"]
-          一条龙：启动 serve -> 提交 -> 等待（v2 wait 优先/轮询回退） -> 取结果 -> 关闭
+const PORT    = ['-p, --port <port>', 'serve 端口', intOpt('port'), 4096];
+const SESSION = (required = true) => ({ req: required, spec: ['--session <id>', '会话 ID（ses_ 前缀）'] });
+const MSG = { req: true, spec: ['--message <text>', '任务消息内容'] };
+const AGENT   = ['--agent <name>', '执行 Agent（如 build/sddu；opencode agent list 查看）'];
+const ALLOW   = ['--allow <rules...>', '预授权规则 "action:resource"，可重复（如 --allow "edit:src/**" --allow "shell:git *"）'];
+const MID     = ['--message <mid>', '目标消息 ID（msg_ 前缀，v2 视图）'];
 
-   send   --port 4096 --message "..." [--agent sddu] [--timeout 600] [--allow "action:resource"]
-          向已运行的 serve 提交任务，阻塞直到完成
-
- 非阻塞模式：
-   start  [--port 4096] [--hostname 127.0.0.1] [--dir .]
-          启动 serve，返回端口 + PID
-
-   submit --port 4096 --message "..." [--agent sddu] [--allow "action:resource"]
-          提交任务，立即返回 sessionId，不等待完成
-
-   status --port 4096 [--session <sid>]
-          查 serve 健康状态；指定 --session 时查会话进度
-
-   result --port 4096 --session <sid>
-          取已完成的会话消息
-
-   wait   --port 4096 --session <sid> [--timeout 600]
-           阻塞等待会话 idle（v2 wait 端点，精确完成检测）
-
-   abort  --port 4096 --session <sid]
-           中止运行中的会话（v2 interrupt 优先，v1 abort 回退）
-
-   stop   --port 4096
-           按端口查找并杀掉 serve 进程
-
- 巡检/管理：
-   ps     [--port 4096]
-           列出所有运行中的 serve 进程加健康探测
-
-   sessions --port 4096 [--agent <name>] [--grep <kw>] [--limit 5] [--full]
-           列出会话（默认摘要最近5条，数据全局共享）
-
-   rm     --port 4096 --session <sid>
-           删除指定会话（不可逆）
-
- v2 能力（依赖服务端 /api 面，detect 可探测可用性）：
-   detect --port 4096
-           探测服务器 API 面（v1/v2 端点可用性清单）
-
-   skills --port 4096 [--grep <kw>]
-           列出服务器注册的 Skills
-
-   stats  --port 4096
-           会话统计（用量/工具可靠性，实验性端点）
-
-   revert --port 4096 --session <sid> --action stage|commit|clear [--message <mid>]
-           检查点回滚：stage 暂存 -> commit 提交 / clear 取消
-
-   fork   --port 4096 --session <sid> [--message <mid>]
-           从某消息分叉新会话（不指定消息则复制全部历史）
-
-   compact --port 4096 --session <sid>
-           压缩会话上下文（触发模型摘要调用，配合长会话续接）
-
-   diff   --port 4096 --session <sid]
-           会话产生的文件变更
-
- 通用说明：
-   --allow 可重复多次，格式 "action:resource"（如 "edit:src/**"、"shell:git status *"），
-   生成 v2 permissions 规则集做无值守精准预授权（v1 服务器自动忽略）。
-   响应解析三态兼容：v1 裸值 / v2 {data:...} 包裹 / 204 无体。
-  `);
-    process.exit(1);
+function cmd(name, summary, opts = [], extra = {}, handler) {
+  const c = program.command(name).description(summary);
+  // exitOverride 不级联子命令：逐个挂载，把错误 throw 给 parseAsync 统一裁决退出码
+  c.exitOverride((err) => { throw err; });
+  for (const entry of opts) {
+    const [flag, desc, ...rest] = Array.isArray(entry) ? entry : entry.spec;
+    const isReq = !Array.isArray(entry) && entry.req === true;
+    const parse = typeof rest[0] === 'function' ? rest[0] : undefined; // [flag, desc, parseFn, default] 或 [flag, desc, default]
+    const def = parse ? rest[1] : rest[0];
+    const add = isReq ? c.requiredOption.bind(c) : c.option.bind(c);
+    if (parse) add(flag, desc, parse, def); else if (def !== undefined) add(flag, desc, def); else add(flag, desc);
+  }
+  // required 标记（SESSION(false) 等场景不强制）
+  for (const o of extra.required || []) c.requiredOption(...o);
+  if (extra.desc) c.addHelpText('after', '\n' + [].concat(extra.desc).map(l => l).join('\n'));
+  if (extra.examples) c.addHelpText('after', '\n示例:\n' + extra.examples.map(e => '  ' + e).join('\n'));
+  if (extra.notes) c.addHelpText('after', '\n说明:\n' + [].concat(extra.notes).map(n => '  ' + n).join('\n'));
+  c.action(async (opts) => { await handler(opts); });
+  return c;
 }
+
+// —— 阻塞模式 ——
+cmd('run', '一条龙：启动 serve -> 提交 -> 等待完成 -> 取结果 -> 关闭',
+  [MSG, AGENT, ['--dir <path>', '项目工作目录（默认当前目录，等价官方 opencode run 无 --dir）'], PORT,
+   ['--timeout <seconds>', '超时（秒）', intOpt('timeout'), 600], ALLOW],
+  { desc: '适合单次独立任务：自动拉起临时 serve、执行、返回全部消息后关闭。长流程（>30 分钟）建议 start + submit + status/result 组合。',
+    examples: ['node serve-api.cjs run --message "审查 src/ 目录" --agent build',
+               'node serve-api.cjs run --message "重构" --allow "edit:src/**" --allow "shell:git *" --timeout 900'] },
+  cmdRun);
+
+cmd('send', '向已运行的 serve 提交任务，阻塞直到完成',
+  [MSG, AGENT, PORT, ['--dir <path>', '会话项目目录（v2 location，实现一 server 多项目；默认 serve 启动目录）'],
+   ['--timeout <seconds>', '超时（秒）', intOpt('timeout'), 600],
+   ['--interval <seconds>', '轮询间隔（秒）', intOpt('interval'), 5], ALLOW],
+  { desc: '与 run 的区别：不启动/不关闭 serve，直接复用运行中的实例。完成检测 v2 wait 优先，自动回退消息数轮询。',
+    notes: '--dir 指定会话所属项目目录（v2 location）；同一 serve 可并发服务多个项目的会话，各自解析自己的配置/模型',
+    examples: ['node serve-api.cjs send --port 4096 --message "修复 lint 错误"',
+               'node serve-api.cjs send --port 4096 --dir /home/usb/wks/gomoku --message "审查代码"'] },
+  cmdSend);
+
+// —— 非阻塞模式 ——
+cmd('start', '启动 serve（detached 后台进程；日志/PID 落盘 <dir>/.opencode/logs/）',
+  [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--dir <path>', 'serve 启动目录（默认当前目录，等价官方 opencode serve 无 --dir）'], ['--no-wait', '后台模式：启动即返回，不等健康检查（冷启动约 15-30s）']],
+  { desc: '端口已占用且健康时幂等返回 alreadyRunning，绝不重复 spawn；占用但不健康则报错引导 stop。',
+    notes: '默认阻塞至健康就绪（适合自动化）；人用嫌慢可加 --no-wait。输出含 logFile/pidFile，排障 tail -f',
+    examples: ['node serve-api.cjs start --port 4096',
+               'node serve-api.cjs start --port 4096 --no-wait   # 立即返回，稍后 status 确认',
+               'node serve-api.cjs start --port 4096 --dir /home/usb/wks/sddu   # 指定 serve 启动目录'] },
+  cmdStart);
+
+cmd('submit', '非阻塞提交：创建会话 + 发消息，立即返回 sessionId',
+  [MSG, AGENT, PORT, ['--dir <path>', '会话项目目录（v2 location，实现一 server 多项目；默认 serve 启动目录）'], ALLOW],
+  { desc: '提交即返回，随后用 status 查进度、result 取结果、abort 中止。适合 >30 分钟长任务。',
+    notes: '--dir 指定会话所属项目目录（v2 location）；同一 serve 可并发服务多个项目的会话，各自解析自己的配置/模型',
+    examples: ['node serve-api.cjs submit --port 4096 --message "多阶段任务" --agent sddu',
+               'node serve-api.cjs submit --port 4096 --dir /home/usb/wks/gomoku --message "实现五子棋"'] },
+  cmdSubmit);
+
+cmd('status', '查 serve 健康状态；指定 --session 时查会话进度',
+  [PORT, SESSION(false)],
+  { examples: ['node serve-api.cjs status --port 4096 --session ses_xxx'] },
+  cmdStatus);
+
+cmd('result', '取会话全部消息（结果）',
+  [PORT, SESSION()],
+  { examples: ['node serve-api.cjs result --port 4096 --session ses_xxx'] },
+  cmdResult);
+
+cmd('wait', '阻塞等待会话 idle（v2 wait 端点，精确完成信号）',
+  [PORT, SESSION(), ['--timeout <seconds>', '超时（秒）', intOpt('timeout'), 600]],
+  { notes: '依赖服务端 /api/session/{id}/wait；不可用时明确报错，可用 status 轮询替代',
+    examples: ['node serve-api.cjs wait --port 4096 --session ses_xxx --timeout 900'] },
+  cmdWait);
+
+cmd('abort', '中止运行中的会话（v2 interrupt 优先，v1 abort 回退）',
+  [PORT, SESSION()],
+  { examples: ['node serve-api.cjs abort --port 4096 --session ses_xxx'] },
+  cmdAbort);
+
+cmd('stop', '按端口杀掉 serve 进程（SIGTERM -> SIGKILL 兜底）',
+  [PORT, ['--dir <path>', 'serve 启动目录（用于 pidfile 兜底定位刚启动未绑端口的进程；默认当前目录）']],
+  { notes: '端口查不到进程时读 <dir>/.opencode/logs/opencode-serve-<port>.pid 按 PID 杀（覆盖 start --no-wait 后立即 stop 的竞态）',
+    examples: ['node serve-api.cjs stop --port 4096',
+               'node serve-api.cjs stop --port 4096 --dir /home/usb/wks/sddu'] },
+  cmdStop);
+
+cmd('restart', '重启 serve：杀旧进程 -> detached 重启 -> 30s 健康检查（原 server/restart.cjs 融合）',
+  [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--dir <path>', 'serve 启动目录（默认当前目录）'], ['--no-wait', '后台模式：杀旧+启动后立即返回，不等健康检查']],
+  { desc: '端口无旧进程时等同于 start（restart 兼容冷启动）。日志/PID 落盘 <dir>/.opencode/logs/。',
+    notes: ['原 scripts/server/ 脚本默认端口 14096，本 CLI 统一默认 4096——沿用旧端口请显式 --port 14096'],
+    examples: ['node serve-api.cjs restart --port 14096 --dir /home/usb/wks/sddu'] },
+  cmdRestart);
+
+cmd('attach', 'TUI 附加到运行中的 serve（原 server/attach.cjs 融合）',
+  [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--dir <path>', '要打开的项目目录（默认当前目录，等价官方 opencode attach）']],
+  { desc: '健康检查通过后以 opencode attach 接管终端（交互式分屏）。',
+    notes: ['交互式命令：需要 TTY，接管后不输出 JSON，退出码透传', 'Agent 请改用 send/submit/result 等会话命令', '原脚本默认端口 14096，本 CLI 统一默认 4096'],
+    examples: ['node serve-api.cjs attach --port 14096 --dir /home/usb/wks/sddu'] },
+  cmdAttach);
+
+// —— 巡检/管理 ——
+cmd('ps', '列出所有运行中的 serve 进程并做健康探测',
+  [['-p, --port <port>', '仅显示该端口（可选过滤）']],
+  { examples: ['node serve-api.cjs ps'] },
+  cmdPs);
+
+cmd('sessions', '列出会话（默认摘要最近 5 条，数据全局共享）',
+  [PORT, AGENT, ['--grep <keyword>', '按 title 关键字过滤'],
+   ['--limit <count>', '返回条数（0 = 全部）', intOpt('limit'), 5],
+   ['--full', '输出完整字段']],
+  { examples: ['node serve-api.cjs sessions --port 4096 --limit 10',
+               'node serve-api.cjs sessions --port 4096 --grep "代码审查" --full'] },
+  cmdSessions);
+
+cmd('rm', '删除指定会话（不可逆，含子会话）',
+  [PORT, SESSION()],
+  { examples: ['node serve-api.cjs rm --port 4096 --session ses_xxx'] },
+  cmdRm);
+
+// —— v2 能力 ——
+cmd('detect', '探测服务器 API 面（v1/v2 端点可用性清单）',
+  [PORT],
+  { desc: '解析 /doc OpenAPI 规范，输出当前服务器支持的 v1/v2 端点集合。排查兼容性问题首选。',
+    examples: ['node serve-api.cjs detect --port 4096'] },
+  cmdDetect);
+
+cmd('skills', '列出服务器注册的 Skills（v2 /api/skill）',
+  [PORT, ['--grep <keyword>', '按 id/name/description 过滤']],
+  { examples: ['node serve-api.cjs skills --port 4096 --grep sddu'] },
+  cmdSkills);
+
+cmd('stats', '会话统计：用量/成本/工具可靠性（实验性端点）',
+  [PORT],
+  { examples: ['node serve-api.cjs stats --port 4096'] },
+  cmdStats);
+
+cmd('revert', '检查点回滚：stage 暂存 -> commit 提交 / clear 取消',
+  [PORT, SESSION(), ['--action <name>', 'stage | commit | clear', 'stage'], MID],
+  { desc: ['stage：暂存回滚点到某条消息之前（--message 省略时自动选中 v2 视图最后一条用户消息）。',
+           'commit：提交暂存的回滚（文件与会话同时回退，返回 snapshot）。clear：取消暂存。'],
+    notes: ['需要 v2 驱动链路（本工具会话创建已默认 v2 优先）', '流程建议：stage -> 检查 -> commit，或 stage -> clear 放弃'],
+    examples: ['node serve-api.cjs revert --port 4096 --session ses_xxx --action stage',
+               'node serve-api.cjs revert --port 4096 --session ses_xxx --action commit'] },
+  cmdRevert);
+
+cmd('fork', '从某消息分叉新会话（省略 --message 复制全部历史）',
+  [PORT, SESSION(), MID],
+  { notes: '依赖服务端 /api/session/{id}/fork 端点（detect 可探测）',
+    examples: ['node serve-api.cjs fork --port 4096 --session ses_xxx'] },
+  cmdFork);
+
+cmd('compact', '压缩会话上下文（触发模型摘要调用，适合长会话续接前）',
+  [PORT, SESSION()],
+  { examples: ['node serve-api.cjs compact --port 4096 --session ses_xxx'] },
+  cmdCompact);
+
+cmd('diff', '查看会话产生的文件变更',
+  [PORT, SESSION()],
+  { examples: ['node serve-api.cjs diff --port 4096 --session ses_xxx'] },
+  cmdDiff);
+
+program
+  .name('serve-api.cjs')
+  .description('opencode serve API 封装 — v1/v2 双代兼容的 HTTP API 命令行工具')
+  .version('4.4.2')
+  .addHelpText('after', `
+全局约定:
+  stdout 恒为 JSON（含错误对象）；stderr 为人类可读进度/警告
+  退出码：0 成功 / 1 运行时错误 / 2 用法错误
+  v1/v2 双代兼容：启动时经 /doc 自探测选路径，输出 via 字段标注实际链路
+  多数命令需要 serve 已在运行（先 start 或 ps 巡检已有实例）
+  完整文档：同目录 ../SKILL.md
+
+示例: node serve-api.cjs help revert   # 查看任一命令的参数与用法`);
+
+// 退出码约定（集中裁决）：help/version 显式请求 -> 0；无参数帮助(stderr) -> 1；其余用法错误 -> 2
+program.exitOverride((err) => { throw err; });
+
+program.parseAsync(process.argv).catch(err => {
+  if (process.env.CLI_DEBUG) console.error('DBG-CATCH code=' + err.code + ' exitCode=' + err.exitCode + ' name=' + err.name);
+  if (err && typeof err.code === 'string' && err.code.startsWith('commander.')) {
+    if (err.code === 'commander.help' || err.code === 'commander.helpDisplayed' || err.code === 'commander.version') {
+      process.exit(err.exitCode || 0); // 无参数帮助 exitCode=1，显式 --help exitCode=0
+    }
+    process.exit(2);
+  }
+  // 运行时错误：交由全局 unhandledRejection 处理器输出 JSON 并 exit 1
+  Promise.reject(err);
+});

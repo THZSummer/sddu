@@ -1,0 +1,13 @@
+{
+  "name": "opencode-operator-scripts",
+  "version": "1.0.0",
+  "description": "opencode serve API CLI (serve-api.cjs)",
+  "directories": {
+    "lib": "lib"
+  },
+  "type": "commonjs",
+  "private": true,
+  "dependencies": {
+    "commander": "^15.0.0"
+  }
+}

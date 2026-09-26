@@ -10,7 +10,8 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 阅读本章节即可使用本 Skill，无需阅读后续路径细节。
 
 > **命令自发现**（始终优先于本文件的静态表格）：
-> - serve-api 子命令：`node scripts/serve-api.cjs`（无参数运行打印完整 usage）
+> - serve-api 子命令：`node scripts/serve-api.cjs help`（顶层命令清单）；`help <command>` 或 `<command> --help`（单命令参数/示例/说明）；`--version` 查看版本
+> - 未知命令/参数会报错并给出近似建议（如 `sessons` → `sessions`）；退出码：0 成功 / 1 运行时错误 / 2 用法错误
 > - opencode CLI 命令：`opencode --help`（列出全部顶层命令）；`opencode <command> --help` 查看子命令与参数详情
 
 ### v1/v2 双代兼容（v4.0+）
@@ -23,6 +24,21 @@ opencode 官方已发布 v2（文档 `opencode.ai/v2/docs/`，API 全部迁移�
 - **响应三态兼容**：v1 裸值 / v2 `{data:...}` 包裹 / 204 无体
 - **多形态请求体**：v2 prompt 尝试 `{text}` → `{prompt:{text}}`；revert/fork 尝试 `{before}` → `{messageID}`（小版本草稿差异）
 - 输出的 `via` 字段透明标注每步实际使用的路径
+
+### 一 server 多项目（v2 location）
+
+opencode v2 的 `location` 使**会话目录独立于 serve 启动目录**——同一 serve 可并发服务多个项目的会话，各自解析各自的配置/模型（实测：serve cwd 在 A 目录，会话 location=B 时 agent 的 `pwd` 即为 B）。用法：
+
+```bash
+node scripts/serve-api.cjs start --port 4096            # 启动一次，不必关心 --dir
+node scripts/serve-api.cjs submit --port 4096 --dir /home/usb/wks/gomoku --message "实现五子棋"
+node scripts/serve-api.cjs send   --port 4096 --dir /home/usb/wks/sddu   --message "审查 src/"
+node scripts/serve-api.cjs attach --port 4096 --dir /home/usb/wks/gomoku # TUI 打开指定项目
+```
+
+- `submit`/`send`/`run` 的 `--dir` = 会话项目目录（v2 `location.directory`）；`attach --dir` = TUI 打开的项目
+- v1 服务器无此能力：会话目录绑定 serve 启动 cwd，带 `--dir` 会明确报错引导 `restart --dir` 或升级 v2
+- 非 git 目录的 location 归入 `global` 项目；多项目会话可见于 `sessions` 列表（含 directory 字段）
 
 ### 参数
 
@@ -499,12 +515,10 @@ node scripts/serve-api.cjs sessions --port 4096
 
 | 脚本 | 路径 | 用途 |
 |------|------|------|
-| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API（**Agent 接口**，v1/v2 双代兼容）。**19 个子命令**：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止，v2 interrupt 优先）、`stop`（关闭）、`wait`（阻塞等 idle）；**只读巡检** `ps`（进程+健康探测）、`sessions`（列会话）、`rm`（删会话）、`detect`（**API 面自探测**）、`skills`（列 Skills）、`stats`（会话统计）；**v2 会话治理** `revert`（检查点 stage/commit/clear）、`fork`（分叉）、`compact`（压缩上下文）、`diff`（文件变更）。通用参数 `--port`（必填，默认 4096）、`--hostname`、`--timeout`/`--interval`、`--allow`（可重复，`"action:resource"` 预授权规则）。零依赖，stdout JSON，stderr 进度。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
-| restart.cjs | scripts/server/restart.cjs | 重启 opencode serve（**人工运维工具**）。杀旧进程（SIGTERM → kill -9 兜底）→ spawn detached 启动 → 30s 健康检查 → 日志/PID 落盘 `<dir>/.opencode/logs/`。人类友好输出。默认 `--port 14096`、`--dir` 默认当前工作目录（可用 `--dir <path>` 覆盖）。 |
-| stop.cjs | scripts/server/stop.cjs | 停止 opencode serve（**人工运维工具**）。终止占用端口进程（SIGTERM → kill -9 兜底），确认端口释放。人类友好输出。默认 `--port 14096`。 |
-| attach.cjs | scripts/server/attach.cjs | 一键 TUI attach 到运行中的 serve（**人工运维工具**）。健康检查通过后以 `stdio: inherit` 启动 `opencode attach`。参数同上（默认 `--port 14096`、`--dir` 默认当前工作目录）。 |
+| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API（**Agent 接口**，v1/v2 双代兼容）。**21 个子命令**：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止，v2 interrupt 优先）、`stop`（关闭）、`wait`（阻塞等 idle）；**进程运维** `restart`（杀旧重启+日志/PID 落盘，原 server/restart.cjs）、`attach`（TUI 附加，原 server/attach.cjs，需 TTY）；**只读巡检** `ps`（进程+健康探测）、`sessions`（列会话）、`rm`（删会话）、`detect`（**API 面自探测**）、`skills`（列 Skills）、`stats`（会话统计）；**v2 会话治理** `revert`（检查点 stage/commit/clear）、`fork`（分叉）、`compact`（压缩上下文）、`diff`（文件变更）。`start`/`restart` 均落盘日志与 PID 至 `<dir>/.opencode/logs/`。通用参数 `--port`（默认 4096）、`--hostname`、`--timeout`/`--interval`、`--allow`（可重复，`"action:resource"` 预授权规则）。零依赖，stdout JSON，stderr 进度。**标准 CLI 行为**：每命令 `--help`/`help <cmd>`、未知命令/参数报错+近似建议、类型校验、退出码 0/1/2、`--version`——不看文档即可自如使用。 |
+| cli 依赖 | scripts/package.json + node_modules/ | **Commander v15**（唯一 npm 依赖，零子依赖，整包随 Skill 目录分发）。新环境若无 node_modules，在 scripts/ 下执行 `npm install` 即可。 |
 
-> **分层约定**：`scripts/server/` 下为**人用**运维脚本（人类友好文本输出）；`serve-api.cjs` 为 **LLM Agent 用**接口（stdout JSON）。Agent 不得调用 server/ 脚本解析输出。
+> **融合说明（v4.3）**：原 `scripts/server/` 三个人用运维脚本已融入统一 CLI——`restart`（原 restart.cjs）、`attach`（原 attach.cjs）、`stop` 功能原已重合。`attach` 为交互式命令（需 TTY、接管终端、不输出 JSON），其余命令人机通用：`--help` 给人看，stdout JSON 给 Agent 解析。注意：原脚本默认端口 14096，CLI 统一默认 4096，沿用旧端口需显式 `--port 14096`。
 
 ---
 
@@ -665,3 +679,11 @@ V1 调 `server()`，V2 读 `setup()`；两套 API 各自独立，不做翻译。
 | v3.0 | sessions 默认 limit 从 20 改为 5 | 2026-07-26 | @sddu-fast |
 | v3.1 | 新增人工运维脚本 `scripts/server/`（restart.cjs / stop.cjs / attach.cjs，人用，CJS 人类友好输出）；分层约定：server/ 人用 vs serve-api.cjs Agent 用 | 2026-08-12 | @sddu-fast |
 | v4.0 | **v1/v2 双代兼容大版本**：① `/doc` OpenAPI 运行时自探测（detect 子命令）+ 会话链路 v2 优先（create/prompt v2，prompt 双形态 text→prompt.text）；② 完成检测 v2 wait 优先/消息数轮询回退，abort→interrupt 优先；③ 响应三态兼容（裸值/{data}/204）+ v2 消息视图排序归一化；④ 新增 8 个子命令：detect/wait/skills/stats/revert/fork/compact/diff；⑤ `--allow` 无值守精准预授权（v2 permissions Ruleset）；⑥ 新增「v2 迁移备忘」章节（配置字段映射/新命令速查/双栈插件/SDDU 机会）；⑦ 已封装端点表改双代对照。全部经 1.18.32 hybrid 实测（wait 503 回退、revert v2 驱动链路成功、ruleset array 形态接受） | 2026-09-26 | @sddu-fast |
+| v4.1 | **标准 CLI 重构**：新增零依赖微框架 `lib/cli.cjs`（git 风格）；每个命令支持 `--help`/`-h` 与 `help <cmd>`（含参数表/示例/说明），顶层 `--version`；未知命令/参数报错+levenshtein 近似建议；严格参数校验（未知 flag 报错而非静默忽略、必填缺失明确提示、number 类型校验）；退出码标准化 0/1/2；--port 统一默认 4096（不再部分命令强制必填）；大端点（/doc、/api/skill、/session）GET 超时提升至 30s 并带退避重试（服务端惰性构建抖动实测修复）。Handler 逻辑零变更 | 2026-09-26 | @sddu-fast |
+| v4.4.2 | **attach 默认逻辑回归官方 + stop pidfile 兜底**：① `attach --dir` 恢复默认当前目录（不传时等价官方 `opencode attach` 在 cwd 运行，始终拼 `--dir <cwd>`）；② `stop` 修复 start --no-wait 后立即 stop 的竞态——lsof/fuser 查不到未绑端口的新进程时，读 `<dir>/.opencode/logs/opencode-serve-<port>.pid` 按 PID 杀（带 isOpencodeServe 校验，防陈旧 pidfile 误杀 PID 复用进程）；stop 新增 `--dir` 定位 pidfile；restart 同步传 dir。实测：start --no-wait 秒回后立即 stop，pidfile 兜底精确清理无残留 | 2026-09-26 | @sddu-fast |
+| v4.4.1 | **对齐官方 dir 默认行为（用户建议）**：`start`/`restart`/`attach`/`run` 的 `--dir` 移除硬编码默认值 `.`（help 不再显示 default: "."）。官方实测：`opencode serve` 本无 `--dir`（用进程 cwd）、`opencode attach --dir` 与 `opencode run --dir` 均无默认值。现在不带 --dir 时 serve 落在自然 cwd（等价官方），attach 仅在显式传 --dir 时才加该参数（官方默认由 opencode 自己决定）。示例同步清理 | 2026-09-26 | @sddu-fast |
+| v4.4.0 | **一 server 多项目（v2 location）**：`submit`/`send` 新增 `--dir` 会话项目目录（v2 `location.directory`），`run` 的 --dir 同步传入。实测验证 1.18.32 hybrid 原生支持：同一 serve 上不同 location 会话拿到不同 projectID（`global` vs 仓库哈希）、各自解析各自 provider/model 配置（无配置目录解析出默认模型、sddu 解析出 deepseek），且 serve cwd=scripts 时 location=sddu 的会话 `pwd` 精确返回 `/home/usb/wks/sddu`——会话目录彻底独立于 serve 启动目录。v1 无此能力则明确报错。via 字段加 `+location` 标注 | 2026-09-26 | @sddu-fast |
+| v4.3.2 | **健康检查体验优化（用户实测反馈）**：① `start`/`restart` 阻塞等待期间 stderr 每 3s 输出进度（含耗时与探测次数），消除 15-30s 黑盒等待的"疑似卡死"感；② 根治 `version: unknown`——冷启动早期 /api/health 先应答但无 version 字段，探测提前接受残缺响应；现改为**拿到带 version 的响应才算完全就绪**（超时兜底阈值后移至 26s/38s，实测 /global/health 完全就绪约 25s）。实测 restart 31.7s 全程进度可见、version 精确返回 | 2026-09-26 | @sddu-fast |
+| v4.3.1 | **进程管理三 bug 修复（用户实测反馈）**：① `start` 加端口占用预检——已运行且健康则幂等返回 alreadyRunning（绝不重复 spawn），被占但不健康则报错引导 stop（实测实锤：opencode serve 端口被占时**不会失败退出而是滞留/衍生进程**，一条误启可产生 3+ 进程）；② `ps` 修复健康张冠李戴——同 (hostname,port) 只探测一次 + 多进程 conflict 标记与处置建议 + 经 /proc/<pid>/cwd 读真实工作目录（spawn 走 cwd 无 --dir 参数，命令行解析不到）；③ `start`/`restart` 新增 `--no-wait` 后台模式（0.8s 秒回 starting，人用不再阻塞 30-45s；默认仍阻塞至就绪保自动化确定性）；`restart` 杀残留失败时中止避免双进程；probeHealthDirect 优先取带 version 的响应。实测：幂等预检/conflict 检出/--no-wait 秒回+35s 后就绪 | 2026-09-26 | @sddu-fast |
+| v4.3 | **运维脚本融入统一 CLI**：原 `scripts/server/` 三脚本（restart.cjs/stop.cjs/attach.cjs，v3.1 引入的人用运维层）删除，功能融入 serve-api.cjs——新增 `restart`（杀旧→detached 重启→30s 健康检查→日志/PID 落盘 `<dir>/.opencode/logs/`，无旧进程时兼容冷启动）与 `attach`（TUI 附加，TTY 守卫：非交互环境明确报错引导 Agent 改用 send/submit/result；退出码透传）命令；`stop` 原已重合；`start` 增强为同样落盘日志/PID。默认端口统一 4096（原 server/ 脚本默认 14096，沿用需显式 `--port 14096`）。killByPort 抽出供 stop/restart 复用；probeHealthDirect 直连健康端点（不依赖 /doc 自探测，冷启动更快）。实测：restart 28.3s 全链路（含落盘校验）、attach 守卫精确拦截 | 2026-09-26 | @sddu-fast |
+| v4.2 | **Commander 框架迁移**：入口层由自建 lib/cli.cjs 换为 **Commander v15**（用户决策；唯一 npm 依赖、零子依赖，随 scripts/ 的 package.json+node_modules 整包分发）。行为与 v4.1 对齐：每命令 `--help`/`help <cmd>`、未知命令/参数自动建议（Commander 内置）、必填校验（requiredOption）、number 校验（InvalidArgumentError）、退出码 0/1/2（exitOverride+parseAsync 集中裁决，注意 exitOverride 不级联子命令需逐命令挂载）、无参数 help→stderr exit 1、`--version` 4.2.0。删除 lib/cli.cjs。附带：rm 的 DELETE 加 30s 超时+重试（服务端预热抖动实测：响应超时但服务端已执行，重试遇 404 属预期）。Handler 逻辑零变更 | 2026-09-26 | @sddu-fast |
