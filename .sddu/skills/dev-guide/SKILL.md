@@ -27,7 +27,7 @@ description: "当需要给 SDDU 插件自身（本仓库 opencode-sddu-plugin / 
 | **用户级 Skill**（`.sddu/skills/`） | **项目自身产出的内容** | ✅ 正常改，**改完要同步**（让它生效） |
 | `.opencode/`（插件安装、agents、框架技能、`opencode.json`） | **你开发时用的工具** | 🚫 不手改（升级 = 整体重装） |
 | `dist/`（构建产物） | 中间产物 | 🚫 不手改 |
-| `.sddu/specs-tree-root`、`ROADMAP.md`、`TREE.md` | SDDU 流程产物 | 🚫 不是本次开发的产物 |
+| `.sddu/`（specs-tree 流程文档、`ROADMAP.md`、`TREE.md`、用户 Skill） | **项目自身的开发文档产出** | ✅ 正常产出、正常改（由流程 / `sddu-tree` 生成） |
 
 **购物项目类比**：开发一个购物系统时，你会去改 `.opencode/` 里的东西吗？不会，那是你的工具。但你新增了项目自己的 Skill，会同步进去让它生效吗？**会**，那属于项目内容。开发 SDDU 时同理。
 
@@ -91,7 +91,7 @@ description: "当需要给 SDDU 插件自身（本仓库 opencode-sddu-plugin / 
 
 - **做什么**：静态审查代码质量、规范符合、架构一致、测试质量。
 - **SDDU 特有审查项**（就是普通项目的完整性检查，不存在"SDDU 特殊同步"问题）：
-  - [ ] 变更文件全部属于真源 `src/`，且各归其位（对照附录 C：Agent prompt → `src/templates/agents/*.md.hbs`；Skill → `src/skills/{framework,builtin}/`）
+  - [ ] 代码与配置改动全部落在真源 `src/`，且各归其位（对照附录 C：Agent prompt → `src/templates/agents/*.md.hbs`；Skill → `src/skills/{framework,builtin}/`）；`.sddu/` 流程文档变更属正常产出
   - [ ] 新增/改名/删除 Agent 时，`src/adapters/opencode/templates/opencode.json.hbs` 的 `agent` 注册同步增改删（性质同「新路由要挂到路由表」）
 
 ## 7 · 动态验证 —— `@sddu-validate` ⭐
@@ -114,11 +114,11 @@ description: "当需要给 SDDU 插件自身（本仓库 opencode-sddu-plugin / 
   - [ ] `permission` 按预期生效
 - **产出**：`validate-report.md`。
 - **验证 ≠ 升级自己**：验证开发中的代码 → e2e 临时项目。把当前仓库的工具升级到开发中版本（`install.sh .` + 重启）是你作为用户的自由，随时可做，但它不是验证，也不属于开发流程。
-- ✅ **用户级 Skill 例外**：`.sddu/skills/` 属于项目自身内容，新增/修改后**照常同步**（`sync.cjs`）让它生效。
+- ✅ **用户级 Skill**：`.sddu/` 是项目自身的开发文档目录，其中 `skills/` 新增/修改后**照常同步**（`sync.cjs`）让它生效。
 
 ## 8 · 发布与回流（SDDU 7 阶段之外的收尾）
 
-1. 确认改动全部在 `src/`（`git status` 不出现 `dist/`、`.opencode/`、`.sddu/` 产物）
+1. 确认改动归属：代码全部在 `src/`；`git status` 不出现 `dist/`、`.opencode/`（`.sddu/` 流程文档是正常产出，不在此列）
 2. 版本号：`package.json` `version` + `README.md` badge/版本历史 + `.sddu/ROADMAP.md`
 3. `npm run build && npm run package`
 4. 冒烟（**隔离**）：`bash install.sh /tmp/sddu-smoke` 后进该目录 `opencode`
@@ -181,9 +181,7 @@ src/  ──build──▶  dist/  ──package──▶  dist/sddu/(插件包)
 | ✅ **设计态源码** | `src/**`、`scripts/**`、`e2e/**`、`docs/**`、`examples/**`、`README.md`、`install.sh/ps1`、`bootstrap.sh/ps1`、`package.json`、`tsconfig.json` | 人 | **能**（唯一可改层） |
 | 🚫 **构建产物** | `dist/**`、`dist/sddu/**`、`dist/sddu.zip` | `npm run build` / `package` | 禁止 |
 | 🚫 **运行时副本** | `.opencode/**`（`agents/`、`plugins/<plugin>/**`、`skills/`、`opencode.json`） | `install.sh` 生成 | 禁止 |
-| 🚫 **流程产物** | `.sddu/specs-tree-root/**`、`.sddu/docs-tree-root/**`、`.sddu/ROADMAP.md`、`.sddu/TREE.md` | SDDU 流程 / `sddu-tree` | 禁止 |
-
-> **唯一例外**：`.sddu/skills/<name>/`（用户级 Skill 源目录，git 管理，由 `sddu-skill-creator` 创建）。
+| ✅ **开发文档产出** | `.sddu/**`（`specs-tree-root/` 流程文档、`docs-tree-root/`、`ROADMAP.md`、`TREE.md`、`skills/` 用户 Skill） | SDDU 流程 / `sddu-tree` / `sddu-skill-creator` | **能**（项目自身文档，正常产出，git 管理） |
 
 # 附录 B · 常见误操作
 
@@ -237,4 +235,4 @@ bash install.sh "$HOME/sddu-test-projects/sddu-test-<name>"   # 仅限隔离项�
 - ❌ 不用于用 SDDU 开发业务功能 —— 那是 `@sddu` / `@sddu-fast` 的职责
 - ❌ 不重复定义 7 阶段细则 —— 阶段内部行为以 `@sddu-*` Agent 为准，本 Skill 只写「开发 SDDU 自身」时每阶段的特有约束
 - ❌ 不创建框架级 Skill —— 框架级走 `src/skills/framework/` + 完整流程；用户级走 `sddu-skill-creator`
-- ❌ 不修改 `.opencode/` 与 `.sddu/` 流程产物 —— 最高优先级红线，任何情况下不例外
+- ❌ 不手改 `.opencode/`（工具安装）与 `dist/`（构建产物）—— 最高优先级红线，任何情况下不例外
