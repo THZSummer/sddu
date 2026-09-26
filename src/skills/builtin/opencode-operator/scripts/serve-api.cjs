@@ -931,11 +931,9 @@ async function cmdResult(opts) {
   let messages = await fetchMessages(url, surface, sessionId, undefined, 60000);
   if (!Array.isArray(messages)) messages = [];
   const total = messages.length;
-  // --limit N：仅返回最后 N 条（最近），大会话按需查看，避免一次性吐 MB 级内容
-  if (opts.limit !== undefined) {
-    const n = parseInt(opts.limit);
-    if (n >= 0 && total > n) messages = messages.slice(total - n);
-  }
+  // 默认仅返回最后 1 条（最近），大会话避免一次性吐 MB 级内容；--limit N 调整，--limit 0 返回全部
+  const n = opts.limit !== undefined ? parseInt(opts.limit) : 1;
+  if (n > 0 && total > n) messages = messages.slice(total - n);
   const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
   const done = total > 1 && msgRole(lastMsg) !== 'user';
 
@@ -1342,11 +1340,12 @@ cmd('status', '查 serve 健康状态；指定 --session 时查会话进度',
   { examples: ['node serve-api.cjs status --port 4096 --session ses_xxx'] },
   cmdStatus);
 
-cmd('result', '取会话消息（--limit N 仅返回最后 N 条；默认全部）',
-  [PORT, SESSION(), ['--limit <count>', '仅返回最后 N 条消息（默认全部）', intOpt('limit')]],
-  { notes: '大会话消息量可达 MB 级；用 --limit 只看最近若干条。输出含 total/returned 便于判断截断',
+cmd('result', '取会话消息（默认仅最后 1 条；--limit N 调整，--limit 0 全部）',
+  [PORT, SESSION(), ['--limit <count>', '返回最后 N 条（默认 1；0 = 全部）', intOpt('limit')]],
+  { notes: '大会话消息量可达 MB 级，默认只返回最近 1 条避免刷屏；输出含 total/returned 便于判断截断',
     examples: ['node serve-api.cjs result --port 4096 --session ses_xxx',
-               'node serve-api.cjs result --port 4096 --session ses_xxx --limit 5'] },
+               'node serve-api.cjs result --port 4096 --session ses_xxx --limit 10',
+               'node serve-api.cjs result --port 4096 --session ses_xxx --limit 0   # 全部'] },
   cmdResult);
 
 cmd('wait', '阻塞等待会话 idle（v2 wait 端点，精确完成信号）',
@@ -1444,7 +1443,7 @@ cmd('diff', '查看会话产生的文件变更',
 program
   .name('serve-api.cjs')
   .description('opencode serve API 封装 — v1/v2 双代兼容的 HTTP API 命令行工具')
-  .version('5.2.2')
+  .version('5.2.3')
   .addHelpText('after', `
 全局约定:
   stdout 恒为 JSON（含错误对象）；stderr 为人类可读进度/警告
