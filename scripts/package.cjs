@@ -138,6 +138,15 @@ async function packageSingleVersion(distDir, version, packageName) {
     ...originalPkg,
     name: packageName,
     description: 'Specification-Driven Development Ultimate plugin for OpenCode (V2 Exclusive - No SDD Compatibility)',
+    // 插件包内文件已拍平到根目录（index.js / state / shared / adapters），
+    // 不能沿用源码仓库的 dist/* 入口（dist/ 仅存在于源码构建目录）
+    main: 'index.js',
+    exports: {
+      '.': './index.js',
+      './state': './state/index.js',
+      './opencode': './adapters/opencode/index.js',
+      './shared': './shared/index.js'
+    },
     scripts: {
       ...originalPkg.scripts,
     },

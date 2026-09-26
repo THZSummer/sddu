@@ -85,7 +85,7 @@ for f in "$TEST_DIR/.opencode/agents/sddu"*.md; do
     fail "V4 $(basename $f) 缺少「Skill 发现」"
   fi
 done
-[ "$AGENT_COUNT" -eq 12 ] && pass "V4 Agent 模板: $AGENT_COUNT/12 含「Skill 发现」" || fail "V4 Agent 模板: $AGENT_COUNT/12"
+[ "$AGENT_COUNT" -eq 11 ] && pass "V4 Agent 模板: $AGENT_COUNT/11 含「Skill 发现」" || fail "V4 Agent 模板: $AGENT_COUNT/11"
 
 # V5: sync 仅在三阶段发现上下文中（非独立硬编码）
 SYNC_REF=$(grep -c "sddu-skill-sync" "$TEST_DIR/.opencode/agents/sddu.md" 2>/dev/null || echo 0)
