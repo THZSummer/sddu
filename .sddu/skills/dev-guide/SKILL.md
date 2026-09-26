@@ -19,7 +19,7 @@ description: "当需要给 SDDU 插件自身（本仓库 opencode-sddu-plugin / 
 |------|------|:--:|
 | 业务源码 / 文档 / 配置（SDDU 自己开发自己时，业务就是 `src/`） | **项目自身** | ✅ 正常改 |
 | **用户级 Skill**（`.sddu/skills/`） | **项目自身产出的内容** | ✅ 正常改，**改完要同步**（让它生效） |
-| `.opencode/`（插件安装、agents、框架技能、`opencode.json`） | **你开发时用的工具** | 🚫 不该动 |
+| `.opencode/`（插件安装、agents、框架技能、`opencode.json`） | **你开发时用的工具** | 🚫 不手改（升级 = 整体重装） |
 | `dist/`（构建产物） | 中间产物 | 🚫 不手改 |
 | `.sddu/specs-tree-root`、`ROADMAP.md`、`TREE.md` | SDDU 流程产物 | 🚫 不是本次开发的产物 |
 
@@ -28,7 +28,7 @@ description: "当需要给 SDDU 插件自身（本仓库 opencode-sddu-plugin / 
 **由此得到两条铁律：**
 
 1. **只改项目自身的内容**（业务源码、文档、用户级 Skill）；**不碰 `.opencode/` 里的插件/框架与 `dist/`**（那是工具，不是业务）。
-2. **验证一律隔离**：要验证正在开发的**插件/框架代码**，用 e2e 生成临时项目去装、去跑；**绝不在当前项目里把开发中的插件/框架代码装进 `.opencode/`**——那等于当场换掉你正在用的工具。
+2. **开发只面对 `src/`，验证走隔离**：要验证正在开发的插件代码，用 e2e 生成临时项目去装、去跑。至于要不要把**当前仓库的工具升级到开发中版本**——那是你作为**工具用户**自己的事：想升级随时 `install.sh .` 整体升级（重启生效），开发过程中就可以做，但它是「升级工具」，不是开发步骤。
 
 > 完整清单见 **附录 A（目录分层红线）** 与 **附录 B（常见误操作）**。
 
@@ -84,15 +84,13 @@ description: "当需要给 SDDU 插件自身（本仓库 opencode-sddu-plugin / 
 ## 6 · 静态审查 —— `@sddu-review`
 
 - **做什么**：静态审查代码质量、规范符合、架构一致、测试质量。
-- **SDDU 特有审查项**：
-  - [ ] 有无改动落到 `.opencode/`、`dist/`、`.sddu/` 流程产物（红线违规）
-  - [ ] Agent prompt 改动是否同步了 `src/templates/agents/*.hbs`（而非只改 `.opencode/agents/*.md`）
-  - [ ] 新增/改名 Agent 是否同步了 `opencode.json.hbs` 的 `agent` 注册
-  - [ ] Skill 改动是否落在 `src/skills/{framework,builtin}/`
+- **SDDU 特有审查项**（就是普通项目的完整性检查，不存在"SDDU 特殊同步"问题）：
+  - [ ] 变更文件全部属于真源 `src/`，且各归其位（对照附录 C：Agent prompt → `src/templates/agents/*.md.hbs`；Skill → `src/skills/{framework,builtin}/`）
+  - [ ] 新增/改名/删除 Agent 时，`src/adapters/opencode/templates/opencode.json.hbs` 的 `agent` 注册同步增改删（性质同「新路由要挂到路由表」）
 
 ## 7 · 动态验证 —— `@sddu-validate` ⭐
 
-> **注意：验证一般用 e2e 脚本生成一个新的临时项目来做，切勿直接到当前项目做 install 等动作。**
+> **注意：验证一律在 e2e 脚本生成的临时项目里做；升级自己的插件安装不是验证手段。**
 
 - **做什么**：把插件「真装一遍」到隔离项目，验证它在真实环境里可用。
 - **怎么做（隔离）**：
@@ -109,7 +107,7 @@ description: "当需要给 SDDU 插件自身（本仓库 opencode-sddu-plugin / 
   - [ ] 新增/改动的 **Skill** 可被发现（`discover.cjs list` / Agent 能触发）
   - [ ] `permission` 按预期生效
 - **产出**：`validate-report.md`。
-- **SDDU 红线**：🚫 不要把**正在开发的插件/框架代码**装进当前项目（如 `bash install.sh .`）——那等于当场替换掉你正在用的工具。要装就装到 e2e 临时项目。
+- **验证 ≠ 升级自己**：验证开发中的代码 → e2e 临时项目。把当前仓库的工具升级到开发中版本（`install.sh .` + 重启）是你作为用户的自由，随时可做，但它不是验证，也不属于开发流程。
 - ✅ **用户级 Skill 例外**：`.sddu/skills/` 属于项目自身内容，新增/修改后**照常同步**（`sync.cjs`）让它生效。
 
 ## 8 · 发布与回流（SDDU 7 阶段之外的收尾）
@@ -187,7 +185,7 @@ src/  ──build──▶  dist/  ──package──▶  dist/sddu/(插件包)
 - ❌ 直接编辑 `.opencode/skills/opencode-operator/...` → ✅ 改 `src/skills/builtin/opencode-operator/...`
 - ❌ 直接编辑 `dist/**` → ✅ 会被 `npm run build` 覆盖，改真源
 - ❌ 在 `.opencode/` / `dist/` 就地热修后忘了回写真源 → ✅ 一律回真源
-- ❌ 把**开发中的插件/框架代码**装进当前项目（`bash install.sh .`）→ ✅ 装到 e2e 隔离临时项目
+- ❌ 为了让改动「生效」去手改 `.opencode/` 产物 → ✅ 改 `src/`；想用上新版本就 `install.sh .` 整体升级工具；想验证就 e2e 临时项目
 - ✅ 反例澄清：**用户级 Skill**（`.sddu/skills/`）改完**应该同步**——它属于项目内容，不算动工具
 
 # 附录 C · 命令速查 + 变更类型 → 真源
