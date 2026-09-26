@@ -13,6 +13,17 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 > - serve-api 子命令：`node scripts/serve-api.cjs`（无参数运行打印完整 usage）
 > - opencode CLI 命令：`opencode --help`（列出全部顶层命令）；`opencode <command> --help` 查看子命令与参数详情
 
+### v1/v2 双代兼容（v4.0+）
+
+opencode 官方已发布 v2（文档 `opencode.ai/v2/docs/`，API 全部迁移至 `/api/` 前缀）。`serve-api.cjs` 通过 **`/doc` OpenAPI 运行时自探测**（`detect` 子命令可见）自动识别服务端能力并选择路径：
+
+- **会话链路 v2 优先**：v2 `create + prompt` 可用时优先（保证 revert/compact/v2 消息视图一致性），v1 兜底
+- **完成检测**：v2 `wait` 端点优先（精确等待 idle；1.18.32 hybrid 上服务未实现会自动回退消息数轮询）
+- **中止**：v2 `interrupt` 优先，v1 `abort` 回退
+- **响应三态兼容**：v1 裸值 / v2 `{data:...}` 包裹 / 204 无体
+- **多形态请求体**：v2 prompt 尝试 `{text}` → `{prompt:{text}}`；revert/fork 尝试 `{before}` → `{messageID}`（小版本草稿差异）
+- 输出的 `via` 字段透明标注每步实际使用的路径
+
 ### 参数
 
 | 参数 | 类型 | 必填 | 说明 |
@@ -21,7 +32,7 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 | `mode` | enum | ❌ | 操作模式，根据 intent 自动推导。见下表 |
 | `project_dir` | string | ❌ | 目标项目目录，默认当前工作目录 |
 | `agent` | string | ❌ | 指定 Agent（如 `build`、`sddu`）。用 `opencode agent list` 查看可用值 |
-| `model` | string | ❌ | 指定模型，格式 `provider/model-id`。用 `opencode models` 查看可用值 |
+| `model` | string | ❌ | 指定模型，格式 `provider/model-id`（v2 支持 `#variant` 推理强度变体）。用 `opencode models` 查看可用值 |
 
 **mode 选项**：
 
@@ -67,6 +78,20 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 -> （完成）node scripts/serve-api.cjs result --port 4096 --session <sid>
 -> （太慢）node scripts/serve-api.cjs abort --port 4096 --session <sid>
 -> （用完）node scripts/serve-api.cjs stop --port 4096
+
+# 无值守精准预授权（v2，取代 --auto 全量放行）
+用户："无人值守跑重构，只允许改 src/ 和跑 git 命令"
+-> node scripts/serve-api.cjs submit --port 4096 --message "重构" \
+     --allow "edit:src/**" --allow "shell:git *"
+-> （v1 服务器自动忽略 --allow，退回默认权限策略）
+
+# 会话检查点回滚（v2，失败回退到上一阶段）
+-> node scripts/serve-api.cjs revert --port 4096 --session <sid> --action stage   # 自动选中最后一条用户消息
+-> node scripts/serve-api.cjs revert --port 4096 --session <sid> --action commit  # 提交回滚
+-> node scripts/serve-api.cjs revert --port 4096 --session <sid> --action clear   # 取消暂存
+
+# 探测服务器 API 面（调试 v1/v2 兼容性）
+-> node scripts/serve-api.cjs detect --port 4096
 
 # 查询类
 用户："列出当前项目有哪些 Agent"
@@ -474,7 +499,7 @@ node scripts/serve-api.cjs sessions --port 4096
 
 | 脚本 | 路径 | 用途 |
 |------|------|------|
-| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API（**Agent 接口**）。11 个子命令：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止）、`stop`（关闭）；**只读巡检** `ps`（列出运行中的 serve 进程加健康探测）、`sessions`（列出会话，默认摘要最近5条，支持 --grep/--limit/--full，会话数据全局共享）、`rm`（删除会话不可逆）。零依赖，stdout JSON。通用参数 `--port`（必填，默认 4096），`--hostname`（可选），`--timeout`/`--interval`（轮询控制）。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
+| serve-api.cjs | scripts/serve-api.cjs | 封装 opencode serve HTTP API（**Agent 接口**，v1/v2 双代兼容）。**19 个子命令**：**阻塞** `run`（一条龙）、`send`（阻塞等待）；**非阻塞** `start`、`submit`（提交即返回）、`status`（查进度）、`result`（取结果）、`abort`（中止，v2 interrupt 优先）、`stop`（关闭）、`wait`（阻塞等 idle）；**只读巡检** `ps`（进程+健康探测）、`sessions`（列会话）、`rm`（删会话）、`detect`（**API 面自探测**）、`skills`（列 Skills）、`stats`（会话统计）；**v2 会话治理** `revert`（检查点 stage/commit/clear）、`fork`（分叉）、`compact`（压缩上下文）、`diff`（文件变更）。通用参数 `--port`（必填，默认 4096）、`--hostname`、`--timeout`/`--interval`、`--allow`（可重复，`"action:resource"` 预授权规则）。零依赖，stdout JSON，stderr 进度。运行 `node serve-api.cjs` 无参数查看完整 usage。 |
 | restart.cjs | scripts/server/restart.cjs | 重启 opencode serve（**人工运维工具**）。杀旧进程（SIGTERM → kill -9 兜底）→ spawn detached 启动 → 30s 健康检查 → 日志/PID 落盘 `<dir>/.opencode/logs/`。人类友好输出。默认 `--port 14096`、`--dir` 默认当前工作目录（可用 `--dir <path>` 覆盖）。 |
 | stop.cjs | scripts/server/stop.cjs | 停止 opencode serve（**人工运维工具**）。终止占用端口进程（SIGTERM → kill -9 兜底），确认端口释放。人类友好输出。默认 `--port 14096`。 |
 | attach.cjs | scripts/server/attach.cjs | 一键 TUI attach 到运行中的 serve（**人工运维工具**）。健康检查通过后以 `stdio: inherit` 启动 `opencode attach`。参数同上（默认 `--port 14096`、`--dir` 默认当前工作目录）。 |
@@ -489,34 +514,115 @@ node scripts/serve-api.cjs sessions --port 4096
 
 | 来源 | 地址 | 用途 |
 |------|------|------|
-| 官方文档 | https://opencode.ai/docs/server/ | serve 命令用法、认证方式、API 概览 |
-| 运行时 OpenAPI 规范 | `GET http://主机:端口/doc` | 当前版本完整 API 端点自描述（OpenAPI 3.1.0），最权威 |
+| v2 API 参考（权威） | https://opencode.ai/v2/docs/api/ | 136 operations / 245 schemas，OpenAPI 3.1 |
+| v2 官方客户端 | https://opencode.ai/v2/docs/build/client/ | `@opencode/client`（类型化）+ `@opencode/client/service`（`Service.ensure()` 免端口管理）|
+| v2 插件指南 | https://opencode.ai/v2/docs/build/plugins/ | transforms/hooks/RPC/storage/自定义 websearch provider |
+| v2 插件迁移指南 | https://opencode.ai/v2/docs/build/plugins/migrate-v1 | V1 hook → V2 映射表；双栈写法（V1 对象式 ≥1.18.29） |
+| v2 Skills 体系 | https://opencode.ai/v2/docs/skills | 发现源（含 `.claude/skills`、`.agents/skills` 兼容）+ **HTTP catalog 分发** |
+| v2 CLI/配置 | https://opencode.ai/v2/docs/cli/ 、/v2/docs/config/ | `mini`/`service`/`api`/`pair` 新命令、配置字段重组 |
+| v1 旧文档（存档） | https://opencode.ai/docs/server/ | 仅历史参考，v1 端点以本地 `/doc` 实测为准 |
+| 运行时 OpenAPI 规范 | `GET http://主机:端口/doc` | **当前版本最权威**——本地二进制与 v2 文档可能不同步 |
 | GitHub 仓库 | https://github.com/anomalyco/opencode | 源码、issue、release |
-| SDK 类型定义 | https://github.com/anomalyco/opencode/blob/dev/packages/sdk/js/src/gen/types.gen.ts | 端点的 TypeScript schema |
 
 ### 用 `/doc` 发现新端点
 
-启动 serve 后用 `curl -s http://127.0.0.1:端口/doc` 取 OpenAPI 规范，再用 `node` 或 `jq` 解析 paths 列出所有端点，对照下方已封装端点找出缺口。
+启动 serve 后用 `curl -s http://127.0.0.1:端口/doc` 取 OpenAPI 规范（**注意首访可能 >10s**，需 15s+ 超时），再用 `node` 或 `jq` 解析 paths 列出所有端点，对照上方已封装端点找出缺口。
 
 ```bash
 curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').readFileSync(0));console.log(Object.keys(d.paths).join('\n'))"
+# 或直接用封装好的探测命令：
+node scripts/serve-api.cjs detect --port 4097
 ```
 
-### 已封装端点（供对照）
+### 已封装端点（v1 兼容层 / v2 对应，供对照）
 
-`serve-api.cjs` 当前已封装以下 7 个 API 端点：
+`serve-api.cjs` 当前封装的端点及双代对照（**加粗**为该操作的首选路径）：
 
-| 端点 | serve-api.cjs 子命令 | 说明 |
-|------|---------------------|------|
-| `GET /global/health` | `status` / `cmdStart` / `cmdRun` | 健康检查 |
-| `POST /session` | `send` / `submit` / `run` | 创建会话 |
-| `GET /session` | `sessions` | 列出所有会话 |
-| `GET /session/{id}/message` | `status` / `result` | 取消息 |
-| `POST /session/{id}/prompt_async` | `send` / `submit` / `run` | 异步发消息 |
-| `POST /session/{id}/abort` | `abort` | 中止会话 |
-| `DELETE /session/{id}` | `rm` | 删除会话（不可逆） |
+| 用途 | v1 端点（兼容层） | v2 端点 | serve-api 子命令 |
+|------|------------------|---------|-----------------|
+| 健康检查 | **`GET /global/health`** | `GET /api/health` 或 `/api/info`（视版本） | `status` / `ps` / `detect` |
+| OpenAPI 规范 | **`GET /doc`**（JSON，首访可能 >10s） | 同 | 全命令自探测 |
+| 创建会话 | `POST /session` | **`POST /api/session`**（v2 链路优先） | `send` / `submit` / `run` |
+| 列会话 | **`GET /session`** | `GET /api/session`（cursor 分页） | `sessions` |
+| 删会话 | **`DELETE /session/{id}`**（200 true） | `DELETE /api/session/{id}`（204） | `rm` |
+| 发消息 | `POST /session/{id}/prompt_async`（parts） | **`POST /api/session/{id}/prompt`**（text/prompt.text 双形态） | `send` / `submit` / `run` |
+| 消息列表 | `GET /session/{id}/message`（{info,parts}） | **`GET /api/session/{id}/message`**（{data,cursor}，type 判别联合体） | `status` / `result` |
+| 中止 | `POST /session/{id}/abort` | **`POST /api/session/{id}/interrupt`**（可 resume） | `abort` |
+| 会话 diff | `GET /session/{id}/diff` | `GET /api/session/{id}/diff` | `diff` |
+| 等待 idle | — | `POST /api/session/{id}/wait`（1.18.32 未实现，503 回退） | `wait` / 内部完成检测 |
+| 检查点回滚 | — | **`POST /api/session/{id}/revert/{stage\|commit\|clear}`** | `revert` |
+| 分叉 | — | `POST /api/session/{id}/fork` | `fork` |
+| 压缩上下文 | — | `POST /api/session/{id}/compact` | `compact` |
+| Skill 列表 | — | **`GET /api/skill`**（{location,data}） | `skills` |
+| 会话统计 | — | `GET /api/experimental/session/stats` | `stats` |
 
-未封装的常见端点如 `GET /session/{id}`（查看单会话详情）、实时事件流等，可按需扩展。
+> v2 官方 API 共 136 operations（https://opencode.ai/v2/docs/api ），上表之外的常见端点（`/api/session/{id}/context`、`/api/event` SSE、`/api/fs/*`、`/api/model`、`/api/provider` 等）可按需扩展。
+
+---
+
+## v2 迁移备忘
+
+opencode 官方已发布 v2（文档 `opencode.ai/v2/docs/`，npm 包 `@opencode/cli` 2.x，桌面/网页版）。本地 1.18.32 为混合过渡版（v1 全量 + v2 大部分端点）。本节速查迁移要点，避免踩坑。
+
+### 版本现状判定（2026-09 实测）
+
+| 事实 | 影响 |
+|------|------|
+| 1.18.32 = hybrid：v1 端点全存活 + `/api/*` v2 面大部分可用 | 本 Skill 的 v1 路径**未废弃**，但已是兼容层 |
+| 本地 v2 与 v2 官方文档**不同步**（如健康端点本地 `/api/health`、文档 `/api/info`；prompt 本地要 `{prompt:{text}}`、文档 `{text}`） | **必须**以运行时 `/doc` 自探测为准，不可硬编码 v2 文档路径——serve-api.cjs 已内置 |
+| v1 驱动的会话在 v2 消息视图为空投影（双 inbox） | revert/compact 等 v2 治理命令需 v2 驱动链路——serve-api.cjs 已 v2 优先 |
+| v2 `wait` 服务本地未实现（503 "not available yet"） | 完成检测自动回退消息数轮询 |
+| `@opencode/client@2.0.16` 对 1.18.32 仅部分兼容（list/create/SSE ✅；info/remove ❌） | 升级到 v2 服务端后再切换官方客户端 |
+| V1 对象式插件 `server()` 导出 ≥1.18.29 支持 | 本地 1.18.32 **现在就能写双栈插件** |
+
+### 配置字段映射（v1 → v2）
+
+| v1 | v2 | 备注 |
+|----|----|------|
+| `provider` | `providers.*` | settings/headers/body/variants/modelID |
+| `agent` | `agents` | markdown frontmatter 回归；`mode: primary\|subagent\|all`；内置无 `scout` |
+| `permission` | `permissions` | **有序规则数组**，最后匹配胜出；`bash`→`shell`、`task`→`subagent`；新增 `skill`/`question`/`external_directory` |
+| `mcp` 直挂 | `mcp.servers.<name>` | `enabled`→`disabled` |
+| `instructions` | 不再加载 | 统一 `AGENTS.md` |
+| `model` | `model`（`provider/model#variant`） | 根 model 不保留 variant；variant 可用于 run/session/agent/command |
+
+新概念：`references`（外部目录/Git 仓库别名）、`skills`（额外发现源 + HTTP catalog）、`worktree.directory`、`experimental.policies`。
+
+### v2 新命令速查（本地 1.18.32 部分可用，以 `--help` 实测为准）
+
+```bash
+opencode service status|restart|stop|start   # 共享后台服务生命周期（v2 架构核心）
+opencode api get /api/session                # 带 service 发现+认证的 API 直调（未来可替代脚本 HTTP 层）
+opencode pair                                # 一次性链接+二维码，网页版远程接入
+opencode reload                              # 配置热重载（会话在下一步边界继续）
+opencode mini                                # 极简交互界面
+opencode session export <id> --sanitize      # 脱敏导出
+```
+
+### 双栈插件写法（V1+V2 同包，本地 ≥1.18.29 可用）
+
+```ts
+import { Plugin } from "@opencode/plugin"
+export default {
+  ...Plugin.define({
+    id: "example",
+    async setup(ctx) {
+      // v2: transforms + hooks（ctx.tool.hook / ctx.session.hook / ctx.storage ...）
+    },
+  }),
+  async server() {
+    return { "tool.execute.before": async () => { /* v1 hook */ } }
+  },
+}
+```
+
+V1 调 `server()`，V2 读 `setup()`；两套 API 各自独立，不做翻译。V1 hook → V2 映射详见官方迁移指南（`/v2/docs/build/plugins/migrate-v1`）。
+
+### 对 SDDU 的潜在机会（待评估）
+
+- **Skills HTTP catalog**：`opencode.json` 的 `skills` 数组支持 HTTP URL（index.json + 版本化文件）——`sddu-skill-sync` 可进化为集中分发
+- **自定义 websearch provider 插件**（`ctx.websearch.transform`）：可桥接豆包搜索进 opencode 原生 websearch
+- **Console/Go 计划**：workspace 级策略下发 + $10/月 35+ 开源模型池（`opencode-go/<model>`）
 
 ---
 
@@ -558,3 +664,4 @@ curl -s http://127.0.0.1:4097/doc | node -e "const d=JSON.parse(require('fs').re
 | v2.9 | sessions 加 --grep/--limit/--full 参数 + 文档说明会话数据全局共享 | 2026-07-26 | @sddu-fast |
 | v3.0 | sessions 默认 limit 从 20 改为 5 | 2026-07-26 | @sddu-fast |
 | v3.1 | 新增人工运维脚本 `scripts/server/`（restart.cjs / stop.cjs / attach.cjs，人用，CJS 人类友好输出）；分层约定：server/ 人用 vs serve-api.cjs Agent 用 | 2026-08-12 | @sddu-fast |
+| v4.0 | **v1/v2 双代兼容大版本**：① `/doc` OpenAPI 运行时自探测（detect 子命令）+ 会话链路 v2 优先（create/prompt v2，prompt 双形态 text→prompt.text）；② 完成检测 v2 wait 优先/消息数轮询回退，abort→interrupt 优先；③ 响应三态兼容（裸值/{data}/204）+ v2 消息视图排序归一化；④ 新增 8 个子命令：detect/wait/skills/stats/revert/fork/compact/diff；⑤ `--allow` 无值守精准预授权（v2 permissions Ruleset）；⑥ 新增「v2 迁移备忘」章节（配置字段映射/新命令速查/双栈插件/SDDU 机会）；⑦ 已封装端点表改双代对照。全部经 1.18.32 hybrid 实测（wait 503 回退、revert v2 驱动链路成功、ruleset array 形态接受） | 2026-09-26 | @sddu-fast |
