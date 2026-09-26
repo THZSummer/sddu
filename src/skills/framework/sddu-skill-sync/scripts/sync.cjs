@@ -241,28 +241,29 @@ async function main() {
   }
   report.backup = backupPath;
 
-  // 5. 拷贝（先删后拷，杜绝嵌套）
-  for (const s of scanned) {
-    const destPath = path.join(dest, s.name);
-    fs.rmSync(destPath, { recursive: true, force: true });
-    fs.cpSync(s.sourcePath, destPath, { recursive: true });
-  }
-
-  // 5.5 技能初始化：对每个拷贝的技能检测并调用 scripts/init.cjs（可选、幂等；失败警告不阻塞）
-  // protected 第三方技能不参与拷贝，天然不会执行 init
+  // 5. 技能初始化（源目录，拷贝前）：对源目录技能跑 scripts/init.cjs 确保依赖就绪，
+  //    再拷贝（含 node_modules）到运行时。与 install 职责一致——init 都在源目录，
+  //    保证「install 后即可用、sync 仅拷贝就绪技能」，sync 不承担初始化职责。
+  // protected 第三方技能不参与拷贝，天然不会执行 init。
   const inited = [];
   const initFailed = [];
   for (const s of scanned) {
-    const destPath = path.join(dest, s.name);
-    const initScript = path.join(destPath, 'scripts', 'init.cjs');
+    const initScript = path.join(s.sourcePath, 'scripts', 'init.cjs');
     if (!fs.existsSync(initScript)) continue;
     // stdio：stdin 继承；stdout/stderr 均重定向到 sync 的 stderr，避免 init 输出（如 npm install 进度）污染 stdout JSON 报告
-    const r = spawnSync('node', [initScript], { cwd: destPath, stdio: ['inherit', process.stderr, process.stderr] });
+    const r = spawnSync('node', [initScript], { cwd: s.sourcePath, stdio: ['inherit', process.stderr, process.stderr] });
     if (r.status === 0) inited.push(s.name);
     else initFailed.push({ name: s.name, status: r.status, error: (r.error && r.error.message) || '未知错误' });
   }
   report.inited = inited;
   report.initFailed = initFailed;
+
+  // 5.1 拷贝（先删后拷，杜绝嵌套；源目录已 init，node_modules 一并拷贝）
+  for (const s of scanned) {
+    const destPath = path.join(dest, s.name);
+    fs.rmSync(destPath, { recursive: true, force: true });
+    fs.cpSync(s.sourcePath, destPath, { recursive: true });
+  }
 
   // 6. 清理（仅 cleaned：manifest 管辖 + 源已删除）
   for (const name of cleaned) {

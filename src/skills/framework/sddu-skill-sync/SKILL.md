@@ -160,15 +160,17 @@ my-custom-skill | user | 2026-07-19T10:30:00Z
 
 ### 技能初始化（init.cjs）
 
-拷贝完成后，对每个技能检测是否存在 `scripts/init.cjs`（可选），存在则调用它完成依赖安装等初始化，实现「开箱即用」。
+**拷贝前**对**源目录**的每个技能检测是否存在 `scripts/init.cjs`（可选），存在则调用它完成依赖安装等初始化，再拷贝（含初始化产物如 `node_modules`）到实际目录，实现「开箱即用」。
+
+> **职责划分（与 install 一致）**：init 一律在**源目录**执行——install 部署后 init 让源目录就绪；sync 拷贝前 init 确保源目录就绪再拷贝。因此 **install 后源目录技能即可用，sync 仅拷贝就绪技能，不承担初始化职责**，避免「必须 sync 才能用」的错误依赖。
 
 **约定**：
 - 命名：`<skill>/scripts/init.cjs`（可选，无此文件的技能自动跳过）
-- 运行方式：`node scripts/init.cjs`，工作目录为技能目录
+- 运行方式：`node scripts/init.cjs`，工作目录为技能目录（源目录）
 - **幂等**：init 脚本应可重复执行无副作用（如 `npm install` 有 lock 且满足时近乎零成本）
 - **零依赖**：仅用 Node 内置模块（避免初始化脚本自身引入依赖的鸡生蛋问题）
 
-**失败处理**：init 失败（exit≠0）**仅警告不阻塞**——技能已拷贝可用，初始化异常需人工介入（报告 `initFailed`）。
+**失败处理**：init 失败（exit≠0）**仅警告不阻塞**——技能仍会拷贝，初始化异常需人工介入（报告 `initFailed`）。
 
 **安全边界**：仅对拷贝的技能（scanned，SDDU 管辖）执行 init；`protected` 第三方技能不参与拷贝，天然不执行 init。
 
@@ -326,4 +328,4 @@ sddu-skill-sync       ──→ 告诉 Agent 如何将 Skill 同步到实际目�
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 扫描源目录 → 拷贝 → 管辖标识 → 清理 → 报告 | 2026-07-19 | SDDU Build Agent |
 | v1.1 | 脚本化：新增 `scripts/sync.cjs` 锁死确定性步骤（扫描/拷贝/manifest/清理），杜绝 Agent 手动 `cp -r` 嵌套；默认 dry-run + `--apply` 执行；备份先行 + `--rollback` 回滚；第三方技能硬保护（`protected`） | 2026-08-12 | @sddu-fast |
-| v1.2 | 新增**技能初始化机制**：拷贝后检测并调用各技能的 `scripts/init.cjs`（可选、幂等、零依赖），实现依赖安装等初始化开箱即用；失败仅警告（`initFailed`），protected 第三方技能不执行 init；报告新增 `inited`/`initFailed` 字段 | 2026-09-26 | @sddu-fast |
+| v1.2 | 新增**技能初始化机制**：拷贝前对**源目录**技能检测并调用 `scripts/init.cjs`（可选、幂等、零依赖），再拷贝（含初始化产物）到实际目录——与 install 职责一致（init 都在源目录），保证「install 后即可用、sync 仅拷贝就绪技能」；失败仅警告（`initFailed`），protected 第三方技能不执行 init；报告新增 `inited`/`initFailed` 字段 | 2026-09-26 | @sddu-fast |
