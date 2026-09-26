@@ -1,0 +1,5 @@
+# 依赖目录（由 scripts/init.cjs 在安装/同步时自动安装，不入库）
+node_modules/
+
+# 运行时残留（serve 日志/PID 误落盘到技能目录时忽略）
+.opencode/
