@@ -590,6 +590,7 @@ opencode 官方已发布 v2（文档 `opencode.ai/v2/docs/`，npm 包 `@opencode
 | 1.18.32 = hybrid：v1 端点全存活 + `/api/*` v2 面大部分可用 | serve-api.cjs 已切 **v2-only**，只用 `/api/*`；v1 端点不再调用 |
 | 本地 v2 与 v2 官方文档**不同步**（如健康端点本地 `/api/health`、文档 `/api/info`；prompt 本地要 `{prompt:{text}}`、文档 `{text}`） | **必须**以运行时 `/doc` 自探测为准，不可硬编码 v2 文档路径——serve-api.cjs 已内置 |
 | v2 无会话 diff 端点（仅 v1 有） | `diff` 命令在 v2-only 下报错不可用 |
+| **v1/v2 双 inbox**：v1 时代创建的会话，消息存在 v1 存储；v2 `/api/session/{id}/message` 对它们是**空投影**（实测 300 会话中仅 4 个 v2 可读；如 `ses_f266677c` 在 v1 端点有 522 条、v2 返回 0） | **v2-only 读不到历史 v1 会话的消息**；数据未丢，如需可用 `curl /session/{id}/message` 直读 v1 端点 |
 | v2 `wait` 服务本地未实现（503 "not available yet"） | 完成检测自动回退 v2 消息数轮询 |
 | v2 `/api/health` 无 version 字段（仅 v1 `/global/health` 有） | `status`/`detect` 的 version 可能显示 `unknown` |
 | `@opencode/client@2.0.16` 对 1.18.32 仅部分兼容（list/create/SSE ✅；info/remove ❌） | 升级到 v2 服务端后再切换官方客户端 |
@@ -692,6 +693,7 @@ V1 调 `server()`，V2 读 `setup()`；两套 API 各自独立，不做翻译。
 | v5.0.1 | **sessions 摘要补 directory + `/doc` 超时提升**：① v2 会话目录在 `location.directory`（嵌套），非顶层 `directory` → 默认摘要改用 `(s.location && s.location.directory) || s.directory` 并补 `directory` 字段（此前仅 `--full` 有），多项目会话可一眼区分；② `/doc` 首访生成实测 ~25s，超过 getSurface 15s 超时 → 偶发"无 v2 端点"误报（v2-only 下致命），超时提到 30s | 2026-09-26 | @sddu-fast |
 | v5.1.0 | **start/restart 默认启动目录改为家目录 ~（用户决策）**：多项目场景下 serve 启动用 cwd 有歧义（同一操作在不同目录跑出不同"默认项目"，attach/sessions 时易混淆），改用固定中立目录 ~——serve 恒在 ~ 启动，日志/PID 落 `~/.opencode/logs/`，无 location 的会话目录 → ~；会话目录由 v2 location 独立指定，不受影响。偏离官方 `opencode serve`（官方用 cwd）系有意为之 | 2026-09-26 | @sddu-fast |
 | v5.1.1 | **sessions 摘要输出完整 session id**：原摘要 `String(s.id).slice(0,12)` 截断为 12 字符，用户从摘要复制该 id 传 `status/result/rm --session` 会报 `HTTP 404 SessionNotFoundError`（服务器需完整 id，不做前缀匹配）。改为输出完整 id，可直接复制使用 | 2026-09-26 | @sddu-fast |
+| v5.1.2 | **文档补回「v1/v2 双 inbox」限制**：用户实测 v1 时代会话的消息在 v2 端点为空投影（`ses_f266677c` v1 端点 522 条、v2 返回 0；300 会话仅 4 个 v2 可读）。v2-only 决策下这些历史消息工具内不可读（数据未丢，可 curl v1 端点直读）。补回迁移备忘表说明避免再困惑（v5.0.0 改写该表时误删） | 2026-09-26 | @sddu-fast |
 | v4.4.2 | **attach 默认逻辑回归官方 + stop pidfile 兜底**：① `attach --dir` 恢复默认当前目录（不传时等价官方 `opencode attach` 在 cwd 运行，始终拼 `--dir <cwd>`）；② `stop` 修复 start --no-wait 后立即 stop 的竞态——lsof/fuser 查不到未绑端口的新进程时，读 `<dir>/.opencode/logs/opencode-serve-<port>.pid` 按 PID 杀（带 isOpencodeServe 校验，防陈旧 pidfile 误杀 PID 复用进程）；stop 新增 `--dir` 定位 pidfile；restart 同步传 dir。实测：start --no-wait 秒回后立即 stop，pidfile 兜底精确清理无残留 | 2026-09-26 | @sddu-fast |
 | v4.4.1 | **对齐官方 dir 默认行为（用户建议）**：`start`/`restart`/`attach`/`run` 的 `--dir` 移除硬编码默认值 `.`（help 不再显示 default: "."）。官方实测：`opencode serve` 本无 `--dir`（用进程 cwd）、`opencode attach --dir` 与 `opencode run --dir` 均无默认值。现在不带 --dir 时 serve 落在自然 cwd（等价官方），attach 仅在显式传 --dir 时才加该参数（官方默认由 opencode 自己决定）。示例同步清理 | 2026-09-26 | @sddu-fast |
 | v4.4.0 | **一 server 多项目（v2 location）**：`submit`/`send` 新增 `--dir` 会话项目目录（v2 `location.directory`），`run` 的 --dir 同步传入。实测验证 1.18.32 hybrid 原生支持：同一 serve 上不同 location 会话拿到不同 projectID（`global` vs 仓库哈希）、各自解析各自 provider/model 配置（无配置目录解析出默认模型、sddu 解析出 deepseek），且 serve cwd=scripts 时 location=sddu 的会话 `pwd` 精确返回 `/home/usb/wks/sddu`——会话目录彻底独立于 serve 启动目录。v1 无此能力则明确报错。via 字段加 `+location` 标注 | 2026-09-26 | @sddu-fast |
