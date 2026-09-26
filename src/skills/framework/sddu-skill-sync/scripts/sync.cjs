@@ -25,6 +25,7 @@
 const fs = require('fs');
 const path = require('path');
 const { parseArgs } = require('util');
+const { spawnSync } = require('child_process');
 
 const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const MANIFEST_HEADER = [
@@ -219,6 +220,8 @@ async function main() {
     cleaned,
     protected: protectedList,
     conflicts: [],
+    inited: [],
+    initFailed: [],
   };
 
   if (!apply) {
@@ -244,6 +247,22 @@ async function main() {
     fs.rmSync(destPath, { recursive: true, force: true });
     fs.cpSync(s.sourcePath, destPath, { recursive: true });
   }
+
+  // 5.5 技能初始化：对每个拷贝的技能检测并调用 scripts/init.cjs（可选、幂等；失败警告不阻塞）
+  // protected 第三方技能不参与拷贝，天然不会执行 init
+  const inited = [];
+  const initFailed = [];
+  for (const s of scanned) {
+    const destPath = path.join(dest, s.name);
+    const initScript = path.join(destPath, 'scripts', 'init.cjs');
+    if (!fs.existsSync(initScript)) continue;
+    // stdio：stdin 继承；stdout/stderr 均重定向到 sync 的 stderr，避免 init 输出（如 npm install 进度）污染 stdout JSON 报告
+    const r = spawnSync('node', [initScript], { cwd: destPath, stdio: ['inherit', process.stderr, process.stderr] });
+    if (r.status === 0) inited.push(s.name);
+    else initFailed.push({ name: s.name, status: r.status, error: (r.error && r.error.message) || '未知错误' });
+  }
+  report.inited = inited;
+  report.initFailed = initFailed;
 
   // 6. 清理（仅 cleaned：manifest 管辖 + 源已删除）
   for (const name of cleaned) {

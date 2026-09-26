@@ -244,6 +244,36 @@ if (Test-Path (Join-Path $DistSdduDir "agents")) {
 $AgentCount = (Get-ChildItem -Path (Join-Path $TargetDir ".opencode\agents") -Filter "*.md" -File | Measure-Object).Count
 Write-Host "[OK] Total agents copied: $AgentCount" -ForegroundColor Green
 
+# Initialize skills: 调用每个技能的 scripts/init.cjs（可选、幂等；失败阻塞安装）
+Write-Host "  Initializing skills (scripts/init.cjs)..." -ForegroundColor Cyan
+$SkillsDir = Join-Path $TargetDir ".opencode\plugins\sddu\skills"
+if (Test-Path $SkillsDir) {
+    $InitCount = 0
+    foreach ($skillDir in (Get-ChildItem -Path $SkillsDir -Directory)) {
+        $initScript = Join-Path $skillDir.FullName "scripts\init.cjs"
+        if (-not (Test-Path $initScript)) { continue }
+        Write-Host "    Running init for $($skillDir.Name)..." -ForegroundColor Cyan
+        Push-Location $skillDir.FullName
+        try {
+            & node "scripts\init.cjs"
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  [OK] $($skillDir.Name) initialized" -ForegroundColor Green
+                $InitCount++
+            } else {
+                Write-Host "FATAL: $($skillDir.Name) init failed. 安装中止" -ForegroundColor Red
+                Pop-Location
+                exit 1
+            }
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    Write-Host "[OK] Skill init completed: $InitCount initialized" -ForegroundColor Green
+}
+else {
+    Write-Host "[INFO] Skills directory not found, skip init" -ForegroundColor Yellow
+}
 
 # Step 6: Version Detection
 Write-Host "[6/${TOTAL_STEPS}] Version Detection..." -ForegroundColor Cyan

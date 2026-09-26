@@ -30,10 +30,13 @@ description: "当需要将 SDDU Skill 从源目录同步到实际目录时加载
   "scanned": ["<技能名>"...],
   "added": [...], "updated": [...], "skipped": [...],
   "cleaned": [...], "protected": [...], "conflicts": [],
+  "inited": [...], "initFailed": [...],
   "backup": "<备份路径>" }        // 仅 apply 模式
 ```
 
 - `protected`：实际目录中**非 SDDU 创建的第三方技能**——只报告，绝不拷贝/覆盖/清理/触碰
+- `inited`：拷贝后执行了 `scripts/init.cjs` 且成功的技能名列表（apply 模式）
+- `initFailed`：执行了 `scripts/init.cjs` 但失败（exit≠0）的技能列表——**仅警告不阻塞**，技能已拷贝可用，初始化异常需人工介入
 - 退出码：成功 0；失败（回滚目标不存在等）1
 
 可能异常：
@@ -155,6 +158,20 @@ my-custom-skill | user | 2026-07-19T10:30:00Z
 - 不操作实际目录中清单外的任何文件或目录
 - 更新已有 Skill 时，以全量覆盖方式同步（源目录版本覆盖实际目录版本）
 
+### 技能初始化（init.cjs）
+
+拷贝完成后，对每个技能检测是否存在 `scripts/init.cjs`（可选），存在则调用它完成依赖安装等初始化，实现「开箱即用」。
+
+**约定**：
+- 命名：`<skill>/scripts/init.cjs`（可选，无此文件的技能自动跳过）
+- 运行方式：`node scripts/init.cjs`，工作目录为技能目录
+- **幂等**：init 脚本应可重复执行无副作用（如 `npm install` 有 lock 且满足时近乎零成本）
+- **零依赖**：仅用 Node 内置模块（避免初始化脚本自身引入依赖的鸡生蛋问题）
+
+**失败处理**：init 失败（exit≠0）**仅警告不阻塞**——技能已拷贝可用，初始化异常需人工介入（报告 `initFailed`）。
+
+**安全边界**：仅对拷贝的技能（scanned，SDDU 管辖）执行 init；`protected` 第三方技能不参与拷贝，天然不执行 init。
+
 ### 步骤 4：残留清理
 
 检查实际目录中是否存在**源目录中已删除的** SDDU 管辖 Skill，并将其清理。
@@ -201,6 +218,8 @@ LLM Agent 工具：OpenCode
 🗑️ 清理：1 个
    - old-skill（用户级）— 源目录中已删除
 ⚠️ 冲突：0 个
+🔧 初始化：1 个（执行 scripts/init.cjs）
+   - opencode-operator — 依赖安装完成
 
 --- 实际目录状态 ---
 SDDU 管辖 Skill 总数：5 个
@@ -214,6 +233,7 @@ SDDU 管辖 Skill 总数：5 个
 - **跳过**（`⏭️`）：源目录和目标目录内容一致的 Skill（无需操作）
 - **清理**（`🗑️`）：`.sddu-manifest.txt` 中有但源目录中没有的 Skill
 - **冲突**（`⚠️`）：命名冲突的 Skill（应标注覆盖行为）
+- **初始化**（`🔧`）：执行了 `scripts/init.cjs` 的技能（成功计入；失败标 `initFailed` 仅警告）
 
 ## 权限说明
 
@@ -244,16 +264,17 @@ SDDU 管辖 Skill 总数：5 个
 
 ### sync.cjs（确定性同步脚本）
 
-- **用途**：扫描源目录 → 全量覆盖拷贝到实际目录 → 更新 manifest → 清理残留 → 输出 JSON 报告
+- **用途**：扫描源目录 → 全量覆盖拷贝到实际目录 → 调用技能 init 脚本 → 更新 manifest → 清理残留 → 输出 JSON 报告
 - **入参**：见 ## 接口 参数表（`--apply` / `--dest` / `--user-src` / `--fw-src` / `--backup-dir` / `--rollback`）
-- **出参**：stdout JSON（`mode` / `scanned` / `added` / `updated` / `skipped` / `cleaned` / `protected` / `backup`）
+- **出参**：stdout JSON（`mode` / `scanned` / `added` / `updated` / `skipped` / `cleaned` / `protected` / `conflicts` / `inited` / `initFailed` / `backup`）
 - **安全设计**：
   - **备份先行**：`--apply` 执行前自动备份实际目录到 `<dest>/.backup/<时间戳>/`（含 manifest 快照），可用 `--rollback <时间戳>` 恢复
   - **白名单保护**：只操作 `.sddu-manifest.txt` 中登记的 SDDU 管辖技能
-  - **第三方硬保护**：实际目录中存在但不在 manifest 且源目录无的技能（用户手动放置的第三方 Skill）→ 归入 `protected`，**绝不**拷贝/覆盖/清理/触碰
+  - **第三方硬保护**：实际目录中存在但不在 manifest 且源目录无的技能（用户手动放置的第三方 Skill）→ 归入 `protected`，**绝不**拷贝/覆盖/清理/触碰（也不执行 init）
+  - **技能初始化**：拷贝后检测 `scripts/init.cjs` 并调用（可选、幂等；失败仅警告，报告 `initFailed`）
   - **默认 dry-run**：不带 `--apply` 只输出预览，不写任何文件；确认后再实际执行
   - **嵌套防御**：拷贝采用「先删目标再拷贝」或内容合并（`<src>/.` → `<dst>/`），**禁止**对已存在目标执行 `cp -r <src> <dst>`（会产生 `xxx/xxx/` 嵌套目录）
-- **零依赖**：Node 内置模块（fs / path / util），无需安装
+- **零依赖**：Node 内置模块（fs / path / util / child_process），无需安装
 
 ---
 
@@ -305,3 +326,4 @@ sddu-skill-sync       ──→ 告诉 Agent 如何将 Skill 同步到实际目�
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 扫描源目录 → 拷贝 → 管辖标识 → 清理 → 报告 | 2026-07-19 | SDDU Build Agent |
 | v1.1 | 脚本化：新增 `scripts/sync.cjs` 锁死确定性步骤（扫描/拷贝/manifest/清理），杜绝 Agent 手动 `cp -r` 嵌套；默认 dry-run + `--apply` 执行；备份先行 + `--rollback` 回滚；第三方技能硬保护（`protected`） | 2026-08-12 | @sddu-fast |
+| v1.2 | 新增**技能初始化机制**：拷贝后检测并调用各技能的 `scripts/init.cjs`（可选、幂等、零依赖），实现依赖安装等初始化开箱即用；失败仅警告（`initFailed`），protected 第三方技能不执行 init；报告新增 `inited`/`initFailed` 字段 | 2026-09-26 | @sddu-fast |

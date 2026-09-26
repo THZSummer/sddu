@@ -193,13 +193,25 @@ async function packageSingleVersion(distDir, version, packageName) {
     throw new Error('opencode.json 模板文件不存在');
   }
   
-  // 5.5. 复制 Skill 源文件到构建产物
+  // 5.5. 复制 Skill 源文件到构建产物（framework/builtin 子目录拍平）
+  // 源结构：src/skills/framework/（sddu-x 框架技能）+ src/skills/builtin/（内置通用技能）
+  // 目标：dist/sddu/skills/ 平铺（sync/discover 按平铺扫描）
   const skillsSourceDir = path.join(__dirname, '..', 'src', 'skills');
   const skillsTargetDir = path.join(distDir, 'skills');
   if (await fs.pathExists(skillsSourceDir)) {
     await fs.ensureDir(skillsTargetDir);
-    await fs.copy(skillsSourceDir, skillsTargetDir);
-    console.log('🔄 复制 Skill 源文件到 dist/sddu/skills/ ...');
+    for (const sub of await fs.readdir(skillsSourceDir)) {
+      const subDir = path.join(skillsSourceDir, sub);
+      if (!(await fs.stat(subDir)).isDirectory()) continue;
+      for (const skill of await fs.readdir(subDir)) {
+        const skillSrc = path.join(subDir, skill);
+        if (!(await fs.stat(skillSrc)).isDirectory()) continue;
+        const skillDest = path.join(skillsTargetDir, skill);
+        await fs.remove(skillDest); // 先删避免嵌套（幂等）
+        await fs.copy(skillSrc, skillDest);
+      }
+    }
+    console.log('🔄 复制 Skill 源文件（framework/builtin 拍平）到 dist/sddu/skills/ ...');
   }
   
   // 6. 创建打包信息文件

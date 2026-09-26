@@ -5,7 +5,7 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 
 # opencode-operator
 
-> **依赖安装（SDDU 内置技能）**：`scripts/serve-api.cjs` 依赖 Commander（唯一 npm 依赖，零子依赖）。本技能作为 SDDU 框架级内置技能随插件分发，`node_modules` 不进版本库——**首次使用前需在 `scripts/` 下执行一次 `npm install`**（或 `npm ci`）。安装后所有命令开箱即用。
+> **依赖初始化（自动）**：`scripts/serve-api.cjs` 依赖 Commander（唯一 npm 依赖，零子依赖）。本技能内置 `scripts/init.cjs`，SDDU 安装/同步时**自动执行 `npm install`** 完成依赖初始化，开箱即用。仅当环境异常时需手动在 `scripts/` 下执行 `npm install`。
 
 ## 接口
 

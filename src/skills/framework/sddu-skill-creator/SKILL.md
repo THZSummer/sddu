@@ -71,9 +71,28 @@ Skill = Markdown 指令（LLM 负责理解、决策、编排）
       + scripts/（确定性代码——不能出错的步骤）
       + references/（按需注入的参考上下文）
       + assets/（模板、图标等静态资源）
+      + scripts/init.cjs（可选——安装/同步时自动执行的初始化脚本）
 ```
 
 > 识别"该用脚本"的信号：用户反复纠正同一个步骤的输出，或多轮测试中 Agent 都独立写出了类似的临时代码——这意味着该步骤应该固化到 `scripts/`，避免每次让 LLM 重新发明轮子。
+
+### 可选初始化脚本（scripts/init.cjs）
+
+当 Skill 依赖外部依赖（npm 包、系统工具）或需要一次性准备步骤时，可内置 `scripts/init.cjs`，由 SDDU 安装/同步时自动调用，实现「开箱即用」：
+
+- **命名**：`<skill>/scripts/init.cjs`（可选，无则跳过）
+- **约束**：幂等（可重复执行无副作用）、零依赖（仅 Node 内置模块）、失败 exit≠0
+- **典型场景**：`npm install` 安装依赖、生成缓存、初始化配置
+
+示例（安装 npm 依赖）：
+```js
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const dir = __dirname;
+if (!fs.existsSync(path.join(dir, 'package.json'))) process.exit(0);
+execSync('npm install --no-audit --no-fund', { cwd: dir, stdio: 'inherit' });
+```
 
 ---
 

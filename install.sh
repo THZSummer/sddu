@@ -264,6 +264,30 @@ fi
 AGENT_COUNT=$(find "${TARGET_DIR}/.opencode/agents" -name "*.md" -type f | wc -l)
 print_color "${GREEN}[OK] Total agents copied: $AGENT_COUNT${NC}"
 
+# Initialize skills: 调用每个技能的 scripts/init.cjs（可选、幂等；失败阻塞安装）
+print_color "${CYAN}  Initializing skills (scripts/init.cjs)...${NC}"
+SKILLS_DIR="${TARGET_DIR}/.opencode/plugins/sddu/skills"
+if [ -d "$SKILLS_DIR" ]; then
+    INIT_COUNT=0
+    for skill_dir in "$SKILLS_DIR"/*/; do
+        [ -d "$skill_dir" ] || continue
+        init_script="${skill_dir}scripts/init.cjs"
+        [ -f "$init_script" ] || continue
+        skill_name=$(basename "$skill_dir")
+        print_color "${CYAN}    Running init for ${skill_name}...${NC}"
+        if (cd "$skill_dir" && node "scripts/init.cjs"); then
+            print_color "${GREEN}  [OK] ${skill_name} initialized${NC}"
+            INIT_COUNT=$((INIT_COUNT + 1))
+        else
+            print_color "${RED}FATAL: ${skill_name} init failed. 安装中止${NC}"
+            exit 1
+        fi
+    done
+    print_color "${GREEN}[OK] Skill init completed: ${INIT_COUNT} initialized${NC}"
+else
+    print_color "${YELLOW}[INFO] Skills directory not found, skip init${NC}"
+fi
+
 # Step 6: Version Detection
 print_color "${CYAN}[6/${TOTAL_STEPS}] Version Detection...${NC}"
 
