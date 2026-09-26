@@ -37,6 +37,7 @@
 const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { program, InvalidArgumentError } = require('commander');
 const http = require('http');
 const { parseArgs } = require('util');
@@ -358,7 +359,7 @@ async function httpDeleteRetry(url, timeoutMs, retries = 1) {
 async function cmdStart(opts) {
   const port = parseInt(opts.port || '4096');
   const hostname = opts.hostname || '127.0.0.1';
-  const dir = process.cwd();
+  const dir = os.homedir();
 
   const url = `http://${hostname}:${port}`;
 
@@ -587,7 +588,7 @@ function spawnServeDetached(port, hostname, dir) {
 async function cmdRestart(opts) {
   const port = parseInt(opts.port);
   const hostname = opts.hostname || '127.0.0.1';
-  const dir = process.cwd();
+  const dir = os.homedir();
   const url = `http://${hostname}:${port}`;
   const start = Date.now();
 
@@ -1242,9 +1243,9 @@ cmd('send', '向已运行的 serve 提交任务，阻塞直到完成',
   cmdSend);
 
 // —— 非阻塞模式 ——
-cmd('start', '启动 serve（detached 后台进程；日志/PID 落盘 <cwd>/.opencode/logs/）',
+cmd('start', '启动 serve（detached 后台进程；工作目录为家目录 ~，日志/PID 落盘 ~/.opencode/logs/）',
   [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--no-wait', '后台模式：启动即返回，不等健康检查（冷启动约 15-30s）']],
-  { desc: '在当前目录启动 serve（工作目录即 cwd，等价官方 opencode serve）。端口已占用且健康时幂等返回 alreadyRunning，绝不重复 spawn；占用但不健康则报错引导 stop。',
+  { desc: '在家目录 ~ 启动 serve（多项目场景用固定中立目录，避免 cwd 歧义；会话目录由 v2 location 独立指定）。端口已占用且健康时幂等返回 alreadyRunning，绝不重复 spawn；占用但不健康则报错引导 stop。',
     notes: '默认阻塞至健康就绪（适合自动化）；人用嫌慢可加 --no-wait。输出含 logFile/pidFile，排障 tail -f',
     examples: ['node serve-api.cjs start --port 4096',
                'node serve-api.cjs start --port 4096 --no-wait   # 立即返回，稍后 status 确认'] },
@@ -1287,7 +1288,7 @@ cmd('stop', '按端口杀掉 serve 进程（SIGTERM -> SIGKILL 兜底）',
 
 cmd('restart', '重启 serve：杀旧进程 -> detached 重启 -> 30s 健康检查（原 server/restart.cjs 融合）',
   [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--no-wait', '后台模式：杀旧+启动后立即返回，不等健康检查']],
-  { desc: '在当前目录重启 serve（工作目录即 cwd）。端口无旧进程时等同于 start（restart 兼容冷启动）。日志/PID 落盘 <cwd>/.opencode/logs/。',
+  { desc: '在家目录 ~ 重启 serve（同 start；多项目场景固定中立目录）。端口无旧进程时等同于 start（restart 兼容冷启动）。日志/PID 落盘 ~/.opencode/logs/。',
     notes: ['原 scripts/server/ 脚本默认端口 14096，本 CLI 统一默认 4096——沿用旧端口请显式 --port 14096'],
     examples: ['node serve-api.cjs restart --port 4096'] },
   cmdRestart);
@@ -1363,7 +1364,7 @@ cmd('diff', '查看会话产生的文件变更',
 program
   .name('serve-api.cjs')
   .description('opencode serve API 封装 — v2 API 命令行工具')
-  .version('5.0.0')
+  .version('5.1.0')
   .addHelpText('after', `
 全局约定:
   stdout 恒为 JSON（含错误对象）；stderr 为人类可读进度/警告
