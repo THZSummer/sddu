@@ -287,11 +287,13 @@ async function fetchMessages(url, surface, sessionId, gen, timeoutMs) {
   const order = gen === 'v2'
     ? ['v2', 'v1']
     : ['v1', 'v2'];
+  // 大会话的消息视图服务端惰性构建，首访可能挂到超时；用 httpGetRetry 退避重试（二次通常已预热）
+  const ms = timeoutMs || 60000;
   let lastErr = null;
   for (const g of order) {
     if (g === 'v1' && surface.v1.message) {
       try {
-        const r = await httpGet(`${url}/session/${sessionId}/message`, timeoutMs || 30000);
+        const r = await httpGetRetry(`${url}/session/${sessionId}/message`, ms, 2);
         if (Array.isArray(r) && r.length > 0) return r;
         if (Array.isArray(r)) { lastErr = null; continue; } // v1 视图为空，尝试 v2
         return r;
@@ -299,7 +301,7 @@ async function fetchMessages(url, surface, sessionId, gen, timeoutMs) {
     }
     if (g === 'v2' && surface.v2.message) {
       try {
-        const r = await httpGet(`${url}/api/session/${sessionId}/message?order=asc`, timeoutMs || 30000);
+        const r = await httpGetRetry(`${url}/api/session/${sessionId}/message?order=asc`, ms, 2);
         let arr = Array.isArray(r) ? r : (unwrap(r) || []);
         if (Array.isArray(arr) && arr.length > 0) {
           // v2 视图默认可能倒序（最新在前），按 time.created 客户端排序归一化
@@ -897,7 +899,7 @@ async function cmdStatus(opts) {
   // 指定 session 时查询会话详情
   if (sessionId) {
     try {
-      const messages = await fetchMessages(url, surface, sessionId, undefined, 30000);
+      const messages = await fetchMessages(url, surface, sessionId, undefined, 60000);
       const msgCount = Array.isArray(messages) ? messages.length : 1;
       // 通过消息数判断：>1 条消息且最后一条非 user 则认为完成
       const lastMsg = Array.isArray(messages) && messages.length > 0 ? messages[messages.length - 1] : null;
@@ -926,12 +928,18 @@ async function cmdResult(opts) {
   requireOpts(opts, ['port', 'session']);
 
   const surface = await getSurface(url);
-  const messages = await fetchMessages(url, surface, sessionId, undefined, 30000);
-  const msgCount = Array.isArray(messages) ? messages.length : 1;
-  const lastMsg = Array.isArray(messages) && messages.length > 0 ? messages[messages.length - 1] : null;
-  const done = msgCount > 1 && msgRole(lastMsg) !== 'user';
+  let messages = await fetchMessages(url, surface, sessionId, undefined, 60000);
+  if (!Array.isArray(messages)) messages = [];
+  const total = messages.length;
+  // --limit N：仅返回最后 N 条（最近），大会话按需查看，避免一次性吐 MB 级内容
+  if (opts.limit !== undefined) {
+    const n = parseInt(opts.limit);
+    if (n >= 0 && total > n) messages = messages.slice(total - n);
+  }
+  const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
+  const done = total > 1 && msgRole(lastMsg) !== 'user';
 
-  output({ sessionId, status: done ? 'completed' : 'running', messages });
+  output({ sessionId, status: done ? 'completed' : 'running', total, returned: messages.length, messages });
 }
 
 // ─── 子命令：abort（中止会话：v2 interrupt 优先，v1 abort 回退） ───
@@ -1334,9 +1342,11 @@ cmd('status', '查 serve 健康状态；指定 --session 时查会话进度',
   { examples: ['node serve-api.cjs status --port 4096 --session ses_xxx'] },
   cmdStatus);
 
-cmd('result', '取会话全部消息（结果）',
-  [PORT, SESSION()],
-  { examples: ['node serve-api.cjs result --port 4096 --session ses_xxx'] },
+cmd('result', '取会话消息（--limit N 仅返回最后 N 条；默认全部）',
+  [PORT, SESSION(), ['--limit <count>', '仅返回最后 N 条消息（默认全部）', intOpt('limit')]],
+  { notes: '大会话消息量可达 MB 级；用 --limit 只看最近若干条。输出含 total/returned 便于判断截断',
+    examples: ['node serve-api.cjs result --port 4096 --session ses_xxx',
+               'node serve-api.cjs result --port 4096 --session ses_xxx --limit 5'] },
   cmdResult);
 
 cmd('wait', '阻塞等待会话 idle（v2 wait 端点，精确完成信号）',
@@ -1434,7 +1444,7 @@ cmd('diff', '查看会话产生的文件变更',
 program
   .name('serve-api.cjs')
   .description('opencode serve API 封装 — v1/v2 双代兼容的 HTTP API 命令行工具')
-  .version('5.2.0')
+  .version('5.2.2')
   .addHelpText('after', `
 全局约定:
   stdout 恒为 JSON（含错误对象）；stderr 为人类可读进度/警告
