@@ -5,6 +5,8 @@ description: "当 LLM Agent 或用户需要程序化操作 opencode 时加载--�
 
 # opencode-operator
 
+> **依赖安装（SDDU 内置技能）**：`scripts/serve-api.cjs` 依赖 Commander（唯一 npm 依赖，零子依赖）。本技能作为 SDDU 框架级内置技能随插件分发，`node_modules` 不进版本库——**首次使用前需在 `scripts/` 下执行一次 `npm install`**（或 `npm ci`）。安装后所有命令开箱即用。
+
 ## 接口
 
 阅读本章节即可使用本 Skill，无需阅读后续路径细节。
@@ -680,6 +682,7 @@ V1 调 `server()`，V2 读 `setup()`；两套 API 各自独立，不做翻译。
 | v3.1 | 新增人工运维脚本 `scripts/server/`（restart.cjs / stop.cjs / attach.cjs，人用，CJS 人类友好输出）；分层约定：server/ 人用 vs serve-api.cjs Agent 用 | 2026-08-12 | @sddu-fast |
 | v4.0 | **v1/v2 双代兼容大版本**：① `/doc` OpenAPI 运行时自探测（detect 子命令）+ 会话链路 v2 优先（create/prompt v2，prompt 双形态 text→prompt.text）；② 完成检测 v2 wait 优先/消息数轮询回退，abort→interrupt 优先；③ 响应三态兼容（裸值/{data}/204）+ v2 消息视图排序归一化；④ 新增 8 个子命令：detect/wait/skills/stats/revert/fork/compact/diff；⑤ `--allow` 无值守精准预授权（v2 permissions Ruleset）；⑥ 新增「v2 迁移备忘」章节（配置字段映射/新命令速查/双栈插件/SDDU 机会）；⑦ 已封装端点表改双代对照。全部经 1.18.32 hybrid 实测（wait 503 回退、revert v2 驱动链路成功、ruleset array 形态接受） | 2026-09-26 | @sddu-fast |
 | v4.1 | **标准 CLI 重构**：新增零依赖微框架 `lib/cli.cjs`（git 风格）；每个命令支持 `--help`/`-h` 与 `help <cmd>`（含参数表/示例/说明），顶层 `--version`；未知命令/参数报错+levenshtein 近似建议；严格参数校验（未知 flag 报错而非静默忽略、必填缺失明确提示、number 类型校验）；退出码标准化 0/1/2；--port 统一默认 4096（不再部分命令强制必填）；大端点（/doc、/api/skill、/session）GET 超时提升至 30s 并带退避重试（服务端惰性构建抖动实测修复）。Handler 逻辑零变更 | 2026-09-26 | @sddu-fast |
+| v4.5.0 | **迁移为 SDDU 内置技能**：由用户级（`.sddu/skills/`）迁入框架级（`src/skills/`，随 SDDU 插件分发），保留原名 opencode-operator（业务本质是操作 opencode，不加 sddu- 前缀）。SKILL.md 新增「依赖安装」提示（Commander 依赖 node_modules 不进版本库，首次使用需在 scripts/ 下 `npm install`）。sync manifest 标记由 user 转 framework | 2026-09-26 | @sddu-fast |
 | v4.4.2 | **attach 默认逻辑回归官方 + stop pidfile 兜底**：① `attach --dir` 恢复默认当前目录（不传时等价官方 `opencode attach` 在 cwd 运行，始终拼 `--dir <cwd>`）；② `stop` 修复 start --no-wait 后立即 stop 的竞态——lsof/fuser 查不到未绑端口的新进程时，读 `<dir>/.opencode/logs/opencode-serve-<port>.pid` 按 PID 杀（带 isOpencodeServe 校验，防陈旧 pidfile 误杀 PID 复用进程）；stop 新增 `--dir` 定位 pidfile；restart 同步传 dir。实测：start --no-wait 秒回后立即 stop，pidfile 兜底精确清理无残留 | 2026-09-26 | @sddu-fast |
 | v4.4.1 | **对齐官方 dir 默认行为（用户建议）**：`start`/`restart`/`attach`/`run` 的 `--dir` 移除硬编码默认值 `.`（help 不再显示 default: "."）。官方实测：`opencode serve` 本无 `--dir`（用进程 cwd）、`opencode attach --dir` 与 `opencode run --dir` 均无默认值。现在不带 --dir 时 serve 落在自然 cwd（等价官方），attach 仅在显式传 --dir 时才加该参数（官方默认由 opencode 自己决定）。示例同步清理 | 2026-09-26 | @sddu-fast |
 | v4.4.0 | **一 server 多项目（v2 location）**：`submit`/`send` 新增 `--dir` 会话项目目录（v2 `location.directory`），`run` 的 --dir 同步传入。实测验证 1.18.32 hybrid 原生支持：同一 serve 上不同 location 会话拿到不同 projectID（`global` vs 仓库哈希）、各自解析各自 provider/model 配置（无配置目录解析出默认模型、sddu 解析出 deepseek），且 serve cwd=scripts 时 location=sddu 的会话 `pwd` 精确返回 `/home/usb/wks/sddu`——会话目录彻底独立于 serve 启动目录。v1 无此能力则明确报错。via 字段加 `+location` 标注 | 2026-09-26 | @sddu-fast |
