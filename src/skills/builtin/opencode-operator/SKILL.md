@@ -32,14 +32,15 @@ opencode 官方已发布 v2（文档 `opencode.ai/v2/docs/`，API 全部迁移�
 opencode v2 的 `location` 使**会话目录独立于 serve 启动目录**——同一 serve 可并发服务多个项目的会话，各自解析各自的配置/模型（实测：serve cwd 在 A 目录，会话 location=B 时 agent 的 `pwd` 即为 B）。用法：
 
 ```bash
-node scripts/serve-api.cjs start --port 4096            # 启动一次，不必关心 --dir
+node scripts/serve-api.cjs start --port 4096            # 在当前目录启动（serve 无 --dir）
 node scripts/serve-api.cjs submit --port 4096 --dir /home/usb/wks/gomoku --message "实现五子棋"
 node scripts/serve-api.cjs send   --port 4096 --dir /home/usb/wks/sddu   --message "审查 src/"
 node scripts/serve-api.cjs attach --port 4096 --dir /home/usb/wks/gomoku # TUI 打开指定项目
 ```
 
-- `submit`/`send`/`run` 的 `--dir` = 会话项目目录（v2 `location.directory`）；`attach --dir` = TUI 打开的项目
-- v1 服务器无此能力：会话目录绑定 serve 启动 cwd，带 `--dir` 会明确报错引导 `restart --dir` 或升级 v2
+- `submit`/`send`/`run` 的 `--dir` = 会话/运行项目目录（v2 `location.directory`；`run --dir` 与官方 `opencode run --dir` 对齐）；`attach --dir` = TUI 打开的项目（官方语义）
+- `start`/`restart`/`stop` **无** `--dir`：serve 工作目录恒为当前目录（对齐官方 `opencode serve` 本无 `--dir`）
+- v1 服务器无此能力：会话目录绑定 serve 启动 cwd，带 `--dir` 会明确报错引导升级 v2
 - 非 git 目录的 location 归入 `global` 项目；多项目会话可见于 `sessions` 列表（含 directory 字段）
 
 ### 参数
@@ -90,7 +91,7 @@ node scripts/serve-api.cjs attach --port 4096 --dir /home/usb/wks/gomoku # TUI �
 
 # 长期运行非阻塞（> 30 分钟，提交后去做别的）
 用户："启动服务器跑个长任务，我先去忙别的"
--> node scripts/serve-api.cjs start --port 4096 --dir .
+-> node scripts/serve-api.cjs start --port 4096
 -> node scripts/serve-api.cjs submit --port 4096 --message "任务" --agent build
 -> （随时）node scripts/serve-api.cjs status --port 4096 --session <sid>
 -> （完成）node scripts/serve-api.cjs result --port 4096 --session <sid>
@@ -188,7 +189,7 @@ node scripts/serve-api.cjs run --message "审查代码" --agent build --dir . --
 非阻塞模式（提交后去做别的，随时回来看进度）：
 ```bash
 # 1. 启动 serve（一次性）
-node scripts/serve-api.cjs start --port 4096 --dir .
+node scripts/serve-api.cjs start --port 4096
 
 # （可选）巡检当前有哪些 serve 在跑
 node scripts/serve-api.cjs ps
@@ -306,7 +307,7 @@ node scripts/serve-api.cjs run --message "执行多阶段任务" --agent sddu --
 # stderr 实时进度: [12.5s] status: running
 
 # 或组合模式（需并行多会话时）
-node scripts/serve-api.cjs start --port 4096 --dir .
+node scripts/serve-api.cjs start --port 4096
 node scripts/serve-api.cjs send --port 4096 --message "任务1" --agent build
 node scripts/serve-api.cjs send --port 4096 --message "任务2" --agent build
 node scripts/serve-api.cjs stop --port 4096
@@ -411,7 +412,7 @@ opencode run --auto "给 src/utils.ts 加上 JSDoc 注释"
 
 ```bash
 # 启动服务器
-node scripts/serve-api.cjs start --port 4096 --dir .
+node scripts/serve-api.cjs start --port 4096
 
 # 并行提交多个任务
 node scripts/serve-api.cjs send --port 4096 --message "审查 auth/" &
@@ -683,6 +684,7 @@ V1 调 `server()`，V2 读 `setup()`；两套 API 各自独立，不做翻译。
 | v4.0 | **v1/v2 双代兼容大版本**：① `/doc` OpenAPI 运行时自探测（detect 子命令）+ 会话链路 v2 优先（create/prompt v2，prompt 双形态 text→prompt.text）；② 完成检测 v2 wait 优先/消息数轮询回退，abort→interrupt 优先；③ 响应三态兼容（裸值/{data}/204）+ v2 消息视图排序归一化；④ 新增 8 个子命令：detect/wait/skills/stats/revert/fork/compact/diff；⑤ `--allow` 无值守精准预授权（v2 permissions Ruleset）；⑥ 新增「v2 迁移备忘」章节（配置字段映射/新命令速查/双栈插件/SDDU 机会）；⑦ 已封装端点表改双代对照。全部经 1.18.32 hybrid 实测（wait 503 回退、revert v2 驱动链路成功、ruleset array 形态接受） | 2026-09-26 | @sddu-fast |
 | v4.1 | **标准 CLI 重构**：新增零依赖微框架 `lib/cli.cjs`（git 风格）；每个命令支持 `--help`/`-h` 与 `help <cmd>`（含参数表/示例/说明），顶层 `--version`；未知命令/参数报错+levenshtein 近似建议；严格参数校验（未知 flag 报错而非静默忽略、必填缺失明确提示、number 类型校验）；退出码标准化 0/1/2；--port 统一默认 4096（不再部分命令强制必填）；大端点（/doc、/api/skill、/session）GET 超时提升至 30s 并带退避重试（服务端惰性构建抖动实测修复）。Handler 逻辑零变更 | 2026-09-26 | @sddu-fast |
 | v4.5.0 | **迁移为 SDDU 内置技能**：由用户级（`.sddu/skills/`）迁入框架级（`src/skills/`，随 SDDU 插件分发），保留原名 opencode-operator（业务本质是操作 opencode，不加 sddu- 前缀）。SKILL.md 新增「依赖安装」提示（Commander 依赖 node_modules 不进版本库，首次使用需在 scripts/ 下 `npm install`）。sync manifest 标记由 user 转 framework | 2026-09-26 | @sddu-fast |
+| v4.5.1 | **start/restart/stop 移除 `--dir`（用户反馈"serve 还有默认 dir 很怪"）**：官方 `opencode serve` 实测无 `--dir`（用进程 cwd），故 SDDU 的 `start`/`restart` 同步移除 `--dir`——serve 工作目录恒为 cwd，日志/PID 落 `<cwd>/.opencode/logs/`；`stop` 移除 `--dir`，兜底改用**全局 `ps` 扫描**（扫 `opencode serve --port <port>`，不依赖 cwd，比原 pidfile 兜底更可靠）。`run`/`attach`/`send`/`submit` 的 `--dir` 保留（官方 run/attach 均有 --dir，send/submit 为 v2 location）。实测：start --no-wait 秒回后立即 stop，ps 兜底精确清理未绑端口进程 | 2026-09-26 | @sddu-fast |
 | v4.4.2 | **attach 默认逻辑回归官方 + stop pidfile 兜底**：① `attach --dir` 恢复默认当前目录（不传时等价官方 `opencode attach` 在 cwd 运行，始终拼 `--dir <cwd>`）；② `stop` 修复 start --no-wait 后立即 stop 的竞态——lsof/fuser 查不到未绑端口的新进程时，读 `<dir>/.opencode/logs/opencode-serve-<port>.pid` 按 PID 杀（带 isOpencodeServe 校验，防陈旧 pidfile 误杀 PID 复用进程）；stop 新增 `--dir` 定位 pidfile；restart 同步传 dir。实测：start --no-wait 秒回后立即 stop，pidfile 兜底精确清理无残留 | 2026-09-26 | @sddu-fast |
 | v4.4.1 | **对齐官方 dir 默认行为（用户建议）**：`start`/`restart`/`attach`/`run` 的 `--dir` 移除硬编码默认值 `.`（help 不再显示 default: "."）。官方实测：`opencode serve` 本无 `--dir`（用进程 cwd）、`opencode attach --dir` 与 `opencode run --dir` 均无默认值。现在不带 --dir 时 serve 落在自然 cwd（等价官方），attach 仅在显式传 --dir 时才加该参数（官方默认由 opencode 自己决定）。示例同步清理 | 2026-09-26 | @sddu-fast |
 | v4.4.0 | **一 server 多项目（v2 location）**：`submit`/`send` 新增 `--dir` 会话项目目录（v2 `location.directory`），`run` 的 --dir 同步传入。实测验证 1.18.32 hybrid 原生支持：同一 serve 上不同 location 会话拿到不同 projectID（`global` vs 仓库哈希）、各自解析各自 provider/model 配置（无配置目录解析出默认模型、sddu 解析出 deepseek），且 serve cwd=scripts 时 location=sddu 的会话 `pwd` 精确返回 `/home/usb/wks/sddu`——会话目录彻底独立于 serve 启动目录。v1 无此能力则明确报错。via 字段加 `+location` 标注 | 2026-09-26 | @sddu-fast |

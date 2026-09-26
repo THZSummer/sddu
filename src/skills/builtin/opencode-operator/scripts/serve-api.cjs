@@ -408,7 +408,7 @@ async function httpDeleteRetry(url, timeoutMs, retries = 1) {
 async function cmdStart(opts) {
   const port = parseInt(opts.port || '4096');
   const hostname = opts.hostname || '127.0.0.1';
-  const dir = opts.dir || '.';
+  const dir = process.cwd();
 
   const url = `http://${hostname}:${port}`;
 
@@ -425,7 +425,7 @@ async function cmdStart(opts) {
   }
 
   // 启动 serve 进程（detached + 日志/PID 落盘）
-  const { pid, logFile, pidFile } = spawnServeDetached(port, hostname, path.resolve(dir));
+  const { pid, logFile, pidFile } = spawnServeDetached(port, hostname, dir);
 
   // --no-wait：后台模式，立即返回（冷启动需 15-30s，稍后用 status/ps 确认）
   if (opts.wait === false) {
@@ -531,17 +531,22 @@ function portPids(port) {
   return [];
 }
 
-// 从 pidfile 读取 PID（start/restart 落盘在 <dir>/.opencode/logs/opencode-serve-<port>.pid）
-function pidFromPidfile(dir, port) {
+// 全局扫 ps 找 opencode serve --port <port>（端口无监听时的兜底；不依赖 cwd/pidfile）
+function servePidByPort(port) {
   try {
-    const pidFile = path.join(dir, '.opencode', 'logs', `opencode-serve-${port}.pid`);
-    const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
-    if (!Number.isNaN(pid) && pid > 0) return pid;
-  } catch { /* 无 pidfile 或读取失败 */ }
+    const out = execSync('ps -eo pid,command', { encoding: 'utf8' });
+    for (const line of out.split('\n')) {
+      if (!/[o]pencode\s+serve/.test(line)) continue;
+      if (new RegExp(`--port\\s+${port}(\\s|$)`).test(line)) {
+        const m = line.trim().match(/^(\d+)/);
+        if (m && m[1] !== String(process.pid)) return m[1];
+      }
+    }
+  } catch { /* ignore */ }
   return null;
 }
 
-// 判断进程是否仍存活且确为 opencode serve（避免 pidfile 陈旧、PID 被复用误杀）
+// 判断进程是否仍存活且确为 opencode serve（避免 PID 被复用误杀）
 function isOpencodeServe(pid) {
   try {
     const out = execSync(`ps -p ${pid} -o command= 2>/dev/null`).toString().trim();
@@ -550,14 +555,14 @@ function isOpencodeServe(pid) {
 }
 
 // 杀掉占用端口的进程（SIGTERM -> 1s -> SIGKILL 兜底），返回结果供 stop/restart 复用。
-// dir 用于 pidfile 兜底：serve 刚 spawn 尚未绑定端口时 lsof/fuser 查不到，改读 pidfile 按 PID 杀。
-async function killByPort(port, dir) {
+// 端口无监听时全局扫 ps 兜底（覆盖 start --no-wait 后立即 stop、serve 尚未绑定端口的竞态；不依赖 cwd）。
+async function killByPort(port) {
   let pids = portPids(port);
-  if (pids.length === 0 && dir) {
-    const pid = pidFromPidfile(dir, port);
+  if (pids.length === 0) {
+    const pid = servePidByPort(port);
     if (pid && isOpencodeServe(pid)) {
       pids = [String(pid)];
-      process.stderr.write(`端口 ${port} 暂无监听进程，但 pidfile 指向存活 serve（pid ${pid}），按 PID 清理\n`);
+      process.stderr.write(`端口 ${port} 暂无监听进程，但 ps 扫到存活 serve（pid ${pid}），按 PID 清理\n`);
     }
   }
   if (pids.length === 0) return { hadProcess: false, killed: false, reason: '端口无进程' };
@@ -584,8 +589,7 @@ async function killByPort(port, dir) {
 
 async function cmdStop(opts) {
   const port = opts.port;
-  const dir = path.resolve(opts.dir || '.');
-  const r = await killByPort(port, dir);
+  const r = await killByPort(port);
   if (!r.killed) {
     output({ killed: false, port: parseInt(port), reason: r.reason });
     process.exit(1);
@@ -633,12 +637,12 @@ function spawnServeDetached(port, hostname, dir) {
 async function cmdRestart(opts) {
   const port = parseInt(opts.port);
   const hostname = opts.hostname || '127.0.0.1';
-  const dir = path.resolve(opts.dir || '.');
+  const dir = process.cwd();
   const url = `http://${hostname}:${port}`;
   const start = Date.now();
 
   // 1. 杀旧进程（无旧进程也继续，restart 兼容 start 语义）；残留杀不掉则中止
-  const killed = await killByPort(port, dir);
+  const killed = await killByPort(port);
   process.stderr.write(`[${elapsed(start)}] 旧进程清理: ${JSON.stringify(killed)}\n`);
   if (killed.hadProcess && !killed.killed) {
     output({ error: `旧进程未能停止（${(killed.pids || []).join(', ')}），为避免同端口双进程已中止`, port, previousKilled: killed });
@@ -1304,13 +1308,12 @@ cmd('send', '向已运行的 serve 提交任务，阻塞直到完成',
   cmdSend);
 
 // —— 非阻塞模式 ——
-cmd('start', '启动 serve（detached 后台进程；日志/PID 落盘 <dir>/.opencode/logs/）',
-  [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--dir <path>', 'serve 启动目录（默认当前目录，等价官方 opencode serve 无 --dir）'], ['--no-wait', '后台模式：启动即返回，不等健康检查（冷启动约 15-30s）']],
-  { desc: '端口已占用且健康时幂等返回 alreadyRunning，绝不重复 spawn；占用但不健康则报错引导 stop。',
+cmd('start', '启动 serve（detached 后台进程；日志/PID 落盘 <cwd>/.opencode/logs/）',
+  [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--no-wait', '后台模式：启动即返回，不等健康检查（冷启动约 15-30s）']],
+  { desc: '在当前目录启动 serve（工作目录即 cwd，等价官方 opencode serve）。端口已占用且健康时幂等返回 alreadyRunning，绝不重复 spawn；占用但不健康则报错引导 stop。',
     notes: '默认阻塞至健康就绪（适合自动化）；人用嫌慢可加 --no-wait。输出含 logFile/pidFile，排障 tail -f',
     examples: ['node serve-api.cjs start --port 4096',
-               'node serve-api.cjs start --port 4096 --no-wait   # 立即返回，稍后 status 确认',
-               'node serve-api.cjs start --port 4096 --dir /home/usb/wks/sddu   # 指定 serve 启动目录'] },
+               'node serve-api.cjs start --port 4096 --no-wait   # 立即返回，稍后 status 确认'] },
   cmdStart);
 
 cmd('submit', '非阻塞提交：创建会话 + 发消息，立即返回 sessionId',
@@ -1343,17 +1346,16 @@ cmd('abort', '中止运行中的会话（v2 interrupt 优先，v1 abort 回退�
   cmdAbort);
 
 cmd('stop', '按端口杀掉 serve 进程（SIGTERM -> SIGKILL 兜底）',
-  [PORT, ['--dir <path>', 'serve 启动目录（用于 pidfile 兜底定位刚启动未绑端口的进程；默认当前目录）']],
-  { notes: '端口查不到进程时读 <dir>/.opencode/logs/opencode-serve-<port>.pid 按 PID 杀（覆盖 start --no-wait 后立即 stop 的竞态）',
-    examples: ['node serve-api.cjs stop --port 4096',
-               'node serve-api.cjs stop --port 4096 --dir /home/usb/wks/sddu'] },
+  [PORT],
+  { notes: '端口无监听时全局扫 ps 兜底（覆盖 start --no-wait 后立即 stop、serve 尚未绑定端口的竞态；不依赖 cwd）',
+    examples: ['node serve-api.cjs stop --port 4096'] },
   cmdStop);
 
 cmd('restart', '重启 serve：杀旧进程 -> detached 重启 -> 30s 健康检查（原 server/restart.cjs 融合）',
-  [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--dir <path>', 'serve 启动目录（默认当前目录）'], ['--no-wait', '后台模式：杀旧+启动后立即返回，不等健康检查']],
-  { desc: '端口无旧进程时等同于 start（restart 兼容冷启动）。日志/PID 落盘 <dir>/.opencode/logs/。',
+  [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--no-wait', '后台模式：杀旧+启动后立即返回，不等健康检查']],
+  { desc: '在当前目录重启 serve（工作目录即 cwd）。端口无旧进程时等同于 start（restart 兼容冷启动）。日志/PID 落盘 <cwd>/.opencode/logs/。',
     notes: ['原 scripts/server/ 脚本默认端口 14096，本 CLI 统一默认 4096——沿用旧端口请显式 --port 14096'],
-    examples: ['node serve-api.cjs restart --port 14096 --dir /home/usb/wks/sddu'] },
+    examples: ['node serve-api.cjs restart --port 4096'] },
   cmdRestart);
 
 cmd('attach', 'TUI 附加到运行中的 serve（原 server/attach.cjs 融合）',
