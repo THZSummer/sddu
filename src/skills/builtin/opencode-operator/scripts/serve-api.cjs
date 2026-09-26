@@ -698,7 +698,7 @@ async function cmdSessions(opts) {
     output(list);
   } else {
     output(list.map(s => ({
-      id: String(s.id || '').slice(0, 12),
+      id: String(s.id || ''),
       title: s.title,
       agent: s.agent,
       directory: (s.location && s.location.directory) || s.directory,
@@ -1364,7 +1364,7 @@ cmd('diff', '查看会话产生的文件变更',
 program
   .name('serve-api.cjs')
   .description('opencode serve API 封装 — v2 API 命令行工具')
-  .version('5.1.0')
+  .version('5.1.1')
   .addHelpText('after', `
 全局约定:
   stdout 恒为 JSON（含错误对象）；stderr 为人类可读进度/警告
