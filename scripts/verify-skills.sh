@@ -88,7 +88,9 @@ done
 [ "$AGENT_COUNT" -eq 11 ] && pass "V4 Agent 模板: $AGENT_COUNT/11 含「Skill 发现」" || fail "V4 Agent 模板: $AGENT_COUNT/11"
 
 # V5: sync 仅在三阶段发现上下文中（非独立硬编码）
-SYNC_REF=$(grep -c "sddu-skill-sync" "$TEST_DIR/.opencode/agents/sddu.md" 2>/dev/null || echo 0)
+# 注意：grep -c 无匹配时自身即输出 0 并返回非零，不能再 `|| echo 0`（会得到 "0\n0"）
+SYNC_REF=$(grep -c "sddu-skill-sync" "$TEST_DIR/.opencode/agents/sddu.md" 2>/dev/null || true)
+SYNC_REF=${SYNC_REF:-0}
 if [ "$SYNC_REF" -gt 0 ]; then
   # 确认是在发现上下文中
   grep -q "Stage 2.*3.*发现.*sddu-skill-sync\|发现并加载.*sddu-skill-sync" "$TEST_DIR/.opencode/agents/sddu.md" 2>/dev/null && \
@@ -99,9 +101,10 @@ else
 fi
 
 # V8: 三阶段模型
-HAS_S1=$(grep -c "Stage 1" "$TEST_DIR/.opencode/agents/sddu.md" 2>/dev/null || echo 0)
-HAS_S2=$(grep -c "Stage 2" "$TEST_DIR/.opencode/agents/sddu.md" 2>/dev/null || echo 0)
-HAS_S3=$(grep -c "Stage 3" "$TEST_DIR/.opencode/agents/sddu.md" 2>/dev/null || echo 0)
+HAS_S1=$(grep -c "Stage 1" "$TEST_DIR/.opencode/agents/sddu.md" 2>/dev/null || true)
+HAS_S2=$(grep -c "Stage 2" "$TEST_DIR/.opencode/agents/sddu.md" 2>/dev/null || true)
+HAS_S3=$(grep -c "Stage 3" "$TEST_DIR/.opencode/agents/sddu.md" 2>/dev/null || true)
+HAS_S1=${HAS_S1:-0}; HAS_S2=${HAS_S2:-0}; HAS_S3=${HAS_S3:-0}
 [ "$HAS_S1" -gt 0 ] && [ "$HAS_S2" -gt 0 ] && [ "$HAS_S3" -gt 0 ] && \
   pass "V8 三阶段模型: Stage1/2/3 均存在" || \
   fail "V8 三阶段模型不完整 (S1:$HAS_S1 S2:$HAS_S2 S3:$HAS_S3)"

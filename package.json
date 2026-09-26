@@ -6,7 +6,6 @@
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./pipeline": "./dist/pipeline/index.js",
     "./state": "./dist/state/index.js",
     "./opencode": "./dist/adapters/opencode/index.js",
     "./shared": "./dist/shared/index.js"
