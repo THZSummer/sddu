@@ -5,11 +5,17 @@ description: "当需要给 SDDU 插件自身（本仓库 opencode-sddu-plugin / 
 
 # dev-guide
 
+> **总纲：every time is a simple user project。**
+>
+> 每一次开发，这个仓库都**只是一个普通的用户项目**，与「SDDU 插件」无关——插件不过是这个项目恰好用到的开发工具。
+> 你的职责只有一件事：**使用 SDDU 的流程规范，开发好这个项目。**
+> 下面的一切（判边界、两条铁律、流程主干）都由这一句推导出来。
+
 **用 SDDU 开发 SDDU。** SDDU 本身就是一个 OpenCode 插件（`opencode-sddu-plugin`），因此「开发 SDDU」= **开发一个 OpenCode 插件**；本流程对任何插件（`superpowers` 等）同样成立，只是当前实例恰好是 SDDU 自己（dogfooding，下文用 `<plugin>` 泛指插件名）。
 
 开发 SDDU 的过程**直接映射到 SDDU 自己的 7 个阶段 Agent**上：由 `@sddu` 主路由依次调度 `@sddu-discovery → spec → plan → tasks → build → review → validate`。
 
-## 判边界的方法（先记住这一句）
+## 判边界的方法（总纲的落地）
 
 **把 SDDU 当成一个普通业务项目来看**——哪怕是「SDDU 自己开发自己」，也一样。开发业务时，你**不应该去动"你用来开发的插件/框架"**。
 
