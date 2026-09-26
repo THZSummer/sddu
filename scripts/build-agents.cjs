@@ -142,7 +142,8 @@ function build() {
   });
   
   // 复制特殊 SDDU 代理 (仅 SDDU 版本)
-  var specialAgents = ['sddu', 'sddu-roadmap', 'sddu-tree', 'sddu-docs', 'sddu-fast'];
+  // 注意：sddu-tree 已按 ADR-001 降级为框架级 Skill，不再是 Agent，故不在此列表
+  var specialAgents = ['sddu', 'sddu-roadmap', 'sddu-docs', 'sddu-fast'];
   for(var i = 0; i < specialAgents.length; i++) {
     var name = specialAgents[i];
     try {
