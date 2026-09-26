@@ -2,23 +2,22 @@
 'use strict';
 
 /**
- * serve-api.cjs - opencode serve HTTP API 封装脚本（v2-only 版）
+ * serve-api.cjs - opencode serve HTTP API 封装脚本（v1/v2 双代兼容版）
  *
  * 零依赖，使用 Node.js 内置模块。
  * 封装 serve 的会话管理、消息发送、轮询、进程管理。
  * LLM 调用本脚本，不需要手动构造 curl 命令。
  *
- * v2-only 策略（v5.0+）：
- *   - 只使用 opencode v2 API（/api/*），不再兼容 v1 端点
- *   - 启动时通过 /doc OpenAPI 规范做运行时端点自探测（getSurface）并校验 v2 可用性
- *   - 完成检测：v2 wait 端点（精确等待 idle），不可用时回退 v2 消息数轮询
- *   - 中止：v2 interrupt
- *   - 响应解析：{data:...} 包裹（v2）/ 204 无体
- *   - 需要 v2 端点而服务器缺失时，明确报错引导升级 opencode
+ * v1/v2 兼容策略（v4.0+，v5.2.0 起恢复为全兼容）：
+ *   - 启动时通过 /doc OpenAPI 规范做运行时端点自探测（getSurface）
+ *   - 会话/消息/中止等：v2 优先，v1 回退（官方 TUI/CLI 仍走 v1，其会话消息存于 v1 存储——双 inbox，不兼容就读不到）
+ *   - 完成检测：优先 v2 wait 端点（精确等待 idle），回退 v1 消息数轮询
+ *   - sessions 列表：v2 全局视图优先（含所有项目），v1 回退（仅 serve 启动目录项目）
+ *   - 响应解析三态兼容：裸值（v1）/ {data:...} 包裹（v2）/ 204 无体
  *
  * 用法：
  *   node serve-api.cjs run --message "..." [--agent sddu] [--dir .] [--port 4096] [--timeout 600]
- *   node serve-api.cjs start [--port 4096] [--hostname 127.0.0.1]
+ *   node serve-api.cjs start [--port 4096] [--hostname 127.0.0.1] [--dir .]
  *   node serve-api.cjs send --port 4096 --message "..." [--agent sddu] [--timeout 600]
  *   node serve-api.cjs stop --port 4096
  *   node serve-api.cjs ps [--port 4096]
@@ -70,10 +69,10 @@ function output(obj) {
   console.log(JSON.stringify(obj, null, 2));
 }
 
-// ─── v2 响应解包（{data:...} 包裹 / 204 无体） ───
+// ─── v1/v2 响应解包（三态兼容：裸值 / {data:...} / 204 无体） ───
 
 // v2 多数端点将负载包裹在 {data: ...}（部分还带 location/cursor）。
-// 此函数统一取 .data（存在则解包），否则原样返回。
+// v1 返回裸值。此函数统一取 .data（存在则解包），否则原样返回。
 function unwrap(r) {
   if (r && typeof r === 'object' && !Array.isArray(r) && 'data' in r) {
     return r.data;
@@ -86,15 +85,15 @@ function isNoBody(r) {
   return r && typeof r === 'object' && typeof r.raw === 'string' && r.raw.trim() === '';
 }
 
-// 从会话创建响应提取 id（v2 {data:{id}}）
+// 从会话创建响应提取 id（v1 裸对象顶层 id / v2 {data:{id}}）
 function extractSessionId(resp) {
   const s = (resp && resp.id) ? resp : unwrap(resp);
   return (s && typeof s === 'object' && s.id) ? s.id : null;
 }
 
 // ─── API 面运行时自探测 ───
-// 通过 /doc OpenAPI 规范检测当前服务器暴露的 v2 端点集合（v1 仅作 detect 诊断展示，命令不再使用）。
-// /doc 不可用时 v2 端点视为未知（false），命令会明确报错引导排查。
+// 通过 /doc OpenAPI 规范检测当前服务器暴露的 v1 / v2 端点集合。
+// /doc 不可用时按「v1 全量存在」的保守假设降级。
 
 let surfaceCache = null;
 
@@ -147,18 +146,21 @@ async function getSurface(url) {
   return surface;
 }
 
-// 健康检查（v2-only）：/api/health → /api/info
+// 健康检查：v1 /global/health → v2 /api/health → v2 /api/info
 async function healthCheck(url, surface) {
+  if (surface.v1.health) {
+    try { return await httpGet(`${url}/global/health`, 5000); } catch { /* 尝试下一种 */ }
+  }
   if (surface.v2.health) {
     try { return await httpGet(`${url}/api/health`, 5000); } catch { /* 尝试下一种 */ }
   }
   if (surface.v2.info) {
     return await httpGet(`${url}/api/info`, 5000);
   }
-  throw new Error('无可用的 v2 健康检查端点（/api/health 或 /api/info）');
+  throw new Error('无可用的健康检查端点');
 }
 
-// ─── 会话与消息（v2） ───
+// ─── 会话与消息（v1/v2 双路） ───
 
 // 解析 --allow "action:resource" 规则为 permissions 规则数组
 function parseAllowRules(allowArr) {
@@ -175,55 +177,72 @@ function parseAllowRules(allowArr) {
   return rules;
 }
 
-// 创建会话（v2-only）。传入 allowRules 时附加 permissions（尝试数组与 {rules:[...]} 两种形态）。
-// 传入 locationDir 时以 v2 location 指定会话项目目录（一 server 多项目）。
+// 创建会话。代别选择：v2 prompt 可用时优先 v2 链路（保证 revert/compact/v2 视图一致性），否则 v1。
+// 传入 allowRules 时附加 permissions（尝试数组与 {rules:[...]} 两种形态）。
+// 传入 locationDir 时以 v2 location 指定会话项目目录（一 server 多项目；v1 无此能力则报错）。
 async function createSession(url, surface, opts = {}) {
   const title = opts.title || 'serve-api-task';
   const allowRules = opts.allowRules || null;
   const agent = opts.agent || null;
   const locationDir = opts.locationDir || null;
+  const preferV2 = surface.v2.session && surface.v2.prompt;
 
-  if (!surface.v2.session) {
-    output({ error: '当前服务器无 v2 会话端点（/api/session）。本工具仅支持 opencode v2 API，请升级 opencode' });
+  const tryCreate = async (path, body) => {
+    const resp = await httpPost(`${url}${path}`, body, 15000);
+    const id = extractSessionId(resp);
+    return { resp, id };
+  };
+
+  // 会话级项目目录（location）是 v2 能力：v1 会话目录绑定 serve 启动 cwd，无法覆盖
+  if (locationDir && !surface.v2.session) {
+    output({ error: `当前服务器不支持会话级 location（v1）。会话目录由 serve 启动时 cwd 决定——多项目请 restart --dir <目标目录> 或升级 opencode v2`, requestedDir: locationDir });
     process.exit(1);
   }
 
   const locationField = locationDir ? { location: { directory: path.resolve(locationDir) } } : {};
 
-  const tryCreate = async (body) => {
-    const resp = await httpPost(`${url}/api/session`, body, 15000);
-    return { resp, id: extractSessionId(resp) };
-  };
-
-  // 按序尝试 [全量附加字段] -> [rules 对象形态] -> [无附加字段]；仅 400（形态不符）时降级
-  const full = {};
-  if (agent) full.agent = agent;
-  if (allowRules) full.permissions = allowRules; // 形态 A：规则数组（1.18.32 实测接受）
-  const wrapped = { ...full };
-  if (allowRules) wrapped.permissions = { rules: allowRules }; // 形态 B：{rules:[...]}
-  const attempts = [full, wrapped, {}];
-  const seen = new Set();
-  for (const extra of attempts) {
-    const key = JSON.stringify(extra);
-    if (seen.has(key)) continue; // 跳过重复形态（如无任何附加字段时 full===wrapped==={}）
-    seen.add(key);
-    try {
-      const r = await tryCreate({ title, ...locationField, ...extra });
-      if (r.id) {
-        let via = 'v2:/api/session';
-        if (extra.permissions) via += Array.isArray(extra.permissions) ? '+rules(array)' : '+rules(object)';
-        if (extra.agent) via += '+agent';
-        if (locationDir) via += '+location';
-        const dropped = Object.keys(full).filter(k => !(k in extra));
-        if (dropped.length) process.stderr.write(`警告: 以下字段被服务端拒绝已降级忽略: ${dropped.join(', ')}\n`);
-        return { sessionId: r.id, via };
+  // v2 创建：按序尝试 [全量附加字段] -> [rules 对象形态] -> [无附加字段]；仅 400（形态不符）时降级
+  if (preferV2) {
+    const full = {};
+    if (agent) full.agent = agent;
+    if (allowRules) full.permissions = allowRules; // 形态 A：规则数组（1.18.32 实测接受）
+    const wrapped = { ...full };
+    if (allowRules) wrapped.permissions = { rules: allowRules }; // 形态 B：{rules:[...]}
+    const attempts = [full, wrapped, {}];
+    const seen = new Set();
+    for (const extra of attempts) {
+      const key = JSON.stringify(extra);
+      if (seen.has(key)) continue; // 跳过重复形态（如无任何附加字段时 full===wrapped==={}）
+      seen.add(key);
+      try {
+        const r = await tryCreate('/api/session', { title, ...locationField, ...extra });
+        if (r.id) {
+          let via = 'v2:/api/session';
+          if (extra.permissions) via += Array.isArray(extra.permissions) ? '+rules(array)' : '+rules(object)';
+          if (extra.agent) via += '+agent';
+          if (locationDir) via += '+location';
+          const dropped = Object.keys(full).filter(k => !(k in extra));
+          if (dropped.length) process.stderr.write(`警告: 以下字段被服务端拒绝已降级忽略: ${dropped.join(', ')}\n`);
+          return { sessionId: r.id, via };
+        }
+      } catch (e) {
+        if (e.statusCode !== 400) throw e; // 非 400 直接抛出
       }
-    } catch (e) {
-      if (e.statusCode !== 400) throw e; // 非 400 直接抛出
     }
+    process.stderr.write('警告: v2 创建会话失败，回退 v1 /session\n');
   }
 
-  output({ error: '创建会话失败：v2 /api/session 未返回 id' });
+  if (surface.v1.session) {
+    const r = await tryCreate('/session', { title });
+    if (r.id) return { sessionId: r.id, via: 'v1:/session' };
+  }
+
+  if (surface.v2.session) {
+    const r = await tryCreate('/api/session', { title });
+    if (r.id) return { sessionId: r.id, via: 'v2:/api/session' };
+  }
+
+  output({ error: '创建会话失败：v1 /session 与 v2 /api/session 均不可用或未返回 id' });
   process.exit(1);
 }
 
@@ -241,31 +260,62 @@ async function tryBodyVariants(url, path, variants) {
   throw lastErr;
 }
 
-// 发送消息（v2-only）：/api/session/{id}/prompt（text / prompt.text 双形态，agent 经由创建时指定）
+// 发送消息：v2 prompt 优先（text / prompt.text 双形态，agent 经由创建时指定），
+// v1 prompt_async 兜底（parts 格式，agent 内嵌）
 async function sendPrompt(url, surface, sessionId, message, agent) {
-  if (!surface.v2.prompt) {
-    throw new Error('当前服务器无 v2 消息发送端点（/api/session/{id}/prompt）。本工具仅支持 opencode v2 API');
+  if (surface.v2.prompt) {
+    const variants = [{ text: message }, { prompt: { text: message } }];
+    try {
+      const resp = await tryBodyVariants(url, `/api/session/${sessionId}/prompt`, variants);
+      return { via: 'v2:prompt', resp };
+    } catch (e) {
+      process.stderr.write(`警告: v2 prompt 失败（${e.message.slice(0, 120)}），回退 v1 prompt_async\n`);
+    }
   }
-  const variants = [{ text: message }, { prompt: { text: message } }];
-  const resp = await tryBodyVariants(url, `/api/session/${sessionId}/prompt`, variants);
-  return { via: 'v2:prompt', resp };
+  if (surface.v1.promptAsync) {
+    const msgBody = { parts: [{ type: 'text', text: message }] };
+    if (agent) msgBody.agent = agent;
+    await httpPost(`${url}/session/${sessionId}/prompt_async`, msgBody);
+    return { via: 'v1:prompt_async' };
+  }
+  throw new Error('无可用的消息发送端点（prompt / prompt_async 均缺失）');
 }
 
-// 拉取消息列表（v2-only）：/api/session/{id}/message
-async function fetchMessages(url, surface, sessionId, _gen, timeoutMs) {
-  if (!surface.v2.message) {
-    throw new Error('当前服务器无 v2 消息端点（/api/session/{id}/message）。本工具仅支持 opencode v2 API');
+// 拉取消息列表（代别感知）：优先匹配 gen 对应视图，为空时尝试另一代视图。
+// v1 裸数组 {info,parts}；v2 {data,cursor} 联合类型消息。
+async function fetchMessages(url, surface, sessionId, gen, timeoutMs) {
+  const order = gen === 'v2'
+    ? ['v2', 'v1']
+    : ['v1', 'v2'];
+  let lastErr = null;
+  for (const g of order) {
+    if (g === 'v1' && surface.v1.message) {
+      try {
+        const r = await httpGet(`${url}/session/${sessionId}/message`, timeoutMs || 30000);
+        if (Array.isArray(r) && r.length > 0) return r;
+        if (Array.isArray(r)) { lastErr = null; continue; } // v1 视图为空，尝试 v2
+        return r;
+      } catch (e) { lastErr = e; }
+    }
+    if (g === 'v2' && surface.v2.message) {
+      try {
+        const r = await httpGet(`${url}/api/session/${sessionId}/message?order=asc`, timeoutMs || 30000);
+        let arr = Array.isArray(r) ? r : (unwrap(r) || []);
+        if (Array.isArray(arr) && arr.length > 0) {
+          // v2 视图默认可能倒序（最新在前），按 time.created 客户端排序归一化
+          const ts = (m) => (m.time && m.time.created) || (m.info && m.info.time && m.info.time.created) || 0;
+          arr = [...arr].sort((a, b) => ts(a) - ts(b));
+          return arr;
+        }
+      } catch (e) { lastErr = e; }
+    }
   }
-  const r = await httpGet(`${url}/api/session/${sessionId}/message?order=asc`, timeoutMs || 30000);
-  const arr = Array.isArray(r) ? r : (unwrap(r) || []);
-  if (!Array.isArray(arr)) return [];
-  // v2 视图默认可能倒序（最新在前），按 time.created 客户端排序归一化
-  const ts = (m) => (m.time && m.time.created) || (m.info && m.info.time && m.info.time.created) || 0;
-  return [...arr].sort((a, b) => ts(a) - ts(b));
+  if (lastErr) throw lastErr;
+  return [];
 }
 
 // ─── 任务完成检测 ───
-// v2 wait（精确等待 agent loop idle），不可用时回退 v2 消息数轮询（连续 2 次不变视为完成）。
+// 优先 v2 wait（精确等待 agent loop idle），回退 v1 消息数轮询（连续 2 次不变视为完成）。
 
 async function checkDone(url, surface, sessionId, gen, lastMsgCount) {
   const messages = await fetchMessages(url, surface, sessionId, gen);
@@ -276,6 +326,7 @@ async function checkDone(url, surface, sessionId, gen, lastMsgCount) {
 
 function msgRole(m) {
   if (!m) return '';
+  // v2 消息：顶层 role/type；v1 消息：{info:{role}, parts}
   return (m.role || m.type || (m.info && (m.info.role || m.info.type)) || '');
 }
 
@@ -424,8 +475,8 @@ async function cmdSend(opts) {
   // 2. 发送消息
   const promptVia = await sendPrompt(url, surface, sessionId, message, agent);
 
-  // 3. 等待完成：v2 wait 优先，回退 v2 消息数轮询
-  const r = await waitForCompletion(url, surface, sessionId, 'v2', timeoutSec, intervalSec, start);
+  // 3. 等待完成：wait 优先，轮询回退
+  const r = await waitForCompletion(url, surface, sessionId, promptVia.via.startsWith('v2') ? 'v2' : 'v1', timeoutSec, intervalSec, start);
   if (!r.done) {
     output({ error: '任务超时', sessionId, duration: elapsed(start) });
     process.exit(1);
@@ -434,7 +485,7 @@ async function cmdSend(opts) {
   output({ sessionId, status: 'completed', via: { create: via, prompt: promptVia.via, completion: r.via }, messages: r.messages, duration: elapsed(start) });
 }
 
-// 统一的完成等待逻辑：v2 wait 优先，不可用时回退 v2 消息数轮询
+// 统一的完成等待逻辑：v2 wait 优先，回退消息数轮询
 async function waitForCompletion(url, surface, sessionId, gen, timeoutSec, intervalSec, start) {
   // 路径 A：v2 wait 端点（阻塞至 agent loop idle，精确）
   if (surface.v2.wait) {
@@ -444,7 +495,7 @@ async function waitForCompletion(url, surface, sessionId, gen, timeoutSec, inter
       try { messages = await fetchMessages(url, surface, sessionId, gen); } catch { /* 结果拉取失败不视为任务失败 */ }
       return { done: true, via: 'v2:wait', messages };
     } catch (e) {
-      process.stderr.write(`[${elapsed(start)}] v2 wait 调用失败（${e.message}），回退 v2 消息数轮询\n`);
+      process.stderr.write(`[${elapsed(start)}] wait 调用失败（${e.message}），回退轮询\n`);
     }
   }
 
@@ -550,11 +601,11 @@ async function cmdStop(opts) {
 
 // ─── serve 进程管理（start/restart/attach 公共） ───
 
-// 直接健康探测（不依赖 /doc 自探测，冷启动更快）：试 v2 健康端点。
+// 直接健康探测（不依赖 /doc 自探测，冷启动更快）：依次试 v1/v2 健康端点。
 // 优先返回带 version 的响应（/api/health 在部分版本无 version 字段，仅作兜底）
 async function probeHealthDirect(url, timeoutMs = 5000) {
   let fallback = null;
-  for (const p of ['/api/health', '/api/info']) {
+  for (const p of ['/global/health', '/api/health', '/api/info']) {
     try {
       const h = await httpGet(`${url}${p}`, timeoutMs);
       if (h && !isNoBody(h)) {
@@ -617,7 +668,7 @@ async function cmdRestart(opts) {
     else if ((i + 1) % 3 === 0) process.stderr.write(`  [${elapsed(start)}] 仍在等待就绪（第 ${i + 1}/30 次）...\n`);
     const h = await probeHealthDirect(url, 3000);
     if (h) {
-      // 拿到带 version 的响应才算完全就绪；超 26s 仍无版本字段则兜底接受（实测 /api/health 完全就绪约 25s）
+      // 拿到带 version 的响应才算完全就绪；超 26s 仍无版本字段则兜底接受（实测 /global/health 完全就绪约 25s）
       if (h.version || i >= 26) {
         output({ status: 'running', url, port, pid, version: (h && h.version) || 'unknown', logFile, pidFile, previousKilled: killed, duration: elapsed(start) });
         return;
@@ -662,12 +713,18 @@ async function cmdSessions(opts) {
   requireOpts(opts, ['port']);
 
   const surface = await getSurface(url);
-  if (!surface.v2.session) {
-    output({ error: '当前服务器无 v2 会话端点（/api/session）。本工具仅支持 opencode v2 API，请升级 opencode' });
+  let list;
+  if (surface.v2.session) {
+    // v2 全局视图（含所有项目的会话）
+    const r = await httpGetRetry(`${url}/api/session?limit=200`, 30000);
+    list = Array.isArray(r) ? r : (unwrap(r) || []);
+  } else if (surface.v1.session) {
+    // v1 回退（仅 serve 启动目录项目的会话）
+    list = await httpGetRetry(`${url}/session`, 30000);
+  } else {
+    output({ error: '无可用的会话列表端点' });
     process.exit(1);
   }
-  const r = await httpGetRetry(`${url}/api/session?limit=200`, 30000);
-  let list = Array.isArray(r) ? r : (unwrap(r) || []);
   if (!Array.isArray(list)) list = [];
 
   // 1. agent 过滤
@@ -715,12 +772,15 @@ async function cmdRm(opts) {
   requireOpts(opts, ['port', 'session']);
 
   const surface = await getSurface(url);
-  if (!surface.v2.session) {
-    output({ error: '当前服务器无 v2 会话端点（/api/session）。本工具仅支持 opencode v2 API，请升级 opencode' });
-    process.exit(1);
+  let via;
+  if (surface.v1.session) {
+    await httpDeleteRetry(`${url}/session/${sessionId}`, 30000); // v1: 200 true
+    via = 'v1:/session/{id}';
+  } else {
+    await httpDeleteRetry(`${url}/api/session/${sessionId}`, 30000); // v2: 204 无体
+    via = 'v2:/api/session/{id}';
   }
-  await httpDeleteRetry(`${url}/api/session/${sessionId}`, 30000); // v2: 204 无体
-  output({ deleted: true, sessionId, via: 'v2:/api/session/{id}' });
+  output({ deleted: true, sessionId, via });
 }
 
 // ─── 子命令：ps（进程巡检） ───
@@ -874,7 +934,7 @@ async function cmdResult(opts) {
   output({ sessionId, status: done ? 'completed' : 'running', messages });
 }
 
-// ─── 子命令：abort（中止会话：v2 interrupt） ───
+// ─── 子命令：abort（中止会话：v2 interrupt 优先，v1 abort 回退） ───
 
 async function cmdAbort(opts) {
   const url = getUrl(opts);
@@ -882,22 +942,28 @@ async function cmdAbort(opts) {
   requireOpts(opts, ['port', 'session']);
 
   const surface = await getSurface(url);
-  if (!surface.v2.interrupt) {
-    output({ error: '当前服务器无 v2 中止端点（/api/session/{id}/interrupt）。本工具仅支持 opencode v2 API，请升级 opencode' });
+  let via, response, interrupted;
+
+  if (surface.v2.interrupt) {
+    response = await httpPost(`${url}/api/session/${sessionId}/interrupt`, {}, 15000);
+    via = 'v2:interrupt';
+    if (isNoBody(response)) {
+      interrupted = true; // 204 无体，视为成功
+    } else if (response && typeof response === 'object' && response.interrupted !== undefined) {
+      interrupted = Boolean(response.interrupted);
+    } else {
+      interrupted = true;
+    }
+  } else if (surface.v1.abort) {
+    response = await httpPost(`${url}/session/${sessionId}/abort`, {}, 15000);
+    via = 'v1:abort';
+    interrupted = response === true || response === 'true';
+  } else {
+    output({ error: '无可用的中止端点（interrupt / abort 均缺失）' });
     process.exit(1);
   }
 
-  const response = await httpPost(`${url}/api/session/${sessionId}/interrupt`, {}, 15000);
-  let interrupted;
-  if (isNoBody(response)) {
-    interrupted = true; // 204 无体，视为成功
-  } else if (response && typeof response === 'object' && response.interrupted !== undefined) {
-    interrupted = Boolean(response.interrupted);
-  } else {
-    interrupted = true;
-  }
-
-  output({ aborted: interrupted, sessionId, via: 'v2:interrupt', response });
+  output({ aborted: interrupted, sessionId, via, response });
 }
 
 // ─── 子命令：run（start + send + stop 一条龙） ───
@@ -946,7 +1012,7 @@ async function cmdRun(opts) {
     const { sessionId, via } = await createSession(url, surface, { allowRules, locationDir: opts.dir });
     const promptVia = await sendPrompt(url, surface, sessionId, message, agent);
 
-    const r = await waitForCompletion(url, surface, sessionId, 'v2', timeoutSec, 5, start);
+    const r = await waitForCompletion(url, surface, sessionId, promptVia.via.startsWith('v2') ? 'v2' : 'v1', timeoutSec, 5, start);
 
     output({
       sessionId,
@@ -1117,7 +1183,7 @@ async function cmdFork(opts) {
 
   const surface = await getSurface(url);
   if (!surface.v2.fork) {
-    output({ error: '当前服务器无 /api/session/{id}/fork 端点。本工具仅支持 opencode v2 API' });
+    output({ error: '当前服务器无 /api/session/{id}/fork 端点。v1 可用 opencode run --fork 会话级替代' });
     process.exit(1);
   }
 
@@ -1155,12 +1221,16 @@ async function cmdDiff(opts) {
   requireOpts(opts, ['port', 'session']);
 
   const surface = await getSurface(url);
-  if (!surface.v2.diff) {
-    output({ error: '当前服务器无 v2 会话 diff 端点（/api/session/{id}/diff）。本工具仅支持 opencode v2 API；diff 若仅 v1 提供则不可用' });
+  if (surface.v1.diff) {
+    const r = await httpGet(`${url}/session/${sessionId}/diff`, 30000);
+    output({ sessionId, via: 'v1:/session/{id}/diff', diff: r });
+  } else if (surface.v2.diff) {
+    const r = await httpGet(`${url}/api/session/${sessionId}/diff`, 30000);
+    output({ sessionId, via: 'v2:/api/session/{id}/diff', diff: unwrap(r) ?? r });
+  } else {
+    output({ error: '当前服务器无会话 diff 端点' });
     process.exit(1);
   }
-  const r = await httpGet(`${url}/api/session/${sessionId}/diff`, 30000);
-  output({ sessionId, via: 'v2:/api/session/{id}/diff', diff: unwrap(r) ?? r });
 }
 
 // ─── 主入口 ───
@@ -1236,16 +1306,16 @@ cmd('send', '向已运行的 serve 提交任务，阻塞直到完成',
   [MSG, AGENT, PORT, ['--dir <path>', '会话项目目录（v2 location，实现一 server 多项目；默认 serve 启动目录）'],
    ['--timeout <seconds>', '超时（秒）', intOpt('timeout'), 600],
    ['--interval <seconds>', '轮询间隔（秒）', intOpt('interval'), 5], ALLOW],
-  { desc: '与 run 的区别：不启动/不关闭 serve，直接复用运行中的实例。完成检测 v2 wait 优先，自动回退 v2 消息数轮询。',
+  { desc: '与 run 的区别：不启动/不关闭 serve，直接复用运行中的实例。完成检测 v2 wait 优先，自动回退消息数轮询。',
     notes: '--dir 指定会话所属项目目录（v2 location）；同一 serve 可并发服务多个项目的会话，各自解析自己的配置/模型',
     examples: ['node serve-api.cjs send --port 4096 --message "修复 lint 错误"',
                'node serve-api.cjs send --port 4096 --dir /home/usb/wks/gomoku --message "审查代码"'] },
   cmdSend);
 
 // —— 非阻塞模式 ——
-cmd('start', '启动 serve（detached 后台进程；工作目录为家目录 ~，日志/PID 落盘 ~/.opencode/logs/）',
+cmd('start', '启动 serve（detached 后台进程；日志/PID 落盘 <cwd>/.opencode/logs/）',
   [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--no-wait', '后台模式：启动即返回，不等健康检查（冷启动约 15-30s）']],
-  { desc: '在家目录 ~ 启动 serve（多项目场景用固定中立目录，避免 cwd 歧义；会话目录由 v2 location 独立指定）。端口已占用且健康时幂等返回 alreadyRunning，绝不重复 spawn；占用但不健康则报错引导 stop。',
+  { desc: '在当前目录启动 serve（工作目录即 cwd，等价官方 opencode serve）。端口已占用且健康时幂等返回 alreadyRunning，绝不重复 spawn；占用但不健康则报错引导 stop。',
     notes: '默认阻塞至健康就绪（适合自动化）；人用嫌慢可加 --no-wait。输出含 logFile/pidFile，排障 tail -f',
     examples: ['node serve-api.cjs start --port 4096',
                'node serve-api.cjs start --port 4096 --no-wait   # 立即返回，稍后 status 确认'] },
@@ -1275,7 +1345,7 @@ cmd('wait', '阻塞等待会话 idle（v2 wait 端点，精确完成信号）',
     examples: ['node serve-api.cjs wait --port 4096 --session ses_xxx --timeout 900'] },
   cmdWait);
 
-cmd('abort', '中止运行中的会话（v2 interrupt）',
+cmd('abort', '中止运行中的会话（v2 interrupt 优先，v1 abort 回退）',
   [PORT, SESSION()],
   { examples: ['node serve-api.cjs abort --port 4096 --session ses_xxx'] },
   cmdAbort);
@@ -1288,7 +1358,7 @@ cmd('stop', '按端口杀掉 serve 进程（SIGTERM -> SIGKILL 兜底）',
 
 cmd('restart', '重启 serve：杀旧进程 -> detached 重启 -> 30s 健康检查（原 server/restart.cjs 融合）',
   [PORT, ['--hostname <host>', '监听主机名', '127.0.0.1'], ['--no-wait', '后台模式：杀旧+启动后立即返回，不等健康检查']],
-  { desc: '在家目录 ~ 重启 serve（同 start；多项目场景固定中立目录）。端口无旧进程时等同于 start（restart 兼容冷启动）。日志/PID 落盘 ~/.opencode/logs/。',
+  { desc: '在当前目录重启 serve（工作目录即 cwd）。端口无旧进程时等同于 start（restart 兼容冷启动）。日志/PID 落盘 <cwd>/.opencode/logs/。',
     notes: ['原 scripts/server/ 脚本默认端口 14096，本 CLI 统一默认 4096——沿用旧端口请显式 --port 14096'],
     examples: ['node serve-api.cjs restart --port 4096'] },
   cmdRestart);
@@ -1363,13 +1433,13 @@ cmd('diff', '查看会话产生的文件变更',
 
 program
   .name('serve-api.cjs')
-  .description('opencode serve API 封装 — v2 API 命令行工具')
-  .version('5.1.1')
+  .description('opencode serve API 封装 — v1/v2 双代兼容的 HTTP API 命令行工具')
+  .version('5.2.0')
   .addHelpText('after', `
 全局约定:
   stdout 恒为 JSON（含错误对象）；stderr 为人类可读进度/警告
   退出码：0 成功 / 1 运行时错误 / 2 用法错误
-  v2-only：只使用 opencode v2 API（/api/*），启动时经 /doc 自探测校验 v2 可用性，输出 via 字段标注实际链路
+  v1/v2 双代兼容：启动时经 /doc 自探测选路径，输出 via 字段标注实际链路
   多数命令需要 serve 已在运行（先 start 或 ps 巡检已有实例）
   完整文档：同目录 ../SKILL.md
 
