@@ -28,93 +28,96 @@ param(
     [string]$Platform = "opencode"
 )
 
-$ErrorActionPreference = "Stop"
-$RepoBase = "https://github.com/THZSummer/sddu.git"
-
-if ($ProxyUrl) {
-    $RepoUrl = "$($ProxyUrl.TrimEnd('/'))/$RepoBase"
-} else {
-    $RepoUrl = $RepoBase
-}
-
-Write-Host ""
-Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║       SDDU Bootstrap Installer          ║" -ForegroundColor Cyan
-Write-Host "╚══════════════════════════════════════════╝" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "目标项目: $TargetDir"
-Write-Host "适配平台: $Platform"
-if ($ProxyUrl) {
-    Write-Host "网络模式: 镜像 ($ProxyUrl)"
-} else {
-    Write-Host "网络模式: 直连 GitHub"
-}
-Write-Host ""
-
-# 检查依赖
-$deps = @("git", "node", "npm")
-foreach ($cmd in $deps) {
-    if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) {
-        Write-Host "错误: 需要 $cmd，请先安装" -ForegroundColor Red
-        exit 1
-    }
-}
-
-# 创建临时目录
-$TmpDir = Join-Path $env:TEMP "sddu-bootstrap-$(Get-Random)"
-New-Item -ItemType Directory -Force -Path $TmpDir | Out-Null
-
-try {
-    Write-Host "[1/2] 拉取 SDDU 最新代码..." -ForegroundColor Cyan
-    git clone --depth 1 $RepoUrl $TmpDir 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host ""
-        Write-Host "❌ 克隆失败" -ForegroundColor Red
-        Write-Host "提示: 如网络受限，请使用 -ProxyUrl 参数指定镜像" -ForegroundColor Yellow
-        Write-Host "  例: .\bootstrap.ps1 ./my-project -ProxyUrl https://gh-proxy.org/" -ForegroundColor Yellow
-        exit 1
-    }
-
-    Write-Host ""
-    Write-Host "[2/2] 构建并安装 SDDU 到目标项目..." -ForegroundColor Cyan
-    switch ($Platform) {
-        "opencode" {
-            & "$TmpDir/scripts/install/opencode/install.ps1" -TargetDir $TargetDir
-        }
-        "dsh" {
-            & "$TmpDir/scripts/install/dsh/install.ps1" -ProjectRoot $TargetDir -Build -Yes
-        }
-        default {
-            Write-Host "❌ 非法 -Platform 值: '$Platform'（允许: opencode | dsh）" -ForegroundColor Red
-            exit 1
-        }
-    }
-
-    Write-Host ""
-    Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Green
-    Write-Host "║   ✅ SDDU 安装完成！                     ║" -ForegroundColor Green
-    Write-Host "╚══════════════════════════════════════════╝" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "  目标项目: $TargetDir"
-    if ($Platform -eq "dsh") {
-        Write-Host "  落位:     $TargetDir/.dsh/skills/（11 个 sddu* skill）"
-        Write-Host "  启动:     cd $TargetDir && npx @deepseek-ai/dsh web"
-        Write-Host "  入口:     /sddu（仪表盘）或 /sddu discovery <feature>"
-    } else {
-        Write-Host "  启动:     cd $TargetDir && opencode"
-    }
-    Write-Host ""
-}
-finally {
-    Remove-Item -Path $TmpDir -Recurse -Force -ErrorAction SilentlyContinue
-}
-
-# 导出函数，支持 iex 调用
 function Install-Sddu {
     param(
         [string]$TargetDir = ".",
         [string]$ProxyUrl = "",
         [string]$Platform = "opencode"
     )
-    & $PSCommandPath -TargetDir $TargetDir -ProxyUrl $ProxyUrl -Platform $Platform
+
+    $ErrorActionPreference = "Stop"
+    $RepoBase = "https://github.com/THZSummer/sddu.git"
+
+    if ($ProxyUrl) {
+        $RepoUrl = "$($ProxyUrl.TrimEnd('/'))/$RepoBase"
+    } else {
+        $RepoUrl = $RepoBase
+    }
+
+    Write-Host ""
+    Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "║       SDDU Bootstrap Installer          ║" -ForegroundColor Cyan
+    Write-Host "╚══════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "目标项目: $TargetDir"
+    Write-Host "适配平台: $Platform"
+    if ($ProxyUrl) {
+        Write-Host "网络模式: 镜像 ($ProxyUrl)"
+    } else {
+        Write-Host "网络模式: 直连 GitHub"
+    }
+    Write-Host ""
+
+    # 检查依赖
+    $deps = @("git", "node", "npm")
+    foreach ($cmd in $deps) {
+        if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) {
+            Write-Host "错误: 需要 $cmd，请先安装" -ForegroundColor Red
+            exit 1
+        }
+    }
+
+    # 创建临时目录
+    $TmpDir = Join-Path $env:TEMP "sddu-bootstrap-$(Get-Random)"
+    New-Item -ItemType Directory -Force -Path $TmpDir | Out-Null
+
+    try {
+        Write-Host "[1/2] 拉取 SDDU 最新代码..." -ForegroundColor Cyan
+        git clone --depth 1 $RepoUrl $TmpDir 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host ""
+            Write-Host "❌ 克隆失败" -ForegroundColor Red
+            Write-Host "提示: 如网络受限，请使用 -ProxyUrl 参数指定镜像" -ForegroundColor Yellow
+            Write-Host "  例: Install-Sddu -TargetDir ./my-project -ProxyUrl https://gh-proxy.org/" -ForegroundColor Yellow
+            exit 1
+        }
+
+        Write-Host ""
+        Write-Host "[2/2] 构建并安装 SDDU 到目标项目..." -ForegroundColor Cyan
+        switch ($Platform) {
+            "opencode" {
+                & "$TmpDir/scripts/install/opencode/install.ps1" -TargetDir $TargetDir
+            }
+            "dsh" {
+                & "$TmpDir/scripts/install/dsh/install.ps1" -ProjectRoot $TargetDir -Build -Yes
+            }
+            default {
+                Write-Host "❌ 非法 -Platform 值: '$Platform'（允许: opencode | dsh）" -ForegroundColor Red
+                exit 1
+            }
+        }
+
+        Write-Host ""
+        Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Green
+        Write-Host "║   ✅ SDDU 安装完成！                     ║" -ForegroundColor Green
+        Write-Host "╚══════════════════════════════════════════╝" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "  目标项目: $TargetDir"
+        if ($Platform -eq "dsh") {
+            Write-Host "  落位:     $TargetDir/.dsh/skills/（11 个 sddu* skill）"
+            Write-Host "  启动:     cd $TargetDir && npx @deepseek-ai/dsh web"
+            Write-Host "  入口:     /sddu（仪表盘）或 /sddu discovery <feature>"
+        } else {
+            Write-Host "  启动:     cd $TargetDir && opencode"
+        }
+        Write-Host ""
+    }
+    finally {
+        Remove-Item -Path $TmpDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# 直接执行脚本（非 iex）时自动调用；iex 加载后由用户手动调 Install-Sddu
+if ($PSCommandPath) {
+    Install-Sddu -TargetDir $TargetDir -ProxyUrl $ProxyUrl -Platform $Platform
 }
