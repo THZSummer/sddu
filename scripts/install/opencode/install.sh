@@ -50,7 +50,7 @@ print_color() {
 # Script directory（scripts/install/opencode/）
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Repository root（仓库根，向上三级）
-REPO_ROOT="$(cd "${REPO_ROOT}/../../.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 # Get target directory from command line argument
 if [ -z "$1" ]; then
