@@ -84,13 +84,27 @@ SDDU 提供两种入口，根据任务复杂度自由选择：
 
 ## ⚡ 一分钟上手
 
+**Linux / macOS：**
+
 ```bash
 # 1. 安装到你的项目（需要 git + node）
 # 直连
 curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project
 # 或通过镜像（国内加速）
 curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --proxy https://gh-proxy.org/
+```
 
+**Windows（PowerShell）：**
+
+```powershell
+# 1. 安装到你的项目（需要 git + node）
+# 直连
+powershell -c "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project"
+# 或通过镜像（国内加速）
+powershell -c "iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.org/"
+```
+
+```bash
 # 2. 进入项目，启动 opencode
 cd ./my-project
 opencode
@@ -403,14 +417,22 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 **一键安装（与 OpenCode 同一 bootstrap 入口，`--platform dsh` 区分）**：
 
 ```bash
-# 直连 GitHub
+# Linux/macOS · 直连 GitHub
 curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --platform dsh
 
-# 通过镜像（国内用户）
+# Linux/macOS · 镜像（国内加速）
 curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --platform dsh --proxy https://gh-proxy.org/
 ```
 
-Windows（PowerShell）安装见 [docs/dsh/README.md](docs/dsh/README.md) §2。完整安装/升级/卸载说明以 `docs/dsh/README.md` 为准。
+```powershell
+# Windows（PowerShell）· 直连 GitHub
+powershell -c "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -Platform dsh"
+
+# Windows（PowerShell）· 镜像（国内加速）
+powershell -c "iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -Platform dsh -ProxyUrl https://gh-proxy.org/"
+```
+
+安装完成后启动：`cd ./my-project && npx @deepseek-ai/dsh web`，会话入口 `/sddu`。完整安装/升级/卸载说明以 [docs/dsh/README.md](docs/dsh/README.md) 为准。
 
 - **面向 dsh 用户的交付说明**：[docs/dsh/README.md](docs/dsh/README.md)
 - **双平台差异与能力落差**：[docs/dsh/dual-platform-diff.md](docs/dsh/dual-platform-diff.md)
