@@ -27,6 +27,7 @@
 | 交付物 | 位置 | 说明 |
 |--------|------|------|
 | Skill 包 | `dist/dsh/skills/` | **11 个** Skill 目录：`sddu`（路由）+ 7 个阶段 + 3 个独立 |
+| 输出模板 | `dist/dsh/skills/<skill>/templates/output/` | **30 个** `.hbs`（10 阶段输出 + 20 docs），随 skill 落位，单一来源 `src/templates/outputs/` |
 | 版本锚定 | `dist/dsh/manifest.json` | `sdduVersion` / `dshContractSnapshot` / `contractManifestHash` / `generatedAt` / `skills[]` |
 | 契约依赖点（人读版） | `docs/dsh/contract-dependencies.md` | 由 `build-dsh-skills.cjs` 从清单渲染，**禁止手工编辑** |
 | 分发文档 | `dist/dsh/docs/` | 本目录 `docs/dsh/*.md` 的拷贝 |
