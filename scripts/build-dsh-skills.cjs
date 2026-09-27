@@ -58,6 +58,8 @@ const FRAGMENT_FILES = {
 
 const EXPECTED_SKILL_COUNT = 11;
 const SNAPSHOT_FALLBACK = '2026-08-14';
+const OUTPUT_TEMPLATES_DIR = path.join(REPO_ROOT, 'src', 'templates', 'outputs');
+const EXPECTED_TEMPLATE_COUNT = 30;
 
 const warnings = [];
 
@@ -97,6 +99,31 @@ function readText(filePath, label) {
     fail(`${label} 不存在`, [filePath]);
   }
   return fs.readFileSync(filePath, 'utf8');
+}
+
+/**
+ * 模板文件名 → 目标 skill 目录映射（ADR-001 模板随 skill 落位）。
+ * 返回 { skill, subdir }；无法映射返回 null。
+ */
+function mapOutputTemplateToSkill(templateBasename) {
+  // sddu-docs-*.hbs → sddu-docs（放 templates/output/docs/ 子目录）
+  if (templateBasename.startsWith('sddu-docs-')) {
+    return { skill: 'sddu-docs', subdir: 'docs' };
+  }
+  // sddu-review-report.md.hbs → sddu-review
+  if (templateBasename.startsWith('sddu-review-report')) {
+    return { skill: 'sddu-review', subdir: null };
+  }
+  // sddu-validate-report.md.hbs → sddu-validate
+  if (templateBasename.startsWith('sddu-validate-report')) {
+    return { skill: 'sddu-validate', subdir: null };
+  }
+  // sddu-<name>.md.hbs → sddu-<name>
+  const match = templateBasename.match(/^sddu-([a-z-]+)\.md\.hbs$/);
+  if (match) {
+    return { skill: `sddu-${match[1]}`, subdir: null };
+  }
+  return null;
 }
 
 function sha256File(filePath) {
@@ -452,6 +479,41 @@ function build() {
     renderedSkills.push(skill.name);
     console.log(`   ✅ dist/dsh/skills/${skill.name}/SKILL.md`);
   }
+
+  // ---- 5.5 分发输出模板（ADR-001 模板随 skill 落位）------------------------
+  const outputTemplateFiles = fs
+    .readdirSync(OUTPUT_TEMPLATES_DIR, { withFileTypes: true })
+    .flatMap((entry) => {
+      const file = path.join(OUTPUT_TEMPLATES_DIR, entry.name);
+      if (entry.isFile() && entry.name.endsWith('.hbs')) return [entry.name];
+      if (entry.isDirectory()) {
+        return fs
+          .readdirSync(file)
+          .filter((n) => n.endsWith('.hbs'))
+          .map((n) => `${entry.name}/${n}`);
+      }
+      return [];
+    });
+
+  let distributedTemplateCount = 0;
+  for (const rel of outputTemplateFiles) {
+    const basename = path.basename(rel);
+    const mapping = mapOutputTemplateToSkill(basename);
+    if (!mapping) {
+      warn(`无法映射模板到 skill，已跳过: ${rel}`);
+      continue;
+    }
+    const sub = mapping.subdir ? mapping.subdir : '';
+    const destDir = path.join(DIST_SKILLS, mapping.skill, 'templates', 'output', sub);
+    fs.mkdirSync(destDir, { recursive: true });
+    fs.copyFileSync(path.join(OUTPUT_TEMPLATES_DIR, rel), path.join(destDir, basename));
+    distributedTemplateCount++;
+  }
+
+  if (distributedTemplateCount !== EXPECTED_TEMPLATE_COUNT) {
+    fail(`输出模板分发数量不符：期望 ${EXPECTED_TEMPLATE_COUNT} 个，实际 ${distributedTemplateCount} 个`);
+  }
+  console.log(`   ✅ 输出模板分发：${distributedTemplateCount} 个模板随 skill 落位`);
 
   // ---- 6. 生成物目录完整性校验 -------------------------------------------
   const generatedDirs = fs

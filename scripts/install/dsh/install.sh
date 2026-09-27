@@ -261,6 +261,7 @@ for name in "${SDDU_SKILL_DIRS[@]}"; do
     echo "    - ${name}/SKILL.md  ⚠️ 缺失或为空"
   fi
 done
+echo "  输出模板落位 : $(find "${TARGET_DIR}" -path '*/templates/output/*.hbs' -type f 2>/dev/null | wc -l) 个 .hbs（随 skill 落位，v5.2.0）"
 echo "---------------------------------------------"
 
 # ---- EC-002：冲突提示（显式，不静默）---------------------------------------

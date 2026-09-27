@@ -1,0 +1,13 @@
+{
+  "feature": "specs-tree-dsh-template-engine",
+  "version": "v1.0",
+  "createdAt": "2026-09-27",
+  "summary": { "total": 5, "S": 4, "M": 1, "L": 0, "waves": 4 },
+  "tasks": [
+    { "id": "TASK-001", "name": "build-dsh-skills.cjs 模板分发", "complexity": "M", "dependencies": [], "wave": 1, "fr": ["FR-001", "FR-004"], "files": [{ "op": "MODIFY", "path": "scripts/build-dsh-skills.cjs" }], "status": "pending" },
+    { "id": "TASK-002", "name": "skill-header.md.hbs 模板落位说明", "complexity": "S", "dependencies": [], "wave": 1, "fr": ["FR-003"], "files": [{ "op": "MODIFY", "path": "src/adapters/dsh/templates/skill-header.md.hbs" }], "status": "pending" },
+    { "id": "TASK-003", "name": "install-dsh.sh 落位自检补充模板计数", "complexity": "S", "dependencies": ["TASK-001"], "wave": 2, "fr": ["FR-002"], "files": [{ "op": "MODIFY", "path": "scripts/install-dsh.sh" }], "status": "pending" },
+    { "id": "TASK-004", "name": "docs/dsh/README.md 交付物总览补充", "complexity": "S", "dependencies": ["TASK-001", "TASK-002"], "wave": 3, "fr": ["FR-001"], "files": [{ "op": "MODIFY", "path": "docs/dsh/README.md" }], "status": "pending" },
+    { "id": "TASK-005", "name": "构建验证 + 30 模板落位校验", "complexity": "S", "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004"], "wave": 4, "fr": ["FR-004", "NFR-001", "NFR-002"], "files": [], "status": "pending" }
+  ]
+}

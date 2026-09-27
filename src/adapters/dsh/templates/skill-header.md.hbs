@@ -31,4 +31,13 @@ metadata.sddu-source-template: src/templates/agents/<<sourceTemplate>>
   - 本文件锚定的 dsh 契约事实 = 2026-08-14 单一调研快照（见 `metadata.sddu-contract-snapshot`）。
   - **未刷新即不可信**：在按 `docs/dsh/upgrade-following.md` 步骤 0 刷新契约前，
     本包不得被当作当前 dsh 事实；刷新失败时必须如实记录，不得沿用旧结论。
+
+  ④ dsh 侧输出模板落位（v5.2.0，输出格式强约束）
+  - 输出模板随 skill 落位于 `<skill>/templates/output/`（与 SKILL.md 同目录树，由 build:dsh 从
+    `src/templates/outputs/` 单一来源分发，install 时随 skill 目录一并落位）。
+  - 源指令正文 §6「输出模板」里提到的插件内置路径 `.opencode/plugins/sddu/templates/output/`
+    **在 dsh 侧不存在**；dsh 侧实际落位为 `<skill>/templates/output/<模板>.hbs`。
+  - **必须读取并严格遵循模板文件结构**：进入阶段后，先定位并读取本 skill 目录下的
+    `templates/output/` 内对应模板（用户自定义 `.sddu/templates/` 优先，见源指令 §6），
+    按模板的章节结构、表格列、占位符语义组织输出，不得自行编造格式。
 -->

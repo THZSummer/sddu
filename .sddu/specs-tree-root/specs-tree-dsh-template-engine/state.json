@@ -1,0 +1,156 @@
+{
+  "feature": "specs-tree-dsh-template-engine",
+  "featureId": "FR-DSH-TEMPLATE-001",
+  "name": "dsh 模板引擎（输出格式强约束）",
+  "version": "v5.2.0",
+  "phase": "validated",
+  "status": "completed",
+  "depth": 0,
+  "childrens": [],
+  "phaseHistory": [
+    {
+      "phase": "registered",
+      "status": "tracked",
+      "timestamp": "2026-09-27T13:30:22.000Z",
+      "triggeredBy": "sddu-discovery",
+      "comment": "v5.2.0「dsh 模板引擎」立项（PR-014 转化）"
+    },
+    {
+      "phase": "discovered",
+      "status": "tracked",
+      "timestamp": "2026-09-27T13:34:47.000Z",
+      "triggeredBy": "sddu-discovery",
+      "comment": "Stage 0 问题挖掘完成：6 问题 / 2 假设 / 3 风险"
+    },
+    {
+      "phase": "specified",
+      "status": "tracked",
+      "timestamp": "2026-09-27T13:36:56.000Z",
+      "triggeredBy": "sddu-spec",
+      "comment": "Stage 1 需求规范完成：4 FR / 3 NFR / 3 EC"
+    },
+    {
+      "phase": "planned",
+      "status": "tracked",
+      "timestamp": "2026-09-27T13:37:45.000Z",
+      "triggeredBy": "sddu-plan",
+      "comment": "Stage 2 技术规划完成：方案 A（模板随 skill 落位）；产出 ADR-001~003；文件影响 4 MODIFY"
+    },
+    {
+      "phase": "tasked",
+      "status": "tracked",
+      "timestamp": "2026-09-27T13:40:00.000Z",
+      "triggeredBy": "sddu-tasks",
+      "comment": "Stage 3 任务分解完成：5 任务 / 4 波次（S×4 / M×1），覆盖 FR-001~004"
+    },
+    {
+      "phase": "builded",
+      "status": "tracked",
+      "timestamp": "2026-09-27T13:42:23.000Z",
+      "triggeredBy": "sddu-build",
+      "comment": "Stage 4 实施构建完成：5/5 任务；4 MODIFY；30 模板落位且与源头逐字节一致"
+    },
+    {
+      "phase": "reviewed",
+      "status": "tracked",
+      "timestamp": "2026-09-27T13:44:00.000Z",
+      "triggeredBy": "sddu-review",
+      "comment": "Stage 5 产物审查完成（R1）：9 项审查全通过 / 0 阻塞；结论 ✅ 通过"
+    },
+    {
+      "phase": "validated",
+      "status": "completed",
+      "timestamp": "2026-09-27T13:46:00.000Z",
+      "triggeredBy": "sddu-validate",
+      "comment": "Stage 6 产物验证完成（R1）：V1~V7 全过；FR/NFR 100%；漂移 0 / 阻塞 0；结论 ✅ 通过 → 工作流终点"
+    }
+  ],
+  "dependencies": {
+    "on": [
+      "FR-DSH-ADAPT-001",
+      "FR-DSH-INSTALL-001"
+    ],
+    "blocking": []
+  },
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "adrs": [
+      "ADR-001-template-placement.md",
+      "ADR-002-single-source-distribution.md",
+      "ADR-003-header-path-override.md"
+    ],
+    "tasks": "tasks.md",
+    "tasksJson": "tasks.json",
+    "build": "build.md",
+    "review": "review.md",
+    "reviewReport": "review-report.md",
+    "validate": "validate.md",
+    "validationReport": "validate-report.md"
+  },
+  "metadata": {
+    "featureId": "FR-DSH-TEMPLATE-001",
+    "priority": "P0",
+    "targetVersion": "v5.2.0",
+    "roadmapProposal": "PR-014",
+    "createdAt": "2026-09-27T13:30:22.000Z",
+    "updatedAt": "2026-09-27T13:46:00.000Z",
+    "discoveryStats": {
+      "problemCount": 6,
+      "coreProblems": 2,
+      "secondaryProblems": 2,
+      "potentialProblems": 2,
+      "assumptionCount": 2,
+      "riskCount": 3,
+      "openQuestions": 0,
+      "pendingClarifications": 0
+    },
+    "specStats": {
+      "frCount": 4,
+      "nfrCount": 3,
+      "ecCount": 3,
+      "supersedeClauses": 0,
+      "decidedOpenQuestions": 0,
+      "deferredToPlan": 1,
+      "pendingUserConfirmations": 0
+    },
+    "planStats": {
+      "adrCount": 3,
+      "newFiles": 0,
+      "modifiedFiles": 4,
+      "runtimeCodeChanges": 0
+    },
+    "tasksStats": {
+      "total": 5,
+      "S": 4,
+      "M": 1,
+      "L": 0,
+      "waves": 4,
+      "frCovered": "4/4"
+    },
+    "buildStats": {
+      "completedTasks": 5,
+      "totalTasks": 5,
+      "newFiles": 0,
+      "modifiedFiles": 4,
+      "runtimeCodeChanges": 0
+    },
+    "reviewStats": {
+      "conclusion": "pass",
+      "totalItems": 9,
+      "passCount": 9,
+      "warningCount": 0,
+      "blockingCount": 0
+    },
+    "validationStats": {
+      "conclusion": "pass",
+      "totalItems": 7,
+      "passCount": 7,
+      "frCoverage": "100%",
+      "nfrCoverage": "100%",
+      "driftCount": 0,
+      "blockingCount": 0
+    }
+  }
+}
