@@ -151,7 +151,7 @@ Write-Host "  本次落位条目 : $($SkillDirs.Count)"
 Write-Host "  已落位条目   :"
 foreach ($name in $SkillDirs) {
     $skillMd = Join-Path $TargetDir "$name/SKILL.md"
-    if (Test-Path $skillMd -and (Get-Item $skillMd).Length -gt 0) {
+    if ((Test-Path $skillMd) -and (Get-Item $skillMd).Length -gt 0) {
         Write-Host "    - $name/SKILL.md"
     } else {
         Write-Host "    - $name/SKILL.md  ⚠️ 缺失或为空" -ForegroundColor Yellow
