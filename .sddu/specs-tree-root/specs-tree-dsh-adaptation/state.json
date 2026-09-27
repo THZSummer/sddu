@@ -3,7 +3,7 @@
   "featureId": "FR-DSH-ADAPT-001",
   "name": "DSH 适配",
   "version": "v3.0.0",
-  "phase": "discovered",
+  "phase": "tasked",
   "status": "tracked",
   "depth": 0,
   "childrens": [],
@@ -21,6 +21,27 @@
       "timestamp": "2026-09-27T12:10:00.000Z",
       "triggeredBy": "sddu-discovery",
       "comment": "Stage 0 问题挖掘完成：1 轮用户访谈（平台形态= dsh Skill 包 / 对齐面= 命令入口 / 验证由用户配合）；识别 12 个问题（核心 5 / 次要 4 / 潜在 3）、8 项关键假设、7 项风险"
+    },
+    {
+      "phase": "specified",
+      "status": "tracked",
+      "timestamp": "2026-09-27T18:00:00.000Z",
+      "triggeredBy": "sddu-spec",
+      "comment": "Stage 1 需求规范完成：spec.md v1.0；10 个 FR / 7 个 NFR / 9 个 EC / 8 个开放问题；V1~V5 转化为验证方法与场景（非端到端验收）；dsh 契约刷新失败，以 2026-08-14 快照为准并标注时效风险"
+    },
+    {
+      "phase": "planned",
+      "status": "tracked",
+      "timestamp": "2026-09-27T20:30:00.000Z",
+      "triggeredBy": "sddu-plan",
+      "comment": "Stage 2 技术规划完成：plan.md v1.0（引用 2026-08-14 快照为 dsh 事实基线）；产出 ADR-001~006（Skill 包落位 rank 100 / 命令入口文本前缀识别 / 门禁取 FR-004b 显式可观测软引导 / state.json 唯一权威 / 适配层隔离与指令单一来源 / 升级跟随机制）；裁定 8 项开放问题；10 项风险含缓解；文件影响 21 项（17 NEW + 4 MODIFY + 0 DELETE）"
+    },
+    {
+      "phase": "tasked",
+      "status": "tracked",
+      "timestamp": "2026-09-27T22:10:00.000Z",
+      "triggeredBy": "sddu-tasks",
+      "comment": "Stage 3 任务分解完成：tasks.md + tasks.json v1.0；14 个原子任务 / 4 个执行波次（S×5 / M×8 / L×1）；关键路径 TASK-001→TASK-008→TASK-009→TASK-014；覆盖 plan §5 全部 21 项文件影响；V1~V5 仅排「方法文档 + 场景清单 + 人工观测指引」产物任务（NG-002）；登记 6 项 plan 细节补充（未修改 plan）"
     }
   ],
   "dependencies": {
@@ -33,7 +54,10 @@
   },
   "files": {
     "discovery": "discovery.md",
-    "spec": "specs-tree-dsh-adaptation/spec.md"
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "tasks": "tasks.md",
+    "tasksJson": "tasks.json"
   },
   "metadata": {
     "priority": "P0",
@@ -41,7 +65,7 @@
     "targetVersion": "v5.0.0",
     "roadmapProposal": "PR-013",
     "createdAt": "2026-09-27T00:00:00.000Z",
-    "updatedAt": "2026-09-27T12:10:00.000Z"
+    "updatedAt": "2026-09-27T22:10:00.000Z"
   },
   "history": [
     {
@@ -50,6 +74,27 @@
       "to": "discovered",
       "triggeredBy": "sddu-discovery",
       "comment": "discovery.md 产出（v1.0）；ROADMAP 登记的 dsh 平台形态 / 接入面 / 集成边界三项待澄清点已澄清"
+    },
+    {
+      "timestamp": "2026-09-27T18:00:00.000Z",
+      "from": "discovered",
+      "to": "specified",
+      "triggeredBy": "sddu-spec",
+      "comment": "spec.md 产出（v1.0）；需求规范完成，下一步 @sddu-plan specs-tree-dsh-adaptation"
+    },
+    {
+      "timestamp": "2026-09-27T20:30:00.000Z",
+      "from": "specified",
+      "to": "planned",
+      "triggeredBy": "sddu-plan",
+      "comment": "plan.md 产出（v1.0）+ ADR-001~006；技术规划完成，下一步 @sddu-tasks specs-tree-dsh-adaptation"
+    },
+    {
+      "timestamp": "2026-09-27T22:10:00.000Z",
+      "from": "planned",
+      "to": "tasked",
+      "triggeredBy": "sddu-tasks",
+      "comment": "tasks.md + tasks.json 产出（v1.0）；14 个任务 / 4 个波次；任务分解完成，下一步 @sddu-build TASK-001"
     }
   ]
 }
