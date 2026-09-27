@@ -30,7 +30,7 @@
 | 版本锚定 | `dist/dsh/manifest.json` | `sdduVersion` / `dshContractSnapshot` / `contractManifestHash` / `generatedAt` / `skills[]` |
 | 契约依赖点（人读版） | `docs/dsh/contract-dependencies.md` | 由 `build-dsh-skills.cjs` 从清单渲染，**禁止手工编辑** |
 | 分发文档 | `dist/dsh/docs/` | 本目录 `docs/dsh/*.md` 的拷贝 |
-| 安装 / 卸载脚本 | `scripts/install/dsh/install.sh` / `scripts/install/dsh/uninstall.sh` | 仓库侧脚本，做纯文件操作 |
+| 安装脚本 | `scripts/install/dsh/install.sh` / `scripts/install/dsh/install.ps1` | 仓库侧脚本，做纯文件操作 |
 
 11 个 Skill：
 
@@ -125,25 +125,7 @@ scripts/install/dsh/install.sh --scope user --dsh-home /path/to/dshHome
 
 ---
 
-## 3. 卸载
-
-```bash
-scripts/install/dsh/uninstall.sh                    # 与安装对称：默认项目级 rank 100
-scripts/install/dsh/uninstall.sh --scope user
-scripts/install/dsh/uninstall.sh --dry-run          # 只打印计划，不删除
-```
-
-卸载脚本的安全设计：
-
-1. 只匹配 SDDU 自有条目：精确名 `sddu`（路由 Skill，**无**连字符）+ 前缀 `sddu-*`（其余 10 个），
-   **不使用宽松通配**，不会误删其他 skill；
-2. 默认要求候选目录内含 provenance 标识（`SKILL.md` 内的 `sddu-source:`），
-   避免误删用户自建的近义目录（确需强制删除时用 `--force`）；
-3. 卸载后执行**残留校验二次扫描**，仍有残留则以**非零退出码**收尾。
-
----
-
-## 4. 升级 / 跟随升级
+## 3. 升级 / 跟随升级
 
 dsh 处于快速迭代期，升级跟随不是「重新安装」一件事，而是一份**可复现的核对清单**：
 
@@ -162,7 +144,7 @@ dsh 处于快速迭代期，升级跟随不是「重新安装」一件事，而�
 
 ---
 
-## 5. 三层目录 ↔ 六级 rank 落位推演
+## 4. 三层目录 ↔ 六级 rank 落位推演
 
 dsh 的 skill 发现是「提供方注册表 + rank 优先级」：跨层**最近层优先**，同层内按 rank 裁决。
 SDDU 自身的 skill 体系按目录层级仲裁（三层，**不携带 rank 概念**）。两者的映射如下：
@@ -187,7 +169,7 @@ SDDU 自身的 skill 体系按目录层级仲裁（三层，**不携带 rank 概
 
 ---
 
-## 6. 入口清单
+## 5. 入口清单
 
 > 唯一来源：`src/adapters/dsh/templates/router-command-map.json`。下表为派生表述，改动必须同步该文件。
 
@@ -219,7 +201,7 @@ SDDU 自身的 skill 体系按目录层级仲裁（三层，**不携带 rank 概
 
 ---
 
-## 7. 命令入口的已知缺口与降级用法
+## 6. 命令入口的已知缺口与降级用法
 
 > **已知缺口**：在「Skill 包」交付形态内，dsh 侧**没有**可由 Skill 注册**平台级命令**的可靠载体
 > （2026-08-14 快照未记录该 seam；快照中的斜杠交互来自方法论插件，即**命令由插件提供**）。
@@ -238,7 +220,7 @@ SDDU 自身的 skill 体系按目录层级仲裁（三层，**不携带 rank 概
 
 ---
 
-## 8. ⚠️ 已知降级：阶段门禁（FR-004b）
+## 7. ⚠️ 已知降级：阶段门禁（FR-004b）
 
 > ⚠️ 已知降级：dsh 侧无可执行的运行时拒绝点，本门禁为模型执行的显式软引导（**FR-004b**），
 > **非硬强制**；非法跃迁会输出 `[SDDU-GATE-DENY]` 且不推进，但其约束力来自模型对指令的遵从。
@@ -262,7 +244,7 @@ SDDU 自身的 skill 体系按目录层级仲裁（三层，**不携带 rank 概
 
 ---
 
-## 9. 冲突 / 残留提示（EC-002 / EC-004）
+## 8. 冲突 / 残留提示（EC-002 / EC-004）
 
 **EC-002 冲突（同名 / 近义条目）**：安装脚本会扫描目标层与其他 rank 层，
 检测同名或近义（名字含 `sddu`）的条目并**显式提示**，**不会静默遮蔽、也不会删除它们**。
@@ -275,7 +257,7 @@ SDDU 自身的 skill 体系按目录层级仲裁（三层，**不携带 rank 概
 
 ---
 
-## 10. 相关文档
+## 9. 相关文档
 
 - [双平台差异清单](./dual-platform-diff.md) —— OpenCode vs dsh 的五维差异与能力落差
 - [定位说明](./positioning.md) —— SDDU 阶段方法论与 dsh 原生能力（plan mode / todo / workflow / goal / compaction）的分工与共存

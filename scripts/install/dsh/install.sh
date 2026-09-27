@@ -299,7 +299,7 @@ echo "  1) 在宿主 Web UI 中列出 skill，确认 ${#SDDU_SKILL_DIRS[@]} 个 
 echo "  2) 确认条目的来源标识形如 adapters/dsh@<版本>#2026-08-14（时效可追溯）；"
 echo "  3) 完整步骤与通过判据见 ${VERIFICATION_DOC} 的 V1 场景。"
 echo ""
-echo "✅ 安装完成。卸载请运行: scripts/install/dsh/uninstall.sh --scope ${SCOPE}"
+echo "✅ 安装完成。"
 
 # ---- FR-004 启动引导 + FR-005 升级提示 --------------------------------------
 echo ""

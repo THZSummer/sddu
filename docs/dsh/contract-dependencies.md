@@ -5,9 +5,9 @@
 > `src/adapters/dsh/contract/dsh-contract-manifest.json` **自动渲染**，**禁止手工编辑**（ADR-006）。
 > **权威来源**: `src/adapters/dsh/contract/dsh-contract-manifest.json`（唯一来源）
 > **契约快照**: 2026-08-14（**截至该日期的事实**）
-> **契约清单哈希**: `39c345ae68898528ffd08bd07bb509fb3094c7143c96a2ed1ca210a40b7a8462`
+> **契约清单哈希**: `344807b58b901a4ee0683f1ede17a58f13d7c6a263b1dcbc1c86205b82bdebcb`
 > **SDDU 版本**: 1.1.0
-> **生成时间**: 2026-09-27T09:43:40.472Z
+> **生成时间**: 2026-09-27T10:18:50.274Z
 
 ## ⚠️ 时效声明（NFR-007）
 
@@ -51,7 +51,7 @@
 - **假设**: scope 链组合方式与 skills/change 事件名未变。
 - **可观测校验 (`observableCheck`)**: 安装/删除 sddu-* 目录后触发 skills/change，确认 dsh Web UI 的 skill 列表刷新、无陈旧缓存条目。
 - **破坏影响 (`breakImpact`)**: 已安装但列表不可见（陈旧缓存）→ FR-001 / V1 不可通过。
-- **修复提示 (`fixHint`)**: 更新 scripts/install/dsh/install.sh、scripts/install/dsh/uninstall.sh 的重新快照提示与 docs/dsh/README.md 的 EC-004 说明。
+- **修复提示 (`fixHint`)**: 更新 scripts/install/dsh/install.sh 的重新快照提示与 docs/dsh/README.md 的 EC-004 说明。
 
 ## 3. `command-registration`
 
@@ -84,7 +84,7 @@
 - **假设**: 目录层级与根目录常量未变。
 - **可观测校验 (`observableCheck`)**: 确认 <projectRoot>/.dsh/skills 存在且被扫描；用户级安装时确认 <dshHome>/skills 被扫描。
 - **破坏影响 (`breakImpact`)**: 落位失效 → FR-008（安装/卸载/残留校验）与 FR-001 不可通过。
-- **修复提示 (`fixHint`)**: 改 scripts/install/dsh/install.sh、scripts/install/dsh/uninstall.sh 的根目录常量；同步 docs/dsh/README.md 的落位推演表。
+- **修复提示 (`fixHint`)**: 改 scripts/install/dsh/install.sh 的根目录常量；同步 docs/dsh/README.md 的落位推演表。
 
 ## 6. `session-events`
 
