@@ -1,0 +1,51 @@
+{
+  "feature": "specs-tree-dsh-template-engine",
+  "featureId": "FR-DSH-TEMPLATE-001",
+  "name": "dsh 模板引擎（输出格式强约束）",
+  "version": "v5.2.0",
+  "phase": "discovered",
+  "status": "tracked",
+  "depth": 0,
+  "childrens": [],
+  "phaseHistory": [
+    {
+      "phase": "registered",
+      "status": "tracked",
+      "timestamp": "2026-09-27T13:30:22.000Z",
+      "triggeredBy": "sddu-discovery",
+      "comment": "v5.2.0「dsh 模板引擎（输出格式强约束）」立项（PR-014 转化；featureId/问题定义由本次 discovery 决定）"
+    },
+    {
+      "phase": "discovered",
+      "status": "tracked",
+      "timestamp": "2026-09-27T13:34:47.000Z",
+      "triggeredBy": "sddu-discovery",
+      "comment": "Stage 0 问题挖掘完成：2 批交互访谈；识别 6 个问题（核心 2 / 次要 2 / 潜在 2）、2 项假设、3 项风险；用户决策=模板随 skill 落位 + 全部 30 个模板一次性做 + 对齐 opencode 体验"
+    }
+  ],
+  "dependencies": {
+    "on": ["FR-DSH-ADAPT-001", "FR-DSH-INSTALL-001"],
+    "blocking": []
+  },
+  "files": {
+    "discovery": "discovery.md"
+  },
+  "metadata": {
+    "featureId": "FR-DSH-TEMPLATE-001",
+    "priority": "P0",
+    "targetVersion": "v5.2.0",
+    "roadmapProposal": "PR-014",
+    "createdAt": "2026-09-27T13:30:22.000Z",
+    "updatedAt": "2026-09-27T13:34:47.000Z",
+    "discoveryStats": {
+      "problemCount": 6,
+      "coreProblems": 2,
+      "secondaryProblems": 2,
+      "potentialProblems": 2,
+      "assumptionCount": 2,
+      "riskCount": 3,
+      "openQuestions": 0,
+      "pendingClarifications": 0
+    }
+  }
+}
