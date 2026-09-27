@@ -73,7 +73,7 @@ function Install-Sddu {
 
     try {
         Write-Host "[1/2] 拉取 SDDU 最新代码..." -ForegroundColor Cyan
-        git clone --depth 1 $RepoUrl $TmpDir 2>&1
+        git clone --depth 1 $RepoUrl $TmpDir
         if ($LASTEXITCODE -ne 0) {
             Write-Host ""
             Write-Host "❌ 克隆失败" -ForegroundColor Red
