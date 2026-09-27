@@ -3,7 +3,7 @@
   "featureId": "FR-DSH-ADAPT-001",
   "name": "DSH 适配",
   "version": "v3.0.0",
-  "phase": "tasked",
+  "phase": "builded",
   "status": "tracked",
   "depth": 0,
   "childrens": [],
@@ -42,6 +42,13 @@
       "timestamp": "2026-09-27T22:10:00.000Z",
       "triggeredBy": "sddu-tasks",
       "comment": "Stage 3 任务分解完成：tasks.md + tasks.json v1.0；14 个原子任务 / 4 个执行波次（S×5 / M×8 / L×1）；关键路径 TASK-001→TASK-008→TASK-009→TASK-014；覆盖 plan §5 全部 21 项文件影响；V1~V5 仅排「方法文档 + 场景清单 + 人工观测指引」产物任务（NG-002）；登记 6 项 plan 细节补充（未修改 plan）"
+    },
+    {
+      "phase": "builded",
+      "status": "tracked",
+      "timestamp": "2026-09-27T23:40:00.000Z",
+      "triggeredBy": "sddu-build",
+      "comment": "Stage 4 实施构建完成：14/14 任务 completed / 4 波次；产出 17 NEW（11 个 Skill 生成物 + contract 层 + 4 个 dsh 脚本 + 5 篇 docs/dsh 文档 + 生成物 contract-dependencies.md）+ 4 MODIFY（纯追加，删除行 0）；新增长期静态断言套件 skill-package.test.ts（32 用例全绿）；全链回归 build/test:core/test:opencode/package 全绿，预存 4 个 integration 失败套件未恶化；dsh 实机 V1~V5 属未观测项（待用户配合验证）"
     }
   ],
   "dependencies": {
@@ -65,7 +72,7 @@
     "targetVersion": "v5.0.0",
     "roadmapProposal": "PR-013",
     "createdAt": "2026-09-27T00:00:00.000Z",
-    "updatedAt": "2026-09-27T22:10:00.000Z"
+    "updatedAt": "2026-09-27T23:40:00.000Z"
   },
   "history": [
     {
@@ -95,6 +102,13 @@
       "to": "tasked",
       "triggeredBy": "sddu-tasks",
       "comment": "tasks.md + tasks.json 产出（v1.0）；14 个任务 / 4 个波次；任务分解完成，下一步 @sddu-build TASK-001"
+    },
+    {
+      "timestamp": "2026-09-27T23:40:00.000Z",
+      "from": "tasked",
+      "to": "builded",
+      "triggeredBy": "sddu-build",
+      "comment": "build.md + src/adapters/dsh/** + scripts/*dsh* + docs/dsh/** 产出；14/14 任务 completed；全链回归通过；下一步 @sddu-review specs-tree-dsh-adaptation"
     }
   ]
 }

@@ -688,3 +688,73 @@ npm run build && npm run test:core && npm run test:opencode && node scripts/pack
 | 版本 | 变更说明 | 日期 | 修订人 |
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 基于 plan.md v1.0（方案 C 分层承载：Skill 包主交付 + 注入式门禁/状态协议片段 + 预留硬通道；ADR-001~006；文件影响 21 项 = 17 NEW + 4 MODIFY；隔离规则 R-DSH-01~06）与 spec.md v1.0（10 FR / 7 NFR / 9 EC / V1~V5），分解为 14 个原子任务、4 个执行波次；含需求覆盖矩阵、plan 文件影响映射与 6 项 plan 细节补充登记（不修改 plan） | 2026-09-27 | SDDU Tasks Agent |
+
+---
+
+## 5. 回归记录（TASK-014 产出）
+
+> **执行人**: SDDU Build Agent ｜ **执行时间**: 2026-09-27 ｜ **分支**: `feature/dsh-adaptation`
+> **范围**: 全链回归 + 隔离门禁（**不执行 dsh 实机端到端验证** —— NG-002）
+
+### 5.1 全链命令结果
+
+| 命令 | 结果 |
+|------|------|
+| `npm run build`（build:agents → build:ts → postbuild/build:dsh） | ✅ 退出码 0 |
+| `npm run test:core` | ✅ 6 suites / **131 tests passed**（与改动前基线一致） |
+| `npm run test:opencode` | ✅ 1 suite / **32 tests passed**（改动前基线为「No tests found」失败 → 现转绿） |
+| `node scripts/package.cjs` | ✅ 退出码 0 |
+| `npx tsc --noEmit` | ✅ 退出码 0 |
+
+**预存失败测试对照（P-005，非本次引入）**：改动前 `npm test` 的 4 个失败套件 =
+`integration/src/__tests__/integration/state/{agent-integration,auto-updater-integration,session-idle-integration,simple-agent-integration}.test.ts`（ts-jest TS 诊断失败）；
+改动后失败集合**完全相同（4 个，同名）**，测试通过数由 146 → **178**。
+→ 结论：**未恶化**，且本次新增的 32 个静态断言全部通过。
+
+### 5.2 断言 ①~④
+
+| # | 断言 | 结果 |
+|:--:|------|------|
+| ① | `dist/dsh/` 与 `dist/sddu/` 同级并列存在；`dist/sddu.zip` 无 `dsh/` 条目；`dist/sddu/` 内无 dsh 泄漏 | ✅ `dsh` 条目命中 0；`dist/sddu` 内 dsh 路径命中 0 |
+| ② | plan §5 的 21 项文件影响（17 NEW + 4 MODIFY）全部落地 | ✅ 17 NEW 全部存在（含构建生成的 `docs/dsh/contract-dependencies.md`）；4 MODIFY 均为**纯追加**，删除行数合计 **0**（`README.md` +17/0、`jest.config.ts` +1/0、`package.json` +3/0、`scripts/package.cjs` +16/0） |
+| ③ | 零改动白名单：`install.sh` / `install.ps1` / `src/index.ts` / `src/adapters/opencode/**` / `src/state/**` / `src/templates/agents/**` / `src/shared/**` | ✅ 变更条目 0 |
+| ④ | 核心域无 dsh 概念泄漏（排除 `src/adapters/dsh/`、`src/__tests__/`，`--include='*.ts'`） | ✅ 命中 0（另：第一方核心域 `rank` 命中亦为 0） |
+
+### 5.3 未观测项（**待用户配合验证**）
+
+> ⚠️ 以下项**未观测**，**不得**记为「通过」（EC-006）。dsh 无 CLI，V1~V5 需人工在 Web UI + 文件浏览中执行，
+> 方法与判据见 `docs/dsh/verification.md`。
+
+| 项 | 状态 |
+|----|------|
+| V1 装配可见（dsh Web UI 的 skill 列表出现 11 个 SDDU 条目、来源可辨识、无遮蔽冲突） | ⏳ **待用户配合验证** |
+| V2 入口可用（`/sddu` 与阶段入口被识别；非法输入输出 `[SDDU-ROUTE-REJECT]`） | ⏳ **待用户配合验证** |
+| V3 单阶段走通（产物 + `state.json` + `[SDDU-STATE-SYNC]` 三方对账一致） | ⏳ **待用户配合验证** |
+| V4 门禁行为观测（`[SDDU-GATE-DENY]` 拒绝块 **且** 「已知降级」声明，双判据） | ⏳ **待用户配合验证** |
+| V5 升级跟随（dsh 升级后重复 V1~V3 并定位破坏点、形成成本基线） | ⏳ **待用户配合验证** |
+
+### 5.4 已通过项（本地可核对）
+
+- ✅ 生成物结构：11 个 Skill 目录（`sddu` + 10 个 `sddu-*`）、`SKILL.md` 均非空、frontmatter 含来源与快照标识
+- ✅ 入口清单与 `router-command-map.json` 一致（11 条入口；`phaseAliases` 目标 ⊆ `VALID_PHASES`）
+- ✅ 协议片段：7 个阶段 `SKILL.md` 均含 `[SDDU-GATE-DENY]` / `[SDDU-GATE-ALLOW]` / `[SDDU-STATE-SYNC]` / 已知降级声明；路由 Skill 含入口识别 / 拒绝格式 / 降级用法三段
+- ✅ 禁用语：全量生成物中 `硬强制` 仅出现在 `非硬强制` 否定语境；无 `强制执行` / `运行时硬拒绝`
+- ✅ 单一来源：每个生成物含其 `sourceTemplate` 正文抽样特征串；`src/adapters/dsh/` 内无指令正文副本
+- ✅ 版本锚定：`manifest.json` 的 `sdduVersion` / `dshContractSnapshot` / `contractManifestHash`（= 清单 sha256）/ `skills`(11)
+- ✅ 隔离规则 R-DSH-01/02/03/04/05 的可断言部分（见 `skill-package.test.ts` 第 7、8 组）
+- ✅ 构建失败路径：非法 `phaseTarget` / 缺失模板 → 非零退出并打印可定位错误
+- ✅ 幂等：重复构建除 `generatedAt` 外产物字节一致
+
+### 5.5 本阶段核出的文档/命令漂移登记（不修改 spec/plan，仅记录）
+
+| # | 位置 | 漂移 | 本阶段实际口径 |
+|:--:|------|------|---------------|
+| D1 | 本文档 TASK-008 / TASK-010 验证命令 | `ls -d dist/dsh/skills/sddu-* \| wc -l` = 11 —— 该 glob **不匹配**路由 Skill 目录 `sddu`（无连字符），实际只能数到 10 | 以 ADR-001 §1 目录树为准：`sddu` + 10 个 `sddu-*` = **11**；等价校验改为 `ls dist/dsh/skills \| wc -l` = 11 |
+| D2 | 本文档 TASK-010 / TASK-014 验证命令 | 使用 `unzip -l`，但执行环境**未安装 `unzip`** | 改用 `python3 -m zipfile -l dist/sddu.zip \| grep -c 'dsh/'` = 0（等价断言） |
+| D3 | 本文档 TASK-009 验证命令 | `--testPathPattern` 在 **jest 30.3** 已被 `--testPathPatterns` 取代，原命令直接报错 | 改用 `--testPathPatterns adapters/dsh` |
+| D4 | `jest.config.ts` 的 `@dsh/*` 别名 | 别名可用（`moduleNameMapper`），但 TS 类型解析需 `tsconfig.json` 的 `paths`；`tsconfig.json` 不在本 Feature 的 4 个 MODIFY 文件内 | 测试对 dsh 适配层采用**相对 import**（与既有测试一致）；`@dsh` 别名的运行时可用性由 `skill-package.test.ts` 第 2 组显式断言（`require('@dsh/index')`）。补齐 `tsconfig.paths` 登记为后续技术债 |
+| D5 | TASK-008 / TASK-010 验证命令 | `test "$(git diff --numstat ... \| awk '{s+=$2}')" = "0"` 口径正确，但 TASK-010 未预见 `build:ts` 会把 `src/adapters/dsh/*.ts` 编译到 `dist/adapters/dsh/`，进而被 `package.cjs` 复制进 `dist/sddu/` | 在 `scripts/package.cjs` 追加一步移除 `dist/sddu/adapters/dsh/`（纯追加，0 删除），使「`dist/sddu.zip` 不含 `dsh/`」成立 |
+
+| 版本 | 变更说明 | 日期 | 修订人 |
+|------|---------|------|--------|
+| v1.1 | 追加「5. 回归记录（TASK-014 产出）」：全链命令结果、预存失败测试对照、断言①~④、未观测项（V1~V5，待用户配合验证）与已通过项分列、5 项文档/命令漂移登记 | 2026-09-27 | SDDU Build Agent |

@@ -1,0 +1,68 @@
+<!--
+  ============================================================================
+  SDDU 状态同步与对账协议（state-sync-protocol）— 由 scripts/build-dsh-skills.cjs 注入每个阶段 Skill
+  唯一来源：src/adapters/dsh/templates/state-sync-protocol.md.hbs（ADR-004）
+  ============================================================================
+-->
+
+## 🔄 dsh 状态同步与对账协议（阶段推进时必须执行）
+
+### 1. 权威裁定（唯一权威）
+
+- **`.sddu/specs-tree-root/<feature>/state.json` 是唯一权威状态源**：`phase` / `status` / `phaseHistory`
+  的权威判定只以该文件为准。
+- dsh 的 `SessionEvent` 会话事件日志是**观测源与对账源**，**不构成第二权威**。
+  出现分歧时以 `state.json` 为准并**报告差异**，不修改日志、不静默覆盖 `state.json`。
+- 核心状态机语义不变（NG-004）：`phase` 流转、相邻性规则、`phaseHistory` 追加语义与 OpenCode 侧完全一致。
+- 边界声明：SDDU **不写入、不修改**宿主 dsh 的会话事件日志；
+  **不新增** append-only 事件日志；**不修改**核心 `src/state/`（NG-004 / ADR-004 决策 4）。
+
+### 2. 推进协议（三步，顺序不可调换）
+
+**步骤 1 — 确认产物已落盘**
+先确认本阶段产物已成功写入磁盘且非空。若落盘失败，按 EC-008 报错并**不推进**
+（不更新 `state.json`、不输出 SYNC 记录）。
+
+**步骤 2 — 用文件工具更新 `state.json`**
+- 将 `phase` 改为目标阶段；
+- 向 `phaseHistory` **追加**一条（与既有 schema 一致，不得改写既有条目、不得重建数组）：
+
+```json
+{
+  "phase": "<目标阶段，如 planned>",
+  "status": "tracked",
+  "timestamp": "<ISO8601，如 2026-09-27T20:30:00.000Z>",
+  "triggeredBy": "<触发方，如 sddu-plan>",
+  "comment": "<本次推进的一句话说明>"
+}
+```
+
+- 同步更新 `metadata.updatedAt`（若该字段存在）。
+
+**步骤 3 — 在会话中输出结构化同步记录**
+输出单行 JSON（进入 dsh `SessionEvent` 日志，成为可回放的过程证据，NFR-003）：
+
+```
+[SDDU-STATE-SYNC] {"feature":"<feature>","from":"<current-phase>","to":"<target-phase>","artifact":"<本阶段产物文件名如 plan.md>","phaseHistoryAdded":true,"ts":"<ISO8601>"}
+```
+
+字段固定，不得增删改名：`feature` / `from` / `to` / `artifact` / `phaseHistoryAdded` / `ts`。
+
+### 3. 三方对账规则（人工在 dsh Web UI + 文件浏览中执行；无 CLI，NFR-005 / NFR-006）
+
+| # | 比对项 | 来源 | 通过判据 | 不一致处理 |
+|:--:|--------|------|---------|-----------|
+| ① | **状态 vs 产物** | `state.json.phase` ⟷ `.sddu/specs-tree-root/<feature>/` 内的阶段产物文件 | `phase` 对应的产物存在且非空（如 `planned` → `plan.md`） | 报告「阶段已推进但产物缺失/为空」，提示回退或补产，**暂停推进** |
+| ② | **状态 vs 记录** | `state.json.phaseHistory` ⟷ 会话日志中的 `[SDDU-STATE-SYNC]` 记录 | 每个 phase 推进在会话日志中有对应 SYNC 记录；允许「日志有、state 无」（= 曾尝试但未落盘） | 报告单向不一致并指出**缺失侧**；**禁止自动补齐任何一侧** |
+| ③ | **产物 vs 记录** | 阶段产物文件 ⟷ `[SDDU-STATE-SYNC].artifact` | 记录中的 `artifact` 与磁盘实际产物一致 | 报告差异并**暂停推进** |
+
+对账铁律：
+- 一致性问题**必须报告而非静默覆盖**（EC-005）；必要时暂停推进等待人工确认。
+- **不得**自动补齐缺失侧（既不补写 `state.json`，也不伪造 SYNC 记录）。
+- 详细的最小人工步骤序列与时间预算上限见 `docs/dsh/verification.md` 的 V3 场景。
+
+### 4. 证据强度声明（如实边界）
+
+> `[SDDU-STATE-SYNC]` 记录**不是**机器可校验的强证据（无 CLI，无法自动断言；且记录可能被遗漏）。
+> 因此本协议**不得**把该记录表述为「运行时断言」或「强制保证」；
+> 它的价值是「可回放的推进证据链」，用于人工对账与破坏点定位。

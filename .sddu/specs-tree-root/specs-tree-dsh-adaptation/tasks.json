@@ -41,7 +41,7 @@
         "未改 src/state、src/shared；无 adapters/dsh -> adapters/opencode import",
         "npx tsc --noEmit 通过"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-002",
@@ -62,7 +62,7 @@
         "含指令正文来自源模板、禁止改写声明",
         "不含阶段职责正文"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-003",
@@ -84,7 +84,7 @@
         "含非法跃迁必须拒绝与 EC-008 落盘失败不推进",
         "硬强制仅出现在否定语境"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-004",
@@ -105,7 +105,7 @@
         "含三方对账（状态vs产物/状态vs记录/产物vs记录）与禁止自动补齐",
         "含不写宿主日志、不改核心 src/state 边界，及非强证据声明"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-005",
@@ -127,7 +127,7 @@
         "含 SDDU-ROUTE-REJECT 与不进入任何阶段约束",
         "含平台级命令已知缺口与降级用法；无 adapters/opencode 引用"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-006",
@@ -150,7 +150,7 @@
         "不调用 dsh CLI",
         "install.sh/install.ps1/src/index.ts 零改动"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-007",
@@ -170,7 +170,7 @@
         "不 import adapters/opencode",
         "src/index.ts 零改动；npx tsc --noEmit 通过"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-008",
@@ -196,7 +196,7 @@
         "contract-dependencies.md 与 manifest 一一对应",
         "对 src/templates/agents 零写操作；失败路径非零退出"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-009",
@@ -218,7 +218,7 @@
         "未修改既有测试文件",
         "测试不依赖 dsh CLI/网络"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-010",
@@ -241,7 +241,7 @@
         "git diff 为纯追加（删除行数 0）",
         "build + test:core + test:opencode 全绿"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-011",
@@ -265,7 +265,7 @@
         "dual-platform-diff 含入口/承载/门禁/状态/落位五维",
         "仓库 README 改动纯追加"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-012",
@@ -287,7 +287,7 @@
         "含未刷新即不可信声明与 v5.1.0+ 硬 guard 演进点",
         "无肯定式硬强制表述"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-013",
@@ -308,7 +308,7 @@
         "含无法自动化断言/不将未观测等同通过与时间预算上限",
         "不以命令行作为必要前置"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "TASK-014",
@@ -330,7 +330,7 @@
         "核心域泄漏扫描命中 0",
         "未观测项（dsh 实机 V1~V5）单独标注待用户配合验证"
       ],
-      "status": "pending"
+      "status": "completed"
     }
   ],
   "planGapsRegistered": [

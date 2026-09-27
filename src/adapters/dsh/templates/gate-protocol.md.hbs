@@ -1,0 +1,71 @@
+<!--
+  ============================================================================
+  SDDU 阶段门禁协议（gate-protocol）— 由 scripts/build-dsh-skills.cjs 注入每个阶段 Skill
+  唯一来源：src/adapters/dsh/templates/gate-protocol.md.hbs（ADR-003）
+  ============================================================================
+-->
+
+## 🚪 dsh 阶段门禁协议（进入本阶段前必须执行）
+
+### 1. 确定性四步流程（顺序不可调换）
+
+1. **读取当前阶段**：读取 `.sddu/specs-tree-root/<feature>/state.json`，取其 `phase` 字段。
+   若文件不存在或 `phase` 非法，按「拒绝」处理并说明缺失的 state 文件路径。
+2. **相邻性校验**：目标阶段必须等于核心状态机的下一阶段，
+   即 `NEXT_PHASE[current]`（同源语义：`PHASE_ORDER` 中 `order(to) = order(from) + 1`）。
+   - 跳步（`to` 超出一步）→ **拒绝**。
+   - 回退（`order(to) <= order(from)`）→ **拒绝**。
+   - `current = reviewed` 时无下一阶段（`NEXT_PHASE` 无表项）→ 对 `validated` 之外的任何目标都**拒绝**。
+3. **前置产物存在性校验**：校验目标阶段的前置产物已在磁盘上存在且非空
+   （如 `spec` 需 `discovery.md`；`plan` 需 `spec.md`；`tasks` 需 `plan.md`；`build` 需 `tasks.md`；
+   `review` 需 `build.md`；`validate` 需 `build.md`）。缺失 → **拒绝**，并把缺失项写入 `missing`。
+4. **输出结构化结果块**（单行 JSON，便于会话日志检索与回放，NFR-003）。
+   不得只做文字提示而省略结构化块。
+
+### 2. 拒绝块（DENY）
+
+当第 2/3 步任一校验失败时输出（单行 JSON）：
+
+```
+[SDDU-GATE-DENY] {"feature":"<feature>","from":"<current-phase>","to":"<target-phase>","missing":["<缺失前置产物>"],"reason":"<跳步/回退/前置产物缺失>","action":"none"}
+```
+
+拒绝语义（**必须**满足）：
+- `"action":"none"` —— **不写 `state.json`、不产出阶段产物、不推进任何状态**。
+- 向用户说明拒绝原因与**恢复动作**（例如「先运行 `@sddu-spec <feature>` 产出 `spec.md`」）。
+- **遇非法跃迁（跳步 / 回退）必须按拒绝处理，不得「提示后继续」**。
+  即使用户明确要求跳过，也只能输出拒绝块并说明边界，不得继续执行阶段动作。
+
+### 3. 放行块（ALLOW）
+
+当第 2/3 步全部通过时输出（单行 JSON）：
+
+```
+[SDDU-GATE-ALLOW] {"feature":"<feature>","from":"<current-phase>","to":"<target-phase>","prereq":"<已确认存在的前置产物>","action":"proceed"}
+```
+
+放行语义：`"action":"proceed"` —— 可继续执行本阶段职责；阶段推进的**状态落盘**由
+state-sync-protocol 承载（见本文件后半的「状态同步协议」段），门禁本身不写 `state.json`。
+
+### 4. 落盘失败处理（EC-008）
+
+若本阶段产物写入失败（权限 / 磁盘 / 路径错误）：
+- **报错且不推进**：不更新 `state.json`、不输出放行块、不追加 `phaseHistory`；
+- 报告失败文件路径与错误原因，等待用户处理后重试本阶段。
+
+### 5. ⚠️ 已知降级声明（固定段落，禁止删改，FR-004b）
+
+> ⚠️ 已知降级：dsh 侧无可执行的运行时拒绝点，本门禁为模型执行的显式软引导（FR-004b），
+> **非硬强制**；非法跃迁会输出 `[SDDU-GATE-DENY]` 且不推进，但其约束力来自模型对指令的遵从。
+> 若模型未按协议输出拒绝块，即视为降级边界被穿越 —— 该情形可在
+> `docs/dsh/verification.md` 的 V4 场景中被人工观测到，不得被文档掩盖。
+
+降级边界（如实声明，禁止含蓄化）：
+- Skill 是「可选的指令而非会话事件」，**不携带执行能力**：Skill 不能注册 dsh 工具、
+  不能挂 guard、不能介入 `ctx.tools.execute()` 流水线，因此**在「Skill 包」交付形态内不存在运行时拒绝点**。
+- OpenCode 侧由核心状态机（`updateState()` 抛出 `PhaseReversalError` / `PhaseSkipError`）**从代码层拒绝**
+  非法跃迁；dsh 侧**没有**等价强制力，两平台存在能力落差，**不得表述为等价**（见 `docs/dsh/dual-platform-diff.md`）。
+- 硬 guard 通道（`tools/pre-execute` → 单调 guard → `tools/execute` → `tools/post-execute` → `tools/result`）
+  需注册 dsh 工具（Cordis bundle / `cordis.patch.yml` overlay），属 **v5.1.0+ 演进点，本 Feature 不实现**
+  （契约细节在 2026-08-14 快照中未覆盖，见 `dsh-contract-manifest.json` 的 `guard-pipeline` 依赖点）。
+- 禁止在用户不可见的情况下静默丢失门禁语义（FR-004 / EC-003）。

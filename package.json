@@ -14,6 +14,8 @@
     "build": "npm run build:agents && npm run build:ts",
     "build:agents": "node scripts/build-agents.cjs",
     "build:ts": "tsc",
+    "build:dsh": "node scripts/build-dsh-skills.cjs",
+    "postbuild": "npm run build:dsh",
     "dev": "tsc --watch",
     "clean": "rimraf dist",
     "test": "jest",
@@ -55,6 +57,7 @@
   },
   "files": [
     "dist/sddu/**/*",
+    "dist/dsh/**/*",
     "src/**/*",
     "!.opencode",
     "!.sdd",

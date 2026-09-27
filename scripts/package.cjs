@@ -28,6 +28,9 @@ async function packageSddu() {
     
     console.log('\n🧹 清理冗余文件...');
     const itemsToKeep = ['sddu', 'sddu.zip'];
+    // dsh 适配产物与 sddu 分发**同级并列**，打包清理阶段必须保留（否则 dist/dsh/ 会被删除）
+    // 追加式改动（TASK-010 / FR-009 / ADR-005 决策 4）：不改变既有保留项与顺序
+    itemsToKeep.push('dsh');
     const allItems = await fs.readdir(distDir);
     
     for (const item of allItems) {
@@ -77,6 +80,10 @@ async function packageSingleVersion(distDir, version, packageName) {
   
   console.log(`🔄 复制构建文件 (${version})...`);
   for (const file of allFiles) {
+    // dsh 产物与 sddu 分发同级并列、**互不包含**：不得并入 sddu 包
+    // （否则 dist/sddu/dsh 会混入 dist/sddu.zip，补丁外溢到 OpenCode 分发）
+    // 追加式改动（TASK-010 / FR-009 / ADR-005 决策 4）：新插入 skip 行，不改既有判断
+    if (file === 'dsh') continue;
     // 跳过 dist 目录本身和其他输出目录
     if (file === 'sddu' || file === 'templates') continue;
     
@@ -91,6 +98,15 @@ async function packageSingleVersion(distDir, version, packageName) {
     }
   }
   
+  // dsh 适配层的编译产物（dist/adapters/dsh/）**不得**进入 OpenCode 分发：
+  // dsh 资产只经 dist/dsh/ 交付；否则 dsh 概念会外溢到 dist/sddu/ 与 dist/sddu.zip。
+  // 追加式改动（TASK-010 / FR-009 / ADR-005 决策 4）：新增移除步骤，不改既有复制逻辑。
+  const dshAdapterDist = path.join(distDir, 'adapters', 'dsh');
+  if (await fs.pathExists(dshAdapterDist)) {
+    await fs.remove(dshAdapterDist);
+    console.log(`🔄 移除 ${version} 分发内的 dsh 适配层编译产物（dsh 资产仅经 dist/dsh/ 交付）...`);
+  }
+
   // 特殊处理模板目录 - 将 dist/templates/agents/ 复制到 [distDir]/agents/
   const templatesAgentsDir = path.join(srcDir, 'templates', 'agents');
   if (await fs.pathExists(templatesAgentsDir)) {

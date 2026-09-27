@@ -1,0 +1,201 @@
+{
+  "mapVersion": "1.0",
+  "dshContractSnapshot": "2026-08-14",
+
+  "_note": "【单一来源】本文件是 ① 11 个 Skill 清单、② 命令入口清单、③ 阶段别名集 的唯一来源（ADR-001 / ADR-002 / ADR-006）；docs/dsh/README.md 的入口清单表与 dist/dsh/skills/ 的生成物均由此派生，禁止手工维护第二份。【别名集漂移风险登记（plan 缺口 2）】phaseAliases 为满足 R-DSH-03（禁止 dsh 适配层 → OpenCode 平台适配层的 import）而**自包含**在本文件内，因此与 OpenCode 侧 plugin.ts 的 legacyStatusToPhase 之间**没有编译期等价保障**，长此以往可能漂移。当前仅以「目标值 ⊆ 核心 VALID_PHASES（src/state/schema-v3.0.0.ts）」为可校验的收敛约束，并由 skill-package.test.ts 断言该子集关系；该编译期等价性缺口登记为已知技术债，供 v5.1.0 收敛（可考虑把别名集上提到核心域只读常量后由双方共同引用）。【平台级命令注册已知缺口】dsh 快照（2026-08-14）未记录可由 Skill 包注册平台级命令的 seam：斜杠交互来自方法论插件，命令由插件提供。因此本 Feature **不承诺**平台级 `/sddu` 命令体验，入口实质是「指令约定的入口」，降级用法见 fallbackUsage；若用户要求平台级命令体验，需 dsh 插件（v5.1.0+ 演进点评估）。",
+
+  "skills": [
+    {
+      "name": "sddu",
+      "kind": "router",
+      "sourceTemplate": "src/templates/agents/sddu.md.hbs",
+      "phaseTarget": null,
+      "protocolFragments": ["router-entry-protocol"],
+      "description": "SDDU 路由调度入口：状态仪表盘 / 下一步推荐 / 阶段路由（文本前缀识别）"
+    },
+    {
+      "name": "sddu-discovery",
+      "kind": "phase",
+      "sourceTemplate": "src/templates/agents/sddu-discovery.md.hbs",
+      "phaseTarget": "discovered",
+      "protocolFragments": ["gate-protocol", "state-sync-protocol"],
+      "description": "阶段 1/7 问题挖掘专家（访谈 → discovery.md）"
+    },
+    {
+      "name": "sddu-spec",
+      "kind": "phase",
+      "sourceTemplate": "src/templates/agents/sddu-spec.md.hbs",
+      "phaseTarget": "specified",
+      "protocolFragments": ["gate-protocol", "state-sync-protocol"],
+      "description": "阶段 2/7 需求定义专家（spec.md）"
+    },
+    {
+      "name": "sddu-plan",
+      "kind": "phase",
+      "sourceTemplate": "src/templates/agents/sddu-plan.md.hbs",
+      "phaseTarget": "planned",
+      "protocolFragments": ["gate-protocol", "state-sync-protocol"],
+      "description": "阶段 3/7 技术设计专家（plan.md + ADR）"
+    },
+    {
+      "name": "sddu-tasks",
+      "kind": "phase",
+      "sourceTemplate": "src/templates/agents/sddu-tasks.md.hbs",
+      "phaseTarget": "tasked",
+      "protocolFragments": ["gate-protocol", "state-sync-protocol"],
+      "description": "阶段 4/7 任务排布专家（tasks.md）"
+    },
+    {
+      "name": "sddu-build",
+      "kind": "phase",
+      "sourceTemplate": "src/templates/agents/sddu-build.md.hbs",
+      "phaseTarget": "builded",
+      "protocolFragments": ["gate-protocol", "state-sync-protocol"],
+      "description": "阶段 5/7 实施构建专家（代码 / 产物 + build.md）"
+    },
+    {
+      "name": "sddu-review",
+      "kind": "phase",
+      "sourceTemplate": "src/templates/agents/sddu-review.md.hbs",
+      "phaseTarget": "reviewed",
+      "protocolFragments": ["gate-protocol", "state-sync-protocol"],
+      "description": "阶段 6/7 产物审查专家（review.md）"
+    },
+    {
+      "name": "sddu-validate",
+      "kind": "phase",
+      "sourceTemplate": "src/templates/agents/sddu-validate.md.hbs",
+      "phaseTarget": "validated",
+      "protocolFragments": ["gate-protocol", "state-sync-protocol"],
+      "description": "阶段 7/7 产物验证专家（validate.md）"
+    },
+    {
+      "name": "sddu-roadmap",
+      "kind": "standalone",
+      "sourceTemplate": "src/templates/agents/sddu-roadmap.md.hbs",
+      "phaseTarget": null,
+      "protocolFragments": [],
+      "description": "独立：多版本路线图规划（ROADMAP.md）"
+    },
+    {
+      "name": "sddu-docs",
+      "kind": "standalone",
+      "sourceTemplate": "src/templates/agents/sddu-docs.md.hbs",
+      "phaseTarget": null,
+      "protocolFragments": [],
+      "description": "独立：项目全景聚合（docs-*.md）"
+    },
+    {
+      "name": "sddu-fast",
+      "kind": "standalone",
+      "sourceTemplate": "src/templates/agents/sddu-fast.md.hbs",
+      "phaseTarget": null,
+      "protocolFragments": [],
+      "description": "独立：快速模式（零产物、单会话）"
+    }
+  ],
+
+  "entries": [
+    {
+      "entry": "/sddu",
+      "targetSkill": "sddu",
+      "prerequisite": ".sddu/specs-tree-root/ 存在",
+      "artifact": "状态视图 + 推荐下一步（无文件产物）"
+    },
+    {
+      "entry": "/sddu discovery <feature>",
+      "targetSkill": "sddu-discovery",
+      "prerequisite": "无（工作流起点）",
+      "artifact": "discovery.md"
+    },
+    {
+      "entry": "/sddu spec <feature>",
+      "targetSkill": "sddu-spec",
+      "prerequisite": "discovery.md",
+      "artifact": "spec.md"
+    },
+    {
+      "entry": "/sddu plan <feature>",
+      "targetSkill": "sddu-plan",
+      "prerequisite": "spec.md",
+      "artifact": "plan.md（+ ADR-*.md）"
+    },
+    {
+      "entry": "/sddu tasks <feature>",
+      "targetSkill": "sddu-tasks",
+      "prerequisite": "plan.md",
+      "artifact": "tasks.md（+ tasks.json）"
+    },
+    {
+      "entry": "/sddu build <feature>",
+      "targetSkill": "sddu-build",
+      "prerequisite": "tasks.md",
+      "artifact": "代码 / 产物 + build.md"
+    },
+    {
+      "entry": "/sddu review <feature>",
+      "targetSkill": "sddu-review",
+      "prerequisite": "build.md",
+      "artifact": "review.md"
+    },
+    {
+      "entry": "/sddu validate <feature>",
+      "targetSkill": "sddu-validate",
+      "prerequisite": "build.md",
+      "artifact": "validate.md"
+    },
+    {
+      "entry": "/sddu roadmap",
+      "targetSkill": "sddu-roadmap",
+      "prerequisite": "无",
+      "artifact": "ROADMAP.md"
+    },
+    {
+      "entry": "/sddu docs <feature>",
+      "targetSkill": "sddu-docs",
+      "prerequisite": "Feature 产物存在",
+      "artifact": "docs-*.md"
+    },
+    {
+      "entry": "/sddu fast <task>",
+      "targetSkill": "sddu-fast",
+      "prerequisite": "无",
+      "artifact": "直接解决（零产物）"
+    }
+  ],
+
+  "phaseAliases": {
+    "discovered": "discovered",
+    "discovery": "discovered",
+    "specified": "specified",
+    "spec": "specified",
+    "planned": "planned",
+    "plan": "planned",
+    "planning": "planned",
+    "tasked": "tasked",
+    "tasks": "tasked",
+    "builded": "builded",
+    "building": "builded",
+    "implementing": "builded",
+    "build": "builded",
+    "reviewed": "reviewed",
+    "review": "reviewed",
+    "validated": "validated",
+    "validate": "validated",
+    "completed": "validated"
+  },
+
+  "invalidPhase": "[SDDU-ROUTE-REJECT] {\"input\":\"<原样输入>\",\"valid\":[\"discovery\",\"spec\",\"plan\",\"tasks\",\"build\",\"review\",\"validate\"],\"hint\":\"<建议，如：可用阶段标识 discovery|spec|plan|tasks|build|review|validate>\"} —— 非法阶段标识：**不进入任何阶段、不写任何文件**，只输出拒绝块并给出建议（FR-002②）。",
+
+  "fallbackUsage": {
+    "textPrefix": "sddu <phase> <feature> —— 当平台把 `/` 前缀按自身命令解析器处理（未识别则不作为消息发送）时使用；语义与 /sddu <phase> <feature> 完全等价。",
+    "naturalLanguage": "段落式自然语言（如「帮我把 specs-tree-x 推进到 plan 阶段」）亦可，由路由 Skill 按路由表解析；`/sddu ...` 前缀是确定性入口，自然语言是宽容降级。",
+    "knownGap": "已知缺口：平台级命令注册在「Skill 包」形态内没有可靠载体（快照 2026-08-14 未记录相关 seam；斜杠交互来自方法论插件）。本清单**不承诺**平台级命令体验；如需平台级 `/sddu` 命令，需实现 dsh 插件（Cordis bundle / cordis.patch.yml overlay），属 v5.1.0+ 演进点。"
+  },
+
+  "routerEntryProtocol": {
+    "entryRecognition": "## 🧭 入口识别规则（dsh 路由 Skill）\n\n本 Skill 是 dsh 侧的 SDDU 路由入口，**不依赖平台级命令注册**（已知缺口，见 docs/dsh/README.md）。识别规则：\n\n1. **`/sddu`**（无阶段参数）→ 输出状态仪表盘：扫描 `.sddu/specs-tree-root/` 下的 Feature，读取各 `state.json`，列出 `phase` / `status` / 下一步推荐。**不推进任何状态**。\n2. **`/sddu <phase> <feature>`** → 解析阶段标识与 Feature 名，执行「前置检查 → 路由到对应阶段 Skill」；`<phase>` 允许别名集（`plan` / `planning` → `planned`，`build` / `building` / `implementing` → `builded`，`validate` / `completed` → `validated` 等，保持与 OpenCode 侧一致的输入宽容度）。\n3. **`sddu <phase> <feature>`**（无斜杠前缀）→ 与第 2 条完全等价（降级用法）。\n4. **段落式自然语言** → 按本路由表解析出阶段与 Feature 后走第 2 条；自然语言是宽容入口，`/sddu ...` 前缀是确定性入口。\n\n入口职责边界：本 Skill 只负责「**解析 + 前置检查 + 路由**」。阶段推进的**门禁**由注入阶段 Skill 的 gate-protocol 承载，**状态落盘**由 state-sync-protocol 承载 —— 三者不得互相越权，避免「入口即放行」的语义漏洞（ADR-002 决策 3）。",
+    "rejectFormat": "## ⛔ 非法阶段输入：拒绝块格式\n\n当阶段标识无法被解析（拼写错误 / 不在别名集内 / 目标 Feature 不存在）时，**必须**输出单行 JSON 拒绝块，并且：\n\n```\n[SDDU-ROUTE-REJECT] {\"input\":\"<原样输入>\",\"valid\":[\"discovery\",\"spec\",\"plan\",\"tasks\",\"build\",\"review\",\"validate\"],\"hint\":\"<建议>\"}\n```\n\n拒绝语义（**必须**满足）：\n- **不进入任何阶段**（不加载任何阶段 Skill、不执行阶段动作）；\n- **不写任何文件**（不创建/修改 `state.json`、不产出阶段产物）；\n- `valid` 字段列出全部可用阶段标识（与 `router-command-map.json` 的 `entries` 同源）；\n- `hint` 给出可操作建议（如「是否想输入 `plan`？」），让用户以最小代价重试。",
+    "fallback": "## 🪂 降级用法（平台级命令不可用时）\n\n> 已知缺口：在「Skill 包」交付形态内，dsh 侧**没有**可由 Skill 注册平台级命令的可靠载体（2026-08-14 快照未覆盖该 seam；快照中的斜杠交互来自方法论插件，即命令由插件提供）。本路由 Skill 因此**不承诺**平台级 `/sddu` 命令体验 —— 入口实质是「**指令约定的入口**」。\n\n当 `/sddu ...` 未被平台作为消息送达（例如平台自身命令解析器先行拦截）时，使用以下降级路径：\n\n1. 直接以 `sddu <phase> <feature>` 文本（无斜杠）发起 —— 与 `/sddu <phase> <feature>` 语义等价；\n2. 使用段落式自然语言描述意图（如「把 specs-tree-x 推进到 plan 阶段」）—— 由本 Skill 按路由表解析；\n3. 若平台既不送达斜杠输入也不接受自然语言，按 `docs/dsh/verification.md` 的 V2 场景记录该平台行为，作为「命令入口」能力落差的观测证据（不得表述为两平台等价）。\n\n若用户明确要求平台级命令体验，走 v5.1.0+ 演进点评估（需实现 dsh 插件），不在本 Feature 范围内。"
+  }
+}
