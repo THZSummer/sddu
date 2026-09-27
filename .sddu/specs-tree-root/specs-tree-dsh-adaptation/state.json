@@ -1,0 +1,55 @@
+{
+  "feature": "specs-tree-dsh-adaptation",
+  "featureId": "FR-DSH-ADAPT-001",
+  "name": "DSH 适配",
+  "version": "v3.0.0",
+  "phase": "discovered",
+  "status": "tracked",
+  "depth": 0,
+  "childrens": [],
+  "phaseHistory": [
+    {
+      "phase": "registered",
+      "status": "tracked",
+      "timestamp": "2026-09-27T00:00:00.000Z",
+      "triggeredBy": "SDDU Discovery Agent",
+      "comment": "v5.0.0「DSH 适配」立项（ROADMAP 登记身份 PR-013，立项由本次 discovery 决定）"
+    },
+    {
+      "phase": "discovered",
+      "status": "tracked",
+      "timestamp": "2026-09-27T12:10:00.000Z",
+      "triggeredBy": "sddu-discovery",
+      "comment": "Stage 0 问题挖掘完成：1 轮用户访谈（平台形态= dsh Skill 包 / 对齐面= 命令入口 / 验证由用户配合）；识别 12 个问题（核心 5 / 次要 4 / 潜在 3）、8 项关键假设、7 项风险"
+    }
+  ],
+  "dependencies": {
+    "on": [
+      "FR-FRAMEWORK-ARCH-001"
+    ],
+    "blocking": [
+      "FR-CROSSPLAT-001"
+    ]
+  },
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "specs-tree-dsh-adaptation/spec.md"
+  },
+  "metadata": {
+    "priority": "P0",
+    "featureId": "FR-DSH-ADAPT-001",
+    "targetVersion": "v5.0.0",
+    "roadmapProposal": "PR-013",
+    "createdAt": "2026-09-27T00:00:00.000Z",
+    "updatedAt": "2026-09-27T12:10:00.000Z"
+  },
+  "history": [
+    {
+      "timestamp": "2026-09-27T12:10:00.000Z",
+      "from": "registered",
+      "to": "discovered",
+      "triggeredBy": "sddu-discovery",
+      "comment": "discovery.md 产出（v1.0）；ROADMAP 登记的 dsh 平台形态 / 接入面 / 集成边界三项待澄清点已澄清"
+    }
+  ]
+}
