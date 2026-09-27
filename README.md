@@ -242,9 +242,9 @@ curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu
 **Windows (PowerShell):**
 ```powershell
 # 直连
-powershell -c "iwr https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project"
+powershell -c "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project"
 # 或通过镜像（国内加速）
-powershell -c "iwr https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.org/"
+powershell -c "iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.org/"
 ```
 
 ### 本地安装（已克隆仓库）

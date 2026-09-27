@@ -75,7 +75,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Build agents
 Write-Host "  Building agents..." -ForegroundColor Gray
-& node "$RepoRoot\build-agents.cjs"
+& node "$RepoRoot\scripts\build-agents.cjs"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Agent build failed" -ForegroundColor Red
     exit 1
@@ -128,7 +128,7 @@ else {
         
         # Build agents
         Write-Host "  Building agents..." -ForegroundColor Gray
-        & node "$RepoRoot\build-agents.cjs"
+        & node "$RepoRoot\scripts\build-agents.cjs"
         if ($LASTEXITCODE -ne 0) {
             Write-Host "Agent build failed" -ForegroundColor Red
             exit 1
@@ -176,7 +176,8 @@ $directories = @(
     "$TargetDir\.opencode\plugins\sddu",
     "$TargetDir\.opencode\agents",
     "$TargetDir\.sddu",
-    "$TargetDir\.sddu\specs-tree-root"
+    "$TargetDir\.sddu\specs-tree-root",
+    "$TargetDir\.sddu\skills"
 )
 
 foreach ($dir in $directories) {
@@ -202,12 +203,13 @@ function Copy-DistributionToPlugin {
         # Remove destination if exists
         if (Test-Path $DestDir) { Remove-Item -Path $DestDir -Recurse -Force }
         
-        # Create destination directory
+        # Create destination directory (must exist before recursive wildcard copy on Windows)
         $parentDir = Split-Path $DestDir -Parent
         if (-not (Test-Path $parentDir)) { New-Item -ItemType Directory -Path $parentDir -Force | Out-Null }
+        if (-not (Test-Path $DestDir)) { New-Item -ItemType Directory -Path $DestDir -Force | Out-Null }
         
         # Copy everything from source to destination
-        Copy-Item -Path "$SourceDir\*" -Destination $DestDir -Recurse
+        Copy-Item -Path "$SourceDir\*" -Destination $DestDir -Recurse -Force
         $fileCount = (Get-ChildItem -Path $DestDir -Recurse | Where-Object {!$_.PSIsContainer} | Measure-Object).Count
         Write-Host "[OK] Copied $fileCount $VersionLabel plugin files" -ForegroundColor Green
         return $true
@@ -401,15 +403,22 @@ if (Test-Path $OpencodeDestPath) {
         $existingConfig.agent = $agentPSC
         
         # Merge permissions: SDDU required permissions take precedence, user's custom permissions preserved
-        $existingConfig.permission = @{}
-        foreach ($key in $newConfig.permission.PSObject.Properties.Name) {
-            $existingConfig.permission[$key] = $newConfig.permission[$key]
-        }
-        foreach ($key in $existingConfigOld.permission.PSObject.Properties.Name) {
-            if (-not $existingConfig.permission.ContainsKey($key)) {
-                $existingConfig.permission[$key] = $existingConfigOld.permission[$key]
+        $existingPermission = @{}
+        if ($existingConfig.permission) {
+            foreach ($key in $existingConfig.permission.PSObject.Properties.Name) {
+                $existingPermission[$key] = $existingConfig.permission.$key
             }
         }
+        $mergedPermission = @{}
+        foreach ($key in $newConfig.permission.PSObject.Properties.Name) {
+            $mergedPermission[$key] = $newConfig.permission.$key
+        }
+        foreach ($key in $existingPermission.Keys) {
+            if (-not $mergedPermission.ContainsKey($key)) {
+                $mergedPermission[$key] = $existingPermission[$key]
+            }
+        }
+        $existingConfig.permission = $mergedPermission
         
         # Update schema
         if ($newConfig.'$schema') {

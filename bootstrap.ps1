@@ -86,17 +86,26 @@ function Install-Sddu {
 
         Write-Host ""
         Write-Host "[2/2] 构建并安装 SDDU 到目标项目..." -ForegroundColor Cyan
+        $installOk = $true
         switch ($Platform) {
             "opencode" {
                 & "$TmpDir/scripts/install/opencode/install.ps1" -TargetDir $TargetDir
+                if ($LASTEXITCODE -ne 0) { $installOk = $false }
             }
             "dsh" {
                 & "$TmpDir/scripts/install/dsh/install.ps1" -ProjectRoot $TargetDir -Build -Yes
+                if ($LASTEXITCODE -ne 0) { $installOk = $false }
             }
             default {
                 Write-Host "❌ 非法 -Platform 值: '$Platform'（允许: opencode | dsh）" -ForegroundColor Red
                 exit 1
             }
+        }
+
+        if (-not $installOk) {
+            Write-Host ""
+            Write-Host "❌ SDDU 安装失败，请查看上方日志" -ForegroundColor Red
+            exit 1
         }
 
         Write-Host ""
