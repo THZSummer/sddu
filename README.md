@@ -396,7 +396,7 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 
 ---
 
-## 🧩 dsh 适配（v5.0.0）
+## 🧩 dsh 适配（v5.1.0）
 
 除 OpenCode 之外，SDDU 还以 **Skill 包**形态适配 **dsh** 平台（`/sddu` 路由与阶段命令、可观测的软引导门禁、`state.json` 唯一权威）。dsh 侧交付物与 OpenCode 分发 **同级并列、互不包含**（`dist/dsh/` vs `dist/sddu/`）。
 
@@ -405,6 +405,8 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project
 ```
+
+Windows（PowerShell）及镜像安装见 [docs/dsh/README.md](docs/dsh/README.md) §2。完整安装/升级/卸载说明以 `docs/dsh/README.md` 为准。
 
 - **面向 dsh 用户的交付说明**：[docs/dsh/README.md](docs/dsh/README.md)
 - **双平台差异与能力落差**：[docs/dsh/dual-platform-diff.md](docs/dsh/dual-platform-diff.md)
