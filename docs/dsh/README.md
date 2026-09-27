@@ -67,20 +67,20 @@ npm run build:dsh
 
 ### 2.0 一键安装（bootstrap，推荐）
 
-与 OpenCode 侧 `bootstrap.sh` 同构，curl 一行装完（clone → 自动构建 → 安装 → 启动引导）：
+与 OpenCode 共用同一 bootstrap 入口，`--platform dsh` 区分适配目标，curl 一行装完（clone → 自动构建 → 安装 → 启动引导）：
 
 ```bash
 # Linux/macOS（直连 GitHub）
-curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project
+curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --platform dsh
 
 # 镜像（国内用户）
-curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project --proxy https://gh-proxy.org/
+curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --platform dsh --proxy https://gh-proxy.org/
 ```
 
 Windows（PowerShell）：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.ps1 | iex; Install-Sddu-Dsh -TargetDir ./my-project"
+powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project -Platform dsh"
 ```
 
 ### 2.1 推荐：项目级 **rank 100**（`<projectRoot>/.dsh/skills`）

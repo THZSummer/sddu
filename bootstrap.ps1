@@ -5,23 +5,27 @@
     从 GitHub 拉取 SDDU 最新源码，构建并安装到目标项目。
 
     用法:
-      # 直连
+      # 直连（默认 opencode 适配）
       powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project"
       # 镜像
       powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project -ProxyUrl https://gh-proxy.org/"
+      # dsh 适配
+      powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project -Platform dsh"
 
     或者先下载再执行:
       Invoke-RestMethod https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 -OutFile bootstrap.ps1
       .\bootstrap.ps1 -TargetDir ./my-project
+      .\bootstrap.ps1 -TargetDir ./my-project -Platform dsh
       .\bootstrap.ps1 -TargetDir ./my-project -ProxyUrl https://gh-proxy.org/
 
-    需要: git, node, npm
+    需要: git, node, npm, bash（dsh 适配需通过 Git Bash 调 install-dsh.sh）
 #>
 
 param(
     [Parameter(Position=0)]
     [string]$TargetDir = ".",
-    [string]$ProxyUrl = ""
+    [string]$ProxyUrl = "",
+    [string]$Platform = "opencode"
 )
 
 $ErrorActionPreference = "Stop"
@@ -39,6 +43,7 @@ Write-Host "║       SDDU Bootstrap Installer          ║" -ForegroundColor Cy
 Write-Host "╚══════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "目标项目: $TargetDir"
+Write-Host "适配平台: $Platform"
 if ($ProxyUrl) {
     Write-Host "网络模式: 镜像 ($ProxyUrl)"
 } else {
@@ -72,7 +77,18 @@ try {
 
     Write-Host ""
     Write-Host "[2/2] 构建并安装 SDDU 到目标项目..." -ForegroundColor Cyan
-    & bash "$TmpDir/install.sh" $TargetDir
+    switch ($Platform) {
+        "opencode" {
+            & bash "$TmpDir/install.sh" $TargetDir
+        }
+        "dsh" {
+            & bash "$TmpDir/scripts/install-dsh.sh" --project-root $TargetDir --build --yes
+        }
+        default {
+            Write-Host "❌ 非法 -Platform 值: '$Platform'（允许: opencode | dsh）" -ForegroundColor Red
+            exit 1
+        }
+    }
 
     Write-Host ""
     Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Green
@@ -80,7 +96,13 @@ try {
     Write-Host "╚══════════════════════════════════════════╝" -ForegroundColor Green
     Write-Host ""
     Write-Host "  目标项目: $TargetDir"
-    Write-Host "  启动:     cd $TargetDir && opencode"
+    if ($Platform -eq "dsh") {
+        Write-Host "  落位:     $TargetDir/.dsh/skills/（11 个 sddu* skill）"
+        Write-Host "  启动:     cd $TargetDir && npx @deepseek-ai/dsh web"
+        Write-Host "  入口:     /sddu（仪表盘）或 /sddu discovery <feature>"
+    } else {
+        Write-Host "  启动:     cd $TargetDir && opencode"
+    }
     Write-Host ""
 }
 finally {
@@ -91,7 +113,8 @@ finally {
 function Install-Sddu {
     param(
         [string]$TargetDir = ".",
-        [string]$ProxyUrl = ""
+        [string]$ProxyUrl = "",
+        [string]$Platform = "opencode"
     )
-    & $PSCommandPath -TargetDir $TargetDir -ProxyUrl $ProxyUrl
+    & $PSCommandPath -TargetDir $TargetDir -ProxyUrl $ProxyUrl -Platform $Platform
 }

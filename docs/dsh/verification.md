@@ -41,7 +41,7 @@
 
 - **步骤**：
   1. 安装 Skill 包（二选一）：
-     - 一键：`curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project`（README §2.0）；
+     - 一键：`curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --platform dsh`（README §2.0）；
      - 本地：`scripts/install-dsh.sh --project-root ./my-project`（README §2.1）。
   2. 确认宿主触发 `skills/change` 并刷新 skill 发现缓存；
   3. 在 dsh Web UI 中列出可用 skill。
