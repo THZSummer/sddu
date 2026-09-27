@@ -99,9 +99,9 @@ curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu
 ```powershell
 # 1. 安装到你的项目（需要 git + node）
 # 直连
-powershell -c "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project"
+powershell -c "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu ./my-project"
 # 或通过镜像（国内加速）
-powershell -c "iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.org/"
+powershell -c "iex (iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.org/"
 ```
 
 ```bash
@@ -256,9 +256,9 @@ curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu
 **Windows (PowerShell):**
 ```powershell
 # 直连
-powershell -c "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project"
+powershell -c "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu ./my-project"
 # 或通过镜像（国内加速）
-powershell -c "iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.org/"
+powershell -c "iex (iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.org/"
 ```
 
 ### 本地安装（已克隆仓库）
@@ -426,10 +426,10 @@ curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu
 
 ```powershell
 # Windows（PowerShell）· 直连 GitHub
-powershell -c "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -Platform dsh"
+powershell -c "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu ./my-project -Platform dsh"
 
 # Windows（PowerShell）· 镜像（国内加速）
-powershell -c "iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -Platform dsh -ProxyUrl https://gh-proxy.org/"
+powershell -c "iex (iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu ./my-project -Platform dsh -ProxyUrl https://gh-proxy.org/"
 ```
 
 安装完成后启动：`cd ./my-project && npx @deepseek-ai/dsh web`，会话入口 `/sddu`。完整安装/升级/卸载说明以 [docs/dsh/README.md](docs/dsh/README.md) 为准。

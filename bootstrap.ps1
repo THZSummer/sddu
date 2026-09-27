@@ -6,11 +6,11 @@
 
     用法:
       # 直连（默认 opencode 适配）
-      powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project"
+      powershell -ExecutionPolicy Bypass -Command "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu -TargetDir ./my-project"
       # 镜像
-      powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project -ProxyUrl https://gh-proxy.org/"
+      powershell -ExecutionPolicy Bypass -Command "iex (iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu -TargetDir ./my-project -ProxyUrl https://gh-proxy.org/"
       # dsh 适配
-      powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project -Platform dsh"
+      powershell -ExecutionPolicy Bypass -Command "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu -TargetDir ./my-project -Platform dsh"
 
     或者先下载再执行:
       Invoke-RestMethod https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 -OutFile bootstrap.ps1

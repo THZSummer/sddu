@@ -81,10 +81,10 @@ Windows（PowerShell）：
 
 ```powershell
 # 直连 GitHub
-powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project -Platform dsh"
+powershell -ExecutionPolicy Bypass -Command "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu -TargetDir ./my-project -Platform dsh"
 
 # 镜像（国内用户）
-powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project -Platform dsh -ProxyUrl https://gh-proxy.org/"
+powershell -ExecutionPolicy Bypass -Command "iex (iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1).Content; Install-Sddu -TargetDir ./my-project -Platform dsh -ProxyUrl https://gh-proxy.org/"
 ```
 
 ### 2.1 推荐：项目级 **rank 100**（`<projectRoot>/.dsh/skills`）
