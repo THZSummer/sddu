@@ -13,8 +13,9 @@
  */
 
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
-import { execFileSync } from 'child_process';
+import { execFileSync, spawnSync } from 'child_process';
 
 // 相对 import（与既有测试一致）：避免依赖 tsconfig paths，保持 tsc/jest 双运行时一致。
 // 注意：`@dsh/*` 已在 jest.config.ts 的 moduleNameMapper 中登记（与 @opencode 对称），
@@ -22,6 +23,7 @@ import { execFileSync } from 'child_process';
 import {
   CONTRACT_SNAPSHOT,
   DEFAULT_RANK,
+  DshContractError,
   EXPECTED_SKILL_COUNT,
   PROJECT_SKILLS_DIR_REL,
   ROUTER_SKILL_NAME,
@@ -30,6 +32,7 @@ import {
   USER_RANK,
   computeContractManifestHash,
   isSdduSkillName,
+  validateContractManifest,
 } from '../../../../adapters/dsh';
 import {
   CONTRACT_AREAS,
@@ -122,6 +125,58 @@ function sourceBody(sourceTemplate: string): string {
   const raw = fs.readFileSync(path.join(REPO_ROOT, sourceTemplate), 'utf8');
   const match = raw.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
   return match ? raw.slice(match[0].length) : raw;
+}
+
+/**
+ * 构造隔离的构建夹具（复制构建脚本 + 最小只读输入到临时目录），
+ * 用于**动态**验证构建脚本的错误路径（非法 phaseTarget → 非零退出）与
+ * 容错路径（缺文档记 warning 不失败）。夹具用完即删，不触碰仓库源。
+ *
+ * 说明：`scripts/build-dsh-skills.cjs` 以 `__dirname/..` 定位 REPO_ROOT，
+ * 因此把脚本复制到 `<fixture>/scripts/` 即可让整套输入解析落在夹具内。
+ */
+function makeBuildFixture(options: { withDocs?: boolean } = {}): string {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'sddu-dsh-build-'));
+  fs.mkdirSync(path.join(fixture, 'scripts'), { recursive: true });
+  fs.copyFileSync(
+    path.join(REPO_ROOT, 'scripts', 'build-dsh-skills.cjs'),
+    path.join(fixture, 'scripts', 'build-dsh-skills.cjs'),
+  );
+  fs.cpSync(
+    path.join(REPO_ROOT, 'src', 'adapters', 'dsh'),
+    path.join(fixture, 'src', 'adapters', 'dsh'),
+    { recursive: true },
+  );
+  fs.cpSync(
+    path.join(REPO_ROOT, 'src', 'templates', 'agents'),
+    path.join(fixture, 'src', 'templates', 'agents'),
+    { recursive: true },
+  );
+  fs.mkdirSync(path.join(fixture, 'src', 'state'), { recursive: true });
+  fs.copyFileSync(
+    path.join(REPO_ROOT, 'src', 'state', 'schema-v3.0.0.ts'),
+    path.join(fixture, 'src', 'state', 'schema-v3.0.0.ts'),
+  );
+  fs.copyFileSync(path.join(REPO_ROOT, 'package.json'), path.join(fixture, 'package.json'));
+  if (options.withDocs !== false) {
+    fs.cpSync(path.join(REPO_ROOT, 'docs', 'dsh'), path.join(fixture, 'docs', 'dsh'), {
+      recursive: true,
+    });
+  }
+  return fixture;
+}
+
+/** 在夹具内运行构建脚本，返回 { status, output }（成功/失败都捕获 stdout+stderr，不抛出） */
+function runBuildScript(fixture: string): { status: number; output: string } {
+  const result = spawnSync(
+    process.execPath,
+    [path.join(fixture, 'scripts', 'build-dsh-skills.cjs')],
+    { cwd: fixture, encoding: 'utf8' },
+  );
+  return {
+    status: result.status ?? -1,
+    output: `${result.stdout ?? ''}${result.stderr ?? ''}`,
+  };
 }
 
 beforeAll(() => {
@@ -491,4 +546,73 @@ describe('8. OpenCode 链路零污染（R-DSH-04）', () => {
     }
     expect(config).toContain("'^@dsh/(.*)$': '<rootDir>/src/adapters/dsh/$1'");
   });
+});
+
+// ============================================================================
+// 9. 边界与错误路径（EC-008 / TASK-008~009 AC；补齐 review C44）
+// ============================================================================
+describe('9. 边界与错误路径（EC-008 / C44）', () => {
+  it('validateContractManifest：非法 phase 枚举（与核心 VALID_PHASES 漂移）抛 DshContractError', () => {
+    const manifest = JSON.parse(JSON.stringify(loadContractManifest(CONTRACT_MANIFEST_PATH)));
+    manifest.phaseEnum = [...manifest.phaseEnum];
+    manifest.phaseEnum[0] = 'not-a-phase';
+
+    expect(() => validateContractManifest(manifest)).toThrow(DshContractError);
+
+    let code: string | undefined;
+    try {
+      validateContractManifest(manifest);
+    } catch (error) {
+      code = (error as DshContractError).code;
+    }
+    expect(code).toBe('DSH_CONTRACT_INVALID');
+  });
+
+  it('validateContractManifest：缺失 area（未覆盖 7 类之一）抛 DshContractError', () => {
+    const manifest = JSON.parse(JSON.stringify(loadContractManifest(CONTRACT_MANIFEST_PATH)));
+    const firstId = manifest.dependencies[0].id;
+    manifest.dependencies = manifest.dependencies.filter(
+      (dependency: { id: string }) => dependency.id !== firstId,
+    );
+
+    expect(() => validateContractManifest(manifest)).toThrow(/未覆盖 area|校验失败/);
+  });
+
+  it(
+    '构建脚本错误路径：非法 phaseTarget → 非零退出且打印可定位错误（EC-008）',
+    () => {
+      const fixture = makeBuildFixture();
+      try {
+        const mapPath = path.join(fixture, 'src', 'adapters', 'dsh', 'templates', 'router-command-map.json');
+        const map = readJson(mapPath);
+        const phaseSkill = (map.skills as Array<{ kind: string; phaseTarget: string | null }>).find(
+          (skill) => skill.kind === 'phase',
+        );
+        phaseSkill!.phaseTarget = 'not-a-valid-phase';
+        fs.writeFileSync(mapPath, JSON.stringify(map, null, 2), 'utf8');
+
+        const { status, output } = runBuildScript(fixture);
+        expect(status).not.toBe(0);
+        expect(output).toContain('phaseTarget 非法');
+      } finally {
+        fs.rmSync(fixture, { recursive: true, force: true });
+      }
+    },
+    60000,
+  );
+
+  it(
+    '构建脚本容错：docs/dsh 文档缺失记 warning 且退出码仍为 0（非零退出反例）',
+    () => {
+      const fixture = makeBuildFixture({ withDocs: false });
+      try {
+        const { status, output } = runBuildScript(fixture);
+        expect(status).toBe(0);
+        expect(output).toContain('尚未产出');
+      } finally {
+        fs.rmSync(fixture, { recursive: true, force: true });
+      }
+    },
+    60000,
+  );
 });

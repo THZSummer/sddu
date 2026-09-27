@@ -2,6 +2,7 @@
 
 > **文档定位**: 同一套 SDDU 方法论在两个平台上的承载方式差异 —— 供用户判断「能期待什么」
 > **权威来源**: 两平台的承载方案分别见 `plan.md` 与 ADR-001~006（本 Feature，v5.0.0）
+> **时效锚定**: 本文档的 dsh 事实（rank 100/400、`SessionEvent` 会话日志、guard 流水线、目录约定）锚定 **2026-08-14** 单一快照；未按 [`upgrade-following.md`](./upgrade-following.md) 步骤 0 刷新契约前**不得视为当前 dsh 事实**（快照态、不可信）。
 > **创建人**: SDDU Build Agent
 > **版本**: v1.0
 
@@ -25,7 +26,7 @@
 |------|-------------|--------|---------|
 | **入口** | 智能路由 `@sddu` + Agent 模式；平台原生命令/Agent 机制 | **路由 Skill `sddu` + 文本前缀识别**（`/sddu <phase> <feature>`）；无平台级命令注册 | ⚠️ **已知缺口**：平台级命令需 dsh 插件；入口是「指令约定的入口」，若平台拦截斜杠输入则走降级用法 |
 | **承载** | TypeScript 插件（`src/adapters/opencode/`），有运行时逻辑 | **非代码形态**：Markdown `SKILL.md` 目录树（`dist/dsh/skills/`），**无运行时逻辑** | dsh 侧适配能力**无法被单元测试覆盖**，测试只能断言生成物结构 |
-| **门禁** | **代码层强制**：核心状态机在 `updateState()` 中抛 `PhaseReversalError` / `PhaseSkipError`，从代码层拒绝非法跃迁（调用即抛错，不可绕过） | **显式可观测软引导**（FR-004b）：输出 `[SDDU-GATE-DENY]` / `[SDDU-GATE-ALLOW]` 且不推进；**无运行时拒绝点** | ⚠️ 门禁在 dsh 侧**不具运行时强制力**，约束力来自模型对指令的遵从；对抗性用户可以绕过（公开边界） |
+| **门禁** | **代码层强制**：核心状态机在 `updateState()` 中抛 `PhaseReversalError` / `PhaseSkipError`，从代码层拒绝非法跃迁（调用即抛错，不可绕过） | **显式可观测软引导**（FR-004b，**非硬强制**）：输出 `[SDDU-GATE-DENY]` / `[SDDU-GATE-ALLOW]` 且不推进；**无运行时拒绝点** | ⚠️ 门禁在 dsh 侧**不具运行时强制力**，约束力来自模型对指令的遵从；对抗性用户可以绕过（公开边界） |
 | **状态** | `state.json` 为事实源，由状态机读写（含不可逆状态与父/子状态管理） | `state.json` **仍为唯一权威**；dsh `SessionEvent` 日志仅作**观测与对账源**；推进时输出 `[SDDU-STATE-SYNC]` | 语义不变（NG-004）；差别在于 dsh 侧由**模型用文件工具**写 `state.json`，存在并发/覆盖风险，靠三方对账发现 |
 | **落位** | 插件安装到 `.opencode/`（`install.sh` 只消费 `dist/sddu/`） | Skill 包落位 `rank 100` `<projectRoot>/.dsh/skills`（或 `rank 400` `<dshHome>/skills`） | 分发隔离：`dist/dsh/` 与 `dist/sddu/` **同级并列、互不包含** |
 

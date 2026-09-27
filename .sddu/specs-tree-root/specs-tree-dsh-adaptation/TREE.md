@@ -17,11 +17,13 @@ specs-tree-dsh-adaptation/
 ├── discovery.md          # 问题挖掘报告：DSH 适配
 ├── plan.md          # 技术计划：DSH 适配
 ├── review.md          # 审查报告：DSH 适配
+├── review-report.md          # 审查报告：specs-tree-dsh-adaptation
 ├── spec.md          # Feature Specification：DSH 适配
-├── state.json          # 状态文件 (🟢 tracked [builded])
+├── state.json          # 状态文件 (✅ 已完成)
 ├── tasks.json          # 任务清单 (机器可读)
 ├── tasks.md          # 任务分解：DSH 适配
-└── validate.md          # 验证策略：DSH 适配
+├── validate.md          # 验证策略：DSH 适配
+└── validate-report.md          # 验证报告：specs-tree-dsh-adaptation
 ```
 
 ## 文件说明
@@ -37,18 +39,20 @@ specs-tree-dsh-adaptation/
 | discovery.md | 问题挖掘报告：DSH 适配 — 问题挖掘报告：DSH 适配 | ✅ 存在 |
 | plan.md | 技术计划：DSH 适配 — 核心难点是 spec 开放问题 4 / Q-002「**形态承载缺口：Skill 包不携带执行能力**」——即「状态推进 + 阶段门禁」如何在 dsh 侧... | ✅ 存在 |
 | review.md | 审查报告：DSH 适配 — 1. **代码质量** — 可读性、职责单一性、错误处理、编码规范（C1~C5） | ✅ 存在 |
+| review-report.md | 审查报告：specs-tree-dsh-adaptation — 1. **0 阻塞项** —— 全部 20 项 🔴 级审查点通过：隔离边界零泄漏、分发布局隔离（`dist/sddu.zip` 零 `dsh/` 条目）... | ✅ 存在 |
 | spec.md | Feature Specification：DSH 适配 — Feature Specification：DSH 适配 | ✅ 存在 |
-| state.json | 状态文件 | 🟢 tracked [builded] |
+| state.json | 状态文件 | ✅ 已完成 |
 | tasks.json | 任务清单（机器可读） | ✅ 存在 |
 | tasks.md | 任务分解：DSH 适配 — Wave 1 ─── (无依赖，全部并行：适配层资产与仓库侧脚本) | ✅ 存在 |
 | validate.md | 验证策略：DSH 适配 — 本策略阶段**不推进 state.json 的 `phase`**（策略设计不属于主流水线推进），也不由 Agent 直接改写 `state.json`。 | ✅ 存在 |
+| validate-report.md | 验证报告：specs-tree-dsh-adaptation — 1. **层 A 全绿** —— V6~V22 共 17 个本地自动化场景全部通过：构建/打包退出码 0；生成物幂等且恰 11 个；manifest 四项... | ✅ 存在 |
 
 ## Feature 状态
 | 字段 | 值 |
 |------|-----|
 | Feature ID | FR-DSH-ADAPT-001 |
-| Phase | 构建完成 (5/7) |
-| Status | 🟢 tracked [builded] |
+| Phase | 验证完成 (7/7) |
+| Status | ✅ 已完成 |
 
 ## 上级目录
 - [返回上级](../TREE.md)

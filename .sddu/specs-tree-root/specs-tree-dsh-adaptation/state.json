@@ -3,7 +3,7 @@
   "featureId": "FR-DSH-ADAPT-001",
   "name": "DSH 适配",
   "version": "v3.0.0",
-  "phase": "builded",
+  "phase": "validated",
   "status": "tracked",
   "depth": 0,
   "childrens": [],
@@ -49,6 +49,20 @@
       "timestamp": "2026-09-27T23:40:00.000Z",
       "triggeredBy": "sddu-build",
       "comment": "Stage 4 实施构建完成：14/14 任务 completed / 4 波次；产出 17 NEW（11 个 Skill 生成物 + contract 层 + 4 个 dsh 脚本 + 5 篇 docs/dsh 文档 + 生成物 contract-dependencies.md）+ 4 MODIFY（纯追加，删除行 0）；新增长期静态断言套件 skill-package.test.ts（32 用例全绿）；全链回归 build/test:core/test:opencode/package 全绿，预存 4 个 integration 失败套件未恶化；dsh 实机 V1~V5 属未观测项（待用户配合验证）"
+    },
+    {
+      "phase": "reviewed",
+      "status": "tracked",
+      "timestamp": "2026-09-27T23:58:00.000Z",
+      "triggeredBy": "sddu-review",
+      "comment": "Stage 5 产物审查完成（R1）：按 review.md C1~C48 执行静态审查 + 本地可执行复核 → 45 通过 / 3 警告 / 0 失败 / 0 阻塞；20 项 🔴 阻塞点全过；10 FR / 7 NFR / 9 EC 全实现；21 项文件影响落地、4 MODIFY 纯追加（删除行 0）；A1~A10 偏差处置 10/10 合规；结论 ⚠️ 有条件通过（3 项 🟡 改进：C44 错误路径测试未实装 / C45 生成文件时间戳致非字节可复现 / C48 dual-platform-diff 缺显式快照日期），可进入 validate"
+    },
+    {
+      "phase": "validated",
+      "status": "tracked",
+      "timestamp": "2026-09-27T23:59:30.000Z",
+      "triggeredBy": "sddu-validate",
+      "comment": "Stage 6 产物验证完成（R1）：执行 validate.md 层 A V6~V22（17 项）全部通过 → 构建/打包退出码 0、生成物幂等且 11 个、manifest 四项等式成立、jest 36 用例全绿、tsc 0 错、核心域零泄漏/单向依赖/白名单零改动/4 MODIFY 纯追加、协议块与禁用语合规、指令单一来源、文档六份齐备且交叉引用一致、安装卸载功能通过、既有链路回归全绿；完成授权就地修复 C48（dual-platform-diff 补 2026-08-14 快照日期 + 口径统一）与 C44（补边界错误路径测试 4 用例，32→36 全绿）；C45（生成物 generatedAt 时间戳致非字节可复现）登记为已知技术债不修复；层 B V1~V5 交付为用户执行手册并记为「待用户配合（未观测）」；漂移 0 / 阻塞 0；结论 ⚠️ 有条件通过 → 状态跃迁 validated"
     }
   ],
   "dependencies": {
@@ -64,7 +78,11 @@
     "spec": "spec.md",
     "plan": "plan.md",
     "tasks": "tasks.md",
-    "tasksJson": "tasks.json"
+    "tasksJson": "tasks.json",
+    "review": "review.md",
+    "reviewReport": "review-report.md",
+    "validate": "validate.md",
+    "validationReport": "validate-report.md"
   },
   "metadata": {
     "priority": "P0",
@@ -72,7 +90,7 @@
     "targetVersion": "v5.0.0",
     "roadmapProposal": "PR-013",
     "createdAt": "2026-09-27T00:00:00.000Z",
-    "updatedAt": "2026-09-27T23:40:00.000Z"
+    "updatedAt": "2026-09-27T23:59:30.000Z"
   },
   "history": [
     {
@@ -109,6 +127,20 @@
       "to": "builded",
       "triggeredBy": "sddu-build",
       "comment": "build.md + src/adapters/dsh/** + scripts/*dsh* + docs/dsh/** 产出；14/14 任务 completed；全链回归通过；下一步 @sddu-review specs-tree-dsh-adaptation"
+    },
+    {
+      "timestamp": "2026-09-27T23:58:00.000Z",
+      "from": "builded",
+      "to": "reviewed",
+      "triggeredBy": "sddu-review",
+      "comment": "review-report.md 产出（R1）；C1~C48 审查完成：45 通过 / 3 警告 / 0 失败 / 0 阻塞，结论 ⚠️ 有条件通过；下一步 @sddu-validate specs-tree-dsh-adaptation"
+    },
+    {
+      "timestamp": "2026-09-27T23:59:30.000Z",
+      "from": "reviewed",
+      "to": "validated",
+      "triggeredBy": "sddu-validate",
+      "comment": "validate-report.md 产出（R1）；层 A V6~V22（17 项）全过、层 B V1~V5 交付手册并记「待用户配合」；授权就地修复 C48/C44 完成并重验；C45 登记技术债；漂移 0 / 阻塞 0；结论 ⚠️ 有条件通过 → 工作流终点（validated）"
     }
   ]
 }
