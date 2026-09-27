@@ -93,6 +93,14 @@ scripts/install/dsh/install.sh --build              # 强制重建 dist/dsh（�
 scripts/install/dsh/install.sh --upgrade            # 升级模式（= --build + 幂等覆盖 + 破坏点记录提示）
 ```
 
+Windows（PowerShell）：
+
+```powershell
+scripts/install/dsh/install.ps1 -ProjectRoot ./my-project
+scripts/install/dsh/install.ps1 -ProjectRoot ./my-project -Build
+scripts/install/dsh/install.ps1 -ProjectRoot ./my-project -Upgrade
+```
+
 > 自动构建（FR-003）：当 `dist/dsh/skills` 缺失时，脚本自动执行 `npm run build:dsh`；
 > `--build` 显式强制重建，`--upgrade` 固定带 `--build`（取最新产物）。
 

@@ -18,7 +18,7 @@
       .\bootstrap.ps1 -TargetDir ./my-project -Platform dsh
       .\bootstrap.ps1 -TargetDir ./my-project -ProxyUrl https://gh-proxy.org/
 
-    需要: git, node, npm, bash（dsh 适配需通过 Git Bash 调 install-dsh.sh）
+    需要: git, node, npm
 #>
 
 param(
@@ -79,10 +79,10 @@ try {
     Write-Host "[2/2] 构建并安装 SDDU 到目标项目..." -ForegroundColor Cyan
     switch ($Platform) {
         "opencode" {
-            & bash "$TmpDir/scripts/install/opencode/install.sh" $TargetDir
+            & "$TmpDir/scripts/install/opencode/install.ps1" -TargetDir $TargetDir
         }
         "dsh" {
-            & bash "$TmpDir/scripts/install/dsh/install.sh" --project-root $TargetDir --build --yes
+            & "$TmpDir/scripts/install/dsh/install.ps1" -ProjectRoot $TargetDir -Build -Yes
         }
         default {
             Write-Host "❌ 非法 -Platform 值: '$Platform'（允许: opencode | dsh）" -ForegroundColor Red
