@@ -89,7 +89,7 @@ SDDU 提供两种入口，根据任务复杂度自由选择：
 # 直连
 curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project
 # 或通过镜像（国内加速）
-curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --proxy https://gh-proxy.com/
+curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --proxy https://gh-proxy.org/
 
 # 2. 进入项目，启动 opencode
 cd ./my-project
@@ -236,7 +236,7 @@ SDDU 将每个 Feature 的工作产物组织在 `.sddu/specs-tree-root/` 下：
 # 直连
 curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project
 # 或通过镜像（国内加速）
-curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --proxy https://gh-proxy.com/
+curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --proxy https://gh-proxy.org/
 ```
 
 **Windows (PowerShell):**
@@ -244,7 +244,7 @@ curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu
 # 直连
 powershell -c "iwr https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project"
 # 或通过镜像（国内加速）
-powershell -c "iwr https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.com/"
+powershell -c "iwr https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu ./my-project -ProxyUrl https://gh-proxy.org/"
 ```
 
 ### 本地安装（已克隆仓库）
@@ -407,7 +407,7 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project
 
 # 通过镜像（国内用户）
-curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project --proxy https://gh-proxy.com/
+curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project --proxy https://gh-proxy.org/
 ```
 
 Windows（PowerShell）安装见 [docs/dsh/README.md](docs/dsh/README.md) §2。完整安装/升级/卸载说明以 `docs/dsh/README.md` 为准。

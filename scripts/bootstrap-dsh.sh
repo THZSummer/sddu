@@ -8,11 +8,11 @@
 #   curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project
 #
 #   # 通过镜像（国内用户）
-#   curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project --proxy https://gh-proxy.com/
+#   curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project --proxy https://gh-proxy.org/
 #
 #   # 本地执行
 #   bash scripts/bootstrap-dsh.sh ./my-project
-#   bash scripts/bootstrap-dsh.sh ./my-project --proxy https://gh-proxy.com/
+#   bash scripts/bootstrap-dsh.sh ./my-project --proxy https://gh-proxy.org/
 #
 # 需要: git, bash, node, npm
 #
@@ -84,7 +84,7 @@ if ! git clone --depth 1 "$REPO_URL" "$TMP_DIR" 2>&1; then
     echo ""
     echo -e "${RED}❌ 克隆失败${NC}"
     echo -e "${YELLOW}提示: 如网络受限，请使用 --proxy 参数指定镜像${NC}"
-    echo -e "${YELLOW}  例: bash scripts/bootstrap-dsh.sh ./my-project --proxy https://gh-proxy.com/${NC}"
+    echo -e "${YELLOW}  例: bash scripts/bootstrap-dsh.sh ./my-project --proxy https://gh-proxy.org/${NC}"
     exit 1
 fi
 

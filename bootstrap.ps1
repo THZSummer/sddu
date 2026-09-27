@@ -8,12 +8,12 @@
       # 直连
       powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project"
       # 镜像
-      powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project -ProxyUrl https://gh-proxy.com/"
+      powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 | iex; Install-Sddu -TargetDir ./my-project -ProxyUrl https://gh-proxy.org/"
 
     或者先下载再执行:
       Invoke-RestMethod https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.ps1 -OutFile bootstrap.ps1
       .\bootstrap.ps1 -TargetDir ./my-project
-      .\bootstrap.ps1 -TargetDir ./my-project -ProxyUrl https://gh-proxy.com/
+      .\bootstrap.ps1 -TargetDir ./my-project -ProxyUrl https://gh-proxy.org/
 
     需要: git, node, npm
 #>
@@ -66,7 +66,7 @@ try {
         Write-Host ""
         Write-Host "❌ 克隆失败" -ForegroundColor Red
         Write-Host "提示: 如网络受限，请使用 -ProxyUrl 参数指定镜像" -ForegroundColor Yellow
-        Write-Host "  例: .\bootstrap.ps1 ./my-project -ProxyUrl https://gh-proxy.com/" -ForegroundColor Yellow
+        Write-Host "  例: .\bootstrap.ps1 ./my-project -ProxyUrl https://gh-proxy.org/" -ForegroundColor Yellow
         exit 1
     }
 

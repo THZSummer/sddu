@@ -74,7 +74,7 @@ npm run build:dsh
 curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project
 
 # 镜像（国内用户）
-curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project --proxy https://gh-proxy.com/
+curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project --proxy https://gh-proxy.org/
 ```
 
 Windows（PowerShell）：
