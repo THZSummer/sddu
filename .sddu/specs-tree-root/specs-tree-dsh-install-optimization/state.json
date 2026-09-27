@@ -1,0 +1,152 @@
+{
+  "feature": "specs-tree-dsh-install-optimization",
+  "featureId": "FR-DSH-INSTALL-001",
+  "name": "dsh 安装流程优化（对齐 OpenCode 一键安装）",
+  "version": "v5.1.0",
+  "phase": "validated",
+  "status": "completed",
+  "depth": 0,
+  "childrens": [],
+  "phaseHistory": [
+    {
+      "phase": "registered",
+      "status": "tracked",
+      "timestamp": "2026-09-27T07:44:21.000Z",
+      "triggeredBy": "sddu-discovery",
+      "comment": "v5.1.0「dsh 安装流程优化」立项（对齐 OpenCode 一键安装体验；featureId/问题定义由本次 discovery 决定）"
+    },
+    {
+      "phase": "discovered",
+      "status": "tracked",
+      "timestamp": "2026-09-27T07:58:00.000Z",
+      "triggeredBy": "sddu-discovery",
+      "comment": "Stage 0 问题挖掘完成：3 批交互访谈；识别 6 个问题（核心 2 / 次要 2 / 潜在 2）、4 项假设、4 项风险"
+    },
+    {
+      "phase": "specified",
+      "status": "tracked",
+      "timestamp": "2026-09-27T08:17:43.000Z",
+      "triggeredBy": "sddu-spec",
+      "comment": "Stage 1 需求规范完成：spec.md v1.0；6 FR / 5 NFR / 5 EC / 2 开放问题"
+    },
+    {
+      "phase": "planned",
+      "status": "tracked",
+      "timestamp": "2026-09-27T08:22:11.000Z",
+      "triggeredBy": "sddu-plan",
+      "comment": "Stage 2 技术规划完成：plan.md v1.0；方案 A（bootstrap 引导层 + install-dsh.sh 自动构建）；产出 ADR-001~003；文件影响 2 NEW + 4 MODIFY"
+    },
+    {
+      "phase": "tasked",
+      "status": "tracked",
+      "timestamp": "2026-09-27T08:23:26.000Z",
+      "triggeredBy": "sddu-tasks",
+      "comment": "Stage 3 任务分解完成：tasks.md + tasks.json v1.0；8 个任务 / 4 波次（S×6 / M×2）；覆盖 FR-001~006"
+    },
+    {
+      "phase": "builded",
+      "status": "tracked",
+      "timestamp": "2026-09-27T08:26:41.000Z",
+      "triggeredBy": "sddu-build",
+      "comment": "Stage 4 实施构建完成：8/8 任务；2 NEW（bootstrap-dsh.sh/ps1）+ 4 MODIFY（install-dsh.sh + 3 文档）；build:dsh 退出码 0、临时目录安装落位 11 个 skill、bash -n 全过"
+    },
+    {
+      "phase": "reviewed",
+      "status": "tracked",
+      "timestamp": "2026-09-27T08:28:35.000Z",
+      "triggeredBy": "sddu-review",
+      "comment": "Stage 5 产物审查完成（R1）：13 项审查（4 维度 + 6 FR 全覆盖）12 通过 / 1 警告 / 0 阻塞；结论 ✅ 通过"
+    },
+    {
+      "phase": "validated",
+      "status": "completed",
+      "timestamp": "2026-09-27T08:30:10.000Z",
+      "triggeredBy": "sddu-validate",
+      "comment": "Stage 6 产物验证完成（R1）：V1~V9 全部通过；FR 100% / NFR 80%；构建/语法/安装实测通过；漂移 0 / 阻塞 0；结论 ✅ 通过 → 工作流终点"
+    }
+  ],
+  "dependencies": {
+    "on": ["FR-DSH-ADAPT-001"],
+    "blocking": []
+  },
+  "files": {
+    "discovery": "discovery.md",
+    "spec": "spec.md",
+    "plan": "plan.md",
+    "tasks": "tasks.md",
+    "tasksJson": "tasks.json",
+    "build": "build.md",
+    "review": "review.md",
+    "reviewReport": "review-report.md",
+    "validate": "validate.md",
+    "validationReport": "validate-report.md",
+    "adrs": [
+      "ADR-001-bootstrap-carrier.md",
+      "ADR-002-install-autobuild.md",
+      "ADR-003-upgrade-carrier.md"
+    ]
+  },
+  "metadata": {
+    "featureId": "FR-DSH-INSTALL-001",
+    "priority": "P0",
+    "targetVersion": "v5.1.0",
+    "createdAt": "2026-09-27T07:44:21.000Z",
+    "updatedAt": "2026-09-27T08:30:10.000Z",
+    "discoveryStats": {
+      "problemCount": 6,
+      "coreProblems": 2,
+      "secondaryProblems": 2,
+      "potentialProblems": 2,
+      "assumptionCount": 4,
+      "riskCount": 4,
+      "openQuestions": 0,
+      "pendingClarifications": 0
+    },
+    "specStats": {
+      "frCount": 6,
+      "nfrCount": 5,
+      "ecCount": 5,
+      "supersedeClauses": 0,
+      "decidedOpenQuestions": 0,
+      "deferredToPlan": 1,
+      "pendingUserConfirmations": 0
+    },
+    "planStats": {
+      "adrCount": 3,
+      "newFiles": 2,
+      "modifiedFiles": 4,
+      "runtimeCodeChanges": 0
+    },
+    "tasksStats": {
+      "total": 8,
+      "S": 6,
+      "M": 2,
+      "L": 0,
+      "waves": 4,
+      "frCovered": "6/6"
+    },
+    "buildStats": {
+      "completedTasks": 8,
+      "totalTasks": 8,
+      "newFiles": 2,
+      "modifiedFiles": 4,
+      "runtimeCodeChanges": 0
+    },
+    "reviewStats": {
+      "conclusion": "pass",
+      "totalItems": 13,
+      "passCount": 12,
+      "warningCount": 1,
+      "blockingCount": 0
+    },
+    "validationStats": {
+      "conclusion": "pass",
+      "totalItems": 9,
+      "passCount": 9,
+      "frCoverage": "100%",
+      "nfrCoverage": "80%",
+      "driftCount": 0,
+      "blockingCount": 0
+    }
+  }
+}

@@ -14,6 +14,7 @@ const baseConfig: Config = {
     '^@agents/(.*)$': '<rootDir>/src/agents/$1',
     '^@templates/(.*)$': '<rootDir>/src/templates/$1',
     '^@opencode/(.*)$': '<rootDir>/src/adapters/opencode/$1',
+    '^@dsh/(.*)$': '<rootDir>/src/adapters/dsh/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
   },
 };

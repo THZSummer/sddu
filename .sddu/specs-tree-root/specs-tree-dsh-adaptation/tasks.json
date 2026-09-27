@@ -1,0 +1,344 @@
+{
+  "feature": "specs-tree-dsh-adaptation",
+  "featureId": "FR-DSH-ADAPT-001",
+  "createdAt": "2026-09-27T00:00:00.000Z",
+  "createdBy": "SDDU Tasks Agent",
+  "version": "v1.0",
+  "totalTasks": 14,
+  "totalWaves": 4,
+  "complexityDistribution": {
+    "S": 5,
+    "M": 8,
+    "L": 1
+  },
+  "criticalPath": ["TASK-001", "TASK-008", "TASK-009", "TASK-014"],
+  "waves": {
+    "1": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006"],
+    "2": ["TASK-007", "TASK-008"],
+    "3": ["TASK-009", "TASK-010", "TASK-011", "TASK-012", "TASK-013"],
+    "4": ["TASK-014"]
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "dsh 契约依赖点清单 + 类型化装载校验层",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "correspondingFR": ["FR-007", "NFR-001", "NFR-007"],
+      "adr": ["ADR-006"],
+      "description": "新建 src/adapters/dsh/contract/dsh-contract-manifest.json（顶层 dshContractSnapshot=2026-08-14 + dependencies[] 每条 8 字段，覆盖 7 类依赖点，含 command-registration 缺口 / profile-bundle 空白 / guard-pipeline 演进点标注）与 src/adapters/dsh/contract.ts（类型 + load/validate/hash，单向 import ../../state 校验 phase 枚举一致性）",
+      "fileOperations": [
+        {"action": "NEW", "path": "src/adapters/dsh/contract/dsh-contract-manifest.json"},
+        {"action": "NEW", "path": "src/adapters/dsh/contract.ts"}
+      ],
+      "acceptanceCriteria": [
+        "manifest 合法 JSON 且 dshContractSnapshot=2026-08-14、dependencies.length>=7",
+        "每条含 id/area/snapshotDate/fact/assumption/observableCheck/breakImpact/fixHint 且 snapshotDate=2026-08-14",
+        "command-registration 标注已知缺口、guard-pipeline 标注演进点不实现、profile-bundle 标注快照未覆盖",
+        "contract.ts 导出 load/validate/computeHash 且非法 phase 枚举时抛错",
+        "computeContractManifestHash 与清单 sha256 一致",
+        "未改 src/state、src/shared；无 adapters/dsh -> adapters/opencode import",
+        "npx tsc --noEmit 通过"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-002",
+      "name": "skill-header 片段模板",
+      "complexity": "S",
+      "wave": 1,
+      "dependencies": [],
+      "correspondingFR": ["FR-001"],
+      "adr": ["ADR-001"],
+      "description": "新建 src/adapters/dsh/templates/skill-header.md.hbs：frontmatter(name/description) + metadata.sddu-source + metadata.sddu-contract-snapshot + 命名/落位约定 + 指令单一来源声明；不含阶段指令正文",
+      "fileOperations": [
+        {"action": "NEW", "path": "src/adapters/dsh/templates/skill-header.md.hbs"}
+      ],
+      "acceptanceCriteria": [
+        "含 name/description/metadata.sddu-source/metadata.sddu-contract-snapshot",
+        "含 >=4 个 <<变量>> 占位符",
+        "含 rank 100 与 rank 400 落位常量、sddu- 前缀命名约定",
+        "含指令正文来自源模板、禁止改写声明",
+        "不含阶段职责正文"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-003",
+      "name": "gate-protocol 片段模板",
+      "complexity": "S",
+      "wave": 1,
+      "dependencies": [],
+      "correspondingFR": ["FR-004", "NFR-003"],
+      "adr": ["ADR-003"],
+      "description": "新建 gate-protocol.md.hbs：四步门禁流程（读 state.json/相邻性/前置产物/结构化输出）+ [SDDU-GATE-DENY] action=none 不写盘不推进 + [SDDU-GATE-ALLOW] action=proceed + 非法跃迁必须拒绝 + 固定「已知降级 FR-004b 非硬强制」声明 + EC-008",
+      "fileOperations": [
+        {"action": "NEW", "path": "src/adapters/dsh/templates/gate-protocol.md.hbs"}
+      ],
+      "acceptanceCriteria": [
+        "含 SDDU-GATE-DENY 与 SDDU-GATE-ALLOW 完整字段",
+        "拒绝含 action:none、放行含 action:proceed",
+        "含相邻性校验与前置产物存在性校验步骤及 NEXT_PHASE/PHASE_ORDER 同源说明",
+        "含已知降级段并显式标注 FR-004b 非硬强制",
+        "含非法跃迁必须拒绝与 EC-008 落盘失败不推进",
+        "硬强制仅出现在否定语境"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-004",
+      "name": "state-sync-protocol 片段模板",
+      "complexity": "S",
+      "wave": 1,
+      "dependencies": [],
+      "correspondingFR": ["FR-005", "NFR-003"],
+      "adr": ["ADR-004"],
+      "description": "新建 state-sync-protocol.md.hbs：state.json 唯一权威 + 会话日志观测/对账源 + 推进三步协议 + [SDDU-STATE-SYNC] 记录格式 + 三方对账规则 + 不写宿主日志/不改核心 state",
+      "fileOperations": [
+        {"action": "NEW", "path": "src/adapters/dsh/templates/state-sync-protocol.md.hbs"}
+      ],
+      "acceptanceCriteria": [
+        "含 SDDU-STATE-SYNC 及 feature/from/to/artifact/phaseHistoryAdded/ts 字段",
+        "含 state.json 唯一权威与日志为对账源裁定",
+        "含 phaseHistory 追加条目 5 字段且与既有 schema 一致",
+        "含三方对账（状态vs产物/状态vs记录/产物vs记录）与禁止自动补齐",
+        "含不写宿主日志、不改核心 src/state 边界，及非强证据声明"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-005",
+      "name": "router-command-map.json（Skill 清单 + 入口清单 + 别名集）",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "correspondingFR": ["FR-001", "FR-002"],
+      "adr": ["ADR-001", "ADR-002"],
+      "description": "新建 router-command-map.json：11 个 Skill 清单（name/sourceTemplate/phaseTarget/protocolFragments）+ 11 条入口清单 + 自包含 phaseAliases + [SDDU-ROUTE-REJECT] 语义 + 降级用法 + 别名漂移风险 _note",
+      "fileOperations": [
+        {"action": "NEW", "path": "src/adapters/dsh/templates/router-command-map.json"}
+      ],
+      "acceptanceCriteria": [
+        "skills 长度=11 且名称与 ADR-001 一致",
+        "每条 sourceTemplate 文件真实存在",
+        "entries 覆盖 /sddu + 7 阶段 + roadmap/docs/fast 共 11 条",
+        "phaseAliases 目标值全部属于 VALID_PHASES",
+        "含 SDDU-ROUTE-REJECT 与不进入任何阶段约束",
+        "含平台级命令已知缺口与降级用法；无 adapters/opencode 引用"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-006",
+      "name": "安装 / 卸载脚本（rank 100 主落位 + 残留校验）",
+      "complexity": "M",
+      "wave": 1,
+      "dependencies": [],
+      "correspondingFR": ["FR-008"],
+      "adr": ["ADR-001"],
+      "description": "新建 scripts/install-dsh.sh（默认 rank 100 .dsh/skills，--scope user -> rank 400 dshHome/skills，落位自检 + EC-002 冲突提示 + EC-004 skills/change 提示 + V1 指引）与 scripts/uninstall-dsh.sh（sddu-* 前缀清理 + 残留二次扫描）",
+      "fileOperations": [
+        {"action": "NEW", "path": "scripts/install-dsh.sh"},
+        {"action": "NEW", "path": "scripts/uninstall-dsh.sh"}
+      ],
+      "acceptanceCriteria": [
+        "bash -n 两脚本通过；--help 退出码 0 无副作用",
+        "含 rank 100/400 与对应根目录常量",
+        "install 含同名冲突提示与 skills/change 提示",
+        "uninstall 含残留校验结果且按 sddu-* 前缀匹配",
+        "不调用 dsh CLI",
+        "install.sh/install.ps1/src/index.ts 零改动"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-007",
+      "name": "dsh 适配层公共 API 出口",
+      "complexity": "S",
+      "wave": 2,
+      "dependencies": ["TASK-001"],
+      "correspondingFR": ["FR-009"],
+      "adr": ["ADR-005"],
+      "description": "新建 src/adapters/dsh/index.ts：re-export 契约装载/校验/哈希 + 导出 SKILL_PREFIX/DEFAULT_RANK=100/USER_RANK=400/CONTRACT_SNAPSHOT=2026-08-14/SKILL_NAMES；不改顶层 src/index.ts",
+      "fileOperations": [
+        {"action": "NEW", "path": "src/adapters/dsh/index.ts"}
+      ],
+      "acceptanceCriteria": [
+        "导出 >=5 符号，常量值 100/400/2026-08-14/sddu- 正确",
+        "SKILL_NAMES 与 router-command-map 的 11 名称一致",
+        "不 import adapters/opencode",
+        "src/index.ts 零改动；npx tsc --noEmit 通过"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-008",
+      "name": "dsh Skill 构建脚本（渲染 dist/dsh/**）",
+      "complexity": "L",
+      "wave": 2,
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-007"],
+      "correspondingFR": ["FR-001", "FR-003", "FR-007", "NFR-002", "NFR-007"],
+      "adr": ["ADR-005", "ADR-006"],
+      "description": "新建 scripts/build-dsh-skills.cjs：只读引用 src/templates/agents/*.md.hbs 正文并拼接 header + 协议片段生成 11 个 dist/dsh/skills/sddu-*/SKILL.md；生成 manifest.json（版本锚定+清单哈希）；渲染 docs/dsh/contract-dependencies.md；拷贝 docs/dsh/*.md；构建期非零退出校验",
+      "fileOperations": [
+        {"action": "NEW", "path": "scripts/build-dsh-skills.cjs"},
+        {"action": "NEW", "path": "dist/dsh/skills/sddu-*/SKILL.md", "type": "generated", "count": 11},
+        {"action": "NEW", "path": "dist/dsh/manifest.json", "type": "generated"},
+        {"action": "NEW", "path": "docs/dsh/contract-dependencies.md", "type": "generated"}
+      ],
+      "acceptanceCriteria": [
+        "脚本退出码 0 且幂等（除 generatedAt）",
+        "dist/dsh/skills 下恰 11 个 sddu-* 目录且 SKILL.md 非空",
+        "阶段 SKILL.md 含源正文特征串 + GATE-DENY/ALLOW + STATE-SYNC",
+        "路由 Skill 含入口识别/ROUTE-REJECT 格式/降级用法三段",
+        "manifest 的 sdduVersion=dshContractSnapshot/contractManifestHash/skills 全部正确",
+        "contract-dependencies.md 与 manifest 一一对应",
+        "对 src/templates/agents 零写操作；失败路径非零退出"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-009",
+      "name": "jest 别名 + 生成物静态断言测试",
+      "complexity": "M",
+      "wave": 3,
+      "dependencies": ["TASK-008"],
+      "correspondingFR": ["FR-001", "FR-002", "FR-004", "FR-005", "FR-007", "FR-009", "NFR-002", "NFR-004"],
+      "adr": ["ADR-003", "ADR-004", "ADR-005", "ADR-006"],
+      "description": "MODIFY jest.config.ts 追加 ^@dsh/(.*)$ 别名；NEW src/__tests__/unit/adapters/dsh/skill-package.test.ts 实装 8 组生成物静态断言（结构/入口清单/协议片段/禁用语/单一来源/版本锚定/核心域隔离/OpenCode 零污染）",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "jest.config.ts"},
+        {"action": "NEW", "path": "src/__tests__/unit/adapters/dsh/skill-package.test.ts"}
+      ],
+      "acceptanceCriteria": [
+        "npx jest --selectProjects opencode --testPathPattern adapters/dsh 全绿",
+        "8 组断言全部实装（>=8 个 it/test）",
+        "jest.config.ts 改动为纯追加",
+        "未修改既有测试文件",
+        "测试不依赖 dsh CLI/网络"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-010",
+      "name": "打包集成（dist/dsh 与 dist/sddu 同级并列）",
+      "complexity": "M",
+      "wave": 3,
+      "dependencies": ["TASK-008"],
+      "correspondingFR": ["FR-009", "NFR-004"],
+      "adr": ["ADR-005"],
+      "description": "MODIFY package.json（build:dsh、build 管道追加、files 纳入 dist/dsh）与 scripts/package.cjs（itemsToKeep 追加 dsh），追加式改动，保证 dsh 产物不被清理且 sddu.zip 不含 dsh",
+      "fileOperations": [
+        {"action": "MODIFY", "path": "package.json"},
+        {"action": "MODIFY", "path": "scripts/package.cjs"}
+      ],
+      "acceptanceCriteria": [
+        "npm run build 完成 build:agents/build:ts/build:dsh",
+        "dist/dsh/skills 11 个与 dist/sddu 同级并列存在",
+        "node scripts/package.cjs 后 dist/dsh 与 dist/sddu 均存在",
+        "dist/sddu.zip 不含 dsh/ 条目",
+        "git diff 为纯追加（删除行数 0）",
+        "build + test:core + test:opencode 全绿"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-011",
+      "name": "交付总览文档（README + 双平台差异清单）",
+      "complexity": "M",
+      "wave": 3,
+      "dependencies": ["TASK-001", "TASK-005", "TASK-006"],
+      "correspondingFR": ["FR-001", "FR-002", "FR-008", "NFR-002", "NFR-007"],
+      "adr": ["ADR-001", "ADR-002"],
+      "description": "NEW docs/dsh/README.md（总览/安装卸载升级路径/三层目录↔六级 rank 推演/入口清单/已知缺口/降级声明/时效声明）+ NEW docs/dsh/dual-platform-diff.md（五维差异表）+ MODIFY 仓库 README.md 追加一节",
+      "fileOperations": [
+        {"action": "NEW", "path": "docs/dsh/README.md"},
+        {"action": "NEW", "path": "docs/dsh/dual-platform-diff.md"},
+        {"action": "MODIFY", "path": "README.md"}
+      ],
+      "acceptanceCriteria": [
+        "README 含落位推演表与 11 条入口清单（与 router-command-map 一致）",
+        "含安装/卸载/升级三路径与脚本用法",
+        "含已知降级 FR-004b 与平台级命令缺口声明",
+        "含 2026-08-14 快照与时效声明",
+        "dual-platform-diff 含入口/承载/门禁/状态/落位五维",
+        "仓库 README 改动纯追加"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-012",
+      "name": "定位说明 + 升级跟随清单",
+      "complexity": "S",
+      "wave": 3,
+      "dependencies": ["TASK-001"],
+      "correspondingFR": ["FR-007", "FR-010", "NFR-005", "NFR-007"],
+      "adr": ["ADR-006"],
+      "description": "NEW docs/dsh/positioning.md（与 dsh 原生 plan mode/todo/workflow 分工 + >=3 判定示例 + EC-009 混用提示）+ NEW docs/dsh/upgrade-following.md（步骤 0~6 + 9 字段破坏点记录模板 + 成本基线口径 + 未刷新即不可信 + v5.1.0+ guard 演进点）",
+      "fileOperations": [
+        {"action": "NEW", "path": "docs/dsh/positioning.md"},
+        {"action": "NEW", "path": "docs/dsh/upgrade-following.md"}
+      ],
+      "acceptanceCriteria": [
+        "positioning 含 >=3 判定示例且覆盖走 SDDU/走原生/共存",
+        "positioning 含与原生能力分工说明",
+        "upgrade-following 含步骤 0~6 与 9 字段可直接复制模板",
+        "含未刷新即不可信声明与 v5.1.0+ 硬 guard 演进点",
+        "无肯定式硬强制表述"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-013",
+      "name": "验证方法文档（V1~V5 + 最小人工验证清单）",
+      "complexity": "M",
+      "wave": 3,
+      "dependencies": ["TASK-003", "TASK-004", "TASK-008"],
+      "correspondingFR": ["FR-006", "NFR-005", "NFR-006"],
+      "adr": ["ADR-003", "ADR-004"],
+      "description": "NEW docs/dsh/verification.md：性质声明（非端到端验收标准）+ 观测依据三类 + V1~V5 逐项四字段 + V3 三方对账 + V4 双判据 + 最小人工验证清单含时间预算 + 无法自动化断言缺口声明 + 不用 CLI",
+      "fileOperations": [
+        {"action": "NEW", "path": "docs/dsh/verification.md"}
+      ],
+      "acceptanceCriteria": [
+        "V1~V5 五节各含步骤/观测方式/通过判据/配合方",
+        "含不是端到端验收标准与端到端验证不在范围声明",
+        "V3 含三方对账步骤与判据；V4 含拒绝块+降级声明双判据",
+        "含无法自动化断言/不将未观测等同通过与时间预算上限",
+        "不以命令行作为必要前置"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-014",
+      "name": "回归与隔离验证",
+      "complexity": "M",
+      "wave": 4,
+      "dependencies": ["TASK-008", "TASK-009", "TASK-010"],
+      "correspondingFR": ["FR-009", "NFR-004"],
+      "adr": ["ADR-005"],
+      "description": "全链门禁回归：npm run build + test:core + test:opencode + package.cjs；断言 dist/dsh 与 dist/sddu 同级并列且 sddu.zip 无 dsh；21 项文件影响落地；零改动白名单；核心域泄漏扫描；未观测项与已通过项分列记录",
+      "fileOperations": [
+        {"action": "MODIFY", "path": ".sddu/specs-tree-root/specs-tree-dsh-adaptation/tasks.md"}
+      ],
+      "acceptanceCriteria": [
+        "四条命令全绿",
+        "dist/dsh 与 dist/sddu 同级并列且 sddu.zip 无 dsh/",
+        "17 NEW 存在（含 contract-dependencies.md）且 4 MODIFY 纯追加",
+        "零改动白名单断言通过",
+        "核心域泄漏扫描命中 0",
+        "未观测项（dsh 实机 V1~V5）单独标注待用户配合验证"
+      ],
+      "status": "completed"
+    }
+  ],
+  "planGapsRegistered": [
+    {"id": 1, "gap": "manifest 顶层结构未固定", "resolution": "{ dshContractSnapshot, dependencies[] } 每条 8 字段", "tasks": ["TASK-001"]},
+    {"id": 2, "gap": "别名集与 OpenCode legacyStatusToPhase 的等价性无编译期保障（R-DSH-03 禁止跨适配器 import）", "resolution": "别名集自包含于 router-command-map.json，仅以 VALID_PHASES 校验，JSON 内 _note 登记漂移风险", "tasks": ["TASK-005", "TASK-009"]},
+    {"id": 3, "gap": "禁用词断言与降级声明文本自含「非硬强制」的张力", "resolution": "断言口径精确化为仅允许否定语境", "tasks": ["TASK-009"]},
+    {"id": 4, "gap": "生成物缺失时测试如何取数", "resolution": "beforeAll 按需执行构建脚本（幂等）", "tasks": ["TASK-009"]},
+    {"id": 5, "gap": "文档任务晚于构建，构建期 docs 可能缺失", "resolution": "缺失记 warning 不失败", "tasks": ["TASK-008"]},
+    {"id": 6, "gap": "opencode 项目 collectCoverageFrom 含 src/adapters/**，dsh 资产或影响覆盖率阈值", "resolution": "当前 test:opencode 未启用 --coverage 不受影响；登记为待观察项", "tasks": ["TASK-009", "TASK-014"]}
+  ]
+}

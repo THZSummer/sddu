@@ -6,12 +6,12 @@
 > **前置依赖**: 无硬性前置依赖（可基于现有 spec/plan 或从零规划）  
 > **创建人**: SDDU Roadmap Agent  
 > **创建时间**: 2026-04-06  
-> **版本**: v24.1.1  
+> **版本**: v24.2.0  
 > **更新人**: SDDU Roadmap Agent  
 > **更新时间**: 2026-09-27  
-> **更新说明**: §2 记法优化：大版本列 `vX.x.x` → `vx`（如 v1 / v5）；版本列特性版本记法（v5.0.x）→ 三段全具体号（v5.0.0 等 12 项，规划即锁定具体发布号）；§2 规则 / 表结构 / 排序 / timeline 与 §1 / §3 / §5（12 个 entry 键）/ §6（13 张卡片）/ §4·§7 P-027 级联；历史版本零改动  
+> **更新说明**: 锚点回填：PR-013「DSH 适配」已立项为 FR-DSH-ADAPT-001（.sddu/specs-tree-root/specs-tree-dsh-adaptation，tracked / discovered）；§3 特性清单提案行转特性行（26 特性 / 12 提案）、§5 v5.0.0 entry 与 §6 卡片锚点回填、§7 P-027 流转追加；版本树结构 / 编号 / 规则未变  
 > **当前项目版本**: v4.0.0  
-> **全局状态**: 规划中 — 25 特性（23 completed / 1 suspended / 1 terminated / 0 tracked）+ 13 项未立项提案（PR-001~PR-013）  
+> **全局状态**: 规划中 — 26 特性（23 completed / 1 suspended / 1 terminated / 1 tracked）+ 12 项未立项提案（PR-001~PR-012）  
 > **生成方式**: 增量更新  
 <!-- /sddu:zone -->
 
@@ -25,9 +25,9 @@ graph LR
     R --> G[AI 辅助软件工程标准工作流]
 ```
 
-SDDU（Spec-Driven Development Unified）是一套面向 AI 辅助开发的规范驱动工作流框架，由 12 个专业化 Agent 协同承载（7 阶段主流水线 + @sddu-fast + @sddu-roadmap / @sddu-docs 等辅助 Agent）。项目自 2026 年 3 月启动，已迭代至 v4.0.0，25 个 Feature 中 23 个完成 validated；以「树形 Feature 嵌套」「增量保留区合并」「双层可扩展架构」形成差异化优势。
+SDDU（Spec-Driven Development Unified）是一套面向 AI 辅助开发的规范驱动工作流框架，由 12 个专业化 Agent 协同承载（7 阶段主流水线 + @sddu-fast + @sddu-roadmap / @sddu-docs 等辅助 Agent）。项目自 2026 年 3 月启动，已迭代至 v4.0.0，26 个 Feature 中 23 个完成 validated（另 1 项 tracked、1 项 suspended、1 项 terminated）；以「树形 Feature 嵌套」「增量保留区合并」「双层可扩展架构」形成差异化优势。
 
-长期愿景是成为 AI 辅助软件工程的标准工作流框架。演进路径：v3.0.0 系列聚焦质量闭环；v3.3.0 的 FR-FAST-001 / FR-SKILL-001 使 SDDU 进入「固定引擎 + 可扩展能力」双层架构；v4.0.0 完成三域分层与平台适配器隔离。2026-09-27 按树形三段式模型重排后，重心为「走出 OpenCode」——**v5「多平台适配」大版本**下的首个特性版本 **v5.0.0 即「DSH 适配」**；全部未实施提案重组为 v5 ~ v9 五个大版本下的特性版本（v5.0.0 ~ v9.3.0），版本清单按版本号递增排列。
+长期愿景是成为 AI 辅助软件工程的标准工作流框架。演进路径：v3.0.0 系列聚焦质量闭环；v3.3.0 的 FR-FAST-001 / FR-SKILL-001 使 SDDU 进入「固定引擎 + 可扩展能力」双层架构；v4.0.0 完成三域分层与平台适配器隔离。2026-09-27 按树形三段式模型重排后，重心为「走出 OpenCode」——**v5「多平台适配」大版本**下的首个特性版本 **v5.0.0 即「DSH 适配」（2026-09-27 已立项为 FR-DSH-ADAPT-001，tracked）**；全部未实施提案重组为 v5 ~ v9 五个大版本下的特性版本（v5.1.0 ~ v9.3.0），版本清单按版本号递增排列。
 <!-- /sddu:zone -->
 
 ## 2. 版本清单
@@ -85,7 +85,8 @@ timeline
 ```mermaid
 pie title 特性状态分布
     "已完成" : 23
-    "搁置、终止" : 2
+    "搁置 / 终止" : 2
+    "进行中（tracked）" : 1
 ```
 
 | Feature ID | 名称 | 类型 | 状态 | 版本归属 |
@@ -108,6 +109,7 @@ pie title 特性状态分布
 | FR-SKILL-001 | SDDU Skill 系统（用户级 + 框架级） | 特性 | completed | 3.3.0-early |
 | FR-FAST-001 | @sddu-fast 快速模式 Agent | 特性 | completed | v3.3.0 |
 | FR-FRAMEWORK-ARCH-001 | SDDU 框架源码架构重组 | 特性 | completed | v4.0.0 |
+| FR-DSH-ADAPT-001 | DSH 适配 | 特性 | tracked(discovered) | v5.0.0 |
 | FR-ROADMAP-TPL-001 | @sddu-roadmap 输出模板补全 | 特性 | completed | v5 |
 | FR-AGENT-SCOPE-001 | plan/review/validate 职责回归改造 | 特性 | completed | 不适用 |
 | FR-DEP-001 | 弃用旧版 SDD 工具 | 特性 | completed | 不适用 |
@@ -115,7 +117,6 @@ pie title 特性状态分布
 | FR-SDD-TOOLS-OPTIMIZATION | SDD 工具系统优化 | 特性 | completed | 不适用 |
 | FR-STATUS-ENHANCE-001 | SDDU 特性状态增强 | 特性 | completed | 不适用 |
 | FR-TPL-001 | 预置输出模板质量统一 | 特性 | completed | 不适用 |
-| PR-013 | DSH 适配（多平台适配首个特性版本） | 提案 | 提案 | v5.0.0 |
 | PR-007 | 多平台适配（FR-CROSSPLAT-001） | 提案 | 提案待决 | v5.1.0 |
 | PR-010 | Build Agent Wave 一体化（FR-QUALITY-001） | 提案 | 提案待决 | v6.0.0 |
 | PR-012 | auto-updater phase 推断修复（FR-QUALITY-005） | 提案 | 提案待决 | v6.0.0 |
@@ -130,7 +131,7 @@ pie title 特性状态分布
 | PR-003 | 自主模式重启评估（FR-AUTONOMY-001） | 提案 | 提案 | v9.3.0 |
 | FR-KB-002 | 项目级知识自动沉淀 | 提案 | 已交付 | v3.2.0 |
 
-排序依据：按「状态（非 completed 在前）→ 类型（特性 → 提案）→ 版本归属升序 → specs-tree 目录字典序 / PR 编号升序」；`版本归属 = 不适用` 的特性归为尾组，历史登记的已交付项 `FR-KB-002` 列于全部提案之后。本区为实时投影（`mode="rewrite"`），随 `.sddu/specs-tree-root/` 下各 Feature `state.json` 变化整体重建；`Feature ID` 与 `版本归属` 回退取值 / 推断均已就地标注来源；`PR-013` 为 2026-09-27 新登记提案（无 `state.json`，是否立项由后续 discovery 决定）；未实施提案的「版本归属」按**树形三段式模型**（`x` / `y` 从 0 起、`z` 从 1 起）写**三段全具体的版本号**（`vx.y.z`），已随 2026-09-27 记法统一同步（v5.0.0 / v5.1.0 / v6.0.0 / v6.1.0 / v7.0.0 / v7.1.0 / v8.0.0 / v8.1.0 / v9.0.0 ~ v9.3.0）。
+排序依据：按「版本归属升序 → specs-tree 目录字典序」排列特性块（`版本归属 = 不适用` 归尾组）；提案块列于特性之后，按「版本归属升序 → PR 编号升序」；历史登记的已交付项 `FR-KB-002` 列于全部提案之后。本区为实时投影（`mode="rewrite"`），随 `.sddu/specs-tree-root/` 下各 Feature `state.json` 变化整体重建；`Feature ID` 与 `版本归属` 回退取值 / 推断均已就地标注来源；**`PR-013`「DSH 适配」已于 2026-09-27 立项转化为特性 `FR-DSH-ADAPT-001`（specs-tree-dsh-adaptation，tracked / discovered），原提案行已移除、不再计入提案统计**；未实施提案的「版本归属」按**树形三段式模型**（`x` / `y` 从 0 起、`z` 从 1 起）写**三段全具体的版本号**（`vx.y.z`），当前提案区间为 v5.1.0 / v6.0.0 / v6.1.0 / v7.0.0 / v7.1.0 / v8.0.0 / v8.1.0 / v9.0.0 ~ v9.3.0。
 <!-- /sddu:zone -->
 
 ## 4. 问题清单
@@ -284,10 +285,10 @@ graph LR
 <!-- sddu:entry id="v5.0.0" -->
 ### v5.0.0 — DSH 适配
 - **目标**: 把 SDDU 适配到 DSH 平台，作为 v5「多平台适配」大版本下的**首个特性版本**（`y = 0`，即 `x.0.0`）。2026-09-27 按统一后的树形三段式规则确立。
-- **关联特性**: PR-013（DSH 适配，本特性版本唯一提案；未立项提案，无 specs-tree 目录）、FR-ROADMAP-TPL-001（specs-tree-roadmap-output-template，已交付，归属 v5 大版本容器）
+- **关联特性**: FR-DSH-ADAPT-001（specs-tree-dsh-adaptation，tracked / discovered，2026-09-27 由 PR-013 立项转化）、FR-ROADMAP-TPL-001（specs-tree-roadmap-output-template，已交付，归属 v5 大版本容器）
 - **关联问题**: P-027（已转化）
-- **里程碑**: 「DSH 适配」discovery 完成并立项（待用户启动）→ 适配交付；发布期首个缺陷版本为 v5.0.1
-- **风险与依赖**: 依赖 FR-FRAMEWORK-ARCH-001（specs-tree-framework-architecture，已就绪，无阻塞）；DSH 平台规格在现有 ROADMAP 与 specs-tree 中**无任何记录** → 平台形态 / 接入面 / 集成边界须经 discovery 澄清，澄清前不得假定或虚构平台细节
+- **里程碑**: 「DSH 适配」discovery 完成并立项（2026-09-27：12 问题（核心 5）/ 8 假设 / 7 风险 / V1~V5 验证场景；拆分建议已 reject，保持单一 Feature）→ 待 spec → 适配交付；发布期首个缺陷版本为 v5.0.1
+- **风险与依赖**: 依赖 FR-FRAMEWORK-ARCH-001（specs-tree-framework-architecture，已就绪，无阻塞）；DSH 平台形态以用户口径为准（**仅 Web、无 CLI**），命令入口按 `/sddu` 路由与阶段命令的接入面适配，适配层隔离允许跟随升级；端到端验证不在本 Feature 实施范围但须写明验证方法与场景（详见 specs-tree-dsh-adaptation）；通用化能力延至 v5.1.0，本版本不拆分
 <!-- /sddu:entry -->
 <!-- sddu:entry id="v5.1.0" -->
 ### v5.1.0 — 通用多平台适配（adapters/ 接口收敛）
@@ -493,6 +494,11 @@ graph LR
 - **定位**: 把 ROADMAP 模板从扁平 8 章重构为概览/详情分层，消除「下一步行动」杂物箱与双时间轴。**优先级**: P1；**版本归属**: v3.2.1；**状态与去向**: 已交付（validated，2026-09-24；R1 修复表格 preserve 区行自然键合并后收尾）；**详档锚点**: .sddu/specs-tree-root/specs-tree-roadmap-structure-v2/
 - **风险与依赖**: Mermaid 语法陷阱 / LLM 指令遵循度 → 静态校验 + 沙箱演练。
 <!-- /sddu:entry -->
+<!-- sddu:entry id="FR-DSH-ADAPT-001" -->
+### FR-DSH-ADAPT-001 — DSH 适配
+- **定位**: 把 SDDU 适配到 DSH 平台（Web 形态、无 CLI），作为 v5「多平台适配」大版本的首个特性版本 v5.0.0；承载 dsh Skill 包形态与 `/sddu` 路由及阶段命令入口的接入面适配。**优先级**: P0；**版本归属**: v5.0.0；**状态与去向**: 2026-09-27 立项（tracked / discovered，由 PR-013 转化），下一步待 spec；**详档锚点**: .sddu/specs-tree-root/specs-tree-dsh-adaptation/；**关联问题**: P-027（已转化）
+- **风险与依赖**: discovery 已识别 7 项风险（平台仅 Web / 命令入口接入面 / 适配层隔离与跟随升级等）；适配层隔离允许跟随升级；端到端验证不在实施范围但须写明验证方法与场景（V1~V5 场景，非验收标准）；通用化能力延至 v5.1.0，本 Feature 不拆分。
+<!-- /sddu:entry -->
 <!-- sddu:entry id="PR-001" -->
 ### PR-001 — Skill 化评估：FR-BUG-001 → sddu-bug
 - **定位**: 把 Bug 流程框架化为框架级 Skill，验证轻量流程。**优先级**: P0；**版本归属**: v8.0.0；**详档锚点**: 无（未立项提案）；**关联问题**: 无
@@ -566,10 +572,10 @@ graph LR
 - **风险与依赖**: `inferCurrentPhaseFromFiles()` 中 `reviewed` 先于 `builded` 检查，须调整顺序。
 <!-- /sddu:entry -->
 <!-- sddu:entry id="PR-013" -->
-### PR-013 — DSH 适配（多平台适配首个特性版本）
-- **定位**: 把 SDDU 适配到 DSH 平台，作为 v5「多平台适配」大版本下的**首个特性版本 v5.0.0**（做什么的边界待 discovery 与用户澄清）。**优先级**: P0；**版本归属**: v5.0.0；**详档锚点**: 无（未立项提案，无 specs-tree 目录）；**关联问题**: P-027（已转化）
-- **状态与去向**: 提案待决（2026-09-27 新登记，由用户版本重排指令直接提出；同日按统一后的树形三段式规则确立为 v5.0.0；是否立项由用户后续走 discovery → spec → plan → tasks 决定）。
-- **风险与依赖**: dsh 平台形态 / 接入面 / 集成边界在现有 ROADMAP 与 specs-tree 中**无任何记录** → 须在 discovery 阶段澄清，澄清前不得假定或虚构平台细节；依赖 FR-FRAMEWORK-ARCH-001（specs-tree-framework-architecture，已就绪）提供的 adapters/ 隔离层。
+### PR-013 — DSH 适配（原提案，已转化）
+- **定位**: 原为「DSH 适配」提案（2026-09-27 新登记，同日按树形三段式规则确立为 v5.0.0），已立项转化为特性 **FR-DSH-ADAPT-001**。**优先级**: P0；**版本归属**: v5.0.0（承接实体：FR-DSH-ADAPT-001）；**详档锚点**: 见 FR-DSH-ADAPT-001（.sddu/specs-tree-root/specs-tree-dsh-adaptation/）；**关联问题**: P-027（已转化）
+- **状态与去向**: 已转化（→ FR-DSH-ADAPT-001，2026-09-27 立项）；本卡片保留作溯源记录、不再计入提案统计。
+- **风险与依赖**: 无（原风险与依赖已随立项迁移至 FR-DSH-ADAPT-001 卡片）。
 <!-- /sddu:entry -->
 <!-- sddu:entry id="FR-KB-002" -->
 ### FR-KB-002 — 项目级知识自动沉淀
@@ -785,11 +791,11 @@ graph LR
 <!-- /sddu:entry -->
 <!-- sddu:entry id="P-027" -->
 ### P-027 — 下一启动 Feature 候选已拍板
-- **描述**: 原候选为 FR-KB-001 / FR-BUG-001 / FR-RATIONAL-001；2026-09-27 按树形三段式模型重排，确定 v5「多平台适配」大版本下的**首个特性版本 v5.0.0 即「DSH 适配」**（PR-013）。
+- **描述**: 原候选为 FR-KB-001 / FR-BUG-001 / FR-RATIONAL-001；2026-09-27 按树形三段式模型重排，确定 v5「多平台适配」大版本下的**首个特性版本 v5.0.0 即「DSH 适配」**（PR-013）；同日经 discovery 立项为 **FR-DSH-ADAPT-001**（specs-tree-dsh-adaptation，tracked / discovered）。
 - **影响**: 中
 - **归属**: v5.0.0
-- **建议处置**: 按 discovery → spec → plan → tasks 推进「DSH 适配」立项；DSH 平台规格须在 discovery 澄清后再进入 spec。
-- **状态与流转**: 已转化（→ PR-013，2026-09-27；随多平台适配主题一并拍板，归属经 v4.1.0 → v5.0.0 多轮记法收敛为 v5.0.0）
+- **建议处置**: 按 spec → plan → tasks 推进 FR-DSH-ADAPT-001（discovery 已完成，端到端验证须写明方法与场景）。
+- **状态与流转**: 已转化（→ PR-013，2026-09-27；随后 → FR-DSH-ADAPT-001，2026-09-27 立项；归属经 v4.1.0 → v5.0.0 多轮记法收敛为 v5.0.0）
 <!-- /sddu:entry -->
 <!-- sddu:entry id="P-028" -->
 ### P-028 — src/skills/ 未纳入版本控制
@@ -867,4 +873,5 @@ timeline
 | v24.0.0 | 按树形三段式模型（大版本 ⊃ 特性版本 ⊃ 缺陷版本）重排版本树：v5.x.x = 多平台适配（v5.1.x = DSH 适配 / v5.2.x = 通用多平台适配），后移主题重组为 v6.x.x ~ v9.x.x 四个大版本下的 10 个特性版本；§2 表（23 行）/ §3 版本归属 / §5 entry 键（12 个）/ §6 卡片 / §1 叙述 / §4·§7 P-027 全篇级联；规则段改写为树形模型 | 2026-09-27 | SDDU Roadmap Agent |
 | v24.1.0 | 统一三段式计数规则并全篇重编号：§2 规则段改写为「`x` 从 0 起 / `y` 从 0 起 / `z` 从 1 起」三条并补 v3.0.0→v3.0.1 自洽佐证；未实施特性版本按 `y` 从 0 起重排（v5.0.x ~ v9.3.x，12 项映射，原 y 整体减 1）；§2 表（23 行）/ §3 版本归属（13 格）/ §5 entry 键（12 个）/ §6 卡片（13 张）/ §1 叙述 / §4·§7 P-027 级联；历史版本 v1.1.1~v4.0.0 零改动 | 2026-09-27 | SDDU Roadmap Agent |
 | v24.1.1 | §2 记法优化（呈现缺陷修正）：大版本列由 `vX.x.x` 段记法改为 `vx`（如 v1 / v5）；版本列由特性版本记法（v5.0.x）改为**三段全具体号**（v5.0.0 等 12 项，规划即锁定具体发布号）；§2 规则段记法条 / 表结构段 / 排序依据段 / timeline 与 §1 / §3 / §5（12 个 entry 键）/ §6（13 张卡片 + 大版本容器表述）/ §4·§7 P-027 全篇级联；历史版本零改动 | 2026-09-27 | SDDU Roadmap Agent |
+| v24.2.0 | 锚点回填（有新增特性）：PR-013「DSH 适配」立项转化为 **FR-DSH-ADAPT-001**（.sddu/specs-tree-root/specs-tree-dsh-adaptation，tracked / discovered）；§3 提案行转特性行（26 特性 / 12 提案）、§5 v5.0.0 entry 关联特性与里程碑回填、§6 新增 FR-DSH-ADAPT-001 卡片（PR-013 卡转溯源）、§7 P-027 流转追加、§1 与 meta 全局统计同步；版本树结构 / 编号 / 规则未变 | 2026-09-27 | SDDU Roadmap Agent |
 <!-- /sddu:zone -->

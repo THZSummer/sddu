@@ -396,6 +396,28 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 
 ---
 
+## 🧩 dsh 适配（v5.0.0）
+
+除 OpenCode 之外，SDDU 还以 **Skill 包**形态适配 **dsh** 平台（`/sddu` 路由与阶段命令、可观测的软引导门禁、`state.json` 唯一权威）。dsh 侧交付物与 OpenCode 分发 **同级并列、互不包含**（`dist/dsh/` vs `dist/sddu/`）。
+
+**一键安装（对齐 OpenCode bootstrap）**：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project
+```
+
+- **面向 dsh 用户的交付说明**：[docs/dsh/README.md](docs/dsh/README.md)
+- **双平台差异与能力落差**：[docs/dsh/dual-platform-diff.md](docs/dsh/dual-platform-diff.md)
+- **定位说明（与 dsh 原生能力分工）**：[docs/dsh/positioning.md](docs/dsh/positioning.md)
+- **升级跟随清单（含破坏点记录模板）**：[docs/dsh/upgrade-following.md](docs/dsh/upgrade-following.md)
+- **验证方法与场景（V1~V5）**：[docs/dsh/verification.md](docs/dsh/verification.md)
+- **dsh 契约依赖点（构建生成）**：[docs/dsh/contract-dependencies.md](docs/dsh/contract-dependencies.md)
+
+> ⚠️ dsh 侧门禁为**显式可观测的软引导**（FR-004b），**非硬强制**；两平台能力**不等价**，详见差异清单。
+> 全部 dsh 事实锚定 **2026-08-14** 单一快照，**未刷新即不可信**。
+
+---
+
 ## 🔗 文档导航
 
 - [SDDU 使用指南](.sddu/docs/guide.md)
@@ -403,6 +425,7 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 - [工作空间总览](.sddu/TREE.md)
 - [OpenCode 官方文档](https://opencode.ai/docs)
 - [OpenCode Plugin 开发](https://opencode.ai/docs/plugins)
+- [dsh 适配说明](docs/dsh/README.md)
 
 ---
 
