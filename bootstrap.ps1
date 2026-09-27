@@ -36,6 +36,8 @@ function Install-Sddu {
     )
 
     $ErrorActionPreference = "Stop"
+    # 允许本进程执行子 .ps1 脚本（进程级，不持久化，无需管理员权限）
+    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
     $RepoBase = "https://github.com/THZSummer/sddu.git"
 
     if ($ProxyUrl) {
