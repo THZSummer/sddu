@@ -403,10 +403,14 @@ SDDU 采用「固定 Agent + 可扩展 Skill」的双层架构。Skill 是 SDDU 
 **一键安装（对齐 OpenCode bootstrap）**：
 
 ```bash
+# 直连 GitHub
 curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project
+
+# 通过镜像（国内用户）
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project --proxy https://gh-proxy.com/
 ```
 
-Windows（PowerShell）及镜像安装见 [docs/dsh/README.md](docs/dsh/README.md) §2。完整安装/升级/卸载说明以 `docs/dsh/README.md` 为准。
+Windows（PowerShell）安装见 [docs/dsh/README.md](docs/dsh/README.md) §2。完整安装/升级/卸载说明以 `docs/dsh/README.md` 为准。
 
 - **面向 dsh 用户的交付说明**：[docs/dsh/README.md](docs/dsh/README.md)
 - **双平台差异与能力落差**：[docs/dsh/dual-platform-diff.md](docs/dsh/dual-platform-diff.md)
