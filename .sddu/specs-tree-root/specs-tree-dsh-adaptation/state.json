@@ -4,7 +4,7 @@
   "name": "DSH 适配",
   "version": "v3.0.0",
   "phase": "validated",
-  "status": "tracked",
+  "status": "completed",
   "depth": 0,
   "childrens": [],
   "phaseHistory": [
@@ -90,7 +90,7 @@
     "targetVersion": "v5.0.0",
     "roadmapProposal": "PR-013",
     "createdAt": "2026-09-27T00:00:00.000Z",
-    "updatedAt": "2026-09-27T23:59:30.000Z"
+    "updatedAt": "2026-09-27T08:06:53.000Z"
   },
   "history": [
     {

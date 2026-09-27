@@ -1,0 +1,170 @@
+{
+  "feature": "specs-tree-dsh-install-optimization",
+  "version": "v1.0",
+  "createdAt": "2026-09-27",
+  "summary": {
+    "total": 8,
+    "S": 6,
+    "M": 2,
+    "L": 0,
+    "waves": 4
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "install-dsh.sh 自动构建",
+      "complexity": "M",
+      "dependencies": [],
+      "wave": 1,
+      "fr": [
+        "FR-003"
+      ],
+      "files": [
+        {
+          "op": "MODIFY",
+          "path": "scripts/install-dsh.sh"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-002",
+      "name": "bootstrap-dsh.sh 新建",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "fr": [
+        "FR-001"
+      ],
+      "files": [
+        {
+          "op": "NEW",
+          "path": "scripts/bootstrap-dsh.sh"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-003",
+      "name": "bootstrap-dsh.ps1 新建",
+      "complexity": "S",
+      "dependencies": [],
+      "wave": 1,
+      "fr": [
+        "FR-002"
+      ],
+      "files": [
+        {
+          "op": "NEW",
+          "path": "scripts/bootstrap-dsh.ps1"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-004",
+      "name": "install-dsh.sh 启动引导 + --upgrade",
+      "complexity": "M",
+      "dependencies": [
+        "TASK-001"
+      ],
+      "wave": 2,
+      "fr": [
+        "FR-004",
+        "FR-005"
+      ],
+      "files": [
+        {
+          "op": "MODIFY",
+          "path": "scripts/install-dsh.sh"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-005",
+      "name": "docs/dsh/README.md 安装章节更新",
+      "complexity": "S",
+      "dependencies": [
+        "TASK-002",
+        "TASK-003",
+        "TASK-004"
+      ],
+      "wave": 3,
+      "fr": [
+        "FR-001",
+        "FR-004",
+        "FR-005"
+      ],
+      "files": [
+        {
+          "op": "MODIFY",
+          "path": "docs/dsh/README.md"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-006",
+      "name": "docs/dsh/verification.md V1/V2 场景更新",
+      "complexity": "S",
+      "dependencies": [
+        "TASK-002",
+        "TASK-004"
+      ],
+      "wave": 3,
+      "fr": [
+        "FR-006"
+      ],
+      "files": [
+        {
+          "op": "MODIFY",
+          "path": "docs/dsh/verification.md"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-007",
+      "name": "README.md 顶层 dsh 安装入口",
+      "complexity": "S",
+      "dependencies": [
+        "TASK-002",
+        "TASK-004"
+      ],
+      "wave": 3,
+      "fr": [
+        "FR-001"
+      ],
+      "files": [
+        {
+          "op": "MODIFY",
+          "path": "README.md"
+        }
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "TASK-008",
+      "name": "构建验证 + 双通道落位一致性",
+      "complexity": "S",
+      "dependencies": [
+        "TASK-001",
+        "TASK-002",
+        "TASK-003",
+        "TASK-004",
+        "TASK-005",
+        "TASK-006",
+        "TASK-007"
+      ],
+      "wave": 4,
+      "fr": [
+        "FR-006",
+        "NFR-001",
+        "NFR-002"
+      ],
+      "files": [],
+      "status": "completed"
+    }
+  ]
+}

@@ -38,6 +38,8 @@ PROJECT_ROOT=""
 DSH_HOME="${DSH_HOME:-${HOME}/.dsh}"
 SOURCE_DIR="${DEFAULT_SOURCE_DIR}"
 ASSUME_YES=0
+FORCE_BUILD=0
+UPGRADE=0
 
 usage() {
   cat <<'EOF'
@@ -51,6 +53,8 @@ SDDU 平台适配 Skill 包安装脚本（dsh）
   --project-root <path>  项目根目录（默认：当前工作目录）
   --dsh-home <path>      宿主 home 目录（--scope user 时使用，默认：$HOME/.dsh）
   --source <path>        Skill 包来源目录（默认：<repo>/dist/dsh/skills）
+  --build                强制重新构建 dsh Skill 包（npm run build:dsh）
+  --upgrade              升级模式（= --build + 幂等覆盖 + 破坏点记录提示）
   --yes                  非交互确认（等价于自动回答 yes）
   -h, --help             显示本帮助并退出（无任何落位副作用）
 
@@ -83,6 +87,15 @@ while [[ $# -gt 0 ]]; do
     --source)
       SOURCE_DIR="${2:-}"
       shift 2
+      ;;
+    --build)
+      FORCE_BUILD=1
+      shift
+      ;;
+    --upgrade)
+      UPGRADE=1
+      FORCE_BUILD=1
+      shift
       ;;
     --yes|-y)
       ASSUME_YES=1
@@ -119,7 +132,15 @@ case "${SCOPE}" in
     ;;
 esac
 
-# ---- 来源校验 ---------------------------------------------------------------
+# ---- 来源校验 + 自动构建（FR-003 / ADR-002）--------------------------------
+if [[ ${FORCE_BUILD} -eq 1 || ! -d "${SOURCE_DIR}" ]]; then
+  echo "🔨 构建 dsh Skill 包（npm run build:dsh）..."
+  if ! (cd "${REPO_ROOT}" && npm run build:dsh); then
+    echo "❌ 构建失败：npm run build:dsh 退出码非 0" >&2
+    exit 1
+  fi
+fi
+
 if [[ ! -d "${SOURCE_DIR}" ]]; then
   echo "❌ 未找到 Skill 包来源目录: ${SOURCE_DIR}" >&2
   echo "   请先运行 'npm run build'（含 build:dsh）生成 dist/dsh/skills/。" >&2
@@ -279,3 +300,18 @@ echo "  2) 确认条目的来源标识形如 adapters/dsh@<版本>#2026-08-14（
 echo "  3) 完整步骤与通过判据见 ${VERIFICATION_DOC} 的 V1 场景。"
 echo ""
 echo "✅ 安装完成。卸载请运行: scripts/uninstall-dsh.sh --scope ${SCOPE}"
+
+# ---- FR-004 启动引导 + FR-005 升级提示 --------------------------------------
+echo ""
+echo "🚀 启动引导"
+echo "  1) 进入目标项目并启动 dsh Web UI:"
+echo "       cd ${PROJECT_ROOT} && npx @deepseek-ai/dsh web"
+echo "  2) 若 skill 列表未刷新（EC-004），请重新加载或重启会话。"
+echo "  3) 入口：在会话中输入 /sddu（仪表盘）或 /sddu discovery <feature>。"
+
+if [[ ${UPGRADE} -eq 1 ]]; then
+  echo ""
+  echo "🔄 升级模式提示"
+  echo "  已按最新产物幂等覆盖。升级跟随请按 docs/dsh/upgrade-following.md 步骤 0~6 执行，"
+  echo "  并重复 V1~V3 场景 + 填写破坏点记录模板（dsh 无 CLI，无法自动断言）。"
+fi

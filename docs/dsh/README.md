@@ -65,13 +65,36 @@ npm run build:dsh
 
 ## 2. 安装
 
+### 2.0 一键安装（bootstrap，推荐）
+
+与 OpenCode 侧 `bootstrap.sh` 同构，curl 一行装完（clone → 自动构建 → 安装 → 启动引导）：
+
+```bash
+# Linux/macOS（直连 GitHub）
+curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project
+
+# 镜像（国内用户）
+curl -fsSL https://gh-proxy.com/https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.sh | bash -s -- ./my-project --proxy https://gh-proxy.com/
+```
+
+Windows（PowerShell）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.githubusercontent.com/THZSummer/sddu/main/scripts/bootstrap-dsh.ps1 | iex; Install-Sddu-Dsh -TargetDir ./my-project"
+```
+
 ### 2.1 推荐：项目级 **rank 100**（`<projectRoot>/.dsh/skills`）
 
 ```bash
 scripts/install-dsh.sh                      # 默认项目级，根目录 = 当前工作目录
 scripts/install-dsh.sh --project-root /path/to/project
 scripts/install-dsh.sh --source dist/dsh/skills --yes
+scripts/install-dsh.sh --build              # 强制重建 dist/dsh（来源缺失时自动构建）
+scripts/install-dsh.sh --upgrade            # 升级模式（= --build + 幂等覆盖 + 破坏点记录提示）
 ```
+
+> 自动构建（FR-003）：当 `dist/dsh/skills` 缺失时，脚本自动执行 `npm run build:dsh`；
+> `--build` 显式强制重建，`--upgrade` 固定带 `--build`（取最新产物）。
 
 **为什么推荐项目级**：落位 = 纯目录约定，**无需修改任何 dsh 配置**即可生效；
 且「最近层优先」在项目作用域内天然压过生态中的同名 skill，遮蔽行为可预期。

@@ -25,5 +25,8 @@ Thumbs.db
 # OpenCode SDD Plugin 安装文件（不应提交）
 .opencode/
 
+# dsh Skill 安装产物（不应提交，由 install-dsh.sh 生成）
+.dsh/
+
 # Test coverage reports (generated artifacts)
 coverage/
