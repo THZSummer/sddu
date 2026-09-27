@@ -19,11 +19,11 @@ metadata.sddu-source-template: src/templates/agents/<<sourceTemplate>>
     本头部包装层 / gate-protocol 与 state-sync-protocol 协议片段 / 落位与入口约定。
   - 本文件**不包含**任何阶段职责指令正文；正文一律由构建脚本在协议片段之后拼接。
 
-  ② 命名与落位约定（FR-001 / ADR-001，与 install-dsh.sh、docs/dsh/README.md 同源表达）
+  ② 命名与落位约定（FR-001 / ADR-001，与 scripts/install/dsh/install.sh、docs/dsh/README.md 同源表达）
   - 命名：所有 Skill 统一 `sddu-` 前缀 —— `sddu`（路由入口）、`sddu-<phase>`（7 个阶段）、
     `sddu-roadmap` / `sddu-docs` / `sddu-fast`（3 个独立 Skill）。
   - 主落位：rank 100 `project-dsh` → `<projectRoot>/.dsh/skills`（推荐；项目级，目录约定即生效）。
-  - 可选落位：rank 400 `user-dsh` → `<dshHome>/skills`（用户级，`install-dsh.sh --scope user`）。
+  - 可选落位：rank 400 `user-dsh` → `<dshHome>/skills`（用户级，`scripts/install/dsh/install.sh --scope user`）。
   - 冲突裁决：跨层「最近层优先」，同层内按 rank 裁决；检测到同名/近义 `sddu-*` 条目时
     **必须显式提示**（EC-002），不得静默遮蔽。
 

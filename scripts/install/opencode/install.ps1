@@ -27,13 +27,14 @@ param(
 $TargetDir = $TargetDir.TrimEnd('\').TrimEnd('/')  # Remove trailing slash to avoid double-slash in paths
 
 $ErrorActionPreference = "Stop"
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$DistSdduDir = Join-Path $ScriptDir "dist/sddu"
-$DistSdduArchive = Join-Path $ScriptDir "dist/sddu.zip"
+# 仓库根（scripts/install/opencode/ 向上三级）
+$RepoRoot = (Resolve-Path (Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "../../..")).Path
+$DistSdduDir = Join-Path $RepoRoot "dist/sddu"
+$DistSdduArchive = Join-Path $RepoRoot "dist/sddu.zip"
 
 Write-Host ""
 Write-Host "=== SDDU Plugin Installer ===" -ForegroundColor Cyan
-Write-Host "Source: $ScriptDir" 
+Write-Host "Source: $RepoRoot" 
 Write-Host "Target: $TargetDir"
 Write-Host ""
 
@@ -48,7 +49,7 @@ $TOTAL_STEPS = 8
 
 # Step 1: Check source
 Write-Host "[1/${TOTAL_STEPS}] Checking source..." -ForegroundColor Cyan
-$PackageJsonPath = Join-Path $ScriptDir "package.json"
+$PackageJsonPath = Join-Path $RepoRoot "package.json"
 if (-not (Test-Path $PackageJsonPath)) {
     Write-Host "ERROR: package.json not found" -ForegroundColor Red
     exit 1
@@ -60,13 +61,13 @@ Write-Host "[2/${TOTAL_STEPS}] Cleaning and rebuilding from source..." -Foregrou
 
 # Clean
 Write-Host "  Cleaning dist directory..." -ForegroundColor Gray
-if (Test-Path (Join-Path $ScriptDir "dist")) {
-    Remove-Item -Path (Join-Path $ScriptDir "dist") -Recurse -Force
+if (Test-Path (Join-Path $RepoRoot "dist")) {
+    Remove-Item -Path (Join-Path $RepoRoot "dist") -Recurse -Force
 }
 
 # Install dependencies
 Write-Host "  Installing dependencies..." -ForegroundColor Gray
-& npm install --prefix $ScriptDir
+& npm install --prefix $RepoRoot
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Install failed" -ForegroundColor Red
     exit 1
@@ -74,7 +75,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Build agents
 Write-Host "  Building agents..." -ForegroundColor Gray
-& node "$ScriptDir\build-agents.cjs"
+& node "$RepoRoot\build-agents.cjs"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Agent build failed" -ForegroundColor Red
     exit 1
@@ -82,7 +83,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Build TypeScript
 Write-Host "  Building TypeScript..." -ForegroundColor Gray
-& "$ScriptDir\node_modules\.bin\tsc.cmd" --project "$ScriptDir\tsconfig.json"
+& "$RepoRoot\node_modules\.bin\tsc.cmd" --project "$RepoRoot\tsconfig.json"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "TS build failed" -ForegroundColor Red
     exit 1
@@ -90,7 +91,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Package
 Write-Host "  Packaging..." -ForegroundColor Gray
-& node "$ScriptDir\scripts\package.cjs"
+& node "$RepoRoot\scripts\package.cjs"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Package failed" -ForegroundColor Red
     exit 1
@@ -109,7 +110,7 @@ else {
     Write-Host "[INFO] SDDU pre-built distribution not found, checking for archives..." -ForegroundColor Yellow
     if (Test-Path $DistSdduArchive) {
         Write-Host "[INFO] SDDU archive found at $DistSdduArchive, extracting..." -ForegroundColor Green
-        $tmpExtractDir = Join-Path $ScriptDir "dist\tmp_extract_sddu"
+        $tmpExtractDir = Join-Path $RepoRoot "dist\tmp_extract_sddu"
         Expand-Archive -Path $DistSdduArchive -DestinationPath $tmpExtractDir -Force
         
         # Move extracted sddu directory
@@ -127,16 +128,16 @@ else {
         
         # Build agents
         Write-Host "  Building agents..." -ForegroundColor Gray
-        & node "$ScriptDir\build-agents.cjs"
+        & node "$RepoRoot\build-agents.cjs"
         if ($LASTEXITCODE -ne 0) {
             Write-Host "Agent build failed" -ForegroundColor Red
             exit 1
         }
 
         # Build TypeScript
-        if (Test-Path (Join-Path $ScriptDir "node_modules")) {
+        if (Test-Path (Join-Path $RepoRoot "node_modules")) {
             Write-Host "  Building TypeScript..." -ForegroundColor Gray
-            & "$ScriptDir\node_modules\.bin\tsc.cmd" --project "$ScriptDir\tsconfig.json"
+            & "$RepoRoot\node_modules\.bin\tsc.cmd" --project "$RepoRoot\tsconfig.json"
             if ($LASTEXITCODE -ne 0) {
                 Write-Host "TS build failed" -ForegroundColor Red
                 exit 1
@@ -144,12 +145,12 @@ else {
         }
         else {
             Write-Host "  Installing dependencies..." -ForegroundColor Gray
-            & npm install --prefix $ScriptDir
+            & npm install --prefix $RepoRoot
             if ($LASTEXITCODE -ne 0) {
                 Write-Host "Install failed" -ForegroundColor Red
                 exit 1
             }
-            & "$ScriptDir\node_modules\.bin\tsc.cmd" --project "$ScriptDir\tsconfig.json"
+            & "$RepoRoot\node_modules\.bin\tsc.cmd" --project "$RepoRoot\tsconfig.json"
             if ($LASTEXITCODE -ne 0) {
                 Write-Host "TS build failed" -ForegroundColor Red
                 exit 1
@@ -158,7 +159,7 @@ else {
 
         # Run package script
         Write-Host "  Creating SDDU distribution package..." -ForegroundColor Gray
-        & node "$ScriptDir\scripts\package.cjs"
+        & node "$RepoRoot\scripts\package.cjs"
         if ($LASTEXITCODE -ne 0) {
             Write-Host "Package creation failed" -ForegroundColor Red
             exit 1
@@ -292,7 +293,7 @@ if (Test-Path $SourcePkgPath) {
 }
 else {
     # Fallback: Get version from original source package.json
-    $SourcePkgPathFallback = Join-Path $ScriptDir "package.json"
+    $SourcePkgPathFallback = Join-Path $RepoRoot "package.json"
     if (Test-Path $SourcePkgPathFallback) {
         try {
             $pkg = Get-Content $SourcePkgPathFallback -Raw | ConvertFrom-Json
@@ -312,7 +313,7 @@ Write-Host "[INFO] Source package version: $SourceVersion" -ForegroundColor Gree
 # Step 7: Configure SDDU opencode.json
 Write-Host "[7/${TOTAL_STEPS}] Configuring SDDU opencode.json..." -ForegroundColor Cyan
 
-$OpencodeSourceSddu = Join-Path $ScriptDir "dist/sddu/opencode.json"
+$OpencodeSourceSddu = Join-Path $RepoRoot "dist/sddu/opencode.json"
 
 # Ensure .opencode directory exists
 $OpencodeDir = Join-Path $TargetDir ".opencode"

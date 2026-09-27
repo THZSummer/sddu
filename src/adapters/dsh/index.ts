@@ -39,7 +39,7 @@ export type {
 } from './contract';
 
 // ---------------------------------------------------------------------------
-// 命名与落位常量（与 ADR-001 §2/§3、skill-header.md.hbs、install-dsh.sh、
+// 命名与落位常量（与 ADR-001 §2/§3、skill-header.md.hbs、scripts/install/dsh/install.sh、
 // docs/dsh/README.md 同源表达；改动必须同步这五处）
 // ---------------------------------------------------------------------------
 

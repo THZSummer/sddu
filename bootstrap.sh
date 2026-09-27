@@ -99,10 +99,10 @@ echo ""
 echo -e "${CYAN}[2/2] 构建并安装 SDDU 到目标项目...${NC}"
 case "${PLATFORM}" in
     opencode)
-        bash "$TMP_DIR/install.sh" "$TARGET_DIR"
+        bash "$TMP_DIR/scripts/install/opencode/install.sh" "$TARGET_DIR"
         ;;
     dsh)
-        bash "$TMP_DIR/scripts/install-dsh.sh" --project-root "$TARGET_DIR" --build --yes
+        bash "$TMP_DIR/scripts/install/dsh/install.sh" --project-root "$TARGET_DIR" --build --yes
         ;;
     *)
         echo -e "${RED}❌ 非法 --platform 值: '${PLATFORM}'（允许: opencode | dsh）${NC}"

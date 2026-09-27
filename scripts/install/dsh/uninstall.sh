@@ -17,10 +17,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 # ---------------------------------------------------------------------------
-# 落位与命名常量（与 install-dsh.sh / src/adapters/dsh/index.ts / docs/dsh/README.md 同源）
+# 落位与命名常量（与 install.sh / src/adapters/dsh/index.ts / docs/dsh/README.md 同源）
 # ---------------------------------------------------------------------------
 PROJECT_RANK=100                             # rank 100 = project-dsh
 USER_RANK=400                                # rank 400 = user-dsh
@@ -42,7 +42,7 @@ usage() {
 SDDU 平台适配 Skill 包卸载脚本（dsh）
 
 用法:
-  scripts/uninstall-dsh.sh [选项]
+  scripts/install/dsh/uninstall.sh [选项]
 
 选项:
   --scope project|user   落位作用域（默认 project = rank 100；user = rank 400）
@@ -92,7 +92,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     *)
       echo "❌ 未知参数: $1" >&2
-      echo "运行 'scripts/uninstall-dsh.sh --help' 查看用法。" >&2
+      echo "运行 'scripts/install/dsh/uninstall.sh --help' 查看用法。" >&2
       exit 2
       ;;
   esac

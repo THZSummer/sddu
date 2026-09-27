@@ -79,10 +79,10 @@ try {
     Write-Host "[2/2] 构建并安装 SDDU 到目标项目..." -ForegroundColor Cyan
     switch ($Platform) {
         "opencode" {
-            & bash "$TmpDir/install.sh" $TargetDir
+            & bash "$TmpDir/scripts/install/opencode/install.sh" $TargetDir
         }
         "dsh" {
-            & bash "$TmpDir/scripts/install-dsh.sh" --project-root $TargetDir --build --yes
+            & bash "$TmpDir/scripts/install/dsh/install.sh" --project-root $TargetDir --build --yes
         }
         default {
             Write-Host "❌ 非法 -Platform 值: '$Platform'（允许: opencode | dsh）" -ForegroundColor Red

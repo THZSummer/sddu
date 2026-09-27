@@ -250,7 +250,7 @@ powershell -c "iwr https://gh-proxy.org/https://raw.githubusercontent.com/THZSum
 ### 本地安装（已克隆仓库）
 
 ```bash
-bash install.sh ./my-project
+bash scripts/install/opencode/install.sh ./my-project
 ```
 
 ### 手动构建 + 安装
@@ -259,7 +259,7 @@ bash install.sh ./my-project
 npm install
 npm run build
 npm run package
-bash install.sh ./my-project
+bash scripts/install/opencode/install.sh ./my-project
 ```
 
 ---

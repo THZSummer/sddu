@@ -42,7 +42,7 @@
 - **步骤**：
   1. 安装 Skill 包（二选一）：
      - 一键：`curl -fsSL https://raw.githubusercontent.com/THZSummer/sddu/main/bootstrap.sh | bash -s -- ./my-project --platform dsh`（README §2.0）；
-     - 本地：`scripts/install-dsh.sh --project-root ./my-project`（README §2.1）。
+     - 本地：`scripts/install/dsh/install.sh --project-root ./my-project`（README §2.1）。
   2. 确认宿主触发 `skills/change` 并刷新 skill 发现缓存；
   3. 在 dsh Web UI 中列出可用 skill。
 - **观测方式**：dsh **Web UI** 的 skill 列表（无 CLI）。
@@ -59,7 +59,7 @@
   1. 在 dsh Web 会话中输入 `/sddu`（应输出状态仪表盘 / 下一步推荐）；
   2. 输入 `/sddu discovery <feature>`（或降级用法 `sddu discovery <feature>`）；
   3. 再输入一个**非法**阶段标识（如 `/sddu bogus <feature>`）观察拒绝行为。
-- **双通道等价（FR-006）**：bootstrap 安装与 install-dsh.sh 安装的落位结果应一致（11 个 skill、来源标识相同）。
+- **双通道等价（FR-006）**：bootstrap 安装与 scripts/install/dsh/install.sh 安装的落位结果应一致（11 个 skill、来源标识相同）。
 - **观测方式**：dsh **Web UI** 会话中的对话内容。
 - **通过判据**：
   - 合法入口：进入正确阶段并表现出对应阶段行为；

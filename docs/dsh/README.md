@@ -30,7 +30,7 @@
 | 版本锚定 | `dist/dsh/manifest.json` | `sdduVersion` / `dshContractSnapshot` / `contractManifestHash` / `generatedAt` / `skills[]` |
 | 契约依赖点（人读版） | `docs/dsh/contract-dependencies.md` | 由 `build-dsh-skills.cjs` 从清单渲染，**禁止手工编辑** |
 | 分发文档 | `dist/dsh/docs/` | 本目录 `docs/dsh/*.md` 的拷贝 |
-| 安装 / 卸载脚本 | `scripts/install-dsh.sh` / `scripts/uninstall-dsh.sh` | 仓库侧脚本，做纯文件操作 |
+| 安装 / 卸载脚本 | `scripts/install/dsh/install.sh` / `scripts/install/dsh/uninstall.sh` | 仓库侧脚本，做纯文件操作 |
 
 11 个 Skill：
 
@@ -86,11 +86,11 @@ powershell -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://raw.gi
 ### 2.1 推荐：项目级 **rank 100**（`<projectRoot>/.dsh/skills`）
 
 ```bash
-scripts/install-dsh.sh                      # 默认项目级，根目录 = 当前工作目录
-scripts/install-dsh.sh --project-root /path/to/project
-scripts/install-dsh.sh --source dist/dsh/skills --yes
-scripts/install-dsh.sh --build              # 强制重建 dist/dsh（来源缺失时自动构建）
-scripts/install-dsh.sh --upgrade            # 升级模式（= --build + 幂等覆盖 + 破坏点记录提示）
+scripts/install/dsh/install.sh                      # 默认项目级，根目录 = 当前工作目录
+scripts/install/dsh/install.sh --project-root /path/to/project
+scripts/install/dsh/install.sh --source dist/dsh/skills --yes
+scripts/install/dsh/install.sh --build              # 强制重建 dist/dsh（来源缺失时自动构建）
+scripts/install/dsh/install.sh --upgrade            # 升级模式（= --build + 幂等覆盖 + 破坏点记录提示）
 ```
 
 > 自动构建（FR-003）：当 `dist/dsh/skills` 缺失时，脚本自动执行 `npm run build:dsh`；
@@ -102,8 +102,8 @@ scripts/install-dsh.sh --upgrade            # 升级模式（= --build + 幂等�
 ### 2.2 可选：用户级 **rank 400**（`<dshHome>/skills`）
 
 ```bash
-scripts/install-dsh.sh --scope user
-scripts/install-dsh.sh --scope user --dsh-home /path/to/dshHome
+scripts/install/dsh/install.sh --scope user
+scripts/install/dsh/install.sh --scope user --dsh-home /path/to/dshHome
 ```
 
 用户级落位便于**跨项目复用**，代价是可能被项目级 skill 遮蔽（这符合「最近层优先」的预期，
@@ -120,9 +120,9 @@ scripts/install-dsh.sh --scope user --dsh-home /path/to/dshHome
 ## 3. 卸载
 
 ```bash
-scripts/uninstall-dsh.sh                    # 与安装对称：默认项目级 rank 100
-scripts/uninstall-dsh.sh --scope user
-scripts/uninstall-dsh.sh --dry-run          # 只打印计划，不删除
+scripts/install/dsh/uninstall.sh                    # 与安装对称：默认项目级 rank 100
+scripts/install/dsh/uninstall.sh --scope user
+scripts/install/dsh/uninstall.sh --dry-run          # 只打印计划，不删除
 ```
 
 卸载脚本的安全设计：

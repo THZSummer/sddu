@@ -47,8 +47,10 @@ print_color() {
     printf "%b\n" "$1"
 }
 
-# Script directory
+# Script directory（scripts/install/opencode/）
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Repository root（仓库根，向上三级）
+REPO_ROOT="$(cd "${REPO_ROOT}/../../.." && pwd)"
 
 # Get target directory from command line argument
 if [ -z "$1" ]; then
@@ -66,7 +68,7 @@ TARGET_DIR="${1%/}"  # Remove trailing slash to avoid double-slash in paths
 
 echo ""
 print_color "${CYAN}=== SDDU Plugin Installer ===${NC}"
-print_color "Source: ${SCRIPT_DIR}"
+print_color "Source: ${REPO_ROOT}"
 print_color "Target: ${TARGET_DIR}"
 echo ""
 
@@ -81,7 +83,7 @@ TOTAL_STEPS=8
 
 # Step 1: Check source
 print_color "${CYAN}[1/${TOTAL_STEPS}] Checking source...${NC}"
-if [ ! -f "${SCRIPT_DIR}/package.json" ]; then
+if [ ! -f "${REPO_ROOT}/package.json" ]; then
     print_color "${RED}ERROR: package.json not found${NC}"
     exit 1
 fi
@@ -92,7 +94,7 @@ print_color "${CYAN}[2/${TOTAL_STEPS}] Cleaning and rebuilding from source...${N
 
 # Clean
 print_color "${GRAY}  Cleaning dist directory...${NC}"
-rm -rf "${SCRIPT_DIR}/dist"
+rm -rf "${REPO_ROOT}/dist"
 if [ $? -ne 0 ]; then
     print_color "${RED}Clean failed${NC}"
     exit 1
@@ -100,7 +102,7 @@ fi
 
 # Install dependencies
 print_color "${GRAY}  Installing dependencies...${NC}"
-npm install --prefix "${SCRIPT_DIR}"
+npm install --prefix "${REPO_ROOT}"
 if [ $? -ne 0 ]; then
     print_color "${RED}Install failed${NC}"
     exit 1
@@ -108,7 +110,7 @@ fi
 
 # Build agents
 print_color "${GRAY}  Building agents...${NC}"
-node "${SCRIPT_DIR}/scripts/build-agents.cjs"
+node "${REPO_ROOT}/scripts/build-agents.cjs"
 if [ $? -ne 0 ]; then
     print_color "${RED}Agent build failed${NC}"
     exit 1
@@ -116,7 +118,7 @@ fi
 
 # Build TypeScript
 print_color "${GRAY}  Building TypeScript...${NC}"
-"${SCRIPT_DIR}/node_modules/.bin/tsc" --project "${SCRIPT_DIR}/tsconfig.json"
+"${REPO_ROOT}/node_modules/.bin/tsc" --project "${REPO_ROOT}/tsconfig.json"
 if [ $? -ne 0 ]; then
     print_color "${RED}TS build failed${NC}"
     exit 1
@@ -124,7 +126,7 @@ fi
 
 # Package
 print_color "${GRAY}  Packaging...${NC}"
-node "${SCRIPT_DIR}/scripts/package.cjs"
+node "${REPO_ROOT}/scripts/package.cjs"
 if [ $? -ne 0 ]; then
     print_color "${RED}Package failed${NC}"
     exit 1
@@ -136,8 +138,8 @@ echo ""
 # Step 3: Check for prebuilt dist/sddu directory
 print_color "${CYAN}[3/${TOTAL_STEPS}] Locating SDDU distribution files...${NC}"
 
-DIST_SDDU_DIR="${SCRIPT_DIR}/dist/sddu"
-DIST_SDDU_ARCHIVE="${SCRIPT_DIR}/dist/sddu.zip"
+DIST_SDDU_DIR="${REPO_ROOT}/dist/sddu"
+DIST_SDDU_ARCHIVE="${REPO_ROOT}/dist/sddu.zip"
 
 if [ -d "$DIST_SDDU_DIR" ]; then
     print_color "${GREEN}[OK] Using SDDU pre-built distribution in dist/sddu/${NC}"
@@ -145,11 +147,11 @@ else
     print_color "${YELLOW}[INFO] SDDU pre-built distribution not found, checking for archives...${NC}"
     if [ -f "$DIST_SDDU_ARCHIVE" ]; then
         print_color "${GREEN}[INFO] SDDU archive found at $DIST_SDDU_ARCHIVE, unpacking...${NC}"
-        mkdir -p "${SCRIPT_DIR}/dist/sddu"
-        unzip -q "${DIST_SDDU_ARCHIVE}" -d "${SCRIPT_DIR}/dist/tmp_extract_sddu"
-        mv "${SCRIPT_DIR}/dist/tmp_extract_sddu/sddu" "${SCRIPT_DIR}/dist/sddu" 2>/dev/null || \
-        mv "${SCRIPT_DIR}/dist/tmp_extract_sddu/sdd" "${SCRIPT_DIR}/dist/sddu"  # In case archive has different name
-        rm -r "${SCRIPT_DIR}/dist/tmp_extract_sddu" 2>/dev/null || true
+        mkdir -p "${REPO_ROOT}/dist/sddu"
+        unzip -q "${DIST_SDDU_ARCHIVE}" -d "${REPO_ROOT}/dist/tmp_extract_sddu"
+        mv "${REPO_ROOT}/dist/tmp_extract_sddu/sddu" "${REPO_ROOT}/dist/sddu" 2>/dev/null || \
+        mv "${REPO_ROOT}/dist/tmp_extract_sddu/sdd" "${REPO_ROOT}/dist/sddu"  # In case archive has different name
+        rm -r "${REPO_ROOT}/dist/tmp_extract_sddu" 2>/dev/null || true
         print_color "${GREEN}[OK] SDDU archive extracted to dist/sddu/${NC}"
     else
         print_color "${YELLOW}[WARN] No SDDU pre-built distributions found, building from source...${NC}"
@@ -157,28 +159,28 @@ else
         
         # Build agents
         print_color "${GRAY}  Building agents...${NC}"
-        node "${SCRIPT_DIR}/scripts/build-agents.cjs"
+        node "${REPO_ROOT}/scripts/build-agents.cjs"
         if [ $? -ne 0 ]; then
             print_color "${RED}Agent build failed${NC}"
             exit 1
         fi
 
         # Build TypeScript
-        if [ -d "${SCRIPT_DIR}/node_modules" ]; then
+        if [ -d "${REPO_ROOT}/node_modules" ]; then
             print_color "${GRAY}  Building TypeScript...${NC}"
-            "${SCRIPT_DIR}/node_modules/.bin/tsc" --project "${SCRIPT_DIR}/tsconfig.json"
+            "${REPO_ROOT}/node_modules/.bin/tsc" --project "${REPO_ROOT}/tsconfig.json"
             if [ $? -ne 0 ]; then
                 print_color "${RED}TS build failed${NC}"
                 exit 1
             fi
         else
             print_color "${GRAY}  Installing dependencies...${NC}"
-            npm install --prefix "${SCRIPT_DIR}"
+            npm install --prefix "${REPO_ROOT}"
             if [ $? -ne 0 ]; then
                 print_color "${RED}Install failed${NC}"
                 exit 1
             fi
-            "${SCRIPT_DIR}/node_modules/.bin/tsc" --project "${SCRIPT_DIR}/tsconfig.json"
+            "${REPO_ROOT}/node_modules/.bin/tsc" --project "${REPO_ROOT}/tsconfig.json"
             if [ $? -ne 0 ]; then
                 print_color "${RED}TS build failed${NC}"
                 exit 1
@@ -187,7 +189,7 @@ else
 
         # Now run the packaging script to create the sddu distribution package
         print_color "${GRAY}  Creating SDDU distribution package...${NC}"
-        node "${SCRIPT_DIR}/scripts/package.cjs"
+        node "${REPO_ROOT}/scripts/package.cjs"
         if [ $? -ne 0 ]; then
             print_color "${RED}Package creation failed${NC}"
             exit 1
@@ -240,13 +242,13 @@ copy_distribution_to_plugin() {
 }
 
 # Copy SDDU version
-if ! copy_distribution_to_plugin "${SCRIPT_DIR}/dist/sddu" "$SDDU_PLUGIN_DEST" "SDDU"; then
+if ! copy_distribution_to_plugin "${REPO_ROOT}/dist/sddu" "$SDDU_PLUGIN_DEST" "SDDU"; then
     print_color "${RED}FATAL: SDDU plugin source not available. Cannot proceed.${NC}"
     exit 1
 fi
 
 # Copy agents from source to .opencode/agents/ - only SDDU agents
-if [ -d "${SCRIPT_DIR}/dist/sddu/agents" ]; then
+if [ -d "${REPO_ROOT}/dist/sddu/agents" ]; then
     print_color "${GRAY}  Copying SDDU agents from dist/sddu/agents/...${NC}"
     # Clean old SDDU/SDD agent files (only sddu-* and sdd-*, don't touch other plugins' agents)
     if [ -d "${TARGET_DIR}/.opencode/agents" ]; then
@@ -257,7 +259,7 @@ if [ -d "${SCRIPT_DIR}/dist/sddu/agents" ]; then
             print_color "${GREEN}[OK] Old SDDU/SDD agents cleaned${NC}"
         fi
     fi
-    cp "${SCRIPT_DIR}/dist/sddu/agents/"* "${TARGET_DIR}/.opencode/agents/" 2>/dev/null || print_color "${GRAY}  SDDU agents not found, continuing...${NC}"
+    cp "${REPO_ROOT}/dist/sddu/agents/"* "${TARGET_DIR}/.opencode/agents/" 2>/dev/null || print_color "${GRAY}  SDDU agents not found, continuing...${NC}"
 fi
 
 # Count agents copied (only .md files are agent definitions)
@@ -292,7 +294,7 @@ fi
 print_color "${CYAN}[6/${TOTAL_STEPS}] Version Detection...${NC}"
 
 # Get source version from SDDU directory
-SOURCE_PKG_PATH="${SCRIPT_DIR}/dist/sddu/package.json"
+SOURCE_PKG_PATH="${REPO_ROOT}/dist/sddu/package.json"
 
 if [ -f "$SOURCE_PKG_PATH" ]; then
     SOURCE_VERSION=$(node -p "require('$SOURCE_PKG_PATH').version" 2>/dev/null || echo "")
@@ -301,7 +303,7 @@ if [ -f "$SOURCE_PKG_PATH" ]; then
     fi
 else
     # Fallback: Get version from original source package.json
-    SOURCE_PKG_PATH_FOR_VERSION="${SCRIPT_DIR}/package.json"
+    SOURCE_PKG_PATH_FOR_VERSION="${REPO_ROOT}/package.json"
     SOURCE_VERSION=$(node -p "require('$SOURCE_PKG_PATH_FOR_VERSION').version" 2>/dev/null || echo "")
     if [ -z "$SOURCE_VERSION" ]; then
         SOURCE_VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "$SOURCE_PKG_PATH_FOR_VERSION" | cut -d'"' -f4)
@@ -314,7 +316,7 @@ print_color "${GREEN}[INFO] Source package version: $SOURCE_VERSION${NC}"
 print_color "${CYAN}[7/${TOTAL_STEPS}] Configuring SDDU opencode.json...${NC}"
 
 # Prepare SDDU configuration file
-OPENCODE_JSON_SOURCE_SDDU="${SCRIPT_DIR}/dist/sddu/opencode.json"
+OPENCODE_JSON_SOURCE_SDDU="${REPO_ROOT}/dist/sddu/opencode.json"
 
 # Verify SDDU configuration exists
 if [ ! -f "$OPENCODE_JSON_SOURCE_SDDU" ]; then

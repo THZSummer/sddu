@@ -26,7 +26,7 @@
       "assumption": "rank 表与各 rank 对应的根目录约定未变。",
       "observableCheck": "在 dsh Web UI 列出 skill，确认 SDDU 条目的来源标识与优先级；确认 <projectRoot>/.dsh/skills 被扫描。",
       "breakImpact": "落位失效 → FR-001 / V1 不可通过。",
-      "fixHint": "改 scripts/install-dsh.sh 的落位常量 + skill-header.md.hbs 的来源标识；必要时新增 rank 映射说明。",
+      "fixHint": "改 scripts/install/dsh/install.sh 的落位常量 + skill-header.md.hbs 的来源标识；必要时新增 rank 映射说明。",
       "coverageStatus": "covered",
       "coverageNote": "快照已覆盖（调研快照 §3.4）。"
     },
@@ -38,7 +38,7 @@
       "assumption": "scope 链组合方式与 skills/change 事件名未变。",
       "observableCheck": "安装/删除 sddu-* 目录后触发 skills/change，确认 dsh Web UI 的 skill 列表刷新、无陈旧缓存条目。",
       "breakImpact": "已安装但列表不可见（陈旧缓存）→ FR-001 / V1 不可通过。",
-      "fixHint": "更新 scripts/install-dsh.sh、scripts/uninstall-dsh.sh 的重新快照提示与 docs/dsh/README.md 的 EC-004 说明。",
+      "fixHint": "更新 scripts/install/dsh/install.sh、scripts/install/dsh/uninstall.sh 的重新快照提示与 docs/dsh/README.md 的 EC-004 说明。",
       "coverageStatus": "covered",
       "coverageNote": "快照已覆盖（调研快照 §3.4）。"
     },
@@ -74,7 +74,7 @@
       "assumption": "目录层级与根目录常量未变。",
       "observableCheck": "确认 <projectRoot>/.dsh/skills 存在且被扫描；用户级安装时确认 <dshHome>/skills 被扫描。",
       "breakImpact": "落位失效 → FR-008（安装/卸载/残留校验）与 FR-001 不可通过。",
-      "fixHint": "改 scripts/install-dsh.sh、scripts/uninstall-dsh.sh 的根目录常量；同步 docs/dsh/README.md 的落位推演表。",
+      "fixHint": "改 scripts/install/dsh/install.sh、scripts/install/dsh/uninstall.sh 的根目录常量；同步 docs/dsh/README.md 的落位推演表。",
       "coverageStatus": "covered",
       "coverageNote": "快照已覆盖（ADR-001 §2 rank 表）。"
     },

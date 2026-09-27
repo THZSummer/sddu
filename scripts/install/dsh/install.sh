@@ -16,7 +16,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 # ---------------------------------------------------------------------------
 # 落位与命名常量
@@ -46,7 +46,7 @@ usage() {
 SDDU 平台适配 Skill 包安装脚本（dsh）
 
 用法:
-  scripts/install-dsh.sh [选项]
+  scripts/install/dsh/install.sh [选项]
 
 选项:
   --scope project|user   落位作用域（默认 project = rank 100；user = rank 400）
@@ -107,7 +107,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     *)
       echo "❌ 未知参数: $1" >&2
-      echo "运行 'scripts/install-dsh.sh --help' 查看用法。" >&2
+      echo "运行 'scripts/install/dsh/install.sh --help' 查看用法。" >&2
       exit 2
       ;;
   esac
@@ -299,7 +299,7 @@ echo "  1) 在宿主 Web UI 中列出 skill，确认 ${#SDDU_SKILL_DIRS[@]} 个 
 echo "  2) 确认条目的来源标识形如 adapters/dsh@<版本>#2026-08-14（时效可追溯）；"
 echo "  3) 完整步骤与通过判据见 ${VERIFICATION_DOC} 的 V1 场景。"
 echo ""
-echo "✅ 安装完成。卸载请运行: scripts/uninstall-dsh.sh --scope ${SCOPE}"
+echo "✅ 安装完成。卸载请运行: scripts/install/dsh/uninstall.sh --scope ${SCOPE}"
 
 # ---- FR-004 启动引导 + FR-005 升级提示 --------------------------------------
 echo ""
