@@ -1,0 +1,12 @@
+{
+  "feature": "specs-tree-dsh-template-engine-fix",
+  "version": "v1.0",
+  "createdAt": "2026-09-28",
+  "summary": { "total": 4, "S": 4, "M": 0, "L": 0, "waves": 3 },
+  "tasks": [
+    { "id": "TASK-001", "name": "修改 agents 源（§6 平台中立 + §5.7 投影图语义）", "complexity": "S", "dependencies": [], "wave": 1, "fr": ["FR-001", "FR-002"], "files": [{ "op": "MODIFY", "path": "src/templates/agents/sddu-roadmap.md.hbs" }], "status": "completed" },
+    { "id": "TASK-002", "name": "修改 outputs 源（pie 拆分 + merged + 投影图标注）", "complexity": "S", "dependencies": [], "wave": 1, "fr": ["FR-002", "FR-003", "FR-004"], "files": [{ "op": "MODIFY", "path": "src/templates/outputs/sddu-roadmap.md.hbs" }], "status": "completed" },
+    { "id": "TASK-003", "name": "运行 build:dsh 重建 dist", "complexity": "S", "dependencies": ["TASK-001", "TASK-002"], "wave": 2, "fr": ["NFR-001"], "files": [{ "op": "MODIFY", "path": "dist/dsh/skills/sddu-roadmap/SKILL.md" }, { "op": "MODIFY", "path": "dist/dsh/skills/sddu-roadmap/templates/output/sddu-roadmap.md.hbs" }], "status": "completed" },
+    { "id": "TASK-004", "name": "构建验证（计数 + 逐字节 + 结构校验）", "complexity": "S", "dependencies": ["TASK-003"], "wave": 3, "fr": ["FR-001", "FR-002", "FR-003", "FR-004", "NFR-002"], "files": [], "status": "completed" }
+  ]
+}
