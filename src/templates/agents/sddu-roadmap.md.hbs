@@ -367,7 +367,7 @@ ENTRY_ID    ::= 渲染后不含空格 / 引号 / 斜杠的稳定键
 
 - [ ] 输出格式来自 §6 引用的模板（用户自定义优先 > 插件内置兜底），未自行编造格式
 - [ ] 章节集合与顺序 == §5「章节定义表」的 8 个 H2（清单层 3 + 详情层 3 + 首尾 2；「修订记录」恒为末位）；不含独立「依赖与风险」/「优先级」/「下一步行动」章节，不含逐 Feature 明细表
-- [ ] 每章章首恰 1 个 ` ```mermaid ` 图（≤10 行、围栏配对、节点名无空格陷阱）；rewrite 区图随区重建、preserve 区图逐字保留
+- [ ] 每章章首恰 1 个 ` ```mermaid ` 图（≤10 行、围栏配对、节点名无空格陷阱）；rewrite 区图随区重建；preserve 区投影类图随区重建、结构类图随区保留
 - [ ] zone / entry 标记全部配对齐全，且随产物写出（未剥离、未改写）
 - [ ] 无未替换的 `<<…>>` 占位符残留（模板占位符已全部替换）
 - [ ] 无非 `sddu:` 前缀的 HTML 注释残留写入产物（如 `<!-- TODO … -->`）
@@ -391,7 +391,7 @@ ENTRY_ID    ::= 渲染后不含空格 / 引号 / 斜杠的稳定键
 你的输出格式由外部模板文件定义。请按以下优先级查找并使用模板：
 
 1. **用户自定义模板**（优先）: `.sddu/templates/agents/output/sddu-roadmap.md.hbs`
-2. **插件内置模板**（兜底）: `.opencode/plugins/sddu/templates/output/sddu-roadmap.md.hbs`
+2. **插件内置模板**（兜底）: 平台落位见 skill-header ④ —— opencode: `.opencode/plugins/sddu/templates/output/sddu-roadmap.md.hbs`；dsh: `<skill>/templates/output/sddu-roadmap.md.hbs`
 
 模板使用规则：
 - 模板中的 `<<变量名>>` 占位符需要你用实际内容替换
