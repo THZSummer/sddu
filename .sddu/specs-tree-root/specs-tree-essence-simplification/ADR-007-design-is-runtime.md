@@ -1,0 +1,29 @@
+# ADR-007: 设计态即运行态——sddu-project-template/ = 用户项目根镜像，安装 = 复制粘贴
+
+## 状态
+PROPOSED（2026-11-23 用户拍板）
+
+## 背景
+零构建（ADR-006）落定后，安装已是"直拷三锚点"（methodology/ + sddu.md + adapters/SKILL.md → 各自目标路径）。但仓库内布局仍按**工程视角**组织（src/ 下平铺），与用户项目安装后布局（.sddu/sddu/…）不同构——安装器仍需做"源路径 → 目标路径"的映射知识。既然没有构建、没有渲染、没有路径改写，这层映射就是最后一处不必要的间接性。
+
+## 决策
+1. **`sddu-project-template/` = 用户项目根镜像**（设计态即运行态）：仓库内以用户项目根的目录结构存放全部待分发资产——
+   ```text
+   sddu-project-template/
+   ├── .sddu/sddu/sddu.md                  # 内核（头部版本字段 = 唯一版本源）
+   └── .sddu/sddu/modules/<业务>/ ×10         # 业务子包：sddu-<stage>.md（×10，命名即业务名）+ contracts/（×31，.md 占位符为文档约定，含 plan 的 adr.md）
+   ├── .agents/skills/sddu/SKILL.md           # 唯一入口（落位即安装后路径）
+   （无其他平台适配物——.agents/skills 为唯一入口落位；2026-11-23 拍板删除发现指针机制：平台 skill 识别问题非 sddu 核心，不支持该约定的平台由用户自行放置入口，复制粘贴即得）
+   ```
+2. **安装 = 复制粘贴**：`cp -r sddu-project-template/. <project>/`——源路径与安装后路径**逐项相同**，安装器不含任何路径映射知识；仅剩旧布局迁移（无平台分支、无 --platform）。
+3. **现存 `src/` 整目录退役**：TS ×18 + 测试 + skills/ + adapters/ 随 ADR-005/007 退出；md 资产（templates/{agents,outputs}）迁入镜像内 `.sddu/sddu/modules/<业务>/`。
+4. **命名即语义**：目录名 `sddu-project-template` 直接表达"这是一个 SDDU 项目模板"，仓库浏览者无需文档即可理解其用途。
+
+## 对既有设计的深化
+- ADR-006（零构建）：安装源从"三锚点散取"深化为"整棵模板目录复制"——更简；
+- ADR-004（统一安装范式）：范式五原则之 3（可重建）获得最直接实现——删 sddu/ 后重跑一次 `cp -r` 即恢复，逐字节一致；
+- NFR-006（新平台零适配）更强：新增平台 = 在模板目录放一个入口 md，复制即完成，无任何工具链；**指针机制已删除（2026-11-23 拍板）**——平台 skill 识别问题非 sddu 核心，不内置任何适配物。
+
+## 后果
+- 正面：消除源↔目标的路径映射（安装器无映射知识 = 无映射错误面）；模板目录可直接 zip 分发/手工复制（无安装器亦可用）；结构自解释。
+- 负面：仓库根出现点开头的镜像目录（.sddu/.agents/.opencode 藏于 sddu-project-template/ 内，编辑器默认可能隐藏——缓解：README 指路 + check-essence-sync 校验模板完整性）；模板内文件不得引用仓库外路径（check-essence-sync 增加断言：模板内零 `../` 引用）。

@@ -1,0 +1,48 @@
+{
+  "feature": "specs-tree-essence-simplification",
+  "featureId": "FR-ESSENCE-001",
+  "name": "简化与本质化（回归方法论本质）",
+  "version": "v6.0.0",
+  "phase": "planned",
+  "status": "tracked",
+  "depth": 0,
+  "childrens": [],
+  "phaseHistory": [
+    {
+      "phase": "registered",
+      "status": "tracked",
+      "timestamp": "2026-11-22T10:25:00.000Z",
+      "triggeredBy": "sddu",
+      "comment": "v6.0.0「简化与本质化」立项（PR-017 转化，承接 P-042）"
+    },
+    {
+      "phase": "discovered",
+      "status": "tracked",
+      "timestamp": "2026-11-22T10:32:00.000Z",
+      "triggeredBy": "sddu-discovery",
+      "comment": "Stage 0 问题挖掘完成：7 问题（核心 2 / 次要 3 / 潜在 2）/ 4 假设 / 5 风险"
+    },
+    {
+      "phase": "specified",
+      "status": "tracked",
+      "timestamp": "2026-11-22T10:45:00.000Z",
+      "triggeredBy": "sddu-spec",
+      "comment": "Stage 1 需求规范完成：7 FR / 5 NFR / 6 EC（两大支柱 + 裁撤用户确认制）"
+    },
+    {
+      "phase": "planned",
+      "status": "tracked",
+      "timestamp": "2026-11-22T10:58:00.000Z",
+      "triggeredBy": "sddu-plan",
+      "comment": "Stage 2 技术规划完成：方案 A（内核文档+引用+构建校验）；产出 ADR-001~003；文件影响 NEW×4 / MODIFY×8 类 / DELETE×3 类"
+    },
+    {
+      "phase": "planned",
+      "status": "tracked",
+      "timestamp": "2026-11-23T01:10:00.000Z",
+      "triggeredBy": "sddu",
+      "comment": "回退 tasked：tasks 产物撤除（plan 迭代期避免双文档同步负担），待 plan 冻结后重新进入 tasks 阶段；plan 已迭代至 v4.0（ADR-001~006：统一安装范式 / 零 TS / 零构建）"
+    }
+  ],
+  "description": "回归方法论本质（v6.0.0）：方法论内核蒸馏 + 载体瘦身；统一安装范式（core/workspace 二分 + 唯一入口 + 零运行时件）；载体降位为可替换附属品。"
+}
