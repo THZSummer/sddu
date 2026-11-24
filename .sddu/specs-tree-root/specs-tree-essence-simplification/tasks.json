@@ -1,0 +1,25 @@
+{
+  "feature": "specs-tree-essence-simplification",
+  "featureId": "FR-ESSENCE-001",
+  "version": "v6.0.0",
+  "taskCount": 15,
+  "waveCount": 4,
+  "complexity": { "S": 2, "M": 5, "L": 8 },
+  "tasks": [
+    { "id": "TASK-001", "name": "方法论内核蒸馏 sddu.md", "complexity": "L", "dependencies": [], "wave": 1, "fr": ["FR-001", "FR-003"] },
+    { "id": "TASK-002", "name": "src/ 整目录退役删除", "complexity": "L", "dependencies": ["TASK-007", "TASK-008"], "wave": 3, "fr": ["FR-005"] },
+    { "id": "TASK-003", "name": "scripts/ prune——构建链与旧脚本退役", "complexity": "M", "dependencies": [], "wave": 1, "fr": ["FR-005"] },
+    { "id": "TASK-004", "name": "零 npm + 根配置退役 + bootstrap 删除", "complexity": "M", "dependencies": [], "wave": 1, "fr": ["FR-005", "NFR-005"] },
+    { "id": "TASK-005", "name": "项目私有资产降级 MOVE（opencode-operator / dev-guide）", "complexity": "M", "dependencies": [], "wave": 1, "fr": ["FR-005"] },
+    { "id": "TASK-006", "name": "归档清理（历史残留）", "complexity": "S", "dependencies": [], "wave": 1, "fr": ["FR-005"] },
+    { "id": "TASK-007", "name": "模板迁移 ×10", "complexity": "L", "dependencies": ["TASK-001"], "wave": 2, "fr": ["FR-002"] },
+    { "id": "TASK-008", "name": "契约迁移 ×31", "complexity": "L", "dependencies": ["TASK-001"], "wave": 2, "fr": ["FR-002"] },
+    { "id": "TASK-009", "name": "索引 + workspace 空骨架", "complexity": "M", "dependencies": ["TASK-001"], "wave": 2, "fr": ["FR-008"] },
+    { "id": "TASK-010", "name": "README/LICENSE 入本体", "complexity": "S", "dependencies": ["TASK-001"], "wave": 2, "fr": ["FR-002"] },
+    { "id": "TASK-011", "name": "复制器 install.{sh,ps1}", "complexity": "L", "dependencies": ["TASK-009", "TASK-010"], "wave": 3, "fr": ["FR-008"] },
+    { "id": "TASK-012", "name": "e2e 改造（裸 node 结构回归）", "complexity": "L", "dependencies": ["TASK-002", "TASK-011"], "wave": 3, "fr": ["FR-005", "NFR-002"] },
+    { "id": "TASK-013", "name": "存量迁移（state.md + 目录重命名 + architecture 迁散）", "complexity": "L", "dependencies": ["TASK-001"], "wave": 3, "fr": ["FR-007", "FR-008"] },
+    { "id": "TASK-014", "name": "本仓库 dogfooding 迁 workspace + 路径引用 ×59", "complexity": "L", "dependencies": ["TASK-013"], "wave": 4, "fr": ["FR-008", "FR-002"] },
+    { "id": "TASK-015", "name": "ROADMAP 回填（路线图重估）", "complexity": "M", "dependencies": [], "wave": 4, "fr": ["FR-006"] }
+  ]
+}
