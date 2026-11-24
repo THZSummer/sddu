@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.36  
+> **版本**: v5.37  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-24  
-> **更新说明**: 排查 B6 裁决退役：e2e 场景生成器 + FULLSTACK 指南——新设计无需复杂自动化验证（e2e = 裸 node 结构回归，静态断言）；产出 ADR-023
+> **更新说明**: 排查 B4 裁决降级：dev-guide 退化到 .agents/skills/dev-guide/（项目自有 skill，非 sddu 产品一部分，模板不含）；§5.2 MODIFY 行改 MOVE；产出 ADR-024
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -197,7 +197,7 @@ sddu/                                        # 仓库根
 | NEW | `sddu-project-template/.sddu/.sddu/modules/sddu-plan/contracts/adr.md` | **补 ADR 契约模板**（现状缺失）：ADR = plan 阶段产物（标题/状态/背景/决策/后果五段式，随 Feature 存储），原 30 契约不含它——新增使其成为 plan 契约 ×2；契约总数 30 → 31 |
 | MOVE+MODIFY | `README.md` → `sddu-project-template/.sddu/.sddu/README.md` | 发布元数据入本体（ADR-013）：随本体 `cp -r` 分发（用户安装即得）；重排「本质先行」（是什么 / 怎么装 / 7 阶段概览 → 指向 sddu.md，不转写方法论）；根不设副本，行数目标显著下降（NFR-005 记录前后对比） |
 | MOVE | `LICENSE` → `sddu-project-template/.sddu/.sddu/LICENSE` | 发布元数据入本体（ADR-013）：随装即得合法使用授权；根不设副本；CHANGELOG 不增设（ROADMAP §3 投影 + 修订记录即历史） |
-| MODIFY | `.sddu/skills/dev-guide/SKILL.md` | 方法论口径改引用 sddu.md（FR-002） |
+| MOVE | `.sddu/skills/dev-guide/` → `.agents/skills/dev-guide/` | **降级为项目自有 skill（ADR-024，排查 B4 拍板）**：不作为 sddu 产品一部分——sddu-project-template/ 不含 dev-guide；与 sddu 索引（`.agents/skills/sddu/`）并列但性质不同（项目私有 vs 产品分发）；内容重写延后（私有 skill 按需重写）；退出 FR-002 产品载体对齐清单 |
 | DELETE | `package.json` / `package-lock.json` | **零 npm（2026-11-24 用户拍板）**：零 TS 后无任何依赖、零构建后无任何脚本——npm 流程整体退役，仓库不再是 npm 项目；两命令均裸脚本直跑：`sh scripts/install/install.sh`（安装）、`node e2e/<scenario>.mjs`（结构回归）；版本源归 sddu.md 头部唯一（C1 矛盾根除） |
 | DELETE | `tsconfig.json` / `jest.config.ts`（根） | TS 源归零后编译/测试配置随之退役（Q-002 的死别名问题以「整个配置删除」终结） |
 | MODIFY | `e2e/` | jest TS 测试（sddu-workflow / multi-feature + jest.config.ts）→ 裸 node 结构回归脚本（`node e2e/<scenario>.mjs`）：安装范式断言（.sddu 文件计数与哈希、1 入口、workspace 逐字节不变、旧布局迁移与回滚）；原依赖 dist CLI 的运行时断言随运行时退役 |
@@ -262,6 +262,7 @@ sddu/                                        # 仓库根
 | ADR-021 | 状态机蒸馏底稿清单——九条语义全量并入 TASK-002（能力丢失排查 🟡A） | PROPOSED |
 | ADR-022 | 内置 Skill 机制退役（creator/discovery/sync）——框架聚焦 sddu 核心，非核心一律不提供（能力丢失排查 B1/B2/B3） | PROPOSED |
 | ADR-023 | e2e 场景生成器与 FULLSTACK 指南退役——新设计无需复杂自动化验证（能力丢失排查 B6） | PROPOSED |
+| ADR-024 | dev-guide 降级为项目自有 skill——非 sddu 产品的一部分（能力丢失排查 B4） | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -308,6 +309,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.37 | 排查 **B4 裁决降级迁移**：dev-guide 退化到 **`.agents/skills/dev-guide/`**——作为本项目自己的 skill，**不作为 sddu 产品的一部分**（sddu-project-template/ 不含；与 sddu 索引并列但性质不同：项目私有 vs 产品分发）；§5.2 原 MODIFY 行作废改 MOVE；退出 FR-002 产品载体对齐清单；内容重写延后；产出 ADR-024 | 2026-11-24 | SDDU Plan Agent |
 | v5.36 | 排查 **B6 裁决退役**：e2e 场景生成器（basic/fullstack）+ FULLSTACK 指南退役——**新的设计无需这么多复杂的自动化验证**：e2e = 裸 node 结构回归（静态文件树断言），场景生成器验证的旧行为面（TS 运行时+插件+命令）已随 src/ 退役消失；实测 = 用户真实使用（dogfooding）；§5.1 树 e2e 范围明确 + e2e/scripts/ 与指南补 ✖D；产出 ADR-023 | 2026-11-24 | SDDU Plan Agent |
 | v5.35 | 排查 **B1/B2/B3 整体退役（同一 ADR）**：内置 skill 机制（creator/discovery/sync）新的设计不提供——**聚焦 sddu 核心内容，非 sddu 核心未来也不会再提供**；三项均为内置 skill 机制，配套旧范式（skills 落平台目录）已消失；与 ADR-015（场景）/ADR-018（平台）连成三维裁决矩阵（+生态维度）；**框架级 skills ×4 全部出清**（tree=ADR-010），FR-004 skill 体系评估就此闭环；产出 ADR-022 | 2026-11-24 | SDDU Plan Agent |
 | v5.34 | 排查 **🟡A 整体采纳**：九条蒸馏底稿清单（A1 FR-006 自动 completed / A2 父特性天花板 / A3 状态可逆表 / A4 依赖拦截规则 / A5 phaseHistory 契约 / A6 前置产物表 / A7 createFeature 规则 / A8 完成协议改写 / A9 缺陷修正）全量并入 TASK-002，蒸馏时逐条比对勾销；A4↔ADR-016、A6↔ADR-017、A8↔ADR-018 绑定显式化；产出 ADR-021 | 2026-11-24 | SDDU Plan Agent |
