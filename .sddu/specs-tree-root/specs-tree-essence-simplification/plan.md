@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.33  
+> **版本**: v5.34  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-24  
-> **更新说明**: 排查 L7 裁决退役：bootstrap 整体退役——新设计不区分平台（cp -r 全平台同动作，平台分派前提消失）；安装说明归 README 两步命令；§5.1 树补 ✖D；产出 ADR-020
+> **更新说明**: 排查 🟡A 整体采纳：九条蒸馏底稿清单（A1~A9）全量并入 TASK-002，逐条比对勾销；与 ADR-016/017/018 绑定显式化；产出 ADR-021
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -257,6 +257,7 @@ sddu/                                        # 仓库根
 | ADR-018 | 文件驱动自动推进退役——插件事件驱动属平台限定业务，框架不包容（能力丢失排查 L5） | PROPOSED |
 | ADR-019 | state 自动修复/隐式迁移判非问题——一次性转换，无隐式修复（能力丢失排查 L6） | PROPOSED |
 | ADR-020 | bootstrap 一键安装退役——新设计不区分平台（能力丢失排查 L7） | PROPOSED |
+| ADR-021 | 状态机蒸馏底稿清单——九条语义全量并入 TASK-002（能力丢失排查 🟡A） | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -303,6 +304,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.34 | 排查 **🟡A 整体采纳**：九条蒸馏底稿清单（A1 FR-006 自动 completed / A2 父特性天花板 / A3 状态可逆表 / A4 依赖拦截规则 / A5 phaseHistory 契约 / A6 前置产物表 / A7 createFeature 规则 / A8 完成协议改写 / A9 缺陷修正）全量并入 TASK-002，蒸馏时逐条比对勾销；A4↔ADR-016、A6↔ADR-017、A8↔ADR-018 绑定显式化；产出 ADR-021 | 2026-11-24 | SDDU Plan Agent |
 | v5.33 | 排查 **L7 裁决退役**：bootstrap.sh/ps1 整体退役——**新设计不区分平台**（统一安装 = cp -r 一条命令全平台同动作，bootstrap 平台分派前提消失；--platform 分支 + 间接 npm 构建依赖同为死代码）；安装说明归 README（git clone + cp -r 两步，消除 curl 管道供应链信任问题）；§5.1 树补 ✖D 标注；产出 ADR-020 | 2026-11-24 | SDDU Plan Agent |
 | v5.32 | 排查 **L6 判非问题**：state 自动修复/隐式版本迁移**不考虑迁移的事情**——存量转换 = ADR-008 一次性显式转换（EC-005 逐文件回归断言），转换后 state.md 天生符合契约、无旧格式输入；无常驻隐式修复层（静默改数据是最危险漂移源）；异常走 e2e 显式暴露 + 按目录与产物显式重建；蒸馏底稿不含修复语义；产出 ADR-019 | 2026-11-24 | SDDU Plan Agent |
 | v5.31 | 排查 **L5 裁决 C 完全退役**：auto-updater 文件驱动自动推进——触发链挂在 OpenCode 插件事件（file.edited/session.idle）上，属插件内容；**平台限定业务不入框架**（与 ADR-015 场景中立同构）；阶段推进唯一路径 = A8 完成协议（Agent 写完产物即更新 state.md）；TASK-002 蒸馏范围明确排除文件反推语义；产出 ADR-018 | 2026-11-24 | SDDU Plan Agent |
