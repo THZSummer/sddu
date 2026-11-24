@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.32  
+> **版本**: v5.33  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-24  
-> **更新说明**: 排查 L6 判非问题：state 自动修复/隐式迁移不考虑——一次性显式转换后契约天生纯净，无常驻隐式修复层；产出 ADR-019
+> **更新说明**: 排查 L7 裁决退役：bootstrap 整体退役——新设计不区分平台（cp -r 全平台同动作，平台分派前提消失）；安装说明归 README 两步命令；§5.1 树补 ✖D；产出 ADR-020
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -62,7 +62,9 @@ sddu/                                        # 仓库根
 ├── package-lock.json                         ✖D    随 package.json 退役
 ├── tsconfig.json                            ✖D    TS 源归零，编译配置随之退役（ADR-005）
 ├── jest.config.ts                           ✖D    根 jest 工程（core/opencode/integration）随 TS 测试退役；e2e 转裸 node 脚本
-├── bootstrap.sh / bootstrap.ps1
+├── bootstrap.sh / bootstrap.ps1                  ✖D    一键安装退役（ADR-020）：新设计不区分平台（cp -r 全平台同动作，
+│                                            #     平台分派前提消失；--platform 分支与间接 npm 依赖同为死代码；
+│                                            #     安装说明归 README：git clone + cp -r 两步）
 ├── LICENSE                                  ✖D    MOVE 入本体：→ .sddu/.sddu/LICENSE（ADR-013，随装即得合法授权）
 ├── .gitignore
 │
@@ -254,6 +256,7 @@ sddu/                                        # 仓库根
 | ADR-017 | files 产物注册字段退役——目录即真相，产物存在性直查不注册（能力丢失排查 L4） | PROPOSED |
 | ADR-018 | 文件驱动自动推进退役——插件事件驱动属平台限定业务，框架不包容（能力丢失排查 L5） | PROPOSED |
 | ADR-019 | state 自动修复/隐式迁移判非问题——一次性转换，无隐式修复（能力丢失排查 L6） | PROPOSED |
+| ADR-020 | bootstrap 一键安装退役——新设计不区分平台（能力丢失排查 L7） | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -300,6 +303,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.33 | 排查 **L7 裁决退役**：bootstrap.sh/ps1 整体退役——**新设计不区分平台**（统一安装 = cp -r 一条命令全平台同动作，bootstrap 平台分派前提消失；--platform 分支 + 间接 npm 构建依赖同为死代码）；安装说明归 README（git clone + cp -r 两步，消除 curl 管道供应链信任问题）；§5.1 树补 ✖D 标注；产出 ADR-020 | 2026-11-24 | SDDU Plan Agent |
 | v5.32 | 排查 **L6 判非问题**：state 自动修复/隐式版本迁移**不考虑迁移的事情**——存量转换 = ADR-008 一次性显式转换（EC-005 逐文件回归断言），转换后 state.md 天生符合契约、无旧格式输入；无常驻隐式修复层（静默改数据是最危险漂移源）；异常走 e2e 显式暴露 + 按目录与产物显式重建；蒸馏底稿不含修复语义；产出 ADR-019 | 2026-11-24 | SDDU Plan Agent |
 | v5.31 | 排查 **L5 裁决 C 完全退役**：auto-updater 文件驱动自动推进——触发链挂在 OpenCode 插件事件（file.edited/session.idle）上，属插件内容；**平台限定业务不入框架**（与 ADR-015 场景中立同构）；阶段推进唯一路径 = A8 完成协议（Agent 写完产物即更新 state.md）；TASK-002 蒸馏范围明确排除文件反推语义；产出 ADR-018 | 2026-11-24 | SDDU Plan Agent |
 | v5.30 | 排查 **L4 裁决 A 退役**：files 产物注册字段退役——**目录即真相**（产物存在性按目录约定文件名直查，注册副本即漂移源）；前置产物门禁语义保留、数据源换轨为直查（底稿 A6 判定依据同步）；模块迁移约束：sddu-review/sddu-validate 模板删除 files 回写联动段（与 ADR-015 API 门禁段同批）；产出 ADR-017 | 2026-11-24 | SDDU Plan Agent |

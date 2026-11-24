@@ -158,7 +158,7 @@
 - B. 重写为极简 bootstrap（git clone + cp -r sddu-project-template/. <project>/，零 npm 依赖）
 - C. 保留现状（不可行——构建链已亡）
 
-**裁决**：________________
+**裁决**：✅ **A 退役（2026-11-24 拍板）**——新的设计不区分平台（统一安装 = cp -r 一条命令全平台同动作，bootstrap 的平台分派前提消失；--platform 分支与间接 npm 依赖同为死代码）；一行安装的说明归 README（git clone + cp -r 两步）；§5.1 树补 ✖D 标注；产出 ADR-020
 
 ---
 
