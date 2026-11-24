@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.38  
+> **版本**: v5.39  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-24  
-> **更新说明**: 排查 L1 裁决降级：opencode-operator 退化到 .agents/skills/opencode-operator/（项目自有 skill，与 dev-guide 同构，模板不含）；src/ DELETE 唯一 MOVE 例外；产出 ADR-025
+> **更新说明**: 排查 L8 按现状设计保留：标记命令族+仪表盘语义全量蒸馏进 sddu.md（三处同步退化为单处；停滞检测现算零存储）；front-matter 十→十二字段（+suspendedUntil/mergedInto）；TASK-002 底稿范围扩展；产出 ADR-026
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -264,6 +264,7 @@ sddu/                                        # 仓库根
 | ADR-023 | e2e 场景生成器与 FULLSTACK 指南退役——新设计无需复杂自动化验证（能力丢失排查 B6） | PROPOSED |
 | ADR-024 | dev-guide 降级为项目自有 skill——非 sddu 产品的一部分（能力丢失排查 B4） | PROPOSED |
 | ADR-025 | opencode-operator 降级为项目自有 skill——非 sddu 产品的一部分（能力丢失排查 L1，与 dev-guide 同构） | PROPOSED |
+| ADR-026 | 标记命令族与仪表盘语义按现状设计保留——全量蒸馏进 sddu.md（能力丢失排查 L8） | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -310,6 +311,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.39 | 排查 **L8 按现状设计保留**：标记命令族（--until/--note/--into + 不可逆二次确认）与仪表盘五组语义（6 区分类 / 停滞检测+到期提醒+merged 目标检查 / 子随父归 / 下一步推荐）**全量蒸馏进 sddu.md**（标记→状态协议段、仪表盘→读取规则段）；三处同步退化为单处写 feature state.md（随 ADR-008/010）；停滞检测由 phaseHistory 末条现算（零存储）；ADR-005 字段契约十→**十二字段**（+suspendedUntil/mergedInto 条件性伴随，note 进正文）；TASK-002 底稿范围扩展（新增两组语义）；产出 ADR-026 | 2026-11-24 | SDDU Plan Agent |
 | v5.38 | 排查 **L1 裁决降级迁移**：opencode-operator 退化到 **`.agents/skills/opencode-operator/`**——与 dev-guide（ADR-024）同构：作为本项目自己的 skill，不作为 sddu 产品的一部分（模板不含；opencode 平台专属 + 非方法论内核，产品面双维否决）；**src/ DELETE 伞形范围唯一 MOVE 例外**（src/skills/builtin/opencode-operator/ 迁出，其余照删）；commander 私有依赖随目录自包含（产品零 npm 不受影响）；产出 ADR-025 | 2026-11-24 | SDDU Plan Agent |
 | v5.37 | 排查 **B4 裁决降级迁移**：dev-guide 退化到 **`.agents/skills/dev-guide/`**——作为本项目自己的 skill，**不作为 sddu 产品的一部分**（sddu-project-template/ 不含；与 sddu 索引并列但性质不同：项目私有 vs 产品分发）；§5.2 原 MODIFY 行作废改 MOVE；退出 FR-002 产品载体对齐清单；内容重写延后；产出 ADR-024 | 2026-11-24 | SDDU Plan Agent |
 | v5.36 | 排查 **B6 裁决退役**：e2e 场景生成器（basic/fullstack）+ FULLSTACK 指南退役——**新的设计无需这么多复杂的自动化验证**：e2e = 裸 node 结构回归（静态文件树断言），场景生成器验证的旧行为面（TS 运行时+插件+命令）已随 src/ 退役消失；实测 = 用户真实使用（dogfooding）；§5.1 树 e2e 范围明确 + e2e/scripts/ 与指南补 ✖D；产出 ADR-023 | 2026-11-24 | SDDU Plan Agent |
