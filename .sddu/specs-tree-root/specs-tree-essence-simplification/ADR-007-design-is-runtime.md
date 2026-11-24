@@ -12,8 +12,8 @@ PROPOSED（2026-11-23 用户拍板）
    sddu-project-template/
    ├── .sddu/.sddu/sddu.md                  # 内核（头部版本字段 = 唯一版本源）
    └── .sddu/.sddu/modules/<业务>/ ×10         # 业务子包：sddu-<stage>.md（×10，命名即业务名）+ contracts/（×31，.md 占位符为文档约定，含 plan 的 adr.md）
-   ├── .agents/skills/sddu/SKILL.md           # 唯一入口（落位即安装后路径）
-   （无其他平台适配物——.agents/skills 为唯一入口落位；2026-11-23 拍板删除发现指针机制：平台 skill 识别问题非 sddu 核心，不支持该约定的平台由用户自行放置入口，复制粘贴即得）
+   ├── .agents/skills/sddu/SKILL.md           # 纯索引/引导（落位即安装后路径；唯一入口 = .sddu/.sddu/sddu.md）
+   （无其他平台适配物——.agents/skills 为索引落位；2026-11-23 拍板删除发现指针机制：平台 skill 识别问题非 sddu 核心，不支持该约定的平台由用户自行放置索引，复制粘贴即得）
    ```
 2. **安装 = 复制粘贴**：`cp -r sddu-project-template/. <project>/`——源路径与安装后路径**逐项相同**，安装器不含任何路径映射知识；仅剩旧布局迁移（无平台分支、无 --platform）。
 3. **现存 `src/` 整目录退役**：TS ×18 + 测试 + skills/ + adapters/ 随 ADR-005/007 退出；md 资产（templates/{agents,outputs}）迁入镜像内 `.sddu/.sddu/modules/<业务>/`。
