@@ -4,10 +4,10 @@
 > **前置依赖**: discovery.md（问题清单：7 问题 / 4 假设 / 5 风险）  
 > **创建人**: SDDU Spec Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v1.30  
+> **版本**: v1.31  
 > **更新人**: SDDU Spec Agent  
 > **更新时间**: 2026-11-23  
-> **更新说明**: modules/ 下 10 个业务子目录统一加 `sddu-` 前缀，与指令文件名 sddu-<stage>.md 同族；FR-008 同步
+> **更新说明**: TREE.md 整体裁撤（目录名即导航）；FR-008 验收② 空骨架清单移除 TREE 种子
 
 ## 1. 元数据
 > Feature 基本信息
@@ -72,7 +72,7 @@
 | FR-005 | **瘦身执行（用户确认制）**：分类清单中「可删/可合并」项逐批提交用户显式确认后执行；确认记录留痕；裁撤后双平台 7 阶段流程仍可完整走通 | ① 每个裁撤项有用户确认记录（无静默裁撤）；② 裁撤后 e2e basic 通过、dsh 侧 11 skill 静态结构测试通过；③ 保留载体与分类清单一致 | P0 |
 | FR-006 | **路线图重估**：按判定标准对 v7~v12 全部未实施提案（PR-001~PR-012、PR-015、PR-016、PR-007，共 14 项）逐项重估，产出保留/搁置/合并结论并回填 ROADMAP | ① 14 项提案每项有重估结论与依据；② ROADMAP §3/§5/§6 按结论更新（状态/版本归属如实反映） | P0 |
 | FR-007 | **状态载体归 md**（2026-11-24 用户拍板）：`state.json` 整体退役，状态统一承载于 `state.md`——front-matter（YAML）承载机器字段（feature/featureId/name/version/phase/status/depth/childrens/phaseHistory/description，契约由 sddu.md 状态模型章节定义），正文承载人类可读摘要（当前阶段/下一步/负责人/更新时间/定稿标记）；文档即状态彻底兑现；**不考虑迁移成本**（产品未推广，存量 json 直接转换或随 Feature 归档） | ① 每个 Feature 有且仅有一份 `state.md`（无 state.json）；② front-matter 字段契约由 sddu.md 状态模型章节定义，e2e 结构回归断言 phase/status 枚举一致；③ 正文摘要与 front-matter 一致；④ 非技术成员可仅凭正文读懂当前状态 | P1 |
-| FR-008 | **统一安装范式**（2026-11-22 用户追加并五度简化）：`.sddu/` 按 **.sddu / workspace 二分**（.sddu=本体可重建，workspace=用户产物绝不触碰）；**.sddu 按业务模块组织、内部无 agent/skill 概念**——`modules/sddu-<业务>/`（一个阶段/流程 = 一个自包含子包：sddu-<stage>.md 指令（命名即业务名）+ contracts/ 契约同包内聚；7 阶段 + fast/roadmap/docs 共 10 包）；原框架级 skills ×4 移出 .sddu 转 FR-004 裁撤评估；**唯一入口 = `.sddu/.sddu/sddu.md` 内核**（含路由表 + 门禁/状态协议 + 读取规则）；`.agents/skills/sddu/SKILL.md` 为纯索引/引导（引导 Agent 加载 sddu.md），收到 `<stage> <feature>` 由 sddu.md 路由表读取 `.sddu/modules/sddu-<stage>/sddu-<stage>.md`；**不内置平台发现适配**（无指针机制——平台 skill 识别问题非 sddu 核心，不支持 `.agents/skills` 约定的平台由用户自行放置入口文件，复制粘贴即得）；安装 = 复制 .sddu + 索引（模板整树 `cp -r`） | ① 两平台 `.sddu/.sddu/` 逐项一致；② workspace 已有内容安装/升级前后逐字节不变（首次安装仅初始化空骨架：ROADMAP/TREE 种子 + specs-tree-root/ + docs-tree-root/（5 领域）+ .sddu-config/（用户个性化配置，不预设））；③ 删索引或 .sddu/ 可重建；④ 存量旧布局自动迁移（备份+回滚）；⑤ 扩展性：支持 `.agents/skills` 的新平台零适配、零改动（不支持的平台不在服务范围，不内置指针等适配机制）；⑥ 安装产物零运行时组件、索引零平台副本、.sddu 无 agent/skill 目录；⑦ **Feature 目录命名含目标版本号**：`specs-tree-<version>-<slug>`（备注：version 为三段式、次段两位零填充保字典序；slug 为特性短名；`state.md` front-matter 的 `feature` 为去前缀的 `<version>-<slug>`；存量目录按各自 `state.md` front-matter 的 `version` 重命名，历史无版本者沿用原名并标注）；⑧ **ADR 随 Feature 存储**：标准 SDDU 项目无独立 `architecture/` 目录，全部 ADR 位于各自 Feature 目录内（存量 `architecture/adr/` 迁入归属 Feature 或归档）；⑨ **设计态即运行态**：仓库内 `sddu-project-template/` = 用户项目根镜像（与①~⑧ 所述安装后布局逐项对应），安装 = `cp -r` 复制粘贴——源路径 = 安装后路径，零构建、零打包、零路径改写（无安装器时手工复制亦等效）；⑩ **每阶段用户前置/后置钩子**：`workspace/.sddu-config/modules/sddu-<stage>/sddu-<stage>-{before,after}.md`（默认空），入口执行该阶段前/后按需读取（空则跳过），用户可写入该阶段的个性化要求；⑪ **用户自定义输出模板**：`workspace/.sddu-config/modules/sddu-<stage>/contracts/<contract>.md`（默认空），产物契约优先采用（缺省回退 core 同名契约），用户可覆盖内置输出模板 | P0 |
+| FR-008 | **统一安装范式**（2026-11-22 用户追加并五度简化）：`.sddu/` 按 **.sddu / workspace 二分**（.sddu=本体可重建，workspace=用户产物绝不触碰）；**.sddu 按业务模块组织、内部无 agent/skill 概念**——`modules/sddu-<业务>/`（一个阶段/流程 = 一个自包含子包：sddu-<stage>.md 指令（命名即业务名）+ contracts/ 契约同包内聚；7 阶段 + fast/roadmap/docs 共 10 包）；原框架级 skills ×4 移出 .sddu 转 FR-004 裁撤评估；**唯一入口 = `.sddu/.sddu/sddu.md` 内核**（含路由表 + 门禁/状态协议 + 读取规则）；`.agents/skills/sddu/SKILL.md` 为纯索引/引导（引导 Agent 加载 sddu.md），收到 `<stage> <feature>` 由 sddu.md 路由表读取 `.sddu/modules/sddu-<stage>/sddu-<stage>.md`；**不内置平台发现适配**（无指针机制——平台 skill 识别问题非 sddu 核心，不支持 `.agents/skills` 约定的平台由用户自行放置入口文件，复制粘贴即得）；安装 = 复制 .sddu + 索引（模板整树 `cp -r`） | ① 两平台 `.sddu/.sddu/` 逐项一致；② workspace 已有内容安装/升级前后逐字节不变（首次安装仅初始化空骨架：ROADMAP 种子 + specs-tree-root/ + docs-tree-root/（5 领域）+ .sddu-config/（用户个性化配置，不预设））；③ 删索引或 .sddu/ 可重建；④ 存量旧布局自动迁移（备份+回滚）；⑤ 扩展性：支持 `.agents/skills` 的新平台零适配、零改动（不支持的平台不在服务范围，不内置指针等适配机制）；⑥ 安装产物零运行时组件、索引零平台副本、.sddu 无 agent/skill 目录；⑦ **Feature 目录命名含目标版本号**：`specs-tree-<version>-<slug>`（备注：version 为三段式、次段两位零填充保字典序；slug 为特性短名；`state.md` front-matter 的 `feature` 为去前缀的 `<version>-<slug>`；存量目录按各自 `state.md` front-matter 的 `version` 重命名，历史无版本者沿用原名并标注）；⑧ **ADR 随 Feature 存储**：标准 SDDU 项目无独立 `architecture/` 目录，全部 ADR 位于各自 Feature 目录内（存量 `architecture/adr/` 迁入归属 Feature 或归档）；⑨ **设计态即运行态**：仓库内 `sddu-project-template/` = 用户项目根镜像（与①~⑧ 所述安装后布局逐项对应），安装 = `cp -r` 复制粘贴——源路径 = 安装后路径，零构建、零打包、零路径改写（无安装器时手工复制亦等效）；⑩ **每阶段用户前置/后置钩子**：`workspace/.sddu-config/modules/sddu-<stage>/sddu-<stage>-{before,after}.md`（默认空），入口执行该阶段前/后按需读取（空则跳过），用户可写入该阶段的个性化要求；⑪ **用户自定义输出模板**：`workspace/.sddu-config/modules/sddu-<stage>/contracts/<contract>.md`（默认空），产物契约优先采用（缺省回退 core 同名契约），用户可覆盖内置输出模板 | P0 |
 
 ## 6. 非功能需求 (NFR)
 > 性能、安全、可用性等跨切面需求
@@ -127,6 +127,7 @@
 | v1.9 | 设计落位确认（用户拍板）→ 版本化命名与 ADR 存储约定均以 plan §5.3 为唯一设计载位；本 Feature 目录保持原名，迁移由 TASK-009 统一执行 | 2026-11-22 | SDDU Spec Agent |
 | v1.10 | FR-008 验收⑦ 去示例写死（用户拍板）：命名规范统一为占位式 `specs-tree-<version>-<slug>`，不绑定具体版本号与具体特性名 | 2026-11-22 | SDDU Spec Agent |
 | v1.15 | FR-008 验收②（用户拍板）：workspace 空骨架随装——首次安装仅初始化空骨架（补回空项目落点），升级逐字节不变 | 2026-11-23 | SDDU Spec Agent |
+| v1.31 | 用户拍板**TREE.md 整体裁撤**（目录名即导航，导航文件冗余）；FR-008 验收② 空骨架清单移除 TREE 种子 | 2026-11-24 | SDDU Spec Agent |
 | v1.30 | 用户拍板 modules/ 下 10 个业务子目录统一加 `sddu-` 前缀，与指令文件名 sddu-<stage>.md 同族；FR-008 同步 | 2026-11-24 | SDDU Spec Agent |
 | v1.29 | 用户拍板**check-essence-sync 退役**（A3 消解）：各载体仅引用不转写、无副本可漂移；FR-002/NFR-003/FR-007 验收同步 | 2026-11-24 | SDDU Spec Agent |
 | v1.28 | 用户拍板**状态载体归 md**（C3 消解）：state.json 退役，状态统一为 state.md（front-matter + 正文，文档即状态）；FR-007 改写、FR-008 验收⑦ 同步 | 2026-11-24 | SDDU Spec Agent |

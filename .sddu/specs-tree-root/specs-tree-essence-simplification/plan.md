@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.21  
+> **版本**: v5.23  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-23  
-> **更新说明**: modules/ 下 10 个业务子目录统一加 `sddu-` 前缀（discovery→sddu-discovery 等），与指令文件名 sddu-<stage>.md 同族，命名即业务名
+> **更新说明**: TREE.md 整体裁撤（用户拍板）：目录名即导航（version-in-path 使 ls 天然版本序），导航文件冗余且其生成器与零脚本范式冲突；产出 ADR-010；ADR-009 收窄为 ROADMAP
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -123,15 +123,12 @@ sddu/                                        # 仓库根
 │   │                                        #     （指令 ×10 + 契约 ×31 = 41 文件：30 迁入 + adr.md 新增）
 │   │   └── workspace/                       ★NEW  workspace 空骨架（仅首次安装初始化；升级/重装绝不触碰既有内容）
 │   │       ├── ROADMAP.md                   ★NEW  版本路线图种子（sddu-roadmap 阶段产出落点，初始空表）
-│   │       ├── TREE.md                      ★NEW  顶层目录导航种子（自动生成，初始空列表）
 │   │       ├── specs-tree-root/             ★NEW  Feature 工作空间根（核心用户产物）
-│   │       │   ├── TREE.md                  ★NEW  目录导航种子（按版本号排序展示）
 │   │       │   └── specs-tree-<version>-<slug>/     # 每 Feature 一个目录（流程生成，非骨架；
 │   │       │                                        #   内：state.md / discovery / spec / plan / ADR / tasks /
 │   │       │                                        #   build / review / validate——结构见下方 .sddu/ 自举示例）
 │   │       ├── docs-tree-root/              ★NEW  项目全景聚合产物（sddu-docs 聚合，5 大领域）
-│   │       │   ├── TREE.md                  ★NEW  全景导航种子
-│   │       │   └── <领域>/                  #     5 领域各一：{TREE.md, docs-overview.md, source.md}（流程生成）
+│   │       │   └── <领域>/                  #     5 领域各一：{docs-overview.md, source.md}（流程生成）
 │   │       └── .sddu-config/                #     用户对 sddu 的个性化配置（用户自有；SDDU 不预设内容）
 │   │           └── modules/sddu-<stage>/          #     每阶段个性化（镜像 .sddu/.sddu/modules/sddu-<stage>，×10）
 │   │               ├── sddu-<stage>-before.md   # 前置钩子：阶段执行前由入口读取（默认空）
@@ -168,7 +165,7 @@ sddu/                                        # 仓库根
 | state.md feature 字段 | `<version>-<slug>`（备注：去掉 `specs-tree-` 前缀，与目录名严格对应） |
 | 子 Feature | `specs-tree-<version>-<slug>/specs-tree-<version>-<slug>/`（备注：递归同构，父/子各自独立版本号） |
 | 存量迁移 | 29 个既有目录按各自 `state.md` front-matter 的 `version` 规范化重命名（`1.0.0`→`v1.00.0` 等）；**历史无版本 / 不适用者沿用原名**并在清单标注，不臆造版本号 |
-| 排序收益 | `TREE.md` 目录导航按目录名即得版本序；`git ls` / shell glob 天然按发布顺序排列 |
+| 排序收益 | 目录名即版本序；`git ls` / shell glob 天然按发布顺序排列（无需导航文件） |
 
 **范式五原则**：
 1. **.sddu / workspace 二分**——本体（可重建载体）与用户产物（不可触碰的本质工作产物）物理隔离；铁律：**安装写 .sddu/ 并初始化 workspace 空骨架（仅当为空），升级只写 .sddu/，流程只写 workspace/，.sddu 对流程只读**；升级=删建 .sddu（唯一入口 sddu.md 随之重建，天然版本一致，C2 消解），卸载=删 .sddu+索引（workspace 保留）
@@ -201,7 +198,6 @@ sddu/                                        # 仓库根
 | DELETE | `.sddu/COMPLETION_CERTIFICATE.json` / `.sddu/review-report-*.json` | 历史归档清理（迁移完成证书 / 旧审查报告——2026-11-22 用户拍板删除，SDDU 尚未市场推广，不给自己加技术栈包袱） |
 | DELETE | （待定） | carrier-inventory 中「可删/可合并」项——build 阶段分批提交用户确认后执行（FR-005） |
 | DELETE | `src/` 整目录（ADR-005/007：×18 TS 源 + `__tests__/` 整目录 + skills/ + adapters/ 全部） | **TS 运行时与校验工具链整体退役（ADR-005，用户拍板 2026-11-23；目录整体让位于 sddu-project-template/，ADR-007）**：`state/` ×9（machine / schema-v3.0.0 / dependency-checker / state-loader / tree-scanner / auto-updater / parent-state-manager / types / index）、`shared/` ×3、`index.ts`、`templates/index.ts`、`adapters/opencode/`（plugin.ts + index.ts + templates）、`adapters/dsh/`（contract.ts + index.ts，结构断言职责并入 e2e）、`__tests__/`（测试 ×13 + fixtures）。语义去向：状态模型（8 phase / 5 status / 迁移表 / 树嵌套联动 / 依赖校验口径）全量蒸馏进 sddu.md → TASK-002 范围扩展；OpenCode 硬门禁退役取舍承 ADR-004 取舍④（v12 重估）；ADR-003 的「运行时 seam 冻结」条款对象消失、由本 ADR 取代，用户确认制不变 |
-| NEW | `sddu-project-template/.sddu/workspace/specs-tree-root/TREE.md` | workspace 空骨架种子（仅首次安装初始化——空项目有落点；升级/重装绝不触碰既有内容，NFR-007 逐字节断言不变） |
 | NEW | `sddu-project-template/.agents/skills/sddu/SKILL.md` | 纯索引/引导文件（内容极简稳定：引导 Agent 加载 `.sddu/.sddu/sddu.md`，全 md 零渲染）——**落位即安装后路径**（设计态即运行态，ADR-007），复制即生效；唯一入口实质（路由表 + 协议 + 读取规则）归 sddu.md（2026-11-24 拍板，C2 消解）；发现指针机制删除（2026-11-23 拍板：平台 skill 识别非 sddu 核心） |
 | NEW | `scripts/install/install.sh` / `install.ps1` | **复制粘贴器**（合并 install/{opencode,dsh}×{sh,ps1} 四份 → 一份/运行时，ADR-007）：`cp -r sddu-project-template/. <project>/`（源路径 = 安装后路径，零改写、零平台分支）+ 旧布局迁移（备份+回滚）；无 dist/、无渲染、无 install.json（版本 = sddu.md 头部） |
 | DELETE | `dist/` / `.opencode/` / `.dsh/` / `package.json` / `package-lock.json` / node_modules | 仓库内产物与安装态投影整体退役：零构建后无 dist/（ADR-006）；平台投影由 `sddu-project-template/` 复制产生、不在仓库维护（ADR-007）；零 npm 后 node_modules 不再存在；`.gitignore` 相应瘦身 | `build-agents.cjs`、`build-dsh-skills.cjs`（构建链整体取消——全 md 无渲染对象，非合并）；`package.cjs` + `package.test.cjs`（npm 插件包打包链退役）；`test-sddu-functionality.js`（依赖 dist TS 运行时）；`check-sdd-residue.sh` / `migrate-sdd-to-sddu.sh`（SDD→SDDU 一次性迁移已完成，D3 历史包袱）；`sddu-check.sh`（与 e2e/安装自检职责重叠）；`sddu-validation-report.sh`（运行时报告工具，职责归入口协议+契约，D1✗）；`verify-skills.sh`（断言 11-skill 旧结构，新断言归 e2e）；`install/{opencode,dsh}/` 四份安装器（并入纯复制器）——scripts/ 由 4405 行收敛至 ~400 行 |
@@ -241,6 +237,8 @@ sddu/                                        # 仓库根
 | ADR-006 | 零构建、纯复制——取消构建阶段（含 plan v3.2 build.cjs 合一方案），安装 = 直接复制源文件 | PROPOSED |
 | ADR-007 | 设计态即运行态——`sddu-project-template/` = 用户项目根镜像，安装 = 复制粘贴、零路径改写 | PROPOSED |
 | ADR-008 | 状态载体归 md——state.json 退役，文档即状态（front-matter 承载机器字段） | PROPOSED |
+| ADR-009 | 聚合索引不引入生成器——ROADMAP.md 靠 zone/entry 合并机制，非并发问题（TREE.md 随 ADR-010 裁撤） | PROPOSED |
+| ADR-010 | TREE.md 裁撤——目录名即导航，不保留目录导航文件 | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -287,6 +285,8 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.23 | 用户拍板**TREE.md 整体裁撤**：目录名即导航（version-in-path 使 ls 天然版本序），导航文件冗余且生成器与零脚本范式冲突；§5.1 树 / §5.2 行 / 排序收益行同步；spec 同步 v1.31；产出 ADR-010；ADR-009 收窄为 ROADMAP | 2026-11-24 | SDDU Plan Agent |
+| v5.22 | 用户拍板聚合索引生成化（评估 A5）**非问题**：ROADMAP.md 已有 zone/entry 结构化合并机制、§3 为 specs-tree 实时投影、产品未推广单机无并发；不为未发生的多团队并发造生成器；产出 ADR-009 固化结论 | 2026-11-24 | SDDU Plan Agent |
 | v5.21 | 用户拍板 modules/ 下 10 个业务子目录统一加 `sddu-` 前缀（`discovery/`→`sddu-discovery/` 等），与指令文件名 sddu-<stage>.md 同族；§5.1 树 / §2 组件 / §5.2 路径 / 入口读取规则同步；spec 同步 v1.30；ADR-004/007 同步 | 2026-11-24 | SDDU Plan Agent |
 | v5.20 | 用户拍板**check-essence-sync 退役**（A3 消解）：单一权威 + 各载体仅引用不转写，无副本可漂移，开发期校验脚本失去对象；结构断言职责并入 e2e；scripts/ 收敛为复制器一对；§2 组件 2 删除 / §3 / §4 / §5.1 树 / §5.2 行 / §6 / §7 同步；spec 同步 v1.29；ADR-001/004/005/006/007/008 同步 | 2026-11-24 | SDDU Plan Agent |
 | v5.19 | 用户拍板**状态载体归 md**（C3 消解）：state.json 退役，状态统一为 state.md（front-matter 承载机器字段 + 正文人类可读，文档即状态）；不考虑迁移成本（产品未推广）；§2 组件 1/2 / §5.1 树 / §5.2 行 / §6 / §7 同步；spec 同步 v1.28；产出 ADR-008 | 2026-11-24 | SDDU Plan Agent |

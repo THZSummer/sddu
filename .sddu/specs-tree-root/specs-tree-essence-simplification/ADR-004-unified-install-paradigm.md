@@ -21,7 +21,7 @@ PROPOSED（2026-11-22 用户拍板新增范围）
 │                                          #   （7 阶段 + fast/roadmap/docs 共 10 包；指令 ×10 + 契约 ×31，含 plan 的 adr.md）
 │   │                                        #   （ADR-006 修订：无 install.json——零构建纯复制，版本=sddu.md 头部）
 └── workspace/                             # 用户项目产物（安装/升级绝不触碰、随项目提交）
-    ├── ROADMAP.md  TREE.md                # 版本路线图 / 顶层导航种子（流程生成）
+    ├── ROADMAP.md                        # 版本路线图（流程生成；TREE.md 随 ADR-010 裁撤）
     ├── specs-tree-root/                   # Feature 工作空间（每 Feature 一个 specs-tree-<version>-<slug>/，自旧布局迁入）
     ├── docs-tree-root/                    # 项目全景聚合产物（sddu-docs，5 大领域）
     └── .sddu-config/                      # 用户对 sddu 的个性化配置（用户自有；2026-11-23 改名：skills/templates 合并 → sddu/ → sddu-config/ → .sddu-config/）
