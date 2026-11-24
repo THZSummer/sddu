@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.19  
+> **版本**: v5.21  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-23  
-> **更新说明**: 状态载体归 md（用户拍板，C3 消解）：state.json 退役，状态统一为 state.md（front-matter 承载机器字段 + 正文人类可读，文档即状态）；不考虑迁移成本（产品未推广）；产出 ADR-008
+> **更新说明**: modules/ 下 10 个业务子目录统一加 `sddu-` 前缀（discovery→sddu-discovery 等），与指令文件名 sddu-<stage>.md 同族，命名即业务名
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -25,28 +25,27 @@
 
 **新增组件**：
 1. `sddu-project-template/.sddu/.sddu/sddu.md`——方法论内核唯一权威文档（**以用户项目路径存在于仓库内，设计态即运行态**，ADR-007）：7 阶段流程定义 + 三原则 + 两字段状态模型（**状态载体 = state.md，front-matter 字段契约，2026-11-24 拍板**）+ 各阶段文档契约 + **路由表 + 门禁/状态协议 + 读取规则**（唯一入口，2026-11-24 拍板）+ 头部版本字段（唯一版本源）；零平台特定事实（NFR-001）
-2. `scripts/check-essence-sync.cjs`——**开发期**一致性校验（**内核唯一权威的执行机构**，非构建——零构建范式下不产任何物）：从 sddu.md 解析状态模型枚举（phase 序列 / status 集 / 迁移表）与三原则关键词，断言各载体（入口 / 阶段指令 / 契约头 / 存量 state.md front-matter 抽样）口径一致；直接执行 `node scripts/check-essence-sync.cjs`（零 npm，失败即非零退出，防 P-037 类漂移）。**吸收两项原 TS 职责**：① `src/state/schema-v3.0.0.ts` 的枚举权威源角色（校验直接读 sddu.md）；② `src/adapters/dsh/contract.ts` 的 dsh 契约结构校验（收敛为「1 入口 + .sddu 计数」断言）
-3. `carrier-inventory.md`（本 Feature 目录）——载体分类清单：按判定标准（ADR-002）逐项归类 + 用户确认记录列
-4. **统一安装范式组件**（ADR-004，spec FR-008）：`.sddu/` 按 .sddu / workspace 二分；**唯一入口 = `.sddu/.sddu/sddu.md` 内核**（含路由表 + 门禁/状态协议 + 读取规则，随「升级=删建 .sddu」天然版本一致）；`.agents/skills/sddu/SKILL.md` 为**纯索引/引导**（内容极简稳定：引导 Agent 加载 `.sddu/.sddu/sddu.md`），收到 `<stage> <feature>` 由 sddu.md 路由表读取 `.sddu/modules/<stage>/sddu-<stage>.md`（.sddu 内部按业务模块组织，无 agent/skill 概念），执行前/后按需读取 `workspace/.sddu-config/modules/<stage>/sddu-<stage>-{before,after}.md` 用户钩子（空则跳过）；产物契约优先用 `workspace/.sddu-config/modules/<stage>/contracts/`（用户自定义模板，缺省回退 core 契约）；**索引落位唯一（`.agents/skills/sddu/`），不内置平台发现适配**（2026-11-23 拍板：平台 skill 识别问题非 sddu 核心，不支持该约定的平台由用户自行放置索引）；**设计态即运行态（ADR-007）**——`sddu-project-template/` 整棵树 = 用户项目根镜像（`.sddu/.sddu/ + .agents/skills/sddu/`），安装 = 复制粘贴整棵该目录，零路径改写、零构建、零清单（版本 = sddu.md 头部）
+2. `carrier-inventory.md`（本 Feature 目录）——载体分类清单：按判定标准（ADR-002）逐项归类 + 用户确认记录列
+3. **统一安装范式组件**（ADR-004，spec FR-008）：`.sddu/` 按 .sddu / workspace 二分；**唯一入口 = `.sddu/.sddu/sddu.md` 内核**（含路由表 + 门禁/状态协议 + 读取规则，随「升级=删建 .sddu」天然版本一致）；`.agents/skills/sddu/SKILL.md` 为**纯索引/引导**（内容极简稳定：引导 Agent 加载 `.sddu/.sddu/sddu.md`），收到 `<stage> <feature>` 由 sddu.md 路由表读取 `.sddu/modules/sddu-<stage>/sddu-<stage>.md`（.sddu 内部按业务模块组织，无 agent/skill 概念），执行前/后按需读取 `workspace/.sddu-config/modules/sddu-<stage>/sddu-<stage>-{before,after}.md` 用户钩子（空则跳过）；产物契约优先用 `workspace/.sddu-config/modules/sddu-<stage>/contracts/`（用户自定义模板，缺省回退 core 契约）；**索引落位唯一（`.agents/skills/sddu/`），不内置平台发现适配**（2026-11-23 拍板：平台 skill 识别问题非 sddu 核心，不支持该约定的平台由用户自行放置索引）；**设计态即运行态（ADR-007）**——`sddu-project-template/` 整棵树 = 用户项目根镜像（`.sddu/.sddu/ + .agents/skills/sddu/`），安装 = 复制粘贴整棵该目录，零路径改写、零构建、零清单（版本 = sddu.md 头部）
 
-**数据流变更**：① 方法论口径传播从「N 份转写各自维护」改为「sddu.md →（引用 + 开发期校验）→ 各载体」；**状态模型权威从 `src/state/` TS 实现整体移交 sddu.md（ADR-005）——机器可执行语义（枚举 / 迁移表 / 树嵌套联动）全量蒸馏为内核文字规范，仓库归零 TypeScript**；② 分发数据流**坍缩为复制粘贴（零构建，ADR-006；设计态即运行态，ADR-007）**：「`sddu-project-template/` 整棵树（用户项目根镜像）→ 安装器 `cp -r` → 用户项目根」——源路径与安装后路径**逐项相同**，无 dist/、无渲染、无路径改写；新增平台 = 在模板目录放一个入口 md，连构建都不用跑（NFR-006 可测试）。
+**数据流变更**：① 方法论口径传播从「N 份转写各自维护」改为「sddu.md →（引用）→ 各载体」——各载体仅持「权威来源：sddu.md」引用声明、不转写方法论，无副本可漂移，无需校验脚本；**状态模型权威从 `src/state/` TS 实现整体移交 sddu.md（ADR-005）——机器可执行语义（枚举 / 迁移表 / 树嵌套联动）全量蒸馏为内核文字规范，仓库归零 TypeScript**；② 分发数据流**坍缩为复制粘贴（零构建，ADR-006；设计态即运行态，ADR-007）**：「`sddu-project-template/` 整棵树（用户项目根镜像）→ 安装器 `cp -r` → 用户项目根」——源路径与安装后路径**逐项相同**，无 dist/、无渲染、无路径改写；新增平台 = 在模板目录放一个入口 md，连构建都不用跑（NFR-006 可测试）。
 
 ## 3. 方案对比
 > 2-3 个可行方案的对比分析
 
-| 维度 | 方案 A：最小侵入（内核文档 + 引用 + 开发期校验） | 方案 B：构建期派生（内核 partial 注入载体） | 方案 C：结构化内核（TS 常量 + 双平台渲染） |
+| 维度 | 方案 A：最小侵入（内核文档 + 引用） | 方案 B：构建期派生（内核 partial 注入载体） | 方案 C：结构化内核（TS 常量 + 双平台渲染） |
 |------|:--|:--|:--|
-| 描述 | sddu.md 单一权威；各载体方法论段改为引用声明；新增校验脚本在开发期断言各载体口径与内核一致 | 内核拆为 Handlebars partial，build-agents / build-dsh-skills 渲染时物理注入 11 个 Agent 模板与 SKILL.md | 方法论建模为 TS 结构化常量（阶段/原则/状态枚举），文档与指令由它双平台渲染生成 |
+| 描述 | sddu.md 单一权威；各载体方法论段改为引用声明、不转写，无副本可漂移，无需校验脚本 | 内核拆为 Handlebars partial，build-agents / build-dsh-skills 渲染时物理注入 11 个 Agent 模板与 SKILL.md | 方法论建模为 TS 结构化常量（阶段/原则/状态枚举），文档与指令由它双平台渲染生成 |
 | 优点 | 改动集中（文档 + 1 脚本）；不碰渲染管线；内核天然平台中立、可独立阅读（开放问题 4 顺带解决）；与「简化」目标自洽 | 物理单一来源，「改一处全生效」由机制保证 | 最彻底；类型安全；将来多平台派生零成本 |
-| 缺点 | 同步靠「校验发现漂移」而非「机制阻止漂移」（改内核后需跑一次校验定位需更新点） | 需改造 build-agents 渲染管线（现为原样复制）；dsh 侧「只拼接不改写」约束需重新评估；partial 粒度难拿捏 | 相当于重写模板引擎；先大幅加载体再谈减——与版本目标自相矛盾；工作量最大 |
-| 风险 | 校验脚本覆盖不全 → 漂移漏检（缓解：口径抽取项与 FR-001 四要素一一对应） | 渲染管线改造引入新缺陷面；与 v12.0.0 adapter 收缩范围重叠 | 高改动面 + 高回归风险（R-001 放大） |
+| 缺点 | 无（各载体仅引用不转写，改内核即全生效，已无漂移源） | 需改造 build-agents 渲染管线（现为原样复制）；dsh 侧「只拼接不改写」约束需重新评估；partial 粒度难拿捏 | 相当于重写模板引擎；先大幅加载体再谈减——与版本目标自相矛盾；工作量最大 |
+| 风险 | 无（无转写副本、无漂移源；结构一致性由 e2e 回归保证） | 渲染管线改造引入新缺陷面；与 v12.0.0 adapter 收缩范围重叠 | 高改动面 + 高回归风险（R-001 放大） |
 | 工作量 | S（脚本 ~1d + 文档对齐 2-3d） | M（渲染管线改造 3-5d + 对齐 2d） | L（2-3 周） |
 
 ## 4. 推荐方案
 > 推荐方案及选择理由
 
 **推荐**: 方案 A（最小侵入）
-**理由**: ① 与版本目标自洽——简化版本自身必须用最简机制实现简化，避免「为简化先增重」；② spec FR-002 验收「改一处全生效」由「内核唯一权威 + 校验必过」组合满足（改内核 → 跑 check → 校验列出全部漂移点 → 更新引用处），链路可执行且可测试；③ sddu.md 平台中立可独立分发，为 v10.1.0（skill 市场推广）与「方法论延展至非编程领域」预留零成本路径；④ 若未来需要方案 B/C，可在方案 A 的内核与校验之上增量演进，无沉没成本；⑤ **方案 C 的否决在 v6 被推向彻底（ADR-005）**——不仅不新增结构化 TS 内核，存量 TS 实现（`src/state/` 等）也整体退役：保留它即保留双权威（sddu.md 与 TS 实现各执一词）与整套 TS 工具链（tsc / jest 工程 / dist / npm exports），恰是本版本要裁的载体包袱。
+**理由**: ① 与版本目标自洽——简化版本自身必须用最简机制实现简化，避免「为简化先增重」；② spec FR-002 验收「改一处全生效」由「内核唯一权威 + 各载体仅引用不转写」满足（改内核即全生效，无副本可漂移，无需同步链路）；③ sddu.md 平台中立可独立分发，为 v10.1.0（skill 市场推广）与「方法论延展至非编程领域」预留零成本路径；④ 若未来需要方案 B/C，可在方案 A 的内核与引用之上增量演进，无沉没成本；⑤ **方案 C 的否决在 v6 被推向彻底（ADR-005）**——不仅不新增结构化 TS 内核，存量 TS 实现（`src/state/` 等）也整体退役：保留它即保留双权威（sddu.md 与 TS 实现各执一词）与整套 TS 工具链（tsc / jest 工程 / dist / npm exports），恰是本版本要裁的载体包袱。
 
 ## 5. 文件影响分析
 > 所有需要创建/修改/删除的文件（图例：★NEW 新建 / ✎M 修改 / ✖D 删除〔待用户确认〕/ 无标记 = 不动）
@@ -65,8 +64,7 @@ sddu/                                        # 仓库根
 ├── bootstrap.sh / bootstrap.ps1
 ├── LICENSE / .gitignore
 │
-├── scripts/                                 # 校验一份 + 复制器一对（终态 ~400 行，现 4405 行；零构建 + 零 npm，ADR-006）
-│   ├── check-essence-sync.cjs               ★NEW  开发期口径校验 + state.md front-matter 断言（非构建，不产任何物）
+├── scripts/                                 # 复制器一对（终态 ~400 行，现 4405 行；零构建 + 零 npm + 零校验，ADR-006/008）
 │   └── install/
 │       ├── install.sh                       ★NEW  复制粘贴器（ADR-007）：cp -r sddu-project-template/. <project>/
 │       └── install.ps1                      #     ——源路径 = 安装后路径，零改写、零平台分支（无 --platform，
@@ -93,33 +91,33 @@ sddu/                                        # 仓库根
 │   │                                        #       迁入改名、router 并入入口、方法论段 → 引用 sddu.md；
 │   │                                        #       contracts/*.md = 该业务产物契约，自 templates/outputs 迁入、
 │   │                                        #       .md.hbs → .md、占位符为文档约定、代码从不渲染）
-│   │           ├── discovery/               ✎M    阶段 0/7 问题挖掘（契约：discovery.md）
+│   │           ├── sddu-discovery/          ✎M    阶段 0/7 问题挖掘（契约：discovery.md）
 │   │           │   ├── sddu-discovery.md
 │   │           │   └── contracts/discovery.md
-│   │           ├── spec/                    ✎M    阶段 1/7 需求定义（契约：spec.md）
+│   │           ├── sddu-spec/               ✎M    阶段 1/7 需求定义（契约：spec.md）
 │   │           │   ├── sddu-spec.md
 │   │           │   └── contracts/spec.md
-│   │           ├── plan/                    ✎M    阶段 2/7 技术设计（契约 ×2：plan.md + adr.md——ADR 随 Feature 存储）
+│   │           ├── sddu-plan/               ✎M    阶段 2/7 技术设计（契约 ×2：plan.md + adr.md——ADR 随 Feature 存储）
 │   │           │   ├── sddu-plan.md
 │   │           │   └── contracts/{plan.md, adr.md}
-│   │           ├── tasks/                   ✎M    阶段 3/7 任务分解（契约：tasks.md；tasks.json 为运行期产物非契约）
+│   │           ├── sddu-tasks/              ✎M    阶段 3/7 任务分解（契约：tasks.md；tasks.json 为运行期产物非契约）
 │   │           │   ├── sddu-tasks.md
 │   │           │   └── contracts/tasks.md
-│   │           ├── build/                   ✎M    阶段 4/7 实施构建（契约：build.md）
+│   │           ├── sddu-build/              ✎M    阶段 4/7 实施构建（契约：build.md）
 │   │           │   ├── sddu-build.md
 │   │           │   └── contracts/build.md
-│   │           ├── review/                  ✎M    阶段 5/7 产物审查（契约 ×2：review.md + review-report.md）
+│   │           ├── sddu-review/             ✎M    阶段 5/7 产物审查（契约 ×2：review.md + review-report.md）
 │   │           │   ├── sddu-review.md
 │   │           │   └── contracts/{review.md, review-report.md}
-│   │           ├── validate/                ✎M    阶段 6/7 产物验证（契约 ×2：validate.md + validate-report.md）
+│   │           ├── sddu-validate/           ✎M    阶段 6/7 产物验证（契约 ×2：validate.md + validate-report.md）
 │   │           │   ├── sddu-validate.md
 │   │           │   └── contracts/{validate.md, validate-report.md}
-│   │           ├── fast/                    ✎M    辅助：快速模式（仅指令，零产物契约）
+│   │           ├── sddu-fast/               ✎M    辅助：快速模式（仅指令，零产物契约）
 │   │           │   └── sddu-fast.md
-│   │           ├── roadmap/                 ✎M    辅助：多版本路线图（契约：roadmap.md）
+│   │           ├── sddu-roadmap/            ✎M    辅助：多版本路线图（契约：roadmap.md）
 │   │           │   ├── sddu-roadmap.md
 │   │           │   └── contracts/roadmap.md
-│   │           └── docs/                    ✎M    辅助：项目全景聚合（契约 ×20：五领域 docs 契约）
+│   │           └── sddu-docs/               ✎M    辅助：项目全景聚合（契约 ×20：五领域 docs 契约）
 │   │               ├── sddu-docs.md
 │   │               └── contracts/<领域>/*.md ×20
 │   │                                        #     （指令 ×10 + 契约 ×31 = 41 文件：30 迁入 + adr.md 新增）
@@ -135,24 +133,24 @@ sddu/                                        # 仓库根
 │   │       │   ├── TREE.md                  ★NEW  全景导航种子
 │   │       │   └── <领域>/                  #     5 领域各一：{TREE.md, docs-overview.md, source.md}（流程生成）
 │   │       └── .sddu-config/                #     用户对 sddu 的个性化配置（用户自有；SDDU 不预设内容）
-│   │           └── modules/<stage>/          #     每阶段个性化（镜像 core/modules 的 <stage>，×10）
+│   │           └── modules/sddu-<stage>/          #     每阶段个性化（镜像 .sddu/.sddu/modules/sddu-<stage>，×10）
 │   │               ├── sddu-<stage>-before.md   # 前置钩子：阶段执行前由入口读取（默认空）
 │   │               ├── sddu-<stage>-after.md    # 后置钩子：阶段执行后由入口读取（默认空）
 │   │               └── contracts/<contract>.md  # 用户自定义输出模板：覆盖 core 同名契约
-│   │                                           # （默认空；缺省回退 core/modules/<stage>/contracts/）
+│   │                                           # （默认空；缺省回退 .sddu/.sddu/modules/sddu-<stage>/contracts/）
 │   ├── .agents/
 │   │   └── skills/sddu/SKILL.md             ★NEW  纯索引/引导（一份，全平台统一；纯指令、零运行时组件）——
 │   │                                        #       内容极简且跨版本稳定：仅引导 Agent 加载 .sddu/.sddu/sddu.md
 │   │                                        #       （唯一入口 = sddu.md，含路由表 + 门禁/状态协议 + 读取规则）；
 │   │                                        #       收到 <stage> <feature> → sddu.md 路由表读
-│   │                                        #       .sddu/.sddu/modules/<stage>/sddu-<stage>.md（阶段指令）；
+│   │                                        #       .sddu/.sddu/modules/sddu-<stage>/sddu-<stage>.md（阶段指令）；
 │   │                                        #       钩子 / 契约覆盖规则均载于 sddu.md，索引不重复承载
 │                                            # 【平台发现】.agents/skills/ 是索引落位（2026-11-23 拍板：
 │                                            #       不内置发现指针等适配机制——平台 skill 识别问题非 sddu 核心，
 │                                            #       不支持该约定的平台由用户自行放置索引文件，复制粘贴即得）
 │
 ├── docs/                                    # dsh/×6、research/×4 及工程文档 — 归类见清单
-├── e2e/                                     ✎M    jest TS 测试 ×2 → 裸 node 结构回归脚本（安装范式断言：.sddu 计数 + 1 入口 + workspace 逐字节不变）
+├── e2e/                                     ✎M    jest TS 测试 ×2 → 裸 node 结构回归脚本（安装范式断言：.sddu 计数 + 1 入口 + workspace 逐字节不变 + state.md front-matter 枚举）
 │
 ├── .sddu/                                   # 本仓库自身 workspace（dogfooding，结构同用户项目；细目见 §5.2 变更行）
 
@@ -186,24 +184,23 @@ sddu/                                        # 仓库根
 | 操作 | 文件路径 | 说明 |
 |:--:|------|------|
 | NEW | `sddu-project-template/.sddu/.sddu/sddu.md` | 方法论内核唯一权威文档（FR-001；四要素全覆盖，零平台事实；**仅此一份**——以用户项目路径随模板存放，仓库根不再另设副本，杜绝双权威（ADR-007）） |
-| NEW | `scripts/check-essence-sync.cjs` | 开发期口径一致性校验（FR-002/NFR-003；直接 `node scripts/check-essence-sync.cjs`，零 npm 零构建）。**权威源 = sddu.md**：解析状态模型枚举（phase 序列 / status 集 / 迁移表）断言各载体一致；吸收 `schema-v3.0.0.ts` 枚举权威与 `contract.ts` dsh 契约结构校验（「1 入口 + .sddu 计数」）两项原 TS 职责；另含存量 state.md front-matter 口径断言子命令（供 FR-007 转换与 TASK-009 回归） |
 | NEW | `.sddu/specs-tree-root/specs-tree-essence-simplification/carrier-inventory.md` | 载体分类清单（FR-004）+ 用户确认记录（FR-005） |
 | NEW | `.sddu/specs-tree-root/specs-tree-essence-simplification/ADR-001~003.md` | 架构决策记录 ×3（已产出） |
-| MOVE+MODIFY | `src/templates/agents/` → `sddu-project-template/.sddu/.sddu/modules/<module>/sddu-<stage>.md`（×10，文件命名即业务名，router 并入入口） | 阶段指令按业务归包（目录名即业务名）；方法论转写段替换为「权威来源：sddu.md」引用声明，保留阶段特有指令（FR-002） |
-| MOVE+MODIFY | `src/templates/outputs/` → `sddu-project-template/.sddu/.sddu/modules/<module>/contracts/`（×30） | 文档契约随所属业务归包（如 review-report 归 review/、docs ×20 归 docs/）；`.md.hbs` → `.md`；模板头补内核引用声明（FR-002） |
-| NEW | `sddu-project-template/.sddu/.sddu/modules/plan/contracts/adr.md` | **补 ADR 契约模板**（现状缺失）：ADR = plan 阶段产物（标题/状态/背景/决策/后果五段式，随 Feature 存储），原 30 契约不含它——新增使其成为 plan 契约 ×2；契约总数 30 → 31 |
+| MOVE+MODIFY | `src/templates/agents/` → `sddu-project-template/.sddu/.sddu/modules/sddu-<module>/sddu-<stage>.md`（×10，文件命名即业务名，router 并入入口） | 阶段指令按业务归包（目录名即业务名）；方法论转写段替换为「权威来源：sddu.md」引用声明，保留阶段特有指令（FR-002） |
+| MOVE+MODIFY | `src/templates/outputs/` → `sddu-project-template/.sddu/.sddu/modules/sddu-<module>/contracts/`（×30） | 文档契约随所属业务归包（如 review-report 归 sddu-review/、docs ×20 归 sddu-docs/）；`.md.hbs` → `.md`；模板头补内核引用声明（FR-002） |
+| NEW | `sddu-project-template/.sddu/.sddu/modules/sddu-plan/contracts/adr.md` | **补 ADR 契约模板**（现状缺失）：ADR = plan 阶段产物（标题/状态/背景/决策/后果五段式，随 Feature 存储），原 30 契约不含它——新增使其成为 plan 契约 ×2；契约总数 30 → 31 |
 | MODIFY | `README.md` | 重排为「本质先行」结构；行数目标显著下降（NFR-005 记录前后对比） |
 | MODIFY | `.sddu/skills/dev-guide/SKILL.md` | 方法论口径改引用 sddu.md（FR-002） |
-| DELETE | `package.json` / `package-lock.json` | **零 npm（2026-11-24 用户拍板）**：零 TS 后无任何依赖、零构建后无任何脚本——npm 流程整体退役，仓库不再是 npm 项目；三命令均裸脚本直跑：`node scripts/check-essence-sync.cjs`（校验）、`sh scripts/install/install.sh`（安装）、`node e2e/<scenario>.mjs`（回归）；版本源归 sddu.md 头部唯一（C1 矛盾根除） |
+| DELETE | `package.json` / `package-lock.json` | **零 npm（2026-11-24 用户拍板）**：零 TS 后无任何依赖、零构建后无任何脚本——npm 流程整体退役，仓库不再是 npm 项目；两命令均裸脚本直跑：`sh scripts/install/install.sh`（安装）、`node e2e/<scenario>.mjs`（结构回归）；版本源归 sddu.md 头部唯一（C1 矛盾根除） |
 | DELETE | `tsconfig.json` / `jest.config.ts`（根） | TS 源归零后编译/测试配置随之退役（Q-002 的死别名问题以「整个配置删除」终结） |
 | MODIFY | `e2e/` | jest TS 测试（sddu-workflow / multi-feature + jest.config.ts）→ 裸 node 结构回归脚本（`node e2e/<scenario>.mjs`）：安装范式断言（.sddu 文件计数与哈希、1 入口、workspace 逐字节不变、旧布局迁移与回滚）；原依赖 dist CLI 的运行时断言随运行时退役 |
 | MODIFY | `.sddu/ROADMAP.md` | FR-006 重估结论回填 + PR-017→FR-ESSENCE-001 转化回填（补欠账） |
-| MODIFY | `.sddu/workspace/specs-tree-root/specs-tree-*/state.json` ×29 → `state.md` | 状态载体由 json 整体转为 md（ADR-008，FR-007）：front-matter 承载字段、正文承载人类可读摘要；不计迁移成本（产品未推广）；校验锚点 = check-essence-sync 的 front-matter 口径断言（sddu.md 为权威） |
+| MODIFY | `.sddu/workspace/specs-tree-root/specs-tree-*/state.json` ×29 → `state.md` | 状态载体由 json 整体转为 md（ADR-008，FR-007）：front-matter 承载字段、正文承载人类可读摘要；不计迁移成本（产品未推广）；结构断言 = e2e 裸 node 回归（sddu.md 为权威） |
 | MODIFY | `.sddu/workspace/specs-tree-root/specs-tree-dsh-adaptation/state.json` → `state.md` | 随载体转换一并更正 version 误写 v3.0.0 → v5.0.0（FR-007） |
 | DELETE | `.sddu/docs/migration*.md` ×27 | 迁移残留归档删除（P-018；**用户确认后执行**，记录入 carrier-inventory） |
 | DELETE | `.sddu/COMPLETION_CERTIFICATE.json` / `.sddu/review-report-*.json` | 历史归档清理（迁移完成证书 / 旧审查报告——2026-11-22 用户拍板删除，SDDU 尚未市场推广，不给自己加技术栈包袱） |
 | DELETE | （待定） | carrier-inventory 中「可删/可合并」项——build 阶段分批提交用户确认后执行（FR-005） |
-| DELETE | `src/` 整目录（ADR-005/007：×18 TS 源 + `__tests__/` 整目录 + skills/ + adapters/ 全部） | **TS 运行时与校验工具链整体退役（ADR-005，用户拍板 2026-11-23；目录整体让位于 sddu-project-template/，ADR-007）**：`state/` ×9（machine / schema-v3.0.0 / dependency-checker / state-loader / tree-scanner / auto-updater / parent-state-manager / types / index）、`shared/` ×3、`index.ts`、`templates/index.ts`、`adapters/opencode/`（plugin.ts + index.ts + templates）、`adapters/dsh/`（contract.ts + index.ts，校验职责并入 check-essence-sync）、`__tests__/`（测试 ×13 + fixtures）。语义去向：状态模型（8 phase / 5 status / 迁移表 / 树嵌套联动 / 依赖校验口径）全量蒸馏进 sddu.md → TASK-002 范围扩展；OpenCode 硬门禁退役取舍承 ADR-004 取舍④（v12 重估）；ADR-003 的「运行时 seam 冻结」条款对象消失、由本 ADR 取代，用户确认制不变 |
+| DELETE | `src/` 整目录（ADR-005/007：×18 TS 源 + `__tests__/` 整目录 + skills/ + adapters/ 全部） | **TS 运行时与校验工具链整体退役（ADR-005，用户拍板 2026-11-23；目录整体让位于 sddu-project-template/，ADR-007）**：`state/` ×9（machine / schema-v3.0.0 / dependency-checker / state-loader / tree-scanner / auto-updater / parent-state-manager / types / index）、`shared/` ×3、`index.ts`、`templates/index.ts`、`adapters/opencode/`（plugin.ts + index.ts + templates）、`adapters/dsh/`（contract.ts + index.ts，结构断言职责并入 e2e）、`__tests__/`（测试 ×13 + fixtures）。语义去向：状态模型（8 phase / 5 status / 迁移表 / 树嵌套联动 / 依赖校验口径）全量蒸馏进 sddu.md → TASK-002 范围扩展；OpenCode 硬门禁退役取舍承 ADR-004 取舍④（v12 重估）；ADR-003 的「运行时 seam 冻结」条款对象消失、由本 ADR 取代，用户确认制不变 |
 | NEW | `sddu-project-template/.sddu/workspace/specs-tree-root/TREE.md` | workspace 空骨架种子（仅首次安装初始化——空项目有落点；升级/重装绝不触碰既有内容，NFR-007 逐字节断言不变） |
 | NEW | `sddu-project-template/.agents/skills/sddu/SKILL.md` | 纯索引/引导文件（内容极简稳定：引导 Agent 加载 `.sddu/.sddu/sddu.md`，全 md 零渲染）——**落位即安装后路径**（设计态即运行态，ADR-007），复制即生效；唯一入口实质（路由表 + 协议 + 读取规则）归 sddu.md（2026-11-24 拍板，C2 消解）；发现指针机制删除（2026-11-23 拍板：平台 skill 识别非 sddu 核心） |
 | NEW | `scripts/install/install.sh` / `install.ps1` | **复制粘贴器**（合并 install/{opencode,dsh}×{sh,ps1} 四份 → 一份/运行时，ADR-007）：`cp -r sddu-project-template/. <project>/`（源路径 = 安装后路径，零改写、零平台分支）+ 旧布局迁移（备份+回滚）；无 dist/、无渲染、无 install.json（版本 = sddu.md 头部） |
@@ -222,11 +219,10 @@ sddu/                                        # 仓库根
 | 风险 | 概率 | 影响 | 缓解措施 |
 |------|:--:|:--:|----------|
 | 裁撤引发回归（R-001/spec EC-001） | 中 | 高 | 每裁撤项绑定回归场景（e2e basic / dsh 静态测试 / 安装自检）；失败回滚单项不阻塞 |
-| 校验脚本口径覆盖不全，漂移漏检 | 中 | 中 | 校验项与 FR-001 四要素一一对应并纳入 review 清单（C 系列）逐项勾稽 |
 | 判定标准遇边界项争议（R-002） | 高 | 中 | ADR-002 裁决规则：边界项一律「待用户裁决」，集中列于 carrier-inventory，逐项拍板 |
 | 与 v12.0.0 范围耦合（R-003） | 低 | 中 | ADR-003 冻结 adapter 重构于 v6 期间；重估结论若需拉前，显式确认后改路线图 |
-| 29 个 state.json → state.md 批量转换出错 | 低 | 低 | 逐文件跑 check-essence-sync front-matter 口径断言；失败逐个报告不静默跳过（EC-005） |
-| 状态机代码退役：状态正确性失去运行时强制，仅剩协议软引导 + 开发期校验（ADR-005） | 确定 | 中 | sddu.md 状态模型章节**全量**承载迁移表与树嵌套联动（TASK-002 扩展，蒸馏以现 `machine.ts`/`schema-v3.0.0.ts` 语义为底稿逐一比对，不凭记忆重写）；check-essence-sync 断言入口/阶段指令/契约与存量 state.md front-matter 口径；e2e 结构回归覆盖安装范式；蒸馏稿经用户逐节确认 |
+| 29 个 state.json → state.md 批量转换出错 | 低 | 低 | 逐文件跑 e2e 结构回归断言；失败逐个报告不静默跳过（EC-005） |
+| 状态机代码退役：状态正确性失去运行时强制，仅剩协议软引导（ADR-005） | 确定 | 中 | sddu.md 状态模型章节**全量**承载迁移表与树嵌套联动（TASK-002 扩展，蒸馏以现 `machine.ts`/`schema-v3.0.0.ts` 语义为底稿逐一比对，不凭记忆重写）；各载体仅引用不转写、无副本可漂移；e2e 结构回归覆盖安装范式与 state.md 枚举；蒸馏稿经用户逐节确认 |
 | 文档对齐改动面大导致遗漏（R-004） | 中 | 中 | carrier-inventory 全量盘点计数勾稽 + FR-002 验收检查清单化（交 review 阶段） |
 | 构建链整体取消（零构建，ADR-006）引发回归面重排 | 低 | 中 | 构建链无「改造」只有「删除」——回归面反而缩小：e2e 改结构断言（1 入口 + .sddu 计数、复制逐字节一致）；旧脚本在新安装器验收后删（TASK-013） |
 | workspace 路径迁移破坏存量用户/自举仓库（FR-008 二分新增） | 中 | 高 | 安装器迁移前整体备份 + 失败回滚（EC-007）；本仓库迁移单独一批执行并全量回归；`workspace/` 逐字节不变断言（NFR-007） |
@@ -237,7 +233,7 @@ sddu/                                        # 仓库根
 
 | ADR | 标题 | 状态 |
 |-----|------|:--:|
-| ADR-001 | 内核采用「单一文档 + 引用 + 开发期一致性校验」而非构建期派生/结构化渲染 | PROPOSED |
+| ADR-001 | 内核采用「单一文档 + 引用」而非构建期派生/结构化渲染（开发期校验随 check 退役而取消，2026-11-24 修订） | PROPOSED |
 | ADR-002 | 「本质 / 附属品」四维判定标准（D1~D4）与裁决规则 | PROPOSED |
 | ADR-003 | 裁撤执行用户确认制 + 冻结运行时 seam 重构（与 v12.0.0 边界；v1.1 收窄冻结范围；**冻结条款被 ADR-005 取代——冻结对象整体退役**） | PROPOSED |
 | ADR-004 | 统一安装范式——.sddu/workspace 二分 + 平台层唯一 sddu 入口（**取舍④中「src/state 保留为校验工具库」被 ADR-005 修订为整体裁撤**） | PROPOSED |
@@ -291,6 +287,8 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.21 | 用户拍板 modules/ 下 10 个业务子目录统一加 `sddu-` 前缀（`discovery/`→`sddu-discovery/` 等），与指令文件名 sddu-<stage>.md 同族；§5.1 树 / §2 组件 / §5.2 路径 / 入口读取规则同步；spec 同步 v1.30；ADR-004/007 同步 | 2026-11-24 | SDDU Plan Agent |
+| v5.20 | 用户拍板**check-essence-sync 退役**（A3 消解）：单一权威 + 各载体仅引用不转写，无副本可漂移，开发期校验脚本失去对象；结构断言职责并入 e2e；scripts/ 收敛为复制器一对；§2 组件 2 删除 / §3 / §4 / §5.1 树 / §5.2 行 / §6 / §7 同步；spec 同步 v1.29；ADR-001/004/005/006/007/008 同步 | 2026-11-24 | SDDU Plan Agent |
 | v5.19 | 用户拍板**状态载体归 md**（C3 消解）：state.json 退役，状态统一为 state.md（front-matter 承载机器字段 + 正文人类可读，文档即状态）；不考虑迁移成本（产品未推广）；§2 组件 1/2 / §5.1 树 / §5.2 行 / §6 / §7 同步；spec 同步 v1.28；产出 ADR-008 | 2026-11-24 | SDDU Plan Agent |
 | v5.18 | 用户拍板**唯一入口归 sddu.md**（C2 消解）：框架入口永远只有 sddu.md 一份（含路由表 + 门禁/状态协议 + 读取规则），随「升级=删建 .sddu」天然版本一致；`.agents/skills/sddu/SKILL.md` 降为纯索引/引导（内容极简稳定，只引导加载 sddu.md）；§2 组件 1/4 / §5.1 树 .agents 块 / 原则 1/2/4 / §5.2 行 / §6 同步；spec 同步 v1.27；ADR-004/007 同步 | 2026-11-24 | SDDU Plan Agent |
 | v5.17 | 用户拍板**零 npm**：package.json / package-lock.json / node_modules 整体退役（零 TS 无依赖、零构建无脚本）；check/install/test 改裸 node/shell 直跑；§2 组件 2 / §5.1 树 / §5.2 行 / §5.3 差异同步；spec 同步 v1.26；ADR-001/005/006 同步；顺带修复 `.sddu` 双点残留 | 2026-11-24 | SDDU Plan Agent |

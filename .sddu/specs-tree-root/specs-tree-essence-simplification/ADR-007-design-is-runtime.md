@@ -11,12 +11,12 @@ PROPOSED（2026-11-23 用户拍板）
    ```text
    sddu-project-template/
    ├── .sddu/.sddu/sddu.md                  # 内核（头部版本字段 = 唯一版本源）
-   └── .sddu/.sddu/modules/<业务>/ ×10         # 业务子包：sddu-<stage>.md（×10，命名即业务名）+ contracts/（×31，.md 占位符为文档约定，含 plan 的 adr.md）
+   └── .sddu/.sddu/modules/sddu-<业务>/ ×10         # 业务子包：sddu-<stage>.md（×10，命名即业务名）+ contracts/（×31，.md 占位符为文档约定，含 plan 的 adr.md）
    ├── .agents/skills/sddu/SKILL.md           # 纯索引/引导（落位即安装后路径；唯一入口 = .sddu/.sddu/sddu.md）
    （无其他平台适配物——.agents/skills 为索引落位；2026-11-23 拍板删除发现指针机制：平台 skill 识别问题非 sddu 核心，不支持该约定的平台由用户自行放置索引，复制粘贴即得）
    ```
 2. **安装 = 复制粘贴**：`cp -r sddu-project-template/. <project>/`——源路径与安装后路径**逐项相同**，安装器不含任何路径映射知识；仅剩旧布局迁移（无平台分支、无 --platform）。
-3. **现存 `src/` 整目录退役**：TS ×18 + 测试 + skills/ + adapters/ 随 ADR-005/007 退出；md 资产（templates/{agents,outputs}）迁入镜像内 `.sddu/.sddu/modules/<业务>/`。
+3. **现存 `src/` 整目录退役**：TS ×18 + 测试 + skills/ + adapters/ 随 ADR-005/007 退出；md 资产（templates/{agents,outputs}）迁入镜像内 `.sddu/.sddu/modules/sddu-<业务>/`。
 4. **命名即语义**：目录名 `sddu-project-template` 直接表达"这是一个 SDDU 项目模板"，仓库浏览者无需文档即可理解其用途。
 
 ## 对既有设计的深化
@@ -26,4 +26,4 @@ PROPOSED（2026-11-23 用户拍板）
 
 ## 后果
 - 正面：消除源↔目标的路径映射（安装器无映射知识 = 无映射错误面）；模板目录可直接 zip 分发/手工复制（无安装器亦可用）；结构自解释。
-- 负面：仓库根出现点开头的镜像目录（.sddu/.agents/.opencode 藏于 sddu-project-template/ 内，编辑器默认可能隐藏——缓解：README 指路 + check-essence-sync 校验模板完整性）；模板内文件不得引用仓库外路径（check-essence-sync 增加断言：模板内零 `../` 引用）。
+- 负面：仓库根出现点开头的镜像目录（.sddu/.agents 藏于 sddu-project-template/ 内，编辑器默认可能隐藏——缓解：README 指路）；模板内文件不得引用仓库外路径（e2e 结构回归断言：模板内零 `../` 引用）。

@@ -14,15 +14,15 @@ v6.0.0 目标是「回归方法论本质」。审视 `src/state/`（machine / sc
 
 ## 决策
 1. **`src/state/` 整体裁撤**：状态模型语义（8 phase 序列 / 5 status 集 / 迁移表 / 树嵌套父子联动 / 依赖校验口径 / state.md front-matter 字段契约）**全量蒸馏进 sddu.md 状态模型章节**，成为唯一权威。蒸馏以现 `machine.ts` / `schema-v3.0.0.ts` / `auto-updater.ts` 等语义为底稿**逐一比对迁移**，不凭记忆重写，蒸馏稿经用户逐节确认（TASK-002 范围扩展）。
-2. **仓库归零 TypeScript**：`src/` 下全部 `.ts`（×18 源）与 `src/__tests__/`（测试 ×13 + fixtures）退役；`tsconfig.json`、根 `jest.config.ts`、`scripts/test-sddu-functionality.js` 删除；`package.json` 整体退役（零 npm，承 ADR-006）。仓库形态收敛为：md 模板 + sddu.md（源）+ 一个校验脚本（check-essence-sync.cjs）+ shell 复制器。
-3. **权威源切换**：`build-dsh-skills.cjs` 的 `CORE_SCHEMA_PATH` 由读 `src/state/schema-v3.0.0.ts` 改为解析 sddu.md；`src/adapters/dsh/contract.ts` 的 dsh 契约结构校验职责并入 `check-essence-sync.cjs`（断言收敛为「1 入口 + .sddu 计数」）。FR-007 迁移的 state.json 校验锚点由 `validateStateV3` 改为 check-essence-sync 的 state 口径断言子命令。
-4. **强制力取舍（如实声明）**：状态正确性从「（OpenCode 侧）代码强制」降为「协议软引导 + 构建期口径校验」，与 dsh 现状对齐（承 ADR-004 取舍④）；硬门禁是否以其他形态回归，留 v12.0.0 重估。
+2. **仓库归零 TypeScript**：`src/` 下全部 `.ts`（×18 源）与 `src/__tests__/`（测试 ×13 + fixtures）退役；`tsconfig.json`、根 `jest.config.ts`、`scripts/test-sddu-functionality.js` 删除；`package.json` 整体退役（零 npm，承 ADR-006）。仓库形态收敛为：md 模板 + sddu.md（源）+ shell 复制器。（2026-11-24 修订：check-essence-sync 退役，结构断言归 e2e）
+3. **权威源切换**：`build-dsh-skills.cjs` 的 `CORE_SCHEMA_PATH` 由读 `src/state/schema-v3.0.0.ts` 改为解析 sddu.md；`src/adapters/dsh/contract.ts` 的 dsh 契约结构校验职责并入 e2e 结构回归（断言收敛为「1 入口 + .sddu 计数」）。FR-007 的 state 校验锚点由 `validateStateV3` 改为 e2e 结构回归。
+4. **强制力取舍（如实声明）**：状态正确性从「（OpenCode 侧）代码强制」降为「协议软引导」，与 dsh 现状对齐（承 ADR-004 取舍④）；硬门禁是否以其他形态回归，留 v12.0.0 重估。
 
 ## 对既有 ADR 的修订
 - **ADR-003**：冻结条款（「v6 期间不动运行时 seam」）的冻结对象随本决策整体退役，该条款失效；**用户确认制不变**（TS 裁撤属用户显式拍板，符合确认制）。
-- **ADR-004**：取舍④中「`src/state/` 保留为仓库内校验工具库」修订为「整体裁撤，职责并入 check-essence-sync」。
+- **ADR-004**：取舍④中「`src/state/` 保留为仓库内校验工具库」修订为「整体裁撤，结构断言职责并入 e2e」。
 
 ## 后果
-- 正面：单一权威（sddu.md）+ 单一校验机构（check-essence-sync）；仓库载体面大幅收缩（TS 工具链整体退役）；「sddu 趋向方法论」目标在代码层面兑现。
-- 负面：失去类型安全与运行时强制；构建校验脚本的枚举解析依赖 sddu.md 的稳定结构（缓解：sddu.md 状态模型章节采用机器可解析的规范格式，check-essence-sync 对格式漂移即时报错）；e2e 需重写为裸 node 结构回归。
+- 正面：单一权威（sddu.md）；仓库载体面大幅收缩（TS 工具链整体退役，校验脚本随漂移源消失而退役）；「sddu 趋向方法论」目标在代码层面兑现。
+- 负面：失去类型安全与运行时强制；状态枚举一致性由 e2e 结构回归保证（缓解：sddu.md 状态模型章节采用机器可解析的规范格式）；e2e 需重写为裸 node 结构回归。
 - 不可逆性：低——语义全量存续于 sddu.md，如未来确需代码强制（v12 重估结论），可在内核之上重新实现，无沉没成本。
