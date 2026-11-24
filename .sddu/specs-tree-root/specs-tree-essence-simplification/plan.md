@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.26  
+> **版本**: v5.27  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-24  
-> **更新说明**: 评估 B3 部分采纳：README/LICENSE 入本体目录 .sddu/.sddu/（随本体分发，根不设副本），CHANGELOG 不增设（ROADMAP 即历史）；§5.1 树 / §5.2 同步；产出 ADR-013
+> **更新说明**: 评估 B4 拒绝+非问题：术语表不进 sddu.md（内核保持精炼，形象化描述归 README——ADR-013 已入本体）；build 命名维持；产出 ADR-014
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -248,6 +248,7 @@ sddu/                                        # 仓库根
 | ADR-011 | 空钩子文件非脚手架——预置扩展点即最简拓展方式（评估 B1 非问题） | PROPOSED |
 | ADR-012 | 治理诉求不进内核——CODEOWNERS 与审计字段拒绝，治理走钩子扩展点（评估 B2 拒绝） | PROPOSED |
 | ADR-013 | 发布元数据随本体分发——README/LICENSE 入本体目录，CHANGELOG 不增设（评估 B3 部分采纳） | PROPOSED |
+| ADR-014 | 术语表不进 sddu.md——内核保持精炼，形象化描述归 README；build 命名维持（评估 B4 拒绝+非问题） | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -294,6 +295,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.27 | 用户拍板评估 B4（术语门槛 + build 语义）**拒绝+非问题**：术语表不进 sddu.md——内核保持精炼不繁琐冗余，Agent 读完 sddu.md 未懂则续读 README（ADR-013 已入本体，同目录随装即得，承载更形象贴切的描述）；build 命名维持（行业通用名，内容型语义映射属 v12）；产出 ADR-014 | 2026-11-24 | SDDU Plan Agent |
 | v5.26 | 用户拍板评估 B3（发布元数据）**部分采纳**：README/LICENSE 纳入规划且**落位本体目录 `.sddu/.sddu/`**（随本体 cp -r 分发、安装即得，仓库根不设副本杜绝双权威）；CHANGELOG 不增设（ROADMAP §3 投影 + 修订记录即历史）；§5.1 树（根 README/LICENSE 转 MOVE 入本体 + .sddu/.sddu/ 新增两行）/ §5.2（README 转 MOVE+MODIFY + 新增 LICENSE 行）同步；产出 ADR-013 | 2026-11-24 | SDDU Plan Agent |
 | v5.25 | 用户拍板评估 B2（CODEOWNERS + 审计字段）**拒绝**：治理不进内核（CODEOWNERS 是平台特定治理机制违反平台中立；审计字段膨胀 state.md 契约）；钩子机制即治理扩展点；产出 ADR-012 | 2026-11-24 | SDDU Plan Agent |
 | v5.24 | 用户拍板评估 B1（模板规模 vs 极简）**非问题**：极简指流程载体而非文件数量；空钩子文件是预置扩展点（路径即信息，填内容即生效）；产出 ADR-011 固化 | 2026-11-24 | SDDU Plan Agent |
