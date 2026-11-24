@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.25  
+> **版本**: v5.26  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-24  
-> **更新说明**: 评估 B2（CODEOWNERS + 审计字段）拒绝：治理不进内核（平台指针 + 状态契约膨胀），治理走钩子扩展点；产出 ADR-012 固化
+> **更新说明**: 评估 B3 部分采纳：README/LICENSE 入本体目录 .sddu/.sddu/（随本体分发，根不设副本），CHANGELOG 不增设（ROADMAP 即历史）；§5.1 树 / §5.2 同步；产出 ADR-013
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -56,13 +56,15 @@
 
 ```text
 sddu/                                        # 仓库根
-├── README.md                                ✎M    重排「本质先行」+ 载体矩阵后置（FR-002/NFR-005）
+├── README.md                                ✖D    MOVE 入本体：→ .sddu/.sddu/README.md（ADR-013，随本体分发；根不设副本）
+├── package.json                             ✖D    零 npm：整体退役（零 TS 无依赖、零构建无脚本）；版本源归 sddu.md 头部
 ├── package.json                             ✖D    零 npm：整体退役（零 TS 无依赖、零构建无脚本）；版本源归 sddu.md 头部
 ├── package-lock.json                         ✖D    随 package.json 退役
 ├── tsconfig.json                            ✖D    TS 源归零，编译配置随之退役（ADR-005）
 ├── jest.config.ts                           ✖D    根 jest 工程（core/opencode/integration）随 TS 测试退役；e2e 转裸 node 脚本
 ├── bootstrap.sh / bootstrap.ps1
-├── LICENSE / .gitignore
+├── LICENSE                                  ✖D    MOVE 入本体：→ .sddu/.sddu/LICENSE（ADR-013，随装即得合法授权）
+├── .gitignore
 │
 ├── scripts/                                 # 复制器一对（终态 ~400 行，现 4405 行；零构建 + 零 npm + 零校验，ADR-006/008）
 │   └── install/
@@ -86,6 +88,9 @@ sddu/                                        # 仓库根
 │   ├── .sddu/
 │   │   └── .sddu/                           #     与用户项目 .sddu/.sddu 逐项一致（设计态=运行态的核心承诺）
 │   │       ├── sddu.md                       ✎M    方法论内核唯一权威（含头部版本字段 = 唯一版本源）
+│   │       ├── README.md                    ★NEW  发布元数据（ADR-013，MOVE 自仓库根 + 重排「本质先行」：是什么 /
+│   │       │                                #     怎么装（一条 cp）/ 7 阶段概览 → 指向 sddu.md，不转写方法论）
+│   │       ├── LICENSE                      ★NEW  发布元数据（ADR-013，MOVE 自仓库根；随本体分发，安装即得合法授权）
 │   │       └── modules/                     #     按业务内聚组织：一个业务（阶段/流程）= 一个自包含子包
 │   │                                        #     （子包同构：sddu-<stage>.md = 阶段指令（文件命名即业务名，便于用户理解），自 templates/agents
 │   │                                        #       迁入改名、router 并入入口、方法论段 → 引用 sddu.md；
@@ -186,7 +191,8 @@ sddu/                                        # 仓库根
 | MOVE+MODIFY | `src/templates/agents/` → `sddu-project-template/.sddu/.sddu/modules/sddu-<module>/sddu-<stage>.md`（×10，文件命名即业务名，router 并入入口） | 阶段指令按业务归包（目录名即业务名）；方法论转写段替换为「权威来源：sddu.md」引用声明，保留阶段特有指令（FR-002） |
 | MOVE+MODIFY | `src/templates/outputs/` → `sddu-project-template/.sddu/.sddu/modules/sddu-<module>/contracts/`（×30） | 文档契约随所属业务归包（如 review-report 归 sddu-review/、docs ×20 归 sddu-docs/）；`.md.hbs` → `.md`；模板头补内核引用声明（FR-002） |
 | NEW | `sddu-project-template/.sddu/.sddu/modules/sddu-plan/contracts/adr.md` | **补 ADR 契约模板**（现状缺失）：ADR = plan 阶段产物（标题/状态/背景/决策/后果五段式，随 Feature 存储），原 30 契约不含它——新增使其成为 plan 契约 ×2；契约总数 30 → 31 |
-| MODIFY | `README.md` | 重排为「本质先行」结构；行数目标显著下降（NFR-005 记录前后对比） |
+| MOVE+MODIFY | `README.md` → `sddu-project-template/.sddu/.sddu/README.md` | 发布元数据入本体（ADR-013）：随本体 `cp -r` 分发（用户安装即得）；重排「本质先行」（是什么 / 怎么装 / 7 阶段概览 → 指向 sddu.md，不转写方法论）；根不设副本，行数目标显著下降（NFR-005 记录前后对比） |
+| MOVE | `LICENSE` → `sddu-project-template/.sddu/.sddu/LICENSE` | 发布元数据入本体（ADR-013）：随装即得合法使用授权；根不设副本；CHANGELOG 不增设（ROADMAP §3 投影 + 修订记录即历史） |
 | MODIFY | `.sddu/skills/dev-guide/SKILL.md` | 方法论口径改引用 sddu.md（FR-002） |
 | DELETE | `package.json` / `package-lock.json` | **零 npm（2026-11-24 用户拍板）**：零 TS 后无任何依赖、零构建后无任何脚本——npm 流程整体退役，仓库不再是 npm 项目；两命令均裸脚本直跑：`sh scripts/install/install.sh`（安装）、`node e2e/<scenario>.mjs`（结构回归）；版本源归 sddu.md 头部唯一（C1 矛盾根除） |
 | DELETE | `tsconfig.json` / `jest.config.ts`（根） | TS 源归零后编译/测试配置随之退役（Q-002 的死别名问题以「整个配置删除」终结） |
@@ -241,6 +247,7 @@ sddu/                                        # 仓库根
 | ADR-010 | TREE.md 裁撤——目录名即导航，不保留目录导航文件 | PROPOSED |
 | ADR-011 | 空钩子文件非脚手架——预置扩展点即最简拓展方式（评估 B1 非问题） | PROPOSED |
 | ADR-012 | 治理诉求不进内核——CODEOWNERS 与审计字段拒绝，治理走钩子扩展点（评估 B2 拒绝） | PROPOSED |
+| ADR-013 | 发布元数据随本体分发——README/LICENSE 入本体目录，CHANGELOG 不增设（评估 B3 部分采纳） | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -287,6 +294,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.26 | 用户拍板评估 B3（发布元数据）**部分采纳**：README/LICENSE 纳入规划且**落位本体目录 `.sddu/.sddu/`**（随本体 cp -r 分发、安装即得，仓库根不设副本杜绝双权威）；CHANGELOG 不增设（ROADMAP §3 投影 + 修订记录即历史）；§5.1 树（根 README/LICENSE 转 MOVE 入本体 + .sddu/.sddu/ 新增两行）/ §5.2（README 转 MOVE+MODIFY + 新增 LICENSE 行）同步；产出 ADR-013 | 2026-11-24 | SDDU Plan Agent |
 | v5.25 | 用户拍板评估 B2（CODEOWNERS + 审计字段）**拒绝**：治理不进内核（CODEOWNERS 是平台特定治理机制违反平台中立；审计字段膨胀 state.md 契约）；钩子机制即治理扩展点；产出 ADR-012 | 2026-11-24 | SDDU Plan Agent |
 | v5.24 | 用户拍板评估 B1（模板规模 vs 极简）**非问题**：极简指流程载体而非文件数量；空钩子文件是预置扩展点（路径即信息，填内容即生效）；产出 ADR-011 固化 | 2026-11-24 | SDDU Plan Agent |
 | v5.23 | 用户拍板**TREE.md 整体裁撤**：目录名即导航（version-in-path 使 ls 天然版本序），导航文件冗余且生成器与零脚本范式冲突；§5.1 树 / §5.2 行 / 排序收益行同步；spec 同步 v1.31；产出 ADR-010；ADR-009 收窄为 ROADMAP | 2026-11-24 | SDDU Plan Agent |
