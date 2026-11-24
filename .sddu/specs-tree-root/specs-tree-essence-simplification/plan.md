@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.24  
+> **版本**: v5.25  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-24  
-> **更新说明**: 评估 B1 判非问题：极简指流程载体而非文件数量；空钩子文件是预置扩展点（路径即信息，填内容即生效，最简拓展方式）；产出 ADR-011 固化设计决策
+> **更新说明**: 评估 B2（CODEOWNERS + 审计字段）拒绝：治理不进内核（平台指针 + 状态契约膨胀），治理走钩子扩展点；产出 ADR-012 固化
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -240,6 +240,7 @@ sddu/                                        # 仓库根
 | ADR-009 | 聚合索引不引入生成器——ROADMAP.md 靠 zone/entry 合并机制，非并发问题（TREE.md 随 ADR-010 裁撤） | PROPOSED |
 | ADR-010 | TREE.md 裁撤——目录名即导航，不保留目录导航文件 | PROPOSED |
 | ADR-011 | 空钩子文件非脚手架——预置扩展点即最简拓展方式（评估 B1 非问题） | PROPOSED |
+| ADR-012 | 治理诉求不进内核——CODEOWNERS 与审计字段拒绝，治理走钩子扩展点（评估 B2 拒绝） | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -286,6 +287,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.25 | 用户拍板评估 B2（CODEOWNERS + 审计字段）**拒绝**：治理不进内核（CODEOWNERS 是平台特定治理机制违反平台中立；审计字段膨胀 state.md 契约）；钩子机制即治理扩展点；产出 ADR-012 | 2026-11-24 | SDDU Plan Agent |
 | v5.24 | 用户拍板评估 B1（模板规模 vs 极简）**非问题**：极简指流程载体而非文件数量；空钩子文件是预置扩展点（路径即信息，填内容即生效）；产出 ADR-011 固化 | 2026-11-24 | SDDU Plan Agent |
 | v5.23 | 用户拍板**TREE.md 整体裁撤**：目录名即导航（version-in-path 使 ls 天然版本序），导航文件冗余且生成器与零脚本范式冲突；§5.1 树 / §5.2 行 / 排序收益行同步；spec 同步 v1.31；产出 ADR-010；ADR-009 收窄为 ROADMAP | 2026-11-24 | SDDU Plan Agent |
 | v5.22 | 用户拍板聚合索引生成化（评估 A5）**非问题**：ROADMAP.md 已有 zone/entry 结构化合并机制、§3 为 specs-tree 实时投影、产品未推广单机无并发；不为未发生的多团队并发造生成器；产出 ADR-009 固化结论 | 2026-11-24 | SDDU Plan Agent |
