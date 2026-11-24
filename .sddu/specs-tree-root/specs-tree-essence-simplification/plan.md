@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.30  
+> **版本**: v5.31  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-24  
-> **更新说明**: 排查 L4 裁决 A 退役：files 产物注册字段退役——目录即真相，产物存在性直查不注册（副本即漂移源）；门禁语义保留、数据源换轨直查；与 L3 构成对照原则（声明补载体、副本删载体）；产出 ADR-017
+> **更新说明**: 排查 L5 裁决 C 完全退役：auto-updater 属 OpenCode 插件内容（file.edited/session.idle 事件驱动）——平台限定业务不入框架；阶段推进唯一路径 = 完成协议（A8）；产出 ADR-018
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -252,6 +252,7 @@ sddu/                                        # 仓库根
 | ADR-015 | 场景特定能力不入框架——外部 API 文档缓存门禁退役（能力丢失排查 L2） | PROPOSED |
 | ADR-016 | state.md front-matter 补 dependencies 字段——依赖声明是状态，反向视图是派生（能力丢失排查 L3） | PROPOSED |
 | ADR-017 | files 产物注册字段退役——目录即真相，产物存在性直查不注册（能力丢失排查 L4） | PROPOSED |
+| ADR-018 | 文件驱动自动推进退役——插件事件驱动属平台限定业务，框架不包容（能力丢失排查 L5） | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -298,6 +299,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.31 | 排查 **L5 裁决 C 完全退役**：auto-updater 文件驱动自动推进——触发链挂在 OpenCode 插件事件（file.edited/session.idle）上，属插件内容；**平台限定业务不入框架**（与 ADR-015 场景中立同构）；阶段推进唯一路径 = A8 完成协议（Agent 写完产物即更新 state.md）；TASK-002 蒸馏范围明确排除文件反推语义；产出 ADR-018 | 2026-11-24 | SDDU Plan Agent |
 | v5.30 | 排查 **L4 裁决 A 退役**：files 产物注册字段退役——**目录即真相**（产物存在性按目录约定文件名直查，注册副本即漂移源）；前置产物门禁语义保留、数据源换轨为直查（底稿 A6 判定依据同步）；模块迁移约束：sddu-review/sddu-validate 模板删除 files 回写联动段（与 ADR-015 API 门禁段同批）；产出 ADR-017 | 2026-11-24 | SDDU Plan Agent |
 | v5.29 | 排查 **L3 裁决 A**：front-matter **补 `dependencies` 字段**（单向声明只存「我依赖谁」，反向 blocking 派生不落盘由 Agent 反查推导；缺省合法）——「依赖校验口径」蒸馏的数据源闭环，结构矛盾解除；ADR-005 字段契约九→十字段；TASK-002 依赖口径绑定本字段；产出 ADR-016 | 2026-11-24 | SDDU Plan Agent |
 | v5.28 | 用户启动**能力丢失排查**（黑盒丢失审计）：4 片深读（状态机/适配器/框架技能/模板+e2e）产出 capability-loss-audit.md（🔴 黑盒 ×8 + 🟡A 蒸馏缺口 ×9 + 🟡B FR-004 悬置 ×6 + ✅ 已决抽查）；**L2 裁决 A 退役**：SDDU 框架级/逻辑级/场景无关，外部 API 文档缓存门禁属场景增强不入框架（场景需求走 .sddu-config 钩子）；模块迁移约束：sddu-spec/sddu-plan 模板删除 API 门禁段；产出 ADR-015 | 2026-11-24 | SDDU Plan Agent |
