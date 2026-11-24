@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.35  
+> **版本**: v5.36  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-24  
-> **更新说明**: 排查 B1/B2/B3 整体退役（同一 ADR）：内置 skill 机制（creator/discovery/sync）不提供——聚焦 sddu 核心，非核心未来也不提供；框架级 skills ×4 全部出清，FR-004 skill 体系评估闭环；产出 ADR-022
+> **更新说明**: 排查 B6 裁决退役：e2e 场景生成器 + FULLSTACK 指南——新设计无需复杂自动化验证（e2e = 裸 node 结构回归，静态断言）；产出 ADR-023
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -154,7 +154,9 @@ sddu/                                        # 仓库根
 │                                            #       不支持该约定的平台由用户自行放置索引文件，复制粘贴即得）
 │
 ├── docs/                                    # dsh/×6、research/×4 及工程文档 — 归类见清单
-├── e2e/                                     ✎M    jest TS 测试 ×2 → 裸 node 结构回归脚本（安装范式断言：.sddu 计数 + 1 入口 + workspace 逐字节不变 + state.md front-matter 枚举）
+├── e2e/                                     ✎M    jest TS 测试 ×2 → 裸 node 结构回归脚本（安装范式断言：.sddu 计数 + 1 入口 + workspace 逐字节不变
+│                                            #     + state.md front-matter 枚举）；e2e/scripts/ 整目录（basic/fullstack 场景生成器）✖D（ADR-023：
+│                                            #     新设计无需复杂自动化验证——静态结构断言不需要业务场景装备，旧运行时行为面已消失）
 │
 ├── .sddu/                                   # 本仓库自身 workspace（dogfooding，结构同用户项目；细目见 §5.2 变更行）
 
@@ -259,6 +261,7 @@ sddu/                                        # 仓库根
 | ADR-020 | bootstrap 一键安装退役——新设计不区分平台（能力丢失排查 L7） | PROPOSED |
 | ADR-021 | 状态机蒸馏底稿清单——九条语义全量并入 TASK-002（能力丢失排查 🟡A） | PROPOSED |
 | ADR-022 | 内置 Skill 机制退役（creator/discovery/sync）——框架聚焦 sddu 核心，非核心一律不提供（能力丢失排查 B1/B2/B3） | PROPOSED |
+| ADR-023 | e2e 场景生成器与 FULLSTACK 指南退役——新设计无需复杂自动化验证（能力丢失排查 B6） | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -305,6 +308,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.36 | 排查 **B6 裁决退役**：e2e 场景生成器（basic/fullstack）+ FULLSTACK 指南退役——**新的设计无需这么多复杂的自动化验证**：e2e = 裸 node 结构回归（静态文件树断言），场景生成器验证的旧行为面（TS 运行时+插件+命令）已随 src/ 退役消失；实测 = 用户真实使用（dogfooding）；§5.1 树 e2e 范围明确 + e2e/scripts/ 与指南补 ✖D；产出 ADR-023 | 2026-11-24 | SDDU Plan Agent |
 | v5.35 | 排查 **B1/B2/B3 整体退役（同一 ADR）**：内置 skill 机制（creator/discovery/sync）新的设计不提供——**聚焦 sddu 核心内容，非 sddu 核心未来也不会再提供**；三项均为内置 skill 机制，配套旧范式（skills 落平台目录）已消失；与 ADR-015（场景）/ADR-018（平台）连成三维裁决矩阵（+生态维度）；**框架级 skills ×4 全部出清**（tree=ADR-010），FR-004 skill 体系评估就此闭环；产出 ADR-022 | 2026-11-24 | SDDU Plan Agent |
 | v5.34 | 排查 **🟡A 整体采纳**：九条蒸馏底稿清单（A1 FR-006 自动 completed / A2 父特性天花板 / A3 状态可逆表 / A4 依赖拦截规则 / A5 phaseHistory 契约 / A6 前置产物表 / A7 createFeature 规则 / A8 完成协议改写 / A9 缺陷修正）全量并入 TASK-002，蒸馏时逐条比对勾销；A4↔ADR-016、A6↔ADR-017、A8↔ADR-018 绑定显式化；产出 ADR-021 | 2026-11-24 | SDDU Plan Agent |
 | v5.33 | 排查 **L7 裁决退役**：bootstrap.sh/ps1 整体退役——**新设计不区分平台**（统一安装 = cp -r 一条命令全平台同动作，bootstrap 平台分派前提消失；--platform 分支 + 间接 npm 构建依赖同为死代码）；安装说明归 README（git clone + cp -r 两步，消除 curl 管道供应链信任问题）；§5.1 树补 ✖D 标注；产出 ADR-020 | 2026-11-24 | SDDU Plan Agent |
