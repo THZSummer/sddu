@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.37  
+> **版本**: v5.38  
 > **更新人**: SDDU Plan Agent  
 > **更新时间**: 2026-11-24  
-> **更新说明**: 排查 B4 裁决降级：dev-guide 退化到 .agents/skills/dev-guide/（项目自有 skill，非 sddu 产品一部分，模板不含）；§5.2 MODIFY 行改 MOVE；产出 ADR-024
+> **更新说明**: 排查 L1 裁决降级：opencode-operator 退化到 .agents/skills/opencode-operator/（项目自有 skill，与 dev-guide 同构，模板不含）；src/ DELETE 唯一 MOVE 例外；产出 ADR-025
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -207,7 +207,7 @@ sddu/                                        # 仓库根
 | DELETE | `.sddu/docs/migration*.md` ×27 | 迁移残留归档删除（P-018；**用户确认后执行**，记录入 carrier-inventory） |
 | DELETE | `.sddu/COMPLETION_CERTIFICATE.json` / `.sddu/review-report-*.json` | 历史归档清理（迁移完成证书 / 旧审查报告——2026-11-22 用户拍板删除，SDDU 尚未市场推广，不给自己加技术栈包袱） |
 | DELETE | （待定） | carrier-inventory 中「可删/可合并」项——build 阶段分批提交用户确认后执行（FR-005） |
-| DELETE | `src/` 整目录（ADR-005/007：×18 TS 源 + `__tests__/` 整目录 + skills/ + adapters/ 全部） | **TS 运行时与校验工具链整体退役（ADR-005，用户拍板 2026-11-23；目录整体让位于 sddu-project-template/，ADR-007）**：`state/` ×9（machine / schema-v3.0.0 / dependency-checker / state-loader / tree-scanner / auto-updater / parent-state-manager / types / index）、`shared/` ×3、`index.ts`、`templates/index.ts`、`adapters/opencode/`（plugin.ts + index.ts + templates）、`adapters/dsh/`（contract.ts + index.ts，结构断言职责并入 e2e）、`__tests__/`（测试 ×13 + fixtures）。语义去向：状态模型（8 phase / 5 status / 迁移表 / 树嵌套联动 / 依赖校验口径）全量蒸馏进 sddu.md → TASK-002 范围扩展；OpenCode 硬门禁退役取舍承 ADR-004 取舍④（v12 重估）；ADR-003 的「运行时 seam 冻结」条款对象消失、由本 ADR 取代，用户确认制不变 |
+| DELETE | `src/` 整目录（ADR-005/007：×18 TS 源 + `__tests__/` 整目录 + skills/ + adapters/ 全部） | **TS 运行时与校验工具链整体退役（ADR-005，用户拍板 2026-11-23；目录整体让位于 sddu-project-template/，ADR-007）**：`state/` ×9（machine / schema-v3.0.0 / dependency-checker / state-loader / tree-scanner / auto-updater / parent-state-manager / types / index）、`shared/` ×3、`index.ts`、`templates/index.ts`、`adapters/opencode/`（plugin.ts + index.ts + templates）、`adapters/dsh/`（contract.ts + index.ts，结构断言职责并入 e2e）、`__tests__/`（测试 ×13 + fixtures）。语义去向：状态模型（8 phase / 5 status / 迁移表 / 树嵌套联动 / 依赖校验口径）全量蒸馏进 sddu.md → TASK-002 范围扩展（底稿清单 = ADR-021 九条）；OpenCode 硬门禁退役取舍承 ADR-004 取舍④（v12 重估）；ADR-003 的「运行时 seam 冻结」条款对象消失、由本 ADR 取代，用户确认制不变。**唯一例外（ADR-025）：`src/skills/builtin/opencode-operator/` 不删，MOVE 至 `.agents/skills/opencode-operator/`（项目自有 skill，非产品部分）** |
 | NEW | `sddu-project-template/.agents/skills/sddu/SKILL.md` | 纯索引/引导文件（内容极简稳定：引导 Agent 加载 `.sddu/.sddu/sddu.md`，全 md 零渲染）——**落位即安装后路径**（设计态即运行态，ADR-007），复制即生效；唯一入口实质（路由表 + 协议 + 读取规则）归 sddu.md（2026-11-24 拍板，C2 消解）；发现指针机制删除（2026-11-23 拍板：平台 skill 识别非 sddu 核心） |
 | NEW | `scripts/install/install.sh` / `install.ps1` | **复制粘贴器**（合并 install/{opencode,dsh}×{sh,ps1} 四份 → 一份/运行时，ADR-007）：`cp -r sddu-project-template/. <project>/`（源路径 = 安装后路径，零改写、零平台分支）+ 旧布局迁移（备份+回滚）；无 dist/、无渲染、无 install.json（版本 = sddu.md 头部） |
 | DELETE | `dist/` / `.opencode/` / `.dsh/` / `package.json` / `package-lock.json` / node_modules | 仓库内产物与安装态投影整体退役：零构建后无 dist/（ADR-006）；平台投影由 `sddu-project-template/` 复制产生、不在仓库维护（ADR-007）；零 npm 后 node_modules 不再存在；`.gitignore` 相应瘦身 | `build-agents.cjs`、`build-dsh-skills.cjs`（构建链整体取消——全 md 无渲染对象，非合并）；`package.cjs` + `package.test.cjs`（npm 插件包打包链退役）；`test-sddu-functionality.js`（依赖 dist TS 运行时）；`check-sdd-residue.sh` / `migrate-sdd-to-sddu.sh`（SDD→SDDU 一次性迁移已完成，D3 历史包袱）；`sddu-check.sh`（与 e2e/安装自检职责重叠）；`sddu-validation-report.sh`（运行时报告工具，职责归入口协议+契约，D1✗）；`verify-skills.sh`（断言 11-skill 旧结构，新断言归 e2e）；`install/{opencode,dsh}/` 四份安装器（并入纯复制器）——scripts/ 由 4405 行收敛至 ~400 行 |
@@ -263,6 +263,7 @@ sddu/                                        # 仓库根
 | ADR-022 | 内置 Skill 机制退役（creator/discovery/sync）——框架聚焦 sddu 核心，非核心一律不提供（能力丢失排查 B1/B2/B3） | PROPOSED |
 | ADR-023 | e2e 场景生成器与 FULLSTACK 指南退役——新设计无需复杂自动化验证（能力丢失排查 B6） | PROPOSED |
 | ADR-024 | dev-guide 降级为项目自有 skill——非 sddu 产品的一部分（能力丢失排查 B4） | PROPOSED |
+| ADR-025 | opencode-operator 降级为项目自有 skill——非 sddu 产品的一部分（能力丢失排查 L1，与 dev-guide 同构） | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -309,6 +310,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.38 | 排查 **L1 裁决降级迁移**：opencode-operator 退化到 **`.agents/skills/opencode-operator/`**——与 dev-guide（ADR-024）同构：作为本项目自己的 skill，不作为 sddu 产品的一部分（模板不含；opencode 平台专属 + 非方法论内核，产品面双维否决）；**src/ DELETE 伞形范围唯一 MOVE 例外**（src/skills/builtin/opencode-operator/ 迁出，其余照删）；commander 私有依赖随目录自包含（产品零 npm 不受影响）；产出 ADR-025 | 2026-11-24 | SDDU Plan Agent |
 | v5.37 | 排查 **B4 裁决降级迁移**：dev-guide 退化到 **`.agents/skills/dev-guide/`**——作为本项目自己的 skill，**不作为 sddu 产品的一部分**（sddu-project-template/ 不含；与 sddu 索引并列但性质不同：项目私有 vs 产品分发）；§5.2 原 MODIFY 行作废改 MOVE；退出 FR-002 产品载体对齐清单；内容重写延后；产出 ADR-024 | 2026-11-24 | SDDU Plan Agent |
 | v5.36 | 排查 **B6 裁决退役**：e2e 场景生成器（basic/fullstack）+ FULLSTACK 指南退役——**新的设计无需这么多复杂的自动化验证**：e2e = 裸 node 结构回归（静态文件树断言），场景生成器验证的旧行为面（TS 运行时+插件+命令）已随 src/ 退役消失；实测 = 用户真实使用（dogfooding）；§5.1 树 e2e 范围明确 + e2e/scripts/ 与指南补 ✖D；产出 ADR-023 | 2026-11-24 | SDDU Plan Agent |
 | v5.35 | 排查 **B1/B2/B3 整体退役（同一 ADR）**：内置 skill 机制（creator/discovery/sync）新的设计不提供——**聚焦 sddu 核心内容，非 sddu 核心未来也不会再提供**；三项均为内置 skill 机制，配套旧范式（skills 落平台目录）已消失；与 ADR-015（场景）/ADR-018（平台）连成三维裁决矩阵（+生态维度）；**框架级 skills ×4 全部出清**（tree=ADR-010），FR-004 skill 体系评估就此闭环；产出 ADR-022 | 2026-11-24 | SDDU Plan Agent |

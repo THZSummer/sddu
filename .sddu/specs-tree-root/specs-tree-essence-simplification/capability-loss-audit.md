@@ -42,7 +42,7 @@
 - B. 拆独立项目/独立 skill 分发（不随 SDDU 本体走）
 - C. 保留为 opencode 平台的可选附加包（v12 多平台二期重估）
 
-**裁决**：________________
+**裁决**：✅ **降级迁移（2026-11-24 拍板，与 dev-guide/ADR-024 同构）**——退化到 `.agents/skills/opencode-operator/`：作为本项目自己的 skill，不作为 sddu 产品的一部分（模板不含；opencode 平台专属 + 非方法论内核，产品面双维否决）；src/ DELETE 伞形范围的唯一 MOVE 例外；commander 私有依赖随目录自包含，不违反产品零 npm；产出 ADR-025
 
 ---
 
