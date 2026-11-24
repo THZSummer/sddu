@@ -14,8 +14,8 @@ v6.0.0 目标是「回归方法论本质」。审视 `src/state/`（machine / sc
 
 ## 决策
 1. **`src/state/` 整体裁撤**：状态模型语义（8 phase 序列 / 5 status 集 / 迁移表 / 树嵌套父子联动 / 依赖校验口径 / state.json 字段契约）**全量蒸馏进 sddu.md 状态模型章节**，成为唯一权威。蒸馏以现 `machine.ts` / `schema-v3.0.0.ts` / `auto-updater.ts` 等语义为底稿**逐一比对迁移**，不凭记忆重写，蒸馏稿经用户逐节确认（TASK-002 范围扩展）。
-2. **仓库归零 TypeScript**：`src/` 下全部 `.ts`（×18 源）与 `src/__tests__/`（测试 ×13 + fixtures）退役；`tsconfig.json`、根 `jest.config.ts`、`scripts/test-sddu-functionality.js` 删除；`package.json` 删 tsc/jest 链与 exports。仓库形态收敛为：`.hbs` 模板 + .sddu.md（源）+ `.cjs` 构建脚本 + shell 安装器。
-3. **权威源切换**：`build-dsh-skills.cjs` 的 `CORE_SCHEMA_PATH` 由读 `src/state/schema-v3.0.0.ts` 改为解析 sddu.md；`src/adapters/dsh/contract.ts` 的 dsh 契约结构校验职责并入 `check-essence-sync.cjs`（断言收敛为「1 入口 + ..sddu 计数」）。FR-007 迁移的 state.json 校验锚点由 `validateStateV3` 改为 check-essence-sync 的 state 口径断言子命令。
+2. **仓库归零 TypeScript**：`src/` 下全部 `.ts`（×18 源）与 `src/__tests__/`（测试 ×13 + fixtures）退役；`tsconfig.json`、根 `jest.config.ts`、`scripts/test-sddu-functionality.js` 删除；`package.json` 整体退役（零 npm，承 ADR-006）。仓库形态收敛为：md 模板 + sddu.md（源）+ 一个校验脚本（check-essence-sync.cjs）+ shell 复制器。
+3. **权威源切换**：`build-dsh-skills.cjs` 的 `CORE_SCHEMA_PATH` 由读 `src/state/schema-v3.0.0.ts` 改为解析 sddu.md；`src/adapters/dsh/contract.ts` 的 dsh 契约结构校验职责并入 `check-essence-sync.cjs`（断言收敛为「1 入口 + .sddu 计数」）。FR-007 迁移的 state.json 校验锚点由 `validateStateV3` 改为 check-essence-sync 的 state 口径断言子命令。
 4. **强制力取舍（如实声明）**：状态正确性从「（OpenCode 侧）代码强制」降为「协议软引导 + 构建期口径校验」，与 dsh 现状对齐（承 ADR-004 取舍④）；硬门禁是否以其他形态回归，留 v12.0.0 重估。
 
 ## 对既有 ADR 的修订

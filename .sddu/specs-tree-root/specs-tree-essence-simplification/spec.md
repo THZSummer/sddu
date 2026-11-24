@@ -4,10 +4,10 @@
 > **前置依赖**: discovery.md（问题清单：7 问题 / 4 假设 / 5 风险）  
 > **创建人**: SDDU Spec Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v1.25  
+> **版本**: v1.26  
 > **更新人**: SDDU Spec Agent  
 > **更新时间**: 2026-11-23  
-> **更新说明**: FR-008 验收①/②/③/⑥/⑩/⑪——本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`
+> **更新说明**: 零 npm——package.json / package-lock.json / node_modules 整体退役，校验/安装/测试改裸脚本直跑；NFR-005 验收补「npm 依赖归零」
 
 ## 1. 元数据
 > Feature 基本信息
@@ -83,7 +83,7 @@
 | NFR-002 | 不降级 | 瘦身不损害双平台既有可用能力 | e2e basic 通过；dsh 静态结构测试（skill-package.test）通过；安装链路自检通过 |
 | NFR-003 | 可维护性 | 方法论口径变更收敛为「改一处、全生效」 | 同步点数较简化前下降且有前后对比记录（五处同源同步 → 内核引用） |
 | NFR-004 | 可追溯性 | 每个裁撤决策可追溯（判定条款 + 用户确认记录） | 抽样任意裁撤项可还原决策链 |
-| NFR-005 | 可度量简化 | 简化效果可量化 | 交付物含前后对比表：README 行数 / 模板数 / 文档数 / 同步点数 / ROADMAP 行数 |
+| NFR-005 | 可度量简化 | 简化效果可量化 | 交付物含前后对比表：README 行数 / 模板数 / 文档数 / 同步点数 / ROADMAP 行数 / npm 依赖数（→0） |
 | NFR-006 | 可扩展性（FR-008） | 新增平台零框架变动（仅限支持 `.agents/skills` 约定的平台；不内置指针等适配机制） | 假想平台 demo：仅新增一个入口 md 完成安装；`git diff` 证明模板与脚本零改动 |
 | NFR-007 | 升级安全（FR-008） | 安装/升级对用户产物零副作用 | 安装前后 `workspace/` 逐字节比对一致；旧布局迁移有备份与回滚 |
 
@@ -127,6 +127,7 @@
 | v1.9 | 设计落位确认（用户拍板）→ 版本化命名与 ADR 存储约定均以 plan §5.3 为唯一设计载位；本 Feature 目录保持原名，迁移由 TASK-009 统一执行 | 2026-11-22 | SDDU Spec Agent |
 | v1.10 | FR-008 验收⑦ 去示例写死（用户拍板）：命名规范统一为占位式 `specs-tree-<version>-<slug>`，不绑定具体版本号与具体特性名 | 2026-11-22 | SDDU Spec Agent |
 | v1.15 | FR-008 验收②（用户拍板）：workspace 空骨架随装——首次安装仅初始化空骨架（补回空项目落点），升级逐字节不变 | 2026-11-23 | SDDU Spec Agent |
+| v1.26 | 用户拍板**零 npm**：package.json / package-lock.json / node_modules 整体退役，check/install/test 改裸脚本直跑；NFR-005 验收补「npm 依赖归零」 | 2026-11-24 | SDDU Spec Agent |
 | v1.25 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；FR-008 验收①/②/③/⑥/⑩/⑪ 同步 | 2026-11-23 | SDDU Spec Agent |
 | v1.24 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；FR-008 验收②/⑩/⑪ 同步 | 2026-11-23 | SDDU Spec Agent |
 | v1.23 | 用户拍板改名用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义）；FR-008 验收②/⑩/⑪ 同步 | 2026-11-23 | SDDU Spec Agent |

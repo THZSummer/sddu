@@ -11,7 +11,7 @@ PROPOSED（2026-11-23 用户拍板）
 3. **无清单需求**：install.json 的版本/哈希完整性校验是自我加压的技术栈（SDDU 未市场分发，无完整性对抗场景）；版本号由 sddu.md 头部承载即可。
 
 ## 决策
-1. **取消构建阶段**：不新建任何构建脚本；build-agents / build-dsh-skills / package.cjs(+test) 随零构建范式退役；`npm run build` 取消。
+1. **取消构建阶段 + 零 npm**：不新建任何构建脚本；build-agents / build-dsh-skills / package.cjs(+test) 随零构建范式退役；`npm run build` 取消；`package.json` / `package-lock.json` / `node_modules` 整体退役——零 TS 后无依赖、零构建后无脚本，npm 流程不再存在。
 2. **安装 = 纯复制**：安装器（install/install.{sh,ps1}）直接从仓库 `src/` 复制——`src/methodology/ + .sddu.md` → `.sddu/.sddu/`；`src/adapters/SKILL.md` → `.agents/skills/sddu/`；指针按 `--platform` 写入。无 dist/、无渲染、无中间产物。
 3. **文件格式归一为 md**：入口 `entry.md.hbs` → `SKILL.md`；契约 `.md.hbs` → `.md`（占位符保留为文档约定，语义由契约头声明）。
 4. **版本承载**：sddu.md 头部版本字段为唯一版本源；check-essence-sync 顺带断言各载体引用的版本一致（如需）。

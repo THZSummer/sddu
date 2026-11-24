@@ -37,7 +37,7 @@ PROPOSED（2026-11-22 用户拍板新增范围）
 
 **核心判据（可测试）**：① 新增平台 = 在模板目录放一个入口 md（连构建都不用跑），内核、载体源**零改动**；② 安装/升级前后 `workspace/` 内容逐字节不变；③ 存量旧布局（`.sddu/specs-tree-root` 等在根下）由安装器检测并自动迁移至 `workspace/`（迁移前备份，失败回滚并逐项报告）。
 
-**取舍（如实声明）**：① 平台原生多入口直调收敛为单入口内部路由（兼容别名由入口路由表承载）；② dsh 侧静态结构断言从 11 skill 调整为 1 入口 + ..sddu 计数断言；③ 阶段指令的加载从「构建期拼进 11 份 SKILL.md」变为「运行期入口读 .sddu 文件」；④ **OpenCode 侧插件运行时（`src/adapters/opencode/plugin.ts` 状态机硬门禁 / 工具注册）退役**——两平台统一为协议软引导，OpenCode 失去代码级强制（`PhaseSkipError` 等抛错）与平台工具注册（如 sddu_update_state），状态推进全部走文件协议（与 dsh 现状一致）；~~`src/state/` 保留为**仓库内校验工具库**（validateStateV3 等供构建/检查脚本与 FR-007 迁移使用），不再随安装分发~~（**2026-11-23 修订，ADR-005**：`src/state/` 及全部 TS 整体裁撤，校验职责并入 check-essence-sync，仓库零 TypeScript）；硬门禁能力是否以其他形态回归，留 v12.0.0 重估。
+**取舍（如实声明）**：① 平台原生多入口直调收敛为单入口内部路由（兼容别名由入口路由表承载）；② dsh 侧静态结构断言从 11 skill 调整为 1 入口 + .sddu 计数断言；③ 阶段指令的加载从「构建期拼进 11 份 SKILL.md」变为「运行期入口读 .sddu 文件」；④ **OpenCode 侧插件运行时（`src/adapters/opencode/plugin.ts` 状态机硬门禁 / 工具注册）退役**——两平台统一为协议软引导，OpenCode 失去代码级强制（`PhaseSkipError` 等抛错）与平台工具注册（如 sddu_update_state），状态推进全部走文件协议（与 dsh 现状一致）；~~`src/state/` 保留为**仓库内校验工具库**（validateStateV3 等供构建/检查脚本与 FR-007 迁移使用），不再随安装分发~~（**2026-11-23 修订，ADR-005**：`src/state/` 及全部 TS 整体裁撤，校验职责并入 check-essence-sync，仓库零 TypeScript）；硬门禁能力是否以其他形态回归，留 v12.0.0 重估。
 
 **迁移面（已量化）**：`.sddu/specs-tree-root` 路径引用 33 个文件 + 其他 `.sddu/{skills,ROADMAP,TREE,templates}` 直引 26 个文件，均为机械替换（`specs-tree-root` → `workspace/specs-tree-root` 等）；~~`src/state/` 仅路径常量变更、状态机语义不动~~（ADR-005 修订：整体裁撤，语义移交 sddu.md）；本仓库自身（dogfooding）工作空间随 build 阶段一并搬迁。
 

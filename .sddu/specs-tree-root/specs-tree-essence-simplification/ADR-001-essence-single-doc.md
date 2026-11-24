@@ -10,12 +10,12 @@ spec FR-001/FR-002 要求方法论内核成为唯一权威来源，且口径变�
 采用方案 A：
 1. `sddu.md`（仓库根）为方法论唯一权威文档，内容覆盖 7 阶段流程、三原则、两字段状态模型、各阶段文档契约，零平台特定事实；
 2. 各载体（Agent 模板 / SKILL.md / README / dev-guide）的方法论转写段替换为「权威来源：sddu.md」引用声明，仅保留平台/阶段特有行为指令；
-3. 新增 `scripts/check-essence-sync.cjs` 挂为独立命令 `npm run check`（零构建范式，非 build 链）：抽取各载体方法论关键口径（阶段序列、三原则关键词、phase/status 枚举）与内核断言一致，失败即非零退出。
+3. 新增 `scripts/check-essence-sync.cjs` 为裸 node 脚本（零 npm 零构建范式，非 build 链），直接 `node scripts/check-essence-sync.cjs` 执行：抽取各载体方法论关键口径（阶段序列、三原则关键词、phase/status 枚举）与内核断言一致，失败即非零退出。
 4. **内核随安装分发**：sddu.md 进入两平台安装产物各一份（OpenCode 随插件包 `.opencode/plugins/sddu/sddu.md`；dsh 置于路由 skill `.dsh/skills/sddu/sddu.md`），其余载体以相对路径引用（`../sddu/sddu.md`）——安装态同样维持「单一副本 + 引用」，不随 skill 数量复制内核。
 
 「改一处全生效」的语义 = 改内核 → 跑 check → 校验列出全部漂移点 → 更新引用处；同步由校验保证而非渲染机制保证。
 
 ## 后果
 - 正面：改动集中、不碰渲染管线；内核平台中立、可独立阅读与分发（为 skill 市场推广与非编程领域延展预留路径）；与「简化」版本目标自洽（不为简化先增重）。
-- 负面：同步是「检测后修复」而非「机制阻止」，存在一次性窗口期漂移（缓解：校验挂 `npm run check`，任何发布前必过）。
+- 负面：同步是「检测后修复」而非「机制阻止」，存在一次性窗口期漂移（缓解：校验直接 `node scripts/check-essence-sync.cjs`，任何发布前必过）。
 - 演进：若未来需要机制级同步，可在内核与校验之上增量升级为方案 B/C，无沉没成本。
