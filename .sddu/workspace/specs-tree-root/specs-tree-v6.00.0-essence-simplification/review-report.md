@@ -1,4 +1,4 @@
-# 审查报告：specs-tree-essence-simplification（v6.0.0）
+# 审查报告：specs-tree-v6.00.0-essence-simplification（v6.0.0）
 
 > **文档定位**: SDDU 审查报告 — 逐项记录自主审查的执行结果，作为 validate 阶段的输入  
 > **审查策略**: review.md（C1~C15 审查清单及四维度指引）  

@@ -3,8 +3,8 @@ feature: v6.00.0-essence-simplification
 featureId: FR-ESSENCE-001
 name: 简化与本质化（回归方法论本质）
 version: v6.0.0
-phase: reviewed
-status: tracked
+phase: validated
+status: completed
 depth: 0
 childrens: []
 phaseHistory:
@@ -40,14 +40,20 @@ phaseHistory:
     timestamp: "2026-11-25T13:20:00.000Z"
     triggeredBy: sddu-review
     comment: "R1 审查通过：15 项清单（14 ✅ / 1 ⚠️ / 0 ❌ / 0 阻塞）；唯一警告为 docs/fast 模块 .opencode/ 残留（低严重度非阻塞）"
+  - phase: validated
+    timestamp: "2026-11-25T14:00:00.000Z"
+    triggeredBy: sddu-validate
+    comment: "R1 验证有条件通过：V1~V11 实测（17 ✅ / 2 ⚠️ / 0 ❌ / 0 阻塞 / 0 严重漂移）；非阻塞偏差 2 项（完成协议 7 模块转写 / modules 5 处平台残留）建议 v6.0.1 或并入 v7.0.0"
 dependencies: []
 description: 回归方法论本质（v6.0.0）：方法论内核蒸馏 + 载体瘦身；统一安装范式（本体/工作空间二分 + 唯一入口 + 零运行时件）；载体降位为可替换附属品。
 ---
 
 # 简化与本质化（回归方法论本质）
 
-当前阶段：**reviewed** · 状态：**tracked**
+当前阶段：**validated** · 状态：**completed**
 
 回归方法论本质（v6.0.0）：方法论内核蒸馏 + 载体瘦身；统一安装范式（本体/工作空间二分 + 唯一入口 + 零运行时件）；载体降位为可替换附属品。
 
 构建成果：`.sddu/.sddu/sddu.md` 内核 + 10 模块指令 + 31 契约 + 索引 + workspace 骨架 + 复制器 + e2e 结构回归；src/scripts/npm 全部退役；29 存量 state.json→state.md。
+
+验证结论（R1）：⚠️ 有条件通过——核心架构目标全部实测确认，2 项非阻塞载体偏差留待 v6.0.1/v7.0.0。

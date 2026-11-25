@@ -1,4 +1,4 @@
-# Feature Specification：specs-tree-essence-simplification
+# Feature Specification：specs-tree-v6.00.0-essence-simplification
 
 > **文档定位**: SDDU 需求规范 — 定义功能需求、非功能需求和边界情况，作为 plan 阶段的输入  
 > **前置依赖**: discovery.md（问题清单：7 问题 / 4 假设 / 5 风险）  

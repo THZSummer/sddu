@@ -1,4 +1,4 @@
-# 任务分解：specs-tree-essence-simplification
+# 任务分解：specs-tree-v6.00.0-essence-simplification
 
 > **文档定位**: SDDU 任务清单 — 将技术方案分解为可并行执行的原子任务，作为 build 阶段的输入  
 > **前置依赖**: plan.md（技术方案 v5.40）、spec.md（需求规范 v1.31）  

@@ -1,4 +1,4 @@
-# 构建报告：specs-tree-essence-simplification（v6.0.0）
+# 构建报告：specs-tree-v6.00.0-essence-simplification（v6.0.0）
 
 > **文档定位**: SDDU 构建报告 — 记录全部任务的文件变更和实现结果，作为 review 阶段的输入  
 > **前置依赖**: tasks.md（15 任务 / 4 波次）、plan.md（v5.41）、spec.md（v1.31）  

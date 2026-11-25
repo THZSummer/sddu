@@ -1,4 +1,4 @@
-# 审查策略：specs-tree-essence-simplification
+# 审查策略：specs-tree-v6.00.0-essence-simplification
 
 > **文档定位**: SDDU 审查策略 — 定义 review 阶段对本 Feature 的自主审查清单（C1~CN）；审查结果见 review-report.md（build 完成后产出）  
 > **前置依赖**: spec.md（v1.31）、plan.md（v5.40）、ADR-001~027  

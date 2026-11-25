@@ -1,4 +1,4 @@
-# 问题挖掘报告：specs-tree-essence-simplification
+# 问题挖掘报告：specs-tree-v6.00.0-essence-simplification
 
 > **文档定位**: SDDU 问题挖掘报告 — 记录用户问题、痛点和场景，作为 spec 阶段的输入  
 > **前置依赖**: 无（工作流起点）；上下文锚点：.sddu/ROADMAP.md PR-017 卡片（v6.0.0）+ 问题 P-042  

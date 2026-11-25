@@ -1,4 +1,4 @@
-# 技术计划：specs-tree-essence-simplification
+# 技术计划：specs-tree-v6.00.0-essence-simplification
 
 > **文档定位**: SDDU 技术方案 — 记录架构设计、方案对比和 ADR，作为 tasks 阶段的输入  
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
