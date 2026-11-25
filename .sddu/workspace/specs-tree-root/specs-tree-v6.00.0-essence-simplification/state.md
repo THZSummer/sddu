@@ -3,7 +3,7 @@ feature: v6.00.0-essence-simplification
 featureId: FR-ESSENCE-001
 name: 简化与本质化（回归方法论本质）
 version: v6.0.0
-phase: builded
+phase: reviewed
 status: tracked
 depth: 0
 childrens: []
@@ -36,13 +36,17 @@ phaseHistory:
     timestamp: "2026-11-25T13:00:00.000Z"
     triggeredBy: sddu-build
     comment: "实施构建完成：内核蒸馏 + 载体退役 + 模块/契约迁移 + 复制器 + e2e + 存量迁移 + ROADMAP 回填；产出 ADR-015~028"
+  - phase: reviewed
+    timestamp: "2026-11-25T13:20:00.000Z"
+    triggeredBy: sddu-review
+    comment: "R1 审查通过：15 项清单（14 ✅ / 1 ⚠️ / 0 ❌ / 0 阻塞）；唯一警告为 docs/fast 模块 .opencode/ 残留（低严重度非阻塞）"
 dependencies: []
 description: 回归方法论本质（v6.0.0）：方法论内核蒸馏 + 载体瘦身；统一安装范式（本体/工作空间二分 + 唯一入口 + 零运行时件）；载体降位为可替换附属品。
 ---
 
 # 简化与本质化（回归方法论本质）
 
-当前阶段：**builded** · 状态：**tracked**
+当前阶段：**reviewed** · 状态：**tracked**
 
 回归方法论本质（v6.0.0）：方法论内核蒸馏 + 载体瘦身；统一安装范式（本体/工作空间二分 + 唯一入口 + 零运行时件）；载体降位为可替换附属品。
 
