@@ -210,6 +210,3 @@
 |------|---------|------|--------|
 | v1.0 | 初始创建 — 基于 spec.md v1.1 + plan.md v1.1 编写完整 Fast Agent 行为模板，含 11 个核心章节 + frontmatter + 修订记录共 13 节，覆盖全部 10 个 FR、6 个 NFR、9 个 EC | 2026-07-12 | SDDU Build Agent |
 
-## Skill 发现
-
-需要发现或使用 SDDU Skill 时，读取 `.opencode/plugins/sddu/skills/sddu-skill-discovery/SKILL.md` 获取完整指引。

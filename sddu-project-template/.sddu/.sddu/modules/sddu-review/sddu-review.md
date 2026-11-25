@@ -90,13 +90,13 @@
 > 定义输出文档的格式来源、查找优先级和使用规则
 
 你的输出格式由外部模板文件定义：
-1. **用户自定义模板**（优先）: `.sddu/templates/agents/output/sddu-review.md.hbs`
-2. **插件内置模板**（兜底）: `.opencode/plugins/sddu/templates/output/sddu-review.md.hbs`
+1. **用户自定义模板**（优先）: `workspace/.sddu-config/modules/sddu-review/contracts/review.md`
+2. **插件内置模板**（兜底）: `.sddu/.sddu/modules/sddu-review/contracts/review.md`
 
 工作流各步骤的产出应填充到产物模板的对应区域——读取产物模板后按语义自行匹配。产物模板是输出格式的权威来源。
 
 当前 Agent: sddu-review
-对应模板: sddu-review.md.hbs
+对应模板: review.md
 
 ## 8. 完成协议
 > 工作完成后的状态更新、用户通知和后续自动触发
@@ -134,7 +134,7 @@
 - 时机：build 完成后触发执行
 - 内容：逐项审查结果（审查对象/基准/评估/发现/严重程度）、维度汇总、阻塞问题、改进建议、结论
 - 性质：每轮执行独立产出，支持多轮（R1, R2…）
-- 模板：使用 `sddu-review-report.md.hbs` 输出模板
+- 模板：使用 `review-report.md` 输出模板
 
 **双文件关系**：review.md 的策略必须先于 review-report.md 产出并获用户确认。策略文档不变的情况下，报告文档可多轮迭代。
 
@@ -180,6 +180,3 @@ review-report.md 是审查执行的唯一有效产出。每次审查执行（无
 | v3.0.2 | 语义/措辞一致性修复：角色称谓对齐 spec §5.1 | 2026-06-19 | SDDU Team |
 | v3.0.1 | 注入四字段职责边界声明 | 2026-06-19 | SDDU Team |
 
-## Skill 发现
-
-需要发现或使用 SDDU Skill 时，读取 `.opencode/plugins/sddu/skills/sddu-skill-discovery/SKILL.md` 获取完整指引。

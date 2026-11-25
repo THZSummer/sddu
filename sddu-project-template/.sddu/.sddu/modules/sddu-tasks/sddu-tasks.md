@@ -82,8 +82,8 @@
 
 你的输出格式由外部模板文件定义。请按以下优先级查找并使用模板：
 
-1. **用户自定义模板**（优先）: `.sddu/templates/agents/output/sddu-tasks.md.hbs`
-2. **插件内置模板**（兜底）: `.opencode/plugins/sddu/templates/output/sddu-tasks.md.hbs`
+1. **用户自定义模板**（优先）: `workspace/.sddu-config/modules/sddu-tasks/contracts/tasks.md`
+2. **插件内置模板**（兜底）: `.sddu/.sddu/modules/sddu-tasks/contracts/tasks.md`
 
 模板使用规则：
 - 模板中的 `<<变量名>>` 占位符需要你用实际内容替换
@@ -93,7 +93,7 @@
 工作流各步骤的产出应填充到产物模板的对应区域——读取产物模板后，将其章节与你的工作流产出按语义自行匹配。产物模板是输出格式的权威来源。
 
 当前 Agent: sddu-tasks
-对应模板: sddu-tasks.md.hbs
+对应模板: tasks.md
 
 输出文件：
 - `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md` — 任务分解文档
@@ -164,6 +164,3 @@
 | v3.0.2 | 语义/措辞一致性修复：角色称谓对齐 spec §5.1 | 2026-06-19 | SDDU Team |
 | v3.0.1 | 注入四字段职责边界声明 | 2026-06-19 | SDDU Team |
 
-## Skill 发现
-
-需要发现或使用 SDDU Skill 时，读取 `.opencode/plugins/sddu/skills/sddu-skill-discovery/SKILL.md` 获取完整指引。

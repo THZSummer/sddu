@@ -98,8 +98,8 @@
 
 你的输出格式由外部模板文件定义。请按以下优先级查找并使用模板：
 
-1. **用户自定义模板**（优先）: `.sddu/templates/agents/output/sddu-plan.md.hbs`
-2. **插件内置模板**（兜底）: `.opencode/plugins/sddu/templates/output/sddu-plan.md.hbs`
+1. **用户自定义模板**（优先）: `workspace/.sddu-config/modules/sddu-plan/contracts/plan.md`
+2. **插件内置模板**（兜底）: `.sddu/.sddu/modules/sddu-plan/contracts/plan.md`
 
 模板使用规则：
 - 模板中的 `<<变量名>>` 占位符需要你用实际内容替换
@@ -109,7 +109,7 @@
 工作流各步骤的产出应填充到产物模板的对应区域——读取产物模板后，将其章节与你的工作流产出按语义自行匹配。产物模板是输出格式的权威来源。
 
 当前 Agent: sddu-plan
-对应模板: sddu-plan.md.hbs
+对应模板: plan.md
 
 ## 7. 完成协议
 > 工作完成后的状态更新、用户通知和后续自动触发
@@ -175,6 +175,3 @@
 | v3.0.2 | 语义/措辞一致性修复：角色称谓对齐 spec §5.1 | 2026-06-19 | SDDU Team |
 | v3.0.1 | 注入四字段职责边界声明 | 2026-06-19 | SDDU Team |
 
-## Skill 发现
-
-需要发现或使用 SDDU Skill 时，读取 `.opencode/plugins/sddu/skills/sddu-skill-discovery/SKILL.md` 获取完整指引。

@@ -156,9 +156,9 @@
 
 你的输出格式由外部模板文件定义。请按以下优先级查找并使用模板：
 
-1. **用户自定义模板**（优先）: `.sddu/templates/agents/output/sddu-discovery.md.hbs`
+1. **用户自定义模板**（优先）: `workspace/.sddu-config/modules/sddu-discovery/contracts/discovery.md`
    - 如果此文件存在，使用它作为输出格式
-2. **插件内置模板**（兜底）: `.opencode/plugins/sddu/templates/output/sddu-discovery.md.hbs`
+2. **插件内置模板**（兜底）: `.sddu/.sddu/modules/sddu-discovery/contracts/discovery.md`
    - 内置模板随插件分发，始终存在
 
 模板使用规则：
@@ -171,7 +171,7 @@
 工作流各步骤的产出应填充到产物模板的对应区域——读取产物模板后，将其章节与你的工作流产出按语义自行匹配，而非机械对应节号。产物模板是输出格式的权威来源：当工作流指引与产物模板结构不一致时，以产物模板为准。
 
 当前 Agent: sddu-discovery
-对应模板: sddu-discovery.md.hbs
+对应模板: discovery.md
 
 
 
@@ -247,6 +247,3 @@
 | v3.0.6 | 完成报告从输出模板迁入指令模板：完成报告是 Agent 执行协议而非文档格式 | 2026-06-19 | SDDU Team |
 | v3.0.7 | 完成报告改为对话输出：不写入文档，输出模板回归纯文档格式权威 | 2026-06-20 | SDDU Team |
 
-## Skill 发现
-
-需要发现或使用 SDDU Skill 时，读取 `.opencode/plugins/sddu/skills/sddu-skill-discovery/SKILL.md` 获取完整指引。

@@ -382,8 +382,8 @@ ENTRY_ID    ::= 渲染后不含空格 / 引号 / 斜杠的稳定键
 
 你的输出格式由外部模板文件定义。请按以下优先级查找并使用模板：
 
-1. **用户自定义模板**（优先）: `.sddu/templates/agents/output/sddu-roadmap.md.hbs`
-2. **插件内置模板**（兜底）: 平台落位见 skill-header ④ —— opencode: `.opencode/plugins/sddu/templates/output/sddu-roadmap.md.hbs`；dsh: `<skill>/templates/output/sddu-roadmap.md.hbs`
+1. **用户自定义模板**（优先）: `workspace/.sddu-config/modules/sddu-roadmap/contracts/roadmap.md`
+2. **插件内置模板**（兜底）: 平台落位见 skill-header ④ —— opencode: `.sddu/.sddu/modules/sddu-roadmap/contracts/roadmap.md`；dsh: `.sddu/.sddu/modules/sddu-roadmap/contracts/roadmap.md`
 
 模板使用规则：
 - 模板中的 `<<变量名>>` 占位符需要你用实际内容替换
@@ -393,7 +393,7 @@ ENTRY_ID    ::= 渲染后不含空格 / 引号 / 斜杠的稳定键
 工作流各步骤的产出应填充到产物模板的对应区域——读取产物模板后，将其章节与你的工作流产出按语义自行匹配。产物模板是输出格式的权威来源。
 
 当前 Agent: sddu-roadmap
-对应模板: sddu-roadmap.md.hbs
+对应模板: roadmap.md
 
 ## 7. 规则
 > Agent 必须遵守的行为准则
@@ -418,8 +418,8 @@ ENTRY_ID    ::= 渲染后不含空格 / 引号 / 斜杠的稳定键
 | 既有 `.sddu/ROADMAP.md` 为**非模板结构**（无合法 zone 标记） | **不修改文件**，提示「当前文档非模板结构」并给出三选项（按新模板重构 / 保留现状 / 仅增量补充），等用户决策；不破坏性静默重写 |
 | 既有 `.sddu/ROADMAP.md` 含**旧 zone id**（`version-overview` / `feature-index` / `priority` / `dependencies-risks` / `version-plan` / `next-actions`） | 判定为**旧版结构**，**不静默重写**；输出迁移提示「当前文档为旧版结构，建议按新模板完整生成」，等用户决策；**不自动迁移** |
 | Mermaid 代码块损坏 / 语法非法（EC-007） | **不阻塞**：图退化为代码块，正文与其他章节仍可读；登记为待修复项，在验证阶段修复 |
-| 输出模板在用户自定义目录与插件内置目录**均缺失** | 显式报错并终止：「❌ 未找到可用的输出模板 sddu-roadmap.md.hbs，请确保至少存在用户自定义模板或内置模板」；不自行编造格式 |
-| 用户自定义模板渲染失败（语法错误 / 变量缺失） | 回退插件内置模板并提示：「⚠️ 自定义模板 sddu-roadmap.md.hbs 渲染失败：{错误信息}，已回退到内置模板」 |
+| 输出模板在用户自定义目录与插件内置目录**均缺失** | 显式报错并终止：「❌ 未找到可用的输出模板 roadmap.md，请确保至少存在用户自定义模板或内置模板」；不自行编造格式 |
+| 用户自定义模板渲染失败（语法错误 / 变量缺失） | 回退插件内置模板并提示：「⚠️ 自定义模板 roadmap.md 渲染失败：{错误信息}，已回退到内置模板」 |
 | 保留区标记不成对 / entry 嵌套 / ZONE_ID 非法 | 中止合并并输出含行号的诊断，询问用户；不静默重写 |
 | 项目目录为空 | 提示用户先创建 Feature 或提供功能清单 |
 | 功能间存在循环依赖 | 标记风险，建议拆分或重新设计依赖关系 |
@@ -460,6 +460,3 @@ ENTRY_ID    ::= 渲染后不含空格 / 引号 / 斜杠的稳定键
 | v3.2.0 | 结构重构：概览/详情分层（清单层+详情层）、依赖风险融入三主体、每章章首 Mermaid 图、RICE 淘汰改 P0-P2、问题登记制 P-ID/提案 PR-xxx | 2026-09-24 | SDDU Team |
 | v3.2.1 | 修复：表格类 preserve 区（问题清单/修订记录）改行自然键合并，消除 entry 注释截断 GFM 表格的回归；产物行数预算 450→600 | 2026-09-24 | SDDU Team |
 
-## Skill 发现
-
-需要发现或使用 SDDU Skill 时，读取 `.opencode/plugins/sddu/skills/sddu-skill-discovery/SKILL.md` 获取完整指引。
