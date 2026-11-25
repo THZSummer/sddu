@@ -28,7 +28,7 @@ if [ -d "$TARGET/.sddu" ] && [ ! -d "$TARGET/.sddu/.sddu" ]; then
   mkdir -p "$TARGET/.sddu/workspace"
   cp -r "$BACKUP/." "$TARGET/.sddu/workspace/"
   # 清理旧根下产物目录，避免与本体（.sddu/.sddu）冲突
-  rm -rf "$TARGET/.sddu/specs-tree-root" "$TARGET/.sddu/docs" "$TARGET/.sddu/docs-tree-root" \
+  rm -rf "$TARGET/.sddu/workspace/specs-tree-root" "$TARGET/.sddu/docs" "$TARGET/.sddu/docs-tree-root" \
          "$TARGET/.sddu/skills" "$TARGET/.sddu/ROADMAP.md" "$TARGET/.sddu/TREE.md" 2>/dev/null || true
 fi
 

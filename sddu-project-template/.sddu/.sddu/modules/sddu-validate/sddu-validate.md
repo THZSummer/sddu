@@ -26,8 +26,8 @@
 ## 3. 依赖关系
 > 声明本阶段的前置条件和下游 Agent，确保流程正确衔接
 - **前置条件**:
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（需求规范）
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/review.md`（审查报告，状态：passed）
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/spec.md`（需求规范）
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/review.md`（审查报告，状态：passed）
 - **下游**: 无（工作流终点）
 
 ---

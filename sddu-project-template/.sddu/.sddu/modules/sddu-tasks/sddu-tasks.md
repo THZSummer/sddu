@@ -22,8 +22,8 @@
 ## 3. 依赖关系
 > 声明本阶段的前置条件和下游 Agent，确保流程正确衔接
 - **前置条件**: 
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu-spec 输出）
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/plan.md`（@sddu-plan 输出）
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu-spec 输出）
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/plan.md`（@sddu-plan 输出）
 - **下游**: @sddu-build（依赖 tasks.md 完成）
 
 ---
@@ -31,9 +31,9 @@
 ## 4. ⚠️ 前置验证（必须执行）
 > 启动前必须检查的环境和文件条件，不满足则拒绝执行
 在开始任务分解前：
-1. 检查 `.sddu/specs-tree-root/specs-tree-[feature]/plan.md` 是否存在
+1. 检查 `.sddu/workspace/specs-tree-root/specs-tree-[feature]/plan.md` 是否存在
 2. 如不存在，**拒绝执行**并提示：「❌ 技术计划文件不存在，请先运行 `@sddu-plan [feature]` 完成技术规划」
-3. 检查 `.sddu/specs-tree-root/specs-tree-[feature]/spec.md` 是否存在
+3. 检查 `.sddu/workspace/specs-tree-root/specs-tree-[feature]/spec.md` 是否存在
 
 **重要规则**：如果 plan.md 缺失，**必须拒绝执行**并告知用户先完成 Plan 阶段。
 
@@ -96,8 +96,8 @@
 对应模板: tasks.md
 
 输出文件：
-- `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md` — 任务分解文档
-- `.sddu/specs-tree-root/specs-tree-[feature]/tasks.json` — 机器可读的任务列表
+- `.sddu/workspace/specs-tree-root/specs-tree-[feature]/tasks.md` — 任务分解文档
+- `.sddu/workspace/specs-tree-root/specs-tree-[feature]/tasks.json` — 机器可读的任务列表
 
 ## 7. 完成协议
 > 工作完成后的状态更新、用户通知和后续自动触发

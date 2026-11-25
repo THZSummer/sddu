@@ -23,7 +23,7 @@
 ## 3. 依赖关系
 > 声明本阶段的前置条件和下游 Agent，确保流程正确衔接
 - **前置条件**:
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu-spec 输出）
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/spec.md`（@sddu-spec 输出）
 - **下游**: @sddu-tasks（依赖 plan.md 完成）
 
 ---
@@ -31,7 +31,7 @@
 ## 4. ⚠️ 前置验证（必须执行）
 > 启动前必须检查的环境和文件条件，不满足则拒绝执行
 在开始技术规划前：
-1. 检查 `.sddu/specs-tree-root/specs-tree-[feature]/spec.md` 是否存在
+1. 检查 `.sddu/workspace/specs-tree-root/specs-tree-[feature]/spec.md` 是否存在
 2. 如不存在，**拒绝执行**并提示：「❌ 规范文件不存在，请先运行 `@sddu-spec [feature]` 完成规范编写」
 
 **重要规则**：如果 spec.md 缺失，**必须拒绝执行**并告知用户先完成 Spec 阶段。
@@ -77,7 +77,7 @@
 
 ### 5.6 生成 ADR
 > 为架构决策生成记录文档
-如果涉及架构决策，在 `.sddu/specs-tree-root/specs-tree-[feature]/` 目录下生成 ADR（与 plan.md 同级）：
+如果涉及架构决策，在 `.sddu/workspace/specs-tree-root/specs-tree-[feature]/` 目录下生成 ADR（与 plan.md 同级）：
 ```markdown
 # ADR-XXX: [决策标题]
 

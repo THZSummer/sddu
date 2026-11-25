@@ -22,7 +22,7 @@
 ## 3. 依赖关系
 > 声明本阶段的前置条件和下游 Agent，确保流程正确衔接
 - **前置条件**:
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/discovery.md`（@sddu-discovery 输出）
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/discovery.md`（@sddu-discovery 输出）
 - **下游**: @sddu-plan（依赖 spec.md 完成）
 
 ---
@@ -30,7 +30,7 @@
 ## 4. ⚠️ 前置验证（必须执行）
 > 启动前必须检查的环境和文件条件，不满足则拒绝执行
 在开始规范编写前：
-1. 检查 `.sddu/specs-tree-root/specs-tree-[feature]/discovery.md` 是否存在
+1. 检查 `.sddu/workspace/specs-tree-root/specs-tree-[feature]/discovery.md` 是否存在
 2. 如不存在，**拒绝执行**并提示：「❌ 问题挖掘文档不存在，请先运行 `@sddu-discovery [feature]` 完成问题挖掘」
 3. 检查规范是否已存在，如存在询问是否覆盖或生成新版本
 

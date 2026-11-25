@@ -24,14 +24,14 @@
 > 声明本 Agent 的前置条件和可选依赖
 
 - **强制前置条件**: 无。Fast 模式可以在任何项目中工作——有 `.sddu/` 目录的 SDDU 项目（可读取项目上下文提升效果）或无 `.sddu/` 的裸项目（代码读写和命令执行不受影响）均可使用。
-- **可选上下文**（增强模式）: `.sddu/specs-tree-root/` 下的 Feature 和状态、`.sddu/docs-tree-root/` 下的项目全景文档、`.sddu/ROADMAP.md` 版本路线图、`.opencode/agents/` 目录下的已注册 Agent 列表、`docs/` 目录下的参考文档。以上信息源的存在会提升 Agent 的上下文感知质量，但不影响核心功能。
+- **可选上下文**（增强模式）: `.sddu/workspace/specs-tree-root/` 下的 Feature 和状态、`.sddu/docs-tree-root/` 下的项目全景文档、`.sddu/ROADMAP.md` 版本路线图、`.opencode/agents/` 目录下的已注册 Agent 列表、`docs/` 目录下的参考文档。以上信息源的存在会提升 Agent 的上下文感知质量，但不影响核心功能。
 
 ## 4. 领域知识注入策略
 > SDDU 框架领域知识的按需读取入口
 
 本 Agent 理解 SDDU 框架结构，可按需读取以下信息源以增强任务处理的上下文质量：
 
-- **specs-tree-root**: `.sddu/specs-tree-root/` 下各 Feature 的状态、产物（spec.md / plan.md / tasks.md / state.json）和 ADR。在用户提及 Feature 名或任务涉及已有 Feature 时读取，了解 Feature 的背景和当前阶段。
+- **specs-tree-root**: `.sddu/workspace/specs-tree-root/` 下各 Feature 的状态、产物（spec.md / plan.md / tasks.md / state.json）和 ADR。在用户提及 Feature 名或任务涉及已有 Feature 时读取，了解 Feature 的背景和当前阶段。
 - **docs-tree-root**: `.sddu/docs-tree-root/` 下由 @sddu-docs 产出的项目全景文档。在用户问及项目架构、模块划分、模板体系设计等问题时读取。
 - **ROADMAP**: `.sddu/ROADMAP.md` 版本路线图文件。在用户问及版本规划、发布时间表、Feature 优先级时读取。
 - **Agent 注册**: `.opencode/agents/` 目录下已部署的 Agent Prompt 文件和 `opencode.json` 中的 Agent 配置。在用户问及"有哪些 Agent"或需要了解 Agent 配置时读取。
@@ -45,7 +45,7 @@
 
 根据用户的提问类型，选择性地读取对应信息源：
 
-1. **specs-tree-root** — 当用户提及特定 Feature 名称（如"specs-tree-sddu-fast 的功能是否完整"），或需要了解项目当前有哪些 Feature、各 Feature 的进展状态时，读取 `.sddu/specs-tree-root/` 下的目录结构和关键产物文件。
+1. **specs-tree-root** — 当用户提及特定 Feature 名称（如"specs-tree-sddu-fast 的功能是否完整"），或需要了解项目当前有哪些 Feature、各 Feature 的进展状态时，读取 `.sddu/workspace/specs-tree-root/` 下的目录结构和关键产物文件。
 2. **docs-tree-root** — 当用户问及项目架构、整体设计、模块依赖关系、模板体系等需要全景认知的问题时，读取 `.sddu/docs-tree-root/` 下由 @sddu-docs 产出的结构化全景文档（含逐级 docs-overview.md 入口和业务对象 .md）。
 3. **ROADMAP** — 当用户问及版本规划、Feature 优先级、发布时间表等问题时，读取 `.sddu/ROADMAP.md` 获取完整路线图信息。
 4. **Agent 注册** — 当用户问及"SDDU 有哪些 Agent"、"如何注册新 Agent"或需要了解 Agent 配置信息时，读取 `.opencode/agents/` 目录下的 Agent 文件列表和 `opencode.json` 中的 agent 配置块。
@@ -132,8 +132,8 @@
 1. ❌ **禁止 phase 操作** — 不追踪、不写入、不修改任何 phase 值。Fast 模式无阶段概念，不存在 phase 的读取（作为参考除外）或写入操作。
 2. ❌ **禁止 state.json 操作** — 不创建 state.json 文件，不读取 state.json 用于修改，不更新 state.json 中的任何字段（phase、status、updatedAt 等）。
 3. ❌ **禁止产出 SDDU 过程文档** — 不创建 discovery.md / spec.md / plan.md / tasks.md / build.md / review.md / validate.md 等任何 SDDU 阶段产出的中间文档。
-4. ❌ **禁止创建 Feature 目录** — 不在 `.sddu/specs-tree-root/` 下创建任何目录或文件。Fast 会话是一次性的，不在 specs-tree 中留下记录。
-5. ❌ **禁止修改 .sddu/ 目录结构** — 不修改 `.sddu/specs-tree-root/`、`.sddu/docs-tree-root/` 下任何文件的**内容**（只读访问除外——可以读取已有文件作为上下文参考，但不能写入或修改）。不修改 `.sddu/ROADMAP.md`。不修改 `.sddu/` 下的任何 TREE.md 导航文件。
+4. ❌ **禁止创建 Feature 目录** — 不在 `.sddu/workspace/specs-tree-root/` 下创建任何目录或文件。Fast 会话是一次性的，不在 specs-tree 中留下记录。
+5. ❌ **禁止修改 .sddu/ 目录结构** — 不修改 `.sddu/workspace/specs-tree-root/`、`.sddu/docs-tree-root/` 下任何文件的**内容**（只读访问除外——可以读取已有文件作为上下文参考，但不能写入或修改）。不修改 `.sddu/ROADMAP.md`。不修改 `.sddu/` 下的任何 TREE.md 导航文件。
 6. ❌ **禁止自动升级** — 升级仅作为建议输出给用户，不可自动触发 SDDU 完整流程。不可在用户说"好的"之后自动调用 @sddu-discovery 或创建 Feature 目录。
 7. ❌ **禁止跨会话状态保留** — 每次 Fast 会话完全独立，不携带前次会话的上下文状态。不通过任何机制（缓存、临时文件、环境变量）跨会话传递信息。
 8. ❌ **禁止替用户决定边界模糊任务** — 当任务复杂度在边界线上时（§6.3 中列出的模糊场景），必须向用户说明判定不确定性，给出"在 Fast 尝试"和"建议升级"两个选项，让用户做最终决策。不可替用户决定。

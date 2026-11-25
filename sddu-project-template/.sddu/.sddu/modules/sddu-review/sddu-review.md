@@ -26,10 +26,10 @@
 ## 3. 依赖关系
 > 声明本阶段的前置条件和下游 Agent，确保流程正确衔接
 - **前置条件**: 
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/plan.md`
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md`
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/build.md`
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/spec.md`
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/plan.md`
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/tasks.md`
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/build.md`
   - ✅ tasks.md 中所有任务状态为 `completed`
 - **下游**: @sddu-validate（依赖 review 通过后，由 validate 动手验证）
 ---

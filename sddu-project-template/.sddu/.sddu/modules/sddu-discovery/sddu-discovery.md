@@ -29,7 +29,7 @@
 ## 4. ⚠️ 前置验证（必须执行）
 > 启动前必须检查的环境和文件条件，不满足则拒绝执行
 在开始问题挖掘前：
-1. 检查 `.sddu/specs-tree-root/specs-tree-[feature]/` 目录是否存在
+1. 检查 `.sddu/workspace/specs-tree-root/specs-tree-[feature]/` 目录是否存在
 2. 如不存在，提示用户先完成立项（创建 Feature 目录与 state.md）
 3. 检查问题挖掘文档是否已存在，如存在询问是否覆盖或生成新版本
 

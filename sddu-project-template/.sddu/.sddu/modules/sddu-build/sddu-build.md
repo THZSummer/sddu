@@ -22,9 +22,9 @@
 ## 3. 依赖关系
 > 声明本阶段的前置条件和下游 Agent，确保流程正确衔接
 - **前置条件**: 
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/spec.md`
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/plan.md`
-  - ✅ `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md`
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/spec.md`
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/plan.md`
+  - ✅ `.sddu/workspace/specs-tree-root/specs-tree-[feature]/tasks.md`
 - **下游**: @sddu-review（依赖 build 完成）
 
 ---
@@ -32,7 +32,7 @@
 ## 4. ⚠️ 前置验证（必须执行）
 > 启动前必须检查的环境和文件条件，不满足则拒绝执行
 在开始任务实现前：
-1. 检查 `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md` 是否存在
+1. 检查 `.sddu/workspace/specs-tree-root/specs-tree-[feature]/tasks.md` 是否存在
 2. 如不存在，**拒绝执行**并提示：「❌ 任务分解文件不存在，请先运行 `@sddu-tasks [feature]`」
 3. 检查指定的 TASK-XXX 是否在 tasks.md 中定义
 4. 检查前置任务是否已完成

@@ -37,7 +37,7 @@
 > 启动前必须检查的环境和项目状态
 
 在开始版本规划前：
-1. 扫描项目 `.sddu/specs-tree-root/` 了解现有 Feature 状态（如有）
+1. 扫描项目 `.sddu/workspace/specs-tree-root/` 了解现有 Feature 状态（如有）
 2. 读取已有 `.sddu/ROADMAP.md`（如存在），确定是新建还是增量更新
 3. 确认用户输入的规划意图（新建规划/基于现有更新/仅查询）
 
@@ -69,8 +69,8 @@
 #### ❌ 禁止输出
 | 文件 | 原因 | 正确 Agent |
 |------|------|------------|
-| `.sddu/specs-tree-root/specs-tree-[feature]/tasks.md` | 越界，属于任务分解阶段 | `@sddu-tasks` |
-| `.sddu/specs-tree-root/specs-tree-[feature]/plan.md` | 越界，属于技术规划阶段 | `@sddu-plan` |
+| `.sddu/workspace/specs-tree-root/specs-tree-[feature]/tasks.md` | 越界，属于任务分解阶段 | `@sddu-tasks` |
+| `.sddu/workspace/specs-tree-root/specs-tree-[feature]/plan.md` | 越界，属于技术规划阶段 | `@sddu-plan` |
 | `.sddu/ROADMAP-EXECUTIVE-SUMMARY.md` | 冗余，执行摘要应放在 ROADMAP.md 顶部 | - |
 | `.sddu/ROADMAP-COMPLETION.md` | 冗余，无需 completion 报告 | - |
 
@@ -103,10 +103,10 @@
 #### 项目上下文扫描
 
 主动读取以下文件获取上下文：
-- `.sddu/specs-tree-root/specs-tree-[feature]/state.json` - 查看已有 Feature 状态
-- `.sddu/specs-tree-root/specs-tree-[feature]/spec.md` - 了解功能详情
+- `.sddu/workspace/specs-tree-root/specs-tree-[feature]/state.json` - 查看已有 Feature 状态
+- `.sddu/workspace/specs-tree-root/specs-tree-[feature]/spec.md` - 了解功能详情
 - `README.md` - 查看版本历史
-- `.sddu/specs-tree-root/[sub-feature]/` - 查看既有规划
+- `.sddu/workspace/specs-tree-root/[sub-feature]/` - 查看既有规划
 
 #### 推荐输入
 - 详细功能规格说明 (如存在)
@@ -128,9 +128,9 @@
 2. **扫描项目状态**
    ```bash
      # 读取现有 spec
-     find .sddu/specs-tree-root -name "spec.md"
+     find .sddu/workspace/specs-tree-root -name "spec.md"
      # 读取状态
-     cat .sddu/specs-tree-root/*/state.json
+     cat .sddu/workspace/specs-tree-root/*/state.json
      ```
 
 3. **推荐扩展 Feature**
@@ -293,14 +293,14 @@ ENTRY_ID    ::= 渲染后不含空格 / 引号 / 斜杠的稳定键
 - `version-list` 的排序依据二选一：**按时间窗**或**按版本号**；同一文档内**须保持一致**（不得部分行按时间窗、部分行按版本号），以保证行序单调（对应 §5.4.4 Step C3 第 8 项校验）。**时间轴唯一住所 = §2 版本清单**；不得出现「立即 / 短期 / 中期 / 远期」等第二时间轴，也不得使用执行批次（`Phase` / `Wave`）。
 
 #### 特性清单语义（`feature-list`）
-- **数据来源**: 逐行取自 `.sddu/specs-tree-root/<目录>/state.json`（实时投影，非用户手写）——`Feature ID` = `featureId`、`名称` = `name`、`版本归属` = `version`、`状态` = `status`；未立项提案（无 `state.json`）以 `PR-xxx` 登记，`类型` = 提案、`状态` = 提案。
+- **数据来源**: 逐行取自 `.sddu/workspace/specs-tree-root/<目录>/state.json`（实时投影，非用户手写）——`Feature ID` = `featureId`、`名称` = `name`、`版本归属` = `version`、`状态` = `status`；未立项提案（无 `state.json`）以 `PR-xxx` 登记，`类型` = 提案、`状态` = 提案。
 - **`类型` 取值**: ∈ {特性, 提案}，与 `FR-xxx` / `PR-xxx` 对应。
 - **`Feature ID` 取值与别名回退（R-4）**: `featureId` 存在多个等价位，回退顺序为 `featureId` > `feature_id` > `metadata.featureId` > `feature`；取到非空值后判定其**形态**——若形如 ID（**大写字母开头**、含 `-` / `_` 分段，如 `FR-SKILL-001`）则**采用该值并标注来源**（如值后加 `（feature）`）；否则视为非 ID 形态，**按目录名推断**为 `FR-<SLUG-UPPER>` 并标注「推断」。示例：`specs-tree-skill-system` 的 `state.json` 顶层有 `feature:"FR-SKILL-001"` 而无 `featureId`，按本规则取 `FR-SKILL-001（feature）`，**不**推断为 `FR-SKILL-SYSTEM`。
 - **`版本归属` 取值链（R-3）**: 依次取 **顶层 `version` > `metadata.version` > 「不适用」**；发生回退取值时须**标注来源**（如 `v4.1.0（metadata.version）`），顶层命中时不加标注。
 - **缺失字段推断规则（统一）**: `featureId` 按上方别名回退与形态判定处理（采用值须标注来源、推断值须标注「推断」）；`version` 按上方取值链处理；**`status` 缺失时按 `phase` 推断**——`phase` ∈ {`validated`、数值 `7`} → `completed`，中间阶段（`discovered` / `specified` / `planned` / `tasked` / `builded` / `reviewed`，数值 1–6）→ `in-progress`，无 `phase` → `unknown`（并标注）；同一文档内推断规则保持一致。
 - **排序依据**: 章节内须**显式声明**排序依据且全文一致（默认按「状态（非 `completed` 在前）→ 版本归属升序 → specs-tree 目录字典序」）。
 - **Feature 引用锚点（含 R-2 适用范围）**: `version-detail` 的「关联特性」处 Feature 引用**强制**带 specs-tree 目录锚点，形如 `FR-AGENT-SCOPE-001（specs-tree-agent-scope-realignment）`；其余章节（如 §6 特性详情）的标识性提及**建议**带锚点但不强制；`feature-list` 自身以「Feature ID」列承担主键职责。
-- **锚点义务豁免（R-1）**: 对**未立项提案**（`.sddu/specs-tree-root/` 下尚无对应目录）**豁免**锚点义务，但**必须就地标注**（如「未立项提案，无 specs-tree 目录」），不得静默省略标注。
+- **锚点义务豁免（R-1）**: 对**未立项提案**（`.sddu/workspace/specs-tree-root/` 下尚无对应目录）**豁免**锚点义务，但**必须就地标注**（如「未立项提案，无 specs-tree 目录」），不得静默省略标注。
 - **边界**: 仅承载清单级字段（Feature ID / 名称 / 类型 / 状态 / 版本归属）；实现明细、任务清单、覆盖率、代码级盘点一律排除（见下方「排除内容」表）。
 
 #### 问题登记制与编码（`issue-list` / `issue-detail`）
@@ -322,7 +322,7 @@ ENTRY_ID    ::= 渲染后不含空格 / 引号 / 斜杠的稳定键
 - `RICE` 评分、`Top N` 排名、执行批次（`Phase` / `Wave`）、「立即 / 短期 / 中期 / 远期」四段式时间轴**全部淘汰**；模板与 agent 指令中均不得再出现。时间轴唯一住所 = §2 版本清单。
 
 #### 准入内容（仅跨版本 / 项目级信息）
-- 跨版本的项目愿景与定位、版本清单、**特性清单**（`.sddu/specs-tree-root/` 特性投影索引 + 未立项提案）、问题清单（项目级台账，含项目级待办 / 决策）、版本详情、特性详情、问题详情、修订记录。
+- 跨版本的项目愿景与定位、版本清单、**特性清单**（`.sddu/workspace/specs-tree-root/` 特性投影索引 + 未立项提案）、问题清单（项目级台账，含项目级待办 / 决策）、版本详情、特性详情、问题详情、修订记录。
 
 #### 排除内容（越界即外移，不写入 ROADMAP）
 | 排除内容 | 应归属 |
@@ -333,7 +333,7 @@ ENTRY_ID    ::= 渲染后不含空格 / 引号 / 斜杠的稳定键
 | 逐 Feature **明细**表（实现明细 / 任务清单 / 覆盖率 / 代码级盘点） | 不进入模板；§3 特性清单仅承载**清单级**字段（见下方「清单 ≠ 明细」） |
 | 执行摘要、关键警示、功能完成时间线、已完成版本回顾、跨版本优先级总排名、附录类章节 | 不进入模板（保持「精简顶层规划」定位） |
 
-> **清单 ≠ 明细**：§3 `feature-list` 承载的是**清单级**信息（Feature ID / 名称 / 类型 / 状态 / 版本归属），用于承接 `.sddu/specs-tree-root/`；**明细级**信息（实现细节、任务清单、覆盖率、代码级盘点）一律排除（见上表）。二者不得混淆——清单可写，明细越界即外移。
+> **清单 ≠ 明细**：§3 `feature-list` 承载的是**清单级**信息（Feature ID / 名称 / 类型 / 状态 / 版本归属），用于承接 `.sddu/workspace/specs-tree-root/`；**明细级**信息（实现细节、任务清单、覆盖率、代码级盘点）一律排除（见上表）。二者不得混淆——清单可写，明细越界即外移。
 
 > **项目级待办承载规则（G-A）**：项目级非 Feature 待办（技术债 / 文档配置 / 增强类 backlog）**由 roadmap 自身承载**，落在 §4 问题清单 + §7 问题详情（`类型` = `技术债` / `文档债`），**不再外移**给任何承接方（`@sddu-docs` 只聚合**现状**，不承载待办）。**粒度 = 问题条目**：一行一项、可直接处置，可含简短标识，但**禁止**扩展为多列台账表（不列负责人 / 工时 / 优先级矩阵等）。本规则管的是「**待做之事**」，与「现状审计 / 文件覆盖率 / 全量审计 / 代码级盘点」（描述**现状**，仍归 `@sddu-docs`）**明确区分**。
 
@@ -455,8 +455,8 @@ ENTRY_ID    ::= 渲染后不含空格 / 引号 / 斜杠的稳定键
 | v3.1.0 | roadmap 并入统一模板逻辑：§1 边界笔误修正；§5 删除内联格式骨架（📊 输出格式 / 版本规划示例）并新增 §5.4 增量合并机制（Step A–D）/ §5.5 内容准入与精简约束 / §5.6 风险提示与建议 / §5.7 生成后自检清单；§6 改为统一两级模板查找（用户自定义优先 > 插件内置兜底）；§7 追加规则 5–8；§8 追加异常处置 4 行并改写既有产物行 | 2026-09-22 | SDDU Team |
 | v3.1.1 | post-validation 修复（G1~G4）：**G1** §5.5 排除内容表增补「项目级非 Feature 待办（技术债 / 文档配置 / 增强类 backlog）」行，指定承接方 `@sddu-docs` 并补「next-actions 指针规则」（不承载明细、必留指针）；**G2** §5.4.4 Step C3 结构校验由 4 项扩为 8 项（新增：无 `<<…>>` 占位符残留 / 无非 `sddu:` 注释残留 / 表格单元格非空且无注释 / `version-overview` 行序单调）；**G4** §5.5 新增「版本号语义」小节，区分发布版本号与 Feature `state.json.version` 两套口径并规定排序一致性；**同步** §5.7 自检清单补齐对应 4 项勾选、输出模板 7 行填写说明改为非 `sddu:` 编写期注释消除泄漏路径（G3） | 2026-09-23 | SDDU Team |
 | v3.1.2 | post-validation 结构级修复（R3）— 新增第 8 个 H2「特性索引」：§5.5 结构与篇幅由「固定 7 个 H2」改为 8 个（列举 8 章节名，「修订记录」恒为末位；H2 ≤ 8 上限不变，现为恰好 8）、准入内容增列「特性索引」、排除内容表新增「逐 Feature 明细表」行并补「索引 ≠ 明细」说明、新增「特性索引语义（`feature-index`）」小节（数据来源 / 缺失字段推断规则 / 排序依据 / Feature 引用锚点 / 边界）；§5.4.1 重写区由 5 个改为 6 个（加入 `feature-index`）；§5.4.4 C1 重写区清单加入 `feature-index`、C3-① 由「7 个」改为「8 个」、C3-② ZONE 配对计数同步为 9（6+3）；§5.7 自检第 2 项改为 8 个 H2 并明确「含特性索引、不含明细」；§1 职责边界为「特性清单」补承载位交叉引用；输出模板同步（新增章节 + `feature-index` zone + 尾部 NOTE 7→8）；`version-plan` 关键特性引用补 specs-tree 目录锚点；spec 新增 SUP-002 修订 FR-003 7→8；新建 ADR-004 | 2026-09-23 | SDDU Team |
-| v3.1.4 | post-validation 修复（R5）— **G-F 回退**：将 `src/templates/agents/sddu-docs.md.hbs` §8.1 边界表的 roadmap 落盘路径由 `.sddu/ROADMAP.md` 回退为基线原值 `.sddu/specs-tree-root/ROADMAP.md`，使该文件相对基线零 diff，本 Feature 变更集恢复为 **2 个 src 文件**（NFR-003 / NFR-008 合规恢复）；该路径笔误（应为 `.sddu/ROADMAP.md`）作为**独立待办**登记（属 `sddu-docs` 范畴，不在本 Feature 范围，未修复）。**一致性残留清理**：N-6 §5.4.1「与标题解耦」行补 `meta` zone 例外（文件级元数据头，位于 H1 之下、首个 H2 之上，不隶属任何 H2）；N-7 §5.4.1 `ENTRY_ID` 语法为「非版本类 entry」留出明确例外（版本类取版本号 / 非版本类取语义稳定分类键，如 `unplanned` 提案池），并新增「entry 键稳定性」规则行。同步：`spec.md` FR-003 骨架表回填「特性索引」（7→8）+ OP-001、`plan.md` 旧计数校正与模板计数口径统一、`review.md` C3/C4 与 `validate-report.md` 结构计数复判更新、`state.json` R5 记录、`build.md` §11、`review-report.md` §11 | 2026-09-24 | SDDU Team |
-| v3.1.3 | post-validation 修复（R4）— **G-A** backlog 承接修正：删除 §5.5 排除内容表中「项目级非 Feature 待办」外移给 `@sddu-docs` 的**悬空指针行**（`@sddu-docs` 无 backlog 产物），改写「`next-actions` 指针规则」为「**项目级待办承载规则**」（由 roadmap 自身以**行动项粒度**承载、禁止多列台账表、与 `@sddu-docs` 现状描述明确区分、超 400 行提示收敛），准入内容增列「项目级待办（以行动项粒度）」；**G-B** 补「待用户决策项」作为 `next-actions` 子类的承载契约（措辞可区分，如「确认…」「决定…」）；**R-1** 未立项提案锚点义务豁免（须就地标注「无 specs-tree 目录」）；**R-2** 锚点义务适用范围（`version-plan` 关键特性 / 里程碑强制、其余章节建议、`feature-index` 以目录列承担）；**R-3** `版本归属` 取值链 顶层 `version` > `metadata.version` > 「不适用」并标注来源；**R-4** `featureId` 别名回退顺序 `featureId` > `feature_id` > `metadata.featureId` > `feature` 与 ID 形态判定（`specs-tree-skill-system` 取 `FR-SKILL-001（feature）`，**不再**误推断为 `FR-SKILL-SYSTEM`）；同步 §5.7 自检 2 项；**G-F** 修正 `sddu-docs.md.hbs` §8.1 roadmap 落盘路径 `.sddu/specs-tree-root/ROADMAP.md` → `.sddu/ROADMAP.md` | 2026-09-23 | SDDU Team |
+| v3.1.4 | post-validation 修复（R5）— **G-F 回退**：将 `src/templates/agents/sddu-docs.md.hbs` §8.1 边界表的 roadmap 落盘路径由 `.sddu/ROADMAP.md` 回退为基线原值 `.sddu/workspace/specs-tree-root/ROADMAP.md`，使该文件相对基线零 diff，本 Feature 变更集恢复为 **2 个 src 文件**（NFR-003 / NFR-008 合规恢复）；该路径笔误（应为 `.sddu/ROADMAP.md`）作为**独立待办**登记（属 `sddu-docs` 范畴，不在本 Feature 范围，未修复）。**一致性残留清理**：N-6 §5.4.1「与标题解耦」行补 `meta` zone 例外（文件级元数据头，位于 H1 之下、首个 H2 之上，不隶属任何 H2）；N-7 §5.4.1 `ENTRY_ID` 语法为「非版本类 entry」留出明确例外（版本类取版本号 / 非版本类取语义稳定分类键，如 `unplanned` 提案池），并新增「entry 键稳定性」规则行。同步：`spec.md` FR-003 骨架表回填「特性索引」（7→8）+ OP-001、`plan.md` 旧计数校正与模板计数口径统一、`review.md` C3/C4 与 `validate-report.md` 结构计数复判更新、`state.json` R5 记录、`build.md` §11、`review-report.md` §11 | 2026-09-24 | SDDU Team |
+| v3.1.3 | post-validation 修复（R4）— **G-A** backlog 承接修正：删除 §5.5 排除内容表中「项目级非 Feature 待办」外移给 `@sddu-docs` 的**悬空指针行**（`@sddu-docs` 无 backlog 产物），改写「`next-actions` 指针规则」为「**项目级待办承载规则**」（由 roadmap 自身以**行动项粒度**承载、禁止多列台账表、与 `@sddu-docs` 现状描述明确区分、超 400 行提示收敛），准入内容增列「项目级待办（以行动项粒度）」；**G-B** 补「待用户决策项」作为 `next-actions` 子类的承载契约（措辞可区分，如「确认…」「决定…」）；**R-1** 未立项提案锚点义务豁免（须就地标注「无 specs-tree 目录」）；**R-2** 锚点义务适用范围（`version-plan` 关键特性 / 里程碑强制、其余章节建议、`feature-index` 以目录列承担）；**R-3** `版本归属` 取值链 顶层 `version` > `metadata.version` > 「不适用」并标注来源；**R-4** `featureId` 别名回退顺序 `featureId` > `feature_id` > `metadata.featureId` > `feature` 与 ID 形态判定（`specs-tree-skill-system` 取 `FR-SKILL-001（feature）`，**不再**误推断为 `FR-SKILL-SYSTEM`）；同步 §5.7 自检 2 项；**G-F** 修正 `sddu-docs.md.hbs` §8.1 roadmap 落盘路径 `.sddu/workspace/specs-tree-root/ROADMAP.md` → `.sddu/ROADMAP.md` | 2026-09-23 | SDDU Team |
 | v3.2.0 | 结构重构：概览/详情分层（清单层+详情层）、依赖风险融入三主体、每章章首 Mermaid 图、RICE 淘汰改 P0-P2、问题登记制 P-ID/提案 PR-xxx | 2026-09-24 | SDDU Team |
 | v3.2.1 | 修复：表格类 preserve 区（问题清单/修订记录）改行自然键合并，消除 entry 注释截断 GFM 表格的回归；产物行数预算 450→600 | 2026-09-24 | SDDU Team |
 
