@@ -50,7 +50,7 @@ Wave 4 ─── (依赖 Wave 3)
 | **执行波次** | 1 |
 | **对应 FR** | FR-001, FR-003 |
 
-**描述**: 产出唯一权威内核 `.sddu/.sddu/sddu.md`（随模板落位 `sddu-project-template/.sddu/.sddu/sddu.md`）。内容覆盖四要素（7 阶段流程 / 三原则 / 两字段状态模型 / 各阶段文档契约）+ 头部版本字段（唯一版本源）+ 路由表 + 门禁/状态协议 + 读取规则。**蒸馏底稿 = ADR-021 九条（A1~A9）+ ADR-026 标记命令族与仪表盘协议**，以 `machine.ts` / `schema-v3.0.0.ts` / `sddu.md.hbs` 路由段为底稿逐条比对（不凭记忆重写）。字段契约 = ADR-005 十二字段（feature/featureId/name/version/phase/status/depth/childrens/phaseHistory/description + dependencies[ADR-016] + suspendedUntil/mergedInto[ADR-026]）。**排除项不写**：文件反推（ADR-018）、隐式修复（ADR-019）、files 注册（ADR-017）、API 缓存门禁（ADR-015）。零平台特定事实（NFR-001 关键词扫描通过）。
+**描述**: 产出唯一权威内核 `.sddu/.sddu/sddu.md`（随模板落位 `sddu-project-template/.sddu/.sddu/sddu.md`）。内容覆盖四要素（7 阶段流程 / 三原则 / 两字段状态模型 / 各阶段文档契约）+ 头部版本字段（唯一版本源）+ 路由表 + 门禁/状态协议 + 读取规则。**蒸馏底稿 = ADR-021 九条（A1~A9）+ ADR-026 标记命令族与仪表盘协议 + ADR-028 二维时序（review/validate 策略 vs 报告分离）**，以 `machine.ts` / `schema-v3.0.0.ts` / `sddu.md.hbs` 路由段为底稿逐条比对（不凭记忆重写）。字段契约 = ADR-005 十二字段（feature/featureId/name/version/phase/status/depth/childrens/phaseHistory/description + dependencies[ADR-016] + suspendedUntil/mergedInto[ADR-026]）。**排除项不写**：文件反推（ADR-018）、隐式修复（ADR-019）、files 注册（ADR-017）、API 缓存门禁（ADR-015）。零平台特定事实（NFR-001 关键词扫描通过）。
 
 **涉及文件**:
 

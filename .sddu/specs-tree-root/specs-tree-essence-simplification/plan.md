@@ -4,10 +4,10 @@
 > **前置依赖**: spec.md（需求规范：8 FR / 7 NFR / 7 EC）  
 > **创建人**: SDDU Plan Agent  
 > **创建时间**: 2026-11-22  
-> **版本**: v5.40  
+> **版本**: v5.41  
 > **更新人**: SDDU Plan Agent  
-> **更新时间**: 2026-11-24  
-> **更新说明**: 排查 B5 判非问题：根 docs/ 为项目私有资产（早期开发调研文档），与 sddu 产品无关——产品边界外无需处理；FR-004 文档集三项闭环；能力丢失排查 23 项全部收束（ADR-015~027 ×13）；产出 ADR-027
+> **更新时间**: 2026-11-25  
+> **更新说明**: 补 review/validate 二维时序：策略文档（review.md/validate.md）与报告文档（review-report/validate-report）分离，语义蒸馏进 sddu.md；产出本 Feature 策略文档；产出 ADR-028
 
 ## 1. 前置检查
 > 启动技术规划前必须验证的前置条件
@@ -268,6 +268,7 @@ sddu/                                        # 仓库根
 | ADR-025 | opencode-operator 降级为项目自有 skill——非 sddu 产品的一部分（能力丢失排查 L1，与 dev-guide 同构） | PROPOSED |
 | ADR-026 | 标记命令族与仪表盘语义按现状设计保留——全量蒸馏进 sddu.md（能力丢失排查 L8） | PROPOSED |
 | ADR-027 | 根 docs/ 为项目私有资产——产品边界之外，无需处理（能力丢失排查 B5） | PROPOSED |
+| ADR-028 | review/validate 二维时序——策略文档与报告文档分离，纳入 sddu.md 蒸馏范围 | PROPOSED |
 
 ## 8. 修订记录
 > 记录本文档的版本变更历史
@@ -314,6 +315,7 @@ sddu/                                        # 仓库根
 | v5.14 | 用户拍板改名 workspace 用户个性化目录 `workspace/sddu/` → `workspace/sddu-config/`（消除与本体 `.sddu/sddu/` 同名歧义——评估结论「不足1」）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.23 | 2026-11-23 | SDDU Plan Agent |
 | v5.15 | 用户拍板用户个性化目录加 `.` 前缀：`workspace/sddu-config/` → `workspace/.sddu-config/`（仍在 workspace 用户空间内，非提升层级；`.sddu-config` 排序靠前）；§5.1 workspace 子树 + 入口读取规则 + §2 组件 4 同步；spec 同步 v1.24 | 2026-11-23 | SDDU Plan Agent |
 | v5.16 | 用户拍板本体目录加 `.` 前缀：`.sddu/sddu/` → `.sddu/.sddu/`（点前缀排序靠前）；§5.1 树 / §2 组件 / §5.2 路径 / 原则 1「.sddu/workspace 二分」/ 入口读取规则同步；spec 同步 v1.25 | 2026-11-23 | SDDU Plan Agent |
+| v5.41 | 补 **review/validate 二维时序**（用户拍板）：策略文档（review.md/validate.md，定义一次、plan 后即可产出、不推进 phase）与报告文档（review-report/validate-report，build 后每轮执行）分离——语义蒸馏进 sddu.md 路由表 + 读取规则（底稿 = 旧 router §3/§6.6）；本 Feature 产出 review.md（C1~CN 15 条）+ validate.md（V1~VN 11 条）策略文档；TASK-001 蒸馏范围扩展；产出 ADR-028 | 2026-11-25 | SDDU Plan Agent |
 | v5.40 | 排查 **B5 判非问题**：根 docs/（16 文件）为**项目私有资产**——早期为开发 sddu 框架做的调研文档，与交付给用户的 sddu 产品没有任何关系（仓库即项目，项目自有 docs 天经地义，如用户项目加 docs-xxx 产品无权干涉）；**无需处理**（原地保留、不进 carrier-inventory）；FR-004 文档集三项闭环（README=ADR-013/根 docs/=本 ADR/.sddu/docs=既有拍板）；与 ADR-024/025 共同落位产品/项目边界第四块拼图；**能力丢失排查 23 项全部收束（ADR-015~027）**；产出 ADR-027 | 2026-11-24 | SDDU Plan Agent |
 | v5.39 | 排查 **L8 按现状设计保留**：标记命令族（--until/--note/--into + 不可逆二次确认）与仪表盘五组语义（6 区分类 / 停滞检测+到期提醒+merged 目标检查 / 子随父归 / 下一步推荐）**全量蒸馏进 sddu.md**（标记→状态协议段、仪表盘→读取规则段）；三处同步退化为单处写 feature state.md（随 ADR-008/010）；停滞检测由 phaseHistory 末条现算（零存储）；ADR-005 字段契约十→**十二字段**（+suspendedUntil/mergedInto 条件性伴随，note 进正文）；TASK-002 底稿范围扩展（新增两组语义）；产出 ADR-026 | 2026-11-24 | SDDU Plan Agent |
 | v5.38 | 排查 **L1 裁决降级迁移**：opencode-operator 退化到 **`.agents/skills/opencode-operator/`**——与 dev-guide（ADR-024）同构：作为本项目自己的 skill，不作为 sddu 产品的一部分（模板不含；opencode 平台专属 + 非方法论内核，产品面双维否决）；**src/ DELETE 伞形范围唯一 MOVE 例外**（src/skills/builtin/opencode-operator/ 迁出，其余照删）；commander 私有依赖随目录自包含（产品零 npm 不受影响）；产出 ADR-025 | 2026-11-24 | SDDU Plan Agent |
