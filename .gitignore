@@ -1,14 +1,8 @@
-# Build output
-dist/
-
-# Dependencies
-node_modules/
-
-# Logs
+# 日志
 *.log
 npm-debug.log*
 
-# OS files
+# 操作系统文件
 .DS_Store
 Thumbs.db
 
@@ -18,15 +12,9 @@ Thumbs.db
 *.swp
 *.swo
 
-# Temporary files
+# 临时文件
 *.tmp
 *.temp
 
-# OpenCode SDD Plugin 安装文件（不应提交）
-.opencode/
-
-# dsh Skill 安装产物（不应提交，由 install-dsh.sh 生成）
-.dsh/
-
-# Test coverage reports (generated artifacts)
+# 覆盖报告（生成产物）
 coverage/
